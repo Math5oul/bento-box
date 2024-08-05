@@ -1,0 +1,40 @@
+<section>
+  <div class="bento-container" #bentoContainer>
+    @for (item of data; track item) {
+    <div
+      class="bento-item"
+      [ngStyle]="{
+        'max-width.px': item.width,
+        'height.px': item.height,
+        'background-color': item.backgroundColor,
+        'grid-column': 'span ' + item.colSpan,
+        'grid-row': 'span ' + item.rowSpan
+      }"
+      #bentoItem
+    >
+      {{ item.id }}
+
+    </div>
+    }
+
+    @for (item of fillerItens; track item) {
+
+      <div
+      class="bento-item__filler"
+      [ngStyle]="{
+        'max-width.px': item.width,
+        'height.px': item.height,
+        'background-color': item.backgroundColor,
+        'grid-column-start': item.col + 1,
+        'grid-column-end': 'span ' + item.colSpan,
+        'grid-row-start': item.row + 1,
+        'grid-row-end': 'span ' + item.rowSpan
+      }"
+    >
+      {{ item.id }}
+      FILLER
+    </div>
+
+    }
+  </div>
+</section>
