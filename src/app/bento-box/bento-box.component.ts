@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  OnInit,
   QueryList,
   ViewChild,
   ViewChildren
@@ -23,7 +24,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
-export class BentoBoxComponent implements AfterViewInit {
+export class BentoBoxComponent implements OnInit, AfterViewInit {
 
   /**
    * Dados dos itens da grade.
@@ -101,6 +102,11 @@ export class BentoBoxComponent implements AfterViewInit {
    * @param cdr Referência ao ChangeDetectorRef.
    */
   constructor(private cdr: ChangeDetectorRef) { }
+
+  ngOnInit(): void {
+    //this.bento.style.maxWidth = `${this.cellSize * this.colAmount} + 'px'`;
+    //this.bento.style.width = '100%';
+  }
 
   /**
    * Método chamado quando a janela é redimensionada.
