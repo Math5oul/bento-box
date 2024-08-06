@@ -1,14 +1,12 @@
 section {
-  max-width: 100%;
-  margin: 0 auto;
-  width: calc(160px * 9);
+  max-width: calc(160px * 9);
+  width: 100%;
 }
 
 .bento-container {
-  margin-inline: 0;
-  padding-inline: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 160px));
+  max-width: 100%;
   grid-auto-rows: repeat(auto-fit, minmax(160px, 1fr));
 }
 

@@ -9,8 +9,12 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
+import { debounceTime, Subject } from 'rxjs';
 import { GridItem } from './bento-box.interface';
 
+/**
+ * Componente responsável por renderizar uma grade de itens.
+ */
 @Component({
   selector: 'app-bento-box',
   standalone: true,
@@ -19,13 +23,41 @@ import { GridItem } from './bento-box.interface';
   styleUrls: ['./bento-box.component.scss'],
 })
 export class BentoBoxComponent implements AfterViewInit {
+
+  /**
+   * Dados dos itens da grade.
+   * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
+   */
+  public data!: GridItem[];
+
+  /**
+   * Referência ao elemento do container da grade.
+   */
   @ViewChild('bentoContainer') bentoContainer!: ElementRef;
+
+  /**
+   * Lista de referências aos elementos dos itens da grade.
+   */
   @ViewChildren('bentoItem') bentoItems!: QueryList<ElementRef>;
 
-  public data!: GridItem[];
-  emptyCells: { row: number; col: number }[] = [];
+  /**
+   * Sujeito responsável por gerenciar o redimensionamento da janela.
+   */
+  private resizeSubject = new Subject<void>();
+
+  /**
+   * Lista de células vazias da grade.
+   */
+  private emptyCells: { row: number; col: number }[] = [];
+
+  /**
+   * Lista de itens de preenchimento da grade.
+   */
   public fillerItens!: GridItem[];
 
+  /**
+   * Espaços vazios da grade, agrupados por tamanho.
+   */
   emptySpaces: { [key: string]: { row: number; col: number }[] } = {
     '2x2': [],
     '2x1': [],
@@ -33,46 +65,81 @@ export class BentoBoxComponent implements AfterViewInit {
     '1x1': [],
   };
 
+  /**
+   * Grade de booleanos que representa a ocupação das células.
+   */
   private grid!: boolean[][];
-  private cellSize: number = 160;
+
+  /**
+   * Indica se os itens filler devem ser criados.
+   */
+  private createFillers: boolean = true;
+
+  /**
+   * Número de colunas da grade.
+   */
   private currentColumns: number = 0;
-  private currentRows: number = 0;
 
+  /**
+   * Tamanho das células da grade.
+   */
+  public cellSize: number = 160;
 
+  /**
+   * Construtor do componente.
+   * @param cdr Referência ao ChangeDetectorRef.
+   */
   constructor(private cdr: ChangeDetectorRef) {
     this.generateData();
   }
 
+  /**
+   * Método chamado quando a janela é redimensionada.
+   * @param event Evento de redimensionamento.
+   */
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
+    this.fillerItens = [];
     this.getGrid();
-    this.cdr.detectChanges();
+    this.resizeSubject.next();
   }
 
+  /**
+   * Método chamado após a inicialização do componente.
+   */
   ngAfterViewInit() {
+    this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
+      this.generateFillerItems();
+    });
     this.getGrid();
   }
 
+  /**
+   * Obtém a grade de itens e atualiza as variáveis de estado.
+   */
   getGrid() {
     const containerWidth = this.bentoContainer.nativeElement.offsetWidth;
     const containerHeight = this.bentoContainer.nativeElement.offsetHeight;
     const columns = Math.floor(containerWidth / this.cellSize);
     const rows = Math.floor(containerHeight / this.cellSize);
 
-    if (columns !== this.currentColumns || rows !== this.currentRows ) {
-      this.fillerItens=[];
+    if (columns !== this.currentColumns) {
+      this.fillerItens = [];
       this.fillGrid(columns, rows);
       this.groupEmptyCells();
       this.generateFillerItems();
       this.cdr.markForCheck();
 
       this.currentColumns = columns;
-      this.currentRows = rows;
     }
   }
 
+  /**
+   * Preenche a grade com os itens.
+   * @param columns Número de colunas da grade.
+   * @param rows Número de linhas da grade.
+   */
   fillGrid(columns: number, rows: number) {
-
     this.grid = this.initializeGrid(rows, columns);
     this.bentoItems.forEach((bentoItem: ElementRef) => {
       const rect = bentoItem.nativeElement.getBoundingClientRect();
@@ -103,6 +170,12 @@ export class BentoBoxComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Inicializa uma grade bidimensional de booleanos com o tamanho especificado.
+   * @param rows Número de linhas da grade.
+   * @param columns Número de colunas da grade.
+   * @returns A grade inicializada.
+   */
   initializeGrid(rows: number, columns: number): boolean[][] {
     const grid: boolean[][] = [];
     for (let i = 0; i < rows; i++) {
@@ -115,6 +188,10 @@ export class BentoBoxComponent implements AfterViewInit {
     return grid;
   }
 
+  /**
+   * Gera dados de exemplo para preencher a grade.
+   * DEVE SER SUBTITUIDA POR COMPONENTES PARA ENCAIXAR NA GRID SEGUINDO AS PROPORÇÕES DAS CÉLULAS
+   */
   generateData() {
     this.data = [
       {
@@ -280,8 +357,11 @@ export class BentoBoxComponent implements AfterViewInit {
     ];
   }
 
+  /**
+   * Agrupa células vazias da grade com base no seu tamanho.
+   */
   groupEmptyCells() {
-    this.emptySpaces = {}
+    this.emptySpaces = {};
     const groupedCells: { [key: string]: { row: number; col: number }[] } = {
       '2x2': [],
       '2x1': [],
@@ -350,39 +430,47 @@ export class BentoBoxComponent implements AfterViewInit {
     this.emptySpaces = groupedCells;
   }
 
+  /**
+   * Gera itens 'filler' de preenchimento para a grade com base nas células vazias.
+   * DEVE SER SUBSTITUIDA POR UMA LISTA DE ITENS FILLERS QUE SERÃO SORTEADOS PARA CADA ESPAÇO
+   */
   generateFillerItems() {
-    this.fillerItens = [];
-    const shadesOfGray = ['#333333', '#666666', '#999999', '#CCCCCC'];
-    const fillerItens: {
-      id: number;
-      width: number;
-      height: number;
-      backgroundColor: string;
-      colSpan: number;
-      rowSpan: number;
-      row: number;
-      col: number;
-    }[] = [];
-    let id = this.data.length + 1;
+    if (this.createFillers) {
+      this.fillerItens = [];
+      const shadesOfGray = ['#333333', '#666666', '#999999', '#CCCCCC'];
+      const fillerItens: {
+        id: number;
+        width: number;
+        height: number;
+        backgroundColor: string;
+        colSpan: number;
+        rowSpan: number;
+        row: number;
+        col: number;
+      }[] = [];
+      let id = this.data.length + 1;
 
-    Object.keys(this.emptySpaces).forEach((size) => {
-      const [rowSpan, colSpan] = size.split('x').map(Number);
+      Object.keys(this.emptySpaces).forEach((size) => {
+        const [rowSpan, colSpan] = size.split('x').map(Number);
 
-      this.emptySpaces[size].forEach((cell) => {
-        const item = {
-          id: id++,
-          width: colSpan * this.cellSize,
-          height: rowSpan * this.cellSize,
-          backgroundColor: shadesOfGray[id % shadesOfGray.length],
-          colSpan,
-          rowSpan,
-          row: cell.row,
-          col: cell.col,
-        };
-        fillerItens.push(item);
+        this.emptySpaces[size].forEach((cell) => {
+          const item = {
+            id: id++,
+            width: colSpan * this.cellSize,
+            height: rowSpan * this.cellSize,
+            backgroundColor: shadesOfGray[id % shadesOfGray.length],
+            colSpan,
+            rowSpan,
+            row: cell.row,
+            col: cell.col,
+          };
+          fillerItens.push(item);
+        });
       });
-    });
 
-    this.fillerItens = fillerItens;
+      this.fillerItens = fillerItens;
+    } else {
+      this.fillerItens = [];
+    }
   }
 }
