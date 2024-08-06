@@ -1,11 +1,11 @@
-<section>
+<section class="bento">
   <div class="bento-container" #bentoContainer>
     @for (item of data; track item) {
     <div
       class="bento-item"
       [ngStyle]="{
-        'width.px': item.width,
-        'height.px': item.height,
+        'width.px': item.colSpan * cellSize,
+        'height.px': item.rowSpan * cellSize,
         'background-color': item.backgroundColor,
         'grid-column': 'span ' + item.colSpan,
         'grid-row': 'span ' + item.rowSpan
@@ -22,14 +22,15 @@
       <div
       class="bento-item__filler"
       [ngStyle]="{
-        'width.px': item.width,
-        'height.px': item.height,
+        'width.px': item.colSpan * cellSize,
+        'height.px': item.rowSpan * cellSize,
         'background-color': item.backgroundColor,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan
       }"
+      #bentoItemFiller
     >
       {{ item.id }}
       FILLER

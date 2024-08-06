@@ -7,10 +7,11 @@ import {
   HostListener,
   QueryList,
   ViewChild,
-  ViewChildren,
+  ViewChildren
 } from '@angular/core';
 import { debounceTime, Subject } from 'rxjs';
-import { GridItem } from './bento-box.interface';
+import { data } from '../data/bento-itens';
+import { GridItem } from '../interfaces/bento-box.interface';
 
 /**
  * Componente responsável por renderizar uma grade de itens.
@@ -28,12 +29,17 @@ export class BentoBoxComponent implements AfterViewInit {
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
-  public data!: GridItem[];
+  public data: GridItem[] = data;
 
   /**
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bentoContainer') bentoContainer!: ElementRef;
+
+  /**
+   * Referência ao elemento do container da grade.
+   */
+  @ViewChild('bento') bento!: HTMLElement;
 
   /**
    * Lista de referências aos elementos dos itens da grade.
@@ -86,12 +92,15 @@ export class BentoBoxComponent implements AfterViewInit {
   public cellSize: number = 160;
 
   /**
+   * Número de colunas da grade.
+   */
+  public colAmount: number = 9;
+
+  /**
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private cdr: ChangeDetectorRef) {
-    this.generateData();
-  }
+  constructor(private cdr: ChangeDetectorRef) { }
 
   /**
    * Método chamado quando a janela é redimensionada.
@@ -186,175 +195,6 @@ export class BentoBoxComponent implements AfterViewInit {
       grid.push(row);
     }
     return grid;
-  }
-
-  /**
-   * Gera dados de exemplo para preencher a grade.
-   * DEVE SER SUBTITUIDA POR COMPONENTES PARA ENCAIXAR NA GRID SEGUINDO AS PROPORÇÕES DAS CÉLULAS
-   */
-  generateData() {
-    this.data = [
-      {
-        id: 1,
-        width: 320,
-        height: 320,
-        backgroundColor: '#33FF57',
-        colSpan: 2,
-        rowSpan: 2,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 2,
-        width: 160,
-        height: 160,
-        backgroundColor: '#3357FF',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 3,
-        width: 320,
-        height: 160,
-        backgroundColor: '#FF33A1',
-        colSpan: 2,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 4,
-        width: 160,
-        height: 160,
-        backgroundColor: '#A133FF',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 5,
-        width: 160,
-        height: 160,
-        backgroundColor: '#33FFF5',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 6,
-        width: 160,
-        height: 320,
-        backgroundColor: '#FF5733',
-        colSpan: 1,
-        rowSpan: 2,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 7,
-        width: 160,
-        height: 160,
-        backgroundColor: '#33FF57',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 8,
-        width: 160,
-        height: 160,
-        backgroundColor: '#3357FF',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 9,
-        width: 160,
-        height: 160,
-        backgroundColor: '#FF33A1',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 10,
-        width: 160,
-        height: 160,
-        backgroundColor: '#A133FF',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 11,
-        width: 160,
-        height: 160,
-        backgroundColor: '#33FFF5',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 12,
-        width: 320,
-        height: 160,
-        backgroundColor: '#FF5733',
-        colSpan: 2,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 13,
-        width: 160,
-        height: 320,
-        backgroundColor: '#33FF57',
-        colSpan: 1,
-        rowSpan: 2,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 14,
-        width: 160,
-        height: 160,
-        backgroundColor: '#FF5733',
-        colSpan: 1,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 15,
-        width: 320,
-        height: 320,
-        backgroundColor: '#3357FF',
-        colSpan: 2,
-        rowSpan: 2,
-        row: 0,
-        col: 0,
-      },
-      {
-        id: 16,
-        width: 320,
-        height: 160,
-        backgroundColor: '#FF33A1',
-        colSpan: 2,
-        rowSpan: 1,
-        row: 0,
-        col: 0,
-      },
-    ];
   }
 
   /**
