@@ -79,6 +79,20 @@ export class BentoBoxComponent {
    */
   public currentColumns: number = 0;
 
+  /**
+   * Observável que verifica redimensionamento da janela.
+   * Reseta as configurações do grid para calcular novos fillers.
+   * @param event Evento de redimensionamento.
+   */
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.fillerItens = [];
+    this.grid = [];
+    this.cdr.markForCheck();
+    this.calculateGrid();
+    this.resizeSubject.next();
+  }
+
   //Variavies de customização---------------------------------
 
   /**
@@ -92,52 +106,54 @@ export class BentoBoxComponent {
   public cellSize: number = 160;
 
   /**
-   * Construtor do componente.
-   * @param cdr Referência ao ChangeDetectorRef.
+   * Número máximo de colunas.
    */
-  constructor(private cdr: ChangeDetectorRef) {}
+  private maxCols: number = 9;
 
   /**
-   * Método chamado quando a janela é redimensionada.
-   * @param event Evento de redimensionamento.
+   * Construtor do componente.
+   * Atribuidor da função do resize
+   * @param cdr Referência ao ChangeDetectorRef.
    */
-  @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
-    this.fillerItens = [];
-    this.getGrid();
-    this.resizeSubject.next();
+  constructor(private cdr: ChangeDetectorRef) {
+    this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
+      this.generateFillerItems();
+      cdr.detectChanges();
+    });
   }
 
   /**
    * Método chamado após a inicialização do componente.
    */
   ngAfterViewInit(): void {
-    this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
-      this.generateFillerItems();
-    });
-    this.getGrid();
+    this.calculateGrid();
   }
 
   /**
-   * Obtém a grade de itens e atualiza as variáveis de estado.
+   * Calcula o tamanho do container do grid e seta o estilo
    */
-  getGrid() {
+  calculateGrid() {
     const containerWidth = this.bento.nativeElement.offsetWidth;
+    const columns = Math.min(
+      Math.floor(containerWidth / this.cellSize),
+      this.maxCols
+    );
     const containerHeight = this.bento.nativeElement.offsetHeight;
-    const columns = Math.floor(containerWidth / this.cellSize);
     const rows = Math.floor(containerHeight / this.cellSize);
+
+    this.bentoContainer.nativeElement.style.width = `${
+      columns * this.cellSize
+    }px`;
 
     if (columns !== this.currentColumns) {
       this.fillerItens = [];
       this.fillGrid(columns, rows);
       this.groupEmptyCells();
       this.generateFillerItems();
-      this.cdr.markForCheck();
 
       this.currentColumns = columns;
     }
   }
-
 
   /**
    * Preenche a grade com os itens.

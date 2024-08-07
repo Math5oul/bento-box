@@ -1,15 +1,6 @@
-.section{
-  width: auto;
-}
-
-.bento {
-  margin-inline: auto;
-}
-
 .bento-container {
   display: grid;
-  width: 100%;
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 .bento-item {
