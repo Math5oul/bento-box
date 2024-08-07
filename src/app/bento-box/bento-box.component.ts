@@ -92,11 +92,6 @@ export class BentoBoxComponent {
   public cellSize: number = 160;
 
   /**
-   * Número máximo de colunas
-   */
-  public maxCols: number = 9;
-
-  /**
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
