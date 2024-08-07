@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
-  OnInit,
   QueryList,
   ViewChild,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core';
 import { debounceTime, Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
@@ -24,8 +22,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
-export class BentoBoxComponent implements OnInit, AfterViewInit {
-
+export class BentoBoxComponent {
   /**
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
@@ -35,12 +32,12 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
   /**
    * Referência ao elemento do container da grade.
    */
-  @ViewChild('bentoContainer') bentoContainer!: ElementRef;
+  @ViewChild('bento') bento!: ElementRef;
 
   /**
    * Referência ao elemento do container da grade.
    */
-  @ViewChild('bento') bento!: HTMLElement;
+  @ViewChild('bentoContainer') bentoContainer!: ElementRef;
 
   /**
    * Lista de referências aos elementos dos itens da grade.
@@ -78,14 +75,16 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
   private grid!: boolean[][];
 
   /**
+   * Número de colunas da grade.
+   */
+  public currentColumns: number = 0;
+
+  //Variavies de customização---------------------------------
+
+  /**
    * Indica se os itens filler devem ser criados.
    */
   private createFillers: boolean = true;
-
-  /**
-   * Número de colunas da grade.
-   */
-  private currentColumns: number = 0;
 
   /**
    * Tamanho das células da grade.
@@ -93,20 +92,15 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
   public cellSize: number = 160;
 
   /**
-   * Número de colunas da grade.
+   * Número máximo de colunas
    */
-  public colAmount: number = 9;
+  public maxCols: number = 9;
 
   /**
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private cdr: ChangeDetectorRef) { }
-
-  ngOnInit(): void {
-    //this.bento.style.maxWidth = `${this.cellSize * this.colAmount} + 'px'`;
-    //this.bento.style.width = '100%';
-  }
+  constructor(private cdr: ChangeDetectorRef) {}
 
   /**
    * Método chamado quando a janela é redimensionada.
@@ -122,7 +116,7 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
   /**
    * Método chamado após a inicialização do componente.
    */
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
       this.generateFillerItems();
     });
@@ -133,8 +127,8 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   getGrid() {
-    const containerWidth = this.bentoContainer.nativeElement.offsetWidth;
-    const containerHeight = this.bentoContainer.nativeElement.offsetHeight;
+    const containerWidth = this.bento.nativeElement.offsetWidth;
+    const containerHeight = this.bento.nativeElement.offsetHeight;
     const columns = Math.floor(containerWidth / this.cellSize);
     const rows = Math.floor(containerHeight / this.cellSize);
 
@@ -148,6 +142,7 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
       this.currentColumns = columns;
     }
   }
+
 
   /**
    * Preenche a grade com os itens.
@@ -207,8 +202,7 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
    * Agrupa células vazias da grade com base no seu tamanho.
    */
   groupEmptyCells() {
-    this.emptySpaces = {};
-    const groupedCells: { [key: string]: { row: number; col: number }[] } = {
+    this.emptySpaces = {
       '2x2': [],
       '2x1': [],
       '1x2': [],
@@ -226,7 +220,6 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
         continue;
       }
 
-      // Check for 2x2
       if (
         row < this.grid.length - 1 &&
         col < this.grid[0].length - 1 &&
@@ -238,42 +231,36 @@ export class BentoBoxComponent implements OnInit, AfterViewInit {
         !occupiedCells[`${row + 1},${col}`] &&
         !occupiedCells[`${row + 1},${col + 1}`]
       ) {
-        groupedCells['2x2'].push(cell);
+        this.emptySpaces['2x2'].push(cell);
         occupiedCells[key] = true;
         occupiedCells[`${row},${col + 1}`] = true;
         occupiedCells[`${row + 1},${col}`] = true;
         occupiedCells[`${row + 1},${col + 1}`] = true;
-      }
-      // Check for 2x1
-      else if (
+      } else if (
         row < this.grid.length - 1 &&
         !this.grid[row][col] &&
         !this.grid[row + 1][col] &&
         !occupiedCells[`${row + 1},${col}`]
       ) {
-        groupedCells['2x1'].push(cell);
+        this.emptySpaces['2x1'].push(cell);
         occupiedCells[key] = true;
         occupiedCells[`${row + 1},${col}`] = true;
-      }
-      // Check for 1x2
-      else if (
+      } else if (
         col < this.grid[0].length - 1 &&
         !this.grid[row][col] &&
         !this.grid[row][col + 1] &&
         !occupiedCells[`${row},${col + 1}`]
       ) {
-        groupedCells['1x2'].push(cell);
+        this.emptySpaces['1x2'].push(cell);
         occupiedCells[key] = true;
         occupiedCells[`${row},${col + 1}`] = true;
       }
       // Check for 1x1
       else {
-        groupedCells['1x1'].push(cell);
+        this.emptySpaces['1x1'].push(cell);
         occupiedCells[key] = true;
       }
     }
-
-    this.emptySpaces = groupedCells;
   }
 
   /**

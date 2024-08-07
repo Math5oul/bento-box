@@ -1,5 +1,12 @@
-<section class="bento">
-  <div class="bento-container" #bentoContainer>
+<section class="bento" #bento>
+  <div></div>
+  <div
+    class="bento-container"
+    #bentoContainer
+    [ngStyle]="{
+    'grid-template-columns': 'repeat(auto-fit, minmax(' + cellSize + 'px, ' + cellSize + 'px))',
+  }"
+  >
     @for (item of data; track item) {
     <div
       class="bento-item"
@@ -13,13 +20,10 @@
       #bentoItem
     >
       {{ item.id }}
-
     </div>
-    }
+    } @for (item of fillerItens; track item) {
 
-    @for (item of fillerItens; track item) {
-
-      <div
+    <div
       class="bento-item__filler"
       [ngStyle]="{
         'width.px': item.colSpan * cellSize,

@@ -1,12 +1,14 @@
+.section{
+  width: auto;
+}
+
 .bento {
   margin: 0 auto;
   max-width: calc(160px * 9);
-  width: 100%;
 }
 
 .bento-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 160px));
   width: 100%;
   margin: 0 auto;
 }
@@ -16,38 +18,19 @@
   border: 1px solid black;
   box-sizing: border-box;
   padding: 8px;
-}
 
-.bento-item__filler {
-  background: #f0f0f0;
-  border: 1px solid black;
-  box-sizing: border-box;
-  padding: 8px;
-  animation: fadeIn 0.5s;
-}
+  &__filler {
+    animation: fadeIn 0.5s;
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.bento-item__filler.ng-leave {
-  animation: fadeOut 0.5s;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.5);
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
   }
 }
