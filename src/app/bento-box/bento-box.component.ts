@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
   QueryList,
   ViewChild,
-  ViewChildren,
+  ViewChildren
 } from '@angular/core';
 import { debounceTime, Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
@@ -22,12 +23,22 @@ import { GridItem } from '../interfaces/bento-box.interface';
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
-export class BentoBoxComponent {
+export class BentoBoxComponent implements AfterViewInit{
   /**
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
   public data: GridItem[] = data;
+
+  /**
+   * Lista de células vazias da grade.
+   */
+  private emptyCells: { row: number; col: number }[] = [];
+
+  /**
+   * Lista de itens de preenchimento da grade.
+   */
+  public fillerItens!: GridItem[];
 
   /**
    * Referência ao elemento do container da grade.
@@ -45,19 +56,9 @@ export class BentoBoxComponent {
   @ViewChildren('bentoItem') bentoItems!: QueryList<ElementRef>;
 
   /**
-   * Sujeito responsável por gerenciar o redimensionamento da janela.
+   * Subject responsável por gerenciar o redimensionamento da janela.
    */
   private resizeSubject = new Subject<void>();
-
-  /**
-   * Lista de células vazias da grade.
-   */
-  private emptyCells: { row: number; col: number }[] = [];
-
-  /**
-   * Lista de itens de preenchimento da grade.
-   */
-  public fillerItens!: GridItem[];
 
   /**
    * Espaços vazios da grade, agrupados por tamanho.
@@ -80,15 +81,12 @@ export class BentoBoxComponent {
   public currentColumns: number = 0;
 
   /**
-   * Observável que verifica redimensionamento da janela.
-   * Reseta as configurações do grid para calcular novos fillers.
+   * Observável de quando a janela é redimensionada.
    * @param event Evento de redimensionamento.
    */
   @HostListener('window:resize', ['$event'])
-  onResize() {
+  onResize(event: Event) {
     this.fillerItens = [];
-    this.grid = [];
-    this.cdr.markForCheck();
     this.calculateGrid();
     this.resizeSubject.next();
   }
@@ -105,32 +103,31 @@ export class BentoBoxComponent {
    */
   public cellSize: number = 160;
 
-  /**
-   * Número máximo de colunas.
-   */
   private maxCols: number = 9;
 
   /**
    * Construtor do componente.
-   * Atribuidor da função do resize
    * @param cdr Referência ao ChangeDetectorRef.
    */
   constructor(private cdr: ChangeDetectorRef) {
     this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
+      this.grid = [];
+      this.emptyCells = [];
+      this.fillerItens = [];
       this.generateFillerItems();
-      cdr.detectChanges();
+      this.cdr.detectChanges();
     });
   }
 
   /**
    * Método chamado após a inicialização do componente.
    */
-  ngAfterViewInit(): void {
+  ngAfterViewInit (): void {
     this.calculateGrid();
   }
 
   /**
-   * Calcula o tamanho do container do grid e seta o estilo
+   * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGrid() {
     const containerWidth = this.bento.nativeElement.offsetWidth;
