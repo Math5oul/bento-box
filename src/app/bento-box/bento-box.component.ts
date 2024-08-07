@@ -231,6 +231,8 @@ export class BentoBoxComponent implements AfterViewInit{
       if (
         row < this.grid.length - 1 &&
         col < this.grid[0].length - 1 &&
+        this.grid[row] &&
+        this.grid[row + 1] &&
         !this.grid[row][col] &&
         !this.grid[row][col + 1] &&
         !this.grid[row + 1][col] &&
@@ -246,6 +248,8 @@ export class BentoBoxComponent implements AfterViewInit{
         occupiedCells[`${row + 1},${col + 1}`] = true;
       } else if (
         row < this.grid.length - 1 &&
+        this.grid[row] &&
+        this.grid[row + 1] &&
         !this.grid[row][col] &&
         !this.grid[row + 1][col] &&
         !occupiedCells[`${row + 1},${col}`]
@@ -255,6 +259,7 @@ export class BentoBoxComponent implements AfterViewInit{
         occupiedCells[`${row + 1},${col}`] = true;
       } else if (
         col < this.grid[0].length - 1 &&
+        this.grid[row] &&
         !this.grid[row][col] &&
         !this.grid[row][col + 1] &&
         !occupiedCells[`${row},${col + 1}`]
@@ -264,7 +269,7 @@ export class BentoBoxComponent implements AfterViewInit{
         occupiedCells[`${row},${col + 1}`] = true;
       }
       // Check for 1x1
-      else {
+      else if (this.grid[row] && !this.grid[row][col]) {
         this.emptySpaces['1x1'].push(cell);
         occupiedCells[key] = true;
       }
