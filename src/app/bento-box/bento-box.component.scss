@@ -41,8 +41,13 @@
   .input-label {
     font-weight: bold;
     display: flex;
-    flex-direction: column;
     width: 150px;
+    &.number {
+      flex-direction: column;
+    }
+    .checkbox{
+      gap:4px;
+    }
   }
 
   button {

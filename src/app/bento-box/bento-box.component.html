@@ -31,7 +31,7 @@
     >
       {{ item.id }}
       <br />
-      {{ item.row }} x {{ item.col }}
+      {{ item.row +1 }} x {{ item.col +1}}
     </div>
     } @if(createFillers) {@for (item of fillerItens; track item) {
 
@@ -50,6 +50,8 @@
     >
       {{ item.id }}
       FILLER
+      <br />
+      {{ item.row +1 }} x {{ item.col +1}}
     </div>
     }}
   </div>
@@ -57,15 +59,15 @@
 
 @if(editMode) {
 <div class="edit-bar">
-  <label class="input-label">
+  <label class="input-label number">
     Tamanho da célula:
     <input type="number" [(ngModel)]="cellSize" (input)="onCustomChange()" />
   </label>
-  <label class="input-label">
+  <label class="input-label number">
     Máximo de Colunas:
     <input type="number" [(ngModel)]="maxCols" (input)="onCustomChange()" />
   </label>
-  <label class="input-label">
+  <label class="input-label checkbox">
     Criar Fillers:
     <input
       type="checkbox"
@@ -73,7 +75,7 @@
       (change)="onCustomChange()"
     />
   </label>
-  <button [class]="mode" (click)="switchMode()">
+  <button  [class]="mode" (click)="switchMode()">
     {{ mode === "autoFill" ? "Drag" : "AutoFill" }} Mode
   </button>
 </div>

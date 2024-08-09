@@ -57,10 +57,6 @@ export class BentoBoxComponent {
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
-  /**
-   * Referência ao elemento do container da grade.
-   */
-  @ViewChild('bentoContainer') bentoContainer!: ElementRef;
 
   /**
    * Subject responsável por gerenciar o redimensionamento da janela.
