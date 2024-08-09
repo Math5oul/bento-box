@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
-import { data } from '../data/bento-itens';
+import { data2 } from '../data/bento-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
 
 /**
@@ -26,7 +26,7 @@ export class BentoBoxComponent {
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
-  public data: GridItem[] = data;
+  public data: GridItem[] = data2;
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -139,7 +139,7 @@ export class BentoBoxComponent {
    * @returns o comprimento do maior item para o grid
    */
   getMinWidth(): number {
-    return Math.max(...data.map((item) => item.colSpan));
+    return Math.max(...this.data.map((item) => item.colSpan));
   }
 
   /**
