@@ -150,6 +150,51 @@ export class BentoBoxComponent {
   }
 
   /**
+   * Empurra um novo item para o grid
+   */
+  createNewItem() {
+    const colSpanInput = prompt('Enter column span:', '1');
+    const rowSpanInput = prompt('Enter row span:', '1');
+
+    if (colSpanInput !== null && rowSpanInput !== null) {
+      const colSpan = parseInt(colSpanInput, 10);
+      const rowSpan = parseInt(rowSpanInput, 10);
+
+      if (!isNaN(colSpan) && !isNaN(rowSpan)) {
+
+        const colorOptions = [
+          '#FF5733', // Bright Orange
+          '#33FF57', // Lime Green
+          '#3357FF', // Royal Blue
+          '#FF33A6', // Hot Pink
+          '#FFC300', // Golden Yellow
+          '#900C3F', // Burgundy
+          '#581845', // Dark Purple
+          '#DAF7A6', // Light Green
+          '#C70039', // Red
+          '#1F618D', // Navy Blue
+          '#F39C12', // Orange
+          '#2ECC71'  // Emerald Green
+        ];
+        const backgroundColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+
+        const newItem: GridItem = {
+          id: this.data.length + 1,
+          backgroundColor,
+          colSpan,
+          rowSpan,
+          row: 0,
+          col: 0,
+        };
+
+        this.data.push(newItem);
+      }
+    }
+    this.calculateGridCols(this.windowWidth);
+  }
+
+
+  /**
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
