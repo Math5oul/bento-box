@@ -1,4 +1,3 @@
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -18,7 +17,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
 @Component({
   selector: 'app-bento-box',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
@@ -141,31 +140,6 @@ export class BentoBoxComponent {
     this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
     this.cellHeight = this.cellHeight !== 0 ? this.cellHeight : this.cellWidth;
     this.calculateGridCols(this.windowWidth);
-  }
-
-  onDrag(event: CdkDragDrop<any[]>) {
-    console.log(event);
-  }
-
-  isItemOverlapping(item1: GridItem, item2: GridItem): boolean {
-    if (item1 === item2) return false;
-
-    const item1Left = item1.col;
-    const item1Right = item1.col + item1.colSpan;
-    const item1Top = item1.row;
-    const item1Bottom = item1.row + item1.rowSpan;
-
-    const item2Left = item2.col;
-    const item2Right = item2.col + item2.colSpan;
-    const item2Top = item2.row;
-    const item2Bottom = item2.row + item2.rowSpan;
-
-    return (
-      item1Left < item2Right &&
-      item1Right > item2Left &&
-      item1Top < item2Bottom &&
-      item1Bottom > item2Top
-    );
   }
 
   /**

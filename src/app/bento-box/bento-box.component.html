@@ -9,9 +9,6 @@
   <div
     class="bento-container"
     #bentoContainer
-    cdkDropList
-    [cdkDropListDisabled]="mode === 'autoFill'"
-    (cdkDropListDropped)="onDrag($event)"
     [ngStyle]="{
     'grid-template-columns': 'repeat(auto-fit, minmax(' + cellWidth + 'px, ' + cellWidth + 'px))',
     'max-width': (currentCols * cellWidth) + 'px',
@@ -22,7 +19,7 @@
     <div
       cdkDrag
       class="bento-item"
-      [ngClass]="{'selected': selectedItem === item && mode === 'edit'}"
+      [ngClass]="{ selected: selectedItem === item && mode === 'edit' }"
       (click)="selectItem(item)"
       [ngStyle]="{
         'width.px': item.colSpan * cellWidth,
@@ -33,7 +30,6 @@
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan
       }"
-      cdkDragHandle
     >
       {{ item.id }}
       <br />
@@ -92,12 +88,14 @@
 
   @if(mode === "edit"){
   <div class="selected-menu">
-    <button class="delete-button" (click)="removeItem()">
-      Deletar
-    </button>
+    <button class="delete-button" (click)="removeItem()">Deletar</button>
     <div class="move-buttons">
-      <button class="move-left-button" (click)="swapItemPosition('left')"> < </button>
-      <button class="move-right-button" (click)="swapItemPosition('right')"> > </button>
+      <button class="move-left-button" (click)="swapItemPosition('left')">
+        <
+      </button>
+      <button class="move-right-button" (click)="swapItemPosition('right')">
+        >
+      </button>
     </div>
   </div>
   }
