@@ -56,7 +56,7 @@ export class BentoBoxComponent {
   /**
    * Item selecionado no modo de edição
    */
-  public selectedItem!: GridItem ;
+  public selectedItem!: GridItem;
 
   /**
    * Referência ao elemento do container da grade.
@@ -87,6 +87,11 @@ export class BentoBoxComponent {
   }
 
   /**
+   * Largura da tela
+   */
+  private windowWidth!: number;
+
+  /**
    * Modo do grid - 'autoFill' ou 'edit'
    */
   public mode: 'autoFill' | 'edit' = 'autoFill';
@@ -101,21 +106,28 @@ export class BentoBoxComponent {
    * Largura das células da grade.
    */
   public cellWidth: number = 160;
+  public _cellWidth: number = 0;
 
   /**
    * Altura das células da grade.
    */
   public cellHeight: number = 0;
+  public _cellHeight: number = 0;
 
   /**
    * Número máximo de colunas
    */
-  public maxCols: number = 9;
+  public maxCols: number = 4;
 
   /**
    * Largura máxima do Bento
    */
-  maxWidth: number = 0;
+  public maxWidth: number = 0;
+
+  /**
+   * Gap entre as células
+   */
+  public gridGap: number = 8;
 
   /**
    * Exibe a barra de edição do grid
@@ -133,12 +145,17 @@ export class BentoBoxComponent {
     });
   }
 
-  private windowWidth!: number;
-
   ngOnInit(): void {
+    this.cellWidth = this.cellWidth + 2 * this.gridGap;
+    this.cellHeight =
+      this.cellHeight !== 0
+        ? this.cellHeight + 2 * this.gridGap
+        : this.cellWidth;
+    this._cellWidth = this.cellWidth - 2 * this.gridGap;
+    this._cellHeight = this.cellHeight - 2 * this.gridGap;
+
     this.currentCols = this.maxCols;
     this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
-    this.cellHeight = this.cellHeight !== 0 ? this.cellHeight : this.cellWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
@@ -415,7 +432,8 @@ export class BentoBoxComponent {
    * Cuida das customizações em run time
    */
   onCustomChange() {
-    this.calculateGridCols(this.windowWidth);
+    this.cellWidth = this._cellWidth + 2 * this.gridGap;
+    this.cellHeight = this._cellHeight + 2 * this.gridGap;
   }
 
   /**
@@ -480,6 +498,7 @@ export class BentoBoxComponent {
       const index = this.data.indexOf(this.selectedItem);
       if (index !== -1) {
         this.data.splice(index, 1);
+        this.calculateGridCols(this.windowWidth);
       }
     } else {
       console.error('Seleciona um item para remover');
@@ -492,12 +511,20 @@ export class BentoBoxComponent {
    */
   swapItemPosition(direction: 'left' | 'right') {
     if (this.selectedItem) {
-      const index = this.data.findIndex((item) => item.id === this.selectedItem!.id);
+      const index = this.data.findIndex(
+        (item) => item.id === this.selectedItem!.id
+      );
 
       if (direction === 'left' && index > 0) {
-        [this.data[index - 1], this.data[index]] = [this.data[index], this.data[index - 1]];
+        [this.data[index - 1], this.data[index]] = [
+          this.data[index],
+          this.data[index - 1],
+        ];
       } else if (direction === 'right' && index < this.data.length - 1) {
-        [this.data[index], this.data[index + 1]] = [this.data[index + 1], this.data[index]];
+        [this.data[index], this.data[index + 1]] = [
+          this.data[index + 1],
+          this.data[index],
+        ];
       } else {
         console.error('Não há como mover o item selecionado para esta direção');
       }

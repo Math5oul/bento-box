@@ -24,16 +24,23 @@
       [ngStyle]="{
         'width.px': item.colSpan * cellWidth,
         'height.px': item.rowSpan * cellHeight,
-        'background-color': item.backgroundColor,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan
       }"
     >
-      {{ item.id }}
-      <br />
-      {{ item.row + 1 }} x {{ item.col + 1 }}
+      <div
+        [ngStyle]="{
+          'background-color': item.backgroundColor,
+          height: '-webkit-fill-available',
+          width: '-webkit-fill-available'
+        }"
+      >
+        {{ item.id }}
+        <br />
+        {{ item.row + 1 }} x {{ item.col + 1 }}
+      </div>
     </div>
     } @if(createFillers) {@for (item of fillerItens; track item) {
     <div
@@ -41,18 +48,25 @@
       [ngStyle]="{
         'width.px': item.colSpan * cellWidth,
         'height.px': item.rowSpan * cellHeight,
-        'background-color': item.backgroundColor,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan
       }"
-      cdkDragHandle
     >
-      {{ item.id }}
-      FILLER
-      <br />
-      {{ item.row + 1 }} x {{ item.col + 1 }}
+      <div
+        [ngStyle]="{
+          'background-color': item.backgroundColor,
+          height: '-webkit-fill-available',
+          width: '-webkit-fill-available'
+        }"
+      >
+        {{ item.id }}
+        <br />
+        FILLER
+        <br />
+        {{ item.row + 1 }} x {{ item.col + 1 }}
+      </div>
     </div>
 
     }}
@@ -63,11 +77,23 @@
 <div class="edit-bar">
   <label class="input-label number">
     Largura da célula:
-    <input type="number" [(ngModel)]="cellWidth" (input)="onCustomChange()" />
+    <input
+      type="number"
+      [(ngModel)]="_cellWidth"
+      (ngModelChange)="onCustomChange()"
+    />
   </label>
   <label class="input-label number">
     Altura da célula:
-    <input type="number" [(ngModel)]="cellHeight" (input)="onCustomChange()" />
+    <input
+      type="number"
+      [(ngModel)]="_cellHeight"
+      (ngModelChange)="onCustomChange()"
+    />
+  </label>
+  <label class="input-label number">
+    Gap entre as células:
+    <input type="number" [(ngModel)]="gridGap" (input)="onCustomChange()" />
   </label>
   <label class="input-label number">
     Máximo de Colunas:

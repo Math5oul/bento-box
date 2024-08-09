@@ -87,7 +87,6 @@ button.new-item {
 //Selected buttons
 
 .selected {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(50, 50, 50, 0.5);
   z-index: 1;
   filter: brightness(0.8);
 }

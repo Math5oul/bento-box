@@ -28,7 +28,7 @@ export const data: GridItem[] = [
   {
     id: 4,
     backgroundColor: '#DAF7A6', // Light Green
-    colSpan: 2,
+    colSpan: 1,
     rowSpan: 1,
     row: 0,
     col: 0,
@@ -60,38 +60,6 @@ export const data: GridItem[] = [
   {
     id: 8,
     backgroundColor: '#2ECC71', // Emerald Green
-    colSpan: 2,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 9,
-    backgroundColor: '#FFC300', // Golden Yellow
-    colSpan: 1,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 10,
-    backgroundColor: '#900C3F', // Burgundy
-    colSpan: 2,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 11,
-    backgroundColor: '#581845', // Dark Purple
-    colSpan: 1,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 12,
-    backgroundColor: '#DAF7A6', // Light Green
     colSpan: 2,
     rowSpan: 1,
     row: 0,
