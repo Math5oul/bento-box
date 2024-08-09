@@ -22,8 +22,10 @@
         'width.px': item.colSpan * cellSize,
         'height.px': item.rowSpan * cellSize,
         'background-color': item.backgroundColor,
-        'grid-column': 'span ' + item.colSpan,
-        'grid-row': 'span ' + item.rowSpan
+        'grid-column-start': item.col + 1,
+        'grid-column-end': 'span ' + item.colSpan,
+        'grid-row-start': item.row + 1,
+        'grid-row-end': 'span ' + item.rowSpan
       }"
       #bentoItem
     >
@@ -60,7 +62,7 @@
     <input type="number" [(ngModel)]="cellSize" (input)="onCustomChange()" />
   </label>
   <label class="input-label">
-    Máx Colunas:
+    Máximo de Colunas:
     <input type="number" [(ngModel)]="maxCols" (input)="onCustomChange()" />
   </label>
   <label class="input-label">

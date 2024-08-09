@@ -80,10 +80,10 @@ export class BentoBoxComponent {
     this.resizeSubject.next();
   }
 
-   /**
+  /**
    * Modo do grid - 'autoFill' ou 'drag'
    */
-   public mode: 'autoFill' | 'drag' = 'autoFill';
+  public mode: 'autoFill' | 'drag' = 'autoFill';
 
   //Variavies de customização---------------------------------
   /**
@@ -139,6 +139,14 @@ export class BentoBoxComponent {
   }
 
   /**
+   * Pega a largura minima para acomodar o grid
+   * @returns o comprimento do maior item para o grid
+   */
+  getMinWidth(): number {
+    return Math.max(...data.map((item) => item.colSpan));
+  }
+
+  /**
    * Cuida das customizações em run time
    */
   onCustomChange() {
@@ -149,12 +157,15 @@ export class BentoBoxComponent {
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
-    const columns = Math.min(
-      this.maxCols,
-      Math.floor(containerWidth / this.cellSize)
+    const columns = Math.max(
+      Math.min(this.maxCols, Math.floor(containerWidth / this.cellSize)),
+      this.getMinWidth()
     );
-    this.currentCols = columns;
+    //Calcula o número de colunas a serem exibidas,
+    //garantindo que seja entre o menor valor e o maior valor de colunas
+    //com base na largura do contêiner e no tamanho da célula.
 
+    this.currentCols = columns;
     this.initializeGrid(10, columns);
     this.fillGrid(columns);
     this.removeEmptyRows();
@@ -163,10 +174,9 @@ export class BentoBoxComponent {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
       this.generateFillerItems();
-    }else{
+    } else {
       this.fillerItens = [];
     }
-
   }
 
   /**

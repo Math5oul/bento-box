@@ -54,16 +54,16 @@
     width: 150px;
 
     &.autoFill {
-      background-color: #3D3596;
+      background-color: #d99a2d;
       &:hover {
-        background-color: darken(#3D3596, 10%);
+        background-color: darken(#d99a2d, 10%);
       }
     }
 
     &.drag {
-      background-color: #d99a2d;
+      background-color: #3d3596;
       &:hover {
-        background-color: darken(#d99a2d, 10%);
+        background-color: darken(#3d3596, 10%);
       }
     }
   }
