@@ -18,7 +18,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
 @Component({
   selector: 'app-bento-box',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule ],
+  imports: [CommonModule, FormsModule, DragDropModule],
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
@@ -62,13 +62,7 @@ export class BentoBoxComponent {
   /**
    * Referência ao elemento de item da grade.
    */
-  @ViewChild('bentoItem') bentoItem!: ElementRef
-
-
-  /**
-   * Habilitador do drag
-   */
-  private dragEnabled: boolean = false;
+  @ViewChild('bentoItem') bentoItem!: ElementRef;
 
   /**
    * Subject responsável por gerenciar o redimensionamento da janela.
@@ -133,22 +127,12 @@ export class BentoBoxComponent {
   private windowWidth!: number;
 
   ngOnInit(): void {
-    console.log(window.innerWidth)
     this.currentCols = this.maxCols;
     this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
-  /**
-   * Handler dos modos
-   */
-  switchMode() {
-    this.mode = this.mode === 'autoFill' ? 'drag' : 'autoFill';
-    this.dragEnabled = this.mode === 'drag';
-    this.calculateGridCols(this.windowWidth);
-  }
-
-  onDrag(event : CdkDragDrop<any[]>){
+  onDrag(event: CdkDragDrop<any[]>) {
     console.log(event);
   }
 
@@ -182,62 +166,9 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Cuida das customizações em run time
-   */
-  onCustomChange() {
-    this.calculateGridCols(this.windowWidth);
-  }
-
-  /**
-   * Empurra um novo item para o grid
-   */
-  createNewItem() {
-    const colSpanInput = prompt('Largura do novo item:', '1');
-    const rowSpanInput = prompt('Altura do novo item:', '1');
-
-    if (colSpanInput !== null && rowSpanInput !== null) {
-      const colSpan = parseInt(colSpanInput, 10);
-      const rowSpan = parseInt(rowSpanInput, 10);
-
-      if (!isNaN(colSpan) && !isNaN(rowSpan)) {
-
-        const colorOptions = [
-          '#FF5733', // Bright Orange
-          '#33FF57', // Lime Green
-          '#3357FF', // Royal Blue
-          '#FF33A6', // Hot Pink
-          '#FFC300', // Golden Yellow
-          '#900C3F', // Burgundy
-          '#581845', // Dark Purple
-          '#DAF7A6', // Light Green
-          '#C70039', // Red
-          '#1F618D', // Navy Blue
-          '#F39C12', // Orange
-          '#2ECC71'  // Emerald Green
-        ];
-        const backgroundColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-
-        const newItem: GridItem = {
-          id: this.data.length + 1,
-          backgroundColor,
-          colSpan,
-          rowSpan,
-          row: 0,
-          col: 0,
-        };
-        this.data.push(newItem);
-      }
-    }
-    this.calculateGridCols(this.windowWidth);
-  }
-
-
-  /**
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
-
-
     const columns = Math.max(
       Math.min(this.maxCols, Math.floor(containerWidth / this.cellSize)),
       this.getMinWidth()
@@ -246,12 +177,12 @@ export class BentoBoxComponent {
     //garantindo que seja entre o menor valor e o maior valor de colunas
     //com base na largura do contêiner e no tamanho da célula.
 
-  if (this.mode !== "drag"){
-    this.currentCols = columns;
-    this.initializeGrid(10, columns);
-    this.fillGrid(columns);
-    this.removeEmptyRows();
-  }
+    if (this.mode !== 'drag') {
+      this.currentCols = columns;
+      this.initializeGrid(10, columns);
+      this.fillGrid(columns);
+      this.removeEmptyRows();
+    }
 
     if (this.createFillers && this.mode !== 'drag') {
       this.getEmptyCells(this.grid.length, columns);
@@ -485,5 +416,80 @@ export class BentoBoxComponent {
     });
 
     this.fillerItens = fillerItens;
+  }
+
+  //TOOLBAR----------------------------------------
+
+  /**
+   * Handler dos modos
+   */
+  switchMode() {
+    this.mode = this.mode === 'autoFill' ? 'drag' : 'autoFill';
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  /**
+   * Cuida das customizações em run time
+   */
+  onCustomChange() {
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  /**
+   * Empurra um novo item para o grid
+   */
+  createNewItem() {
+    const colSpanInput = prompt('Largura do novo item:', '1');
+    const rowSpanInput = prompt('Altura do novo item:', '1');
+
+    if (colSpanInput !== null && rowSpanInput !== null) {
+      const colSpan = parseInt(colSpanInput, 10);
+      const rowSpan = parseInt(rowSpanInput, 10);
+
+      if (!isNaN(colSpan) && !isNaN(rowSpan)) {
+        const colorOptions = [
+          '#FF5733', // Bright Orange
+          '#33FF57', // Lime Green
+          '#3357FF', // Royal Blue
+          '#FF33A6', // Hot Pink
+          '#FFC300', // Golden Yellow
+          '#900C3F', // Burgundy
+          '#581845', // Dark Purple
+          '#DAF7A6', // Light Green
+          '#C70039', // Red
+          '#1F618D', // Navy Blue
+          '#F39C12', // Orange
+          '#2ECC71', // Emerald Green
+        ];
+        const backgroundColor =
+          colorOptions[Math.floor(Math.random() * colorOptions.length)];
+
+        const newItem: GridItem = {
+          id: this.data.length + 1,
+          backgroundColor,
+          colSpan,
+          rowSpan,
+          row: 0,
+          col: 0,
+        };
+        this.data.push(newItem);
+      }
+    }
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  public selectedItem!: GridItem;
+
+  selectItem(item: GridItem) {
+    if (this.mode === 'drag') {
+      this.selectedItem = item;
+    }
+  }
+
+  removeItem(item: GridItem) {
+    const index = this.data.indexOf(item);
+    if (index !== -1) {
+      this.data.splice(index, 1);
+    }
   }
 }

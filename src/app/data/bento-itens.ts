@@ -4,7 +4,7 @@ export const data: GridItem[] = [
   {
     id: 1,
     backgroundColor: '#FFC300', // Golden Yellow
-    colSpan: 1,
+    colSpan: 2,
     rowSpan: 2,
     row: 0,
     col: 0,
@@ -12,8 +12,8 @@ export const data: GridItem[] = [
   {
     id: 2,
     backgroundColor: '#900C3F', // Burgundy
-    colSpan: 2,
-    rowSpan: 1,
+    colSpan: 1,
+    rowSpan: 2,
     row: 0,
     col: 0,
   },
@@ -29,7 +29,7 @@ export const data: GridItem[] = [
     id: 4,
     backgroundColor: '#DAF7A6', // Light Green
     colSpan: 2,
-    rowSpan: 2,
+    rowSpan: 1,
     row: 0,
     col: 0,
   },

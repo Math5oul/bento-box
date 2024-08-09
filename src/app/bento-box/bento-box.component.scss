@@ -2,7 +2,8 @@
   display: grid;
 }
 
-.bento-item, .bento-item__filler {
+.bento-item,
+.bento-item__filler {
   background: transparent;
   border: none;
   box-sizing: border-box;
@@ -23,7 +24,6 @@
     }
   }
 }
-
 
 .edit-bar {
   display: flex;
@@ -46,8 +46,8 @@
     &.number {
       flex-direction: column;
     }
-    .checkbox{
-      gap:4px;
+    .checkbox {
+      gap: 4px;
     }
   }
 
@@ -82,4 +82,110 @@ button.new-item {
   }
   flex-grow: 1;
   max-width: 320px;
+}
+
+//Selected buttons
+
+.selected {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(50, 50, 50, 0.5);
+  z-index: 1;
+  filter: brightness(0.8);
+}
+
+.edit-bar {
+  display: flex;
+  max-width: 372px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px;
+  margin-inline: auto;
+
+  .input-label {
+    font-weight: bold;
+    display: flex;
+    width: 150px;
+    &.number {
+      flex-direction: column;
+    }
+    .checkbox {
+      gap: 4px;
+    }
+  }
+
+  button {
+    padding: 8px 16px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 150px;
+
+    &.autoFill {
+      background-color: #d99a2d;
+      &:hover {
+        background-color: darken(#d99a2d, 10%);
+      }
+    }
+
+    &.drag {
+      background-color: #4028a3;
+      &:hover {
+        background-color: darken(#4028a3, 10%);
+      }
+    }
+  }
+
+  button.new-item {
+    background-color: #1fb344;
+    &:hover {
+      background-color: darken(#1fb344, 10%);
+    }
+    flex-grow: 1;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .selected-menu {
+    padding: 10px;
+    border: 1px solid #4f524f;
+    margin-top: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .delete-button {
+    background-color: #cb3434;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  .move-buttons {
+    display: flex;
+    gap: 4px;
+  }
+  .move-left-button, .move-right-button {
+    background-color: #4f524f;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .move-left-button:hover, .move-right-button:hover {
+    background-color: darken(#4f524f, 10%);
+  }
 }
