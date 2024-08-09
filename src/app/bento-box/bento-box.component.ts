@@ -180,9 +180,8 @@ export class BentoBoxComponent {
     //com base na largura do contêiner e no tamanho da célula.
 
     this.currentCols = columns;
-    this.initializeGrid(10, columns);
+    this.initializeGrid(1, columns);
     this.fillGrid(columns);
-    this.removeEmptyRows();
 
     if (this.createFillers && this.mode !== 'edit') {
       this.getEmptyCells(this.grid.length, columns);
@@ -286,15 +285,6 @@ export class BentoBoxComponent {
         this.grid[i][j] = true;
       }
     }
-  }
-
-  /**
-   * Remove as linhas não usadas do grid
-   */
-  removeEmptyRows() {
-    this.grid = this.grid.filter((row) => {
-      return row.some((cell) => cell === true);
-    });
   }
 
   getEmptyCells(rows: number, columns: number) {
