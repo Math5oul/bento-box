@@ -1,9 +1,18 @@
-<section class="bento" #bento>
+<section
+  class="bento"
+  #bento
+  [ngStyle]="{
+    'max-width': maxWidth > 0 ? maxWidth + 'px' : 'none',
+    'margin-inline': 'auto'
+  }"
+>
   <div
     class="bento-container"
     #bentoContainer
     [ngStyle]="{
     'grid-template-columns': 'repeat(auto-fit, minmax(' + cellSize + 'px, ' + cellSize + 'px))',
+    'max-width': (currentCols * cellSize) + 'px',
+    'margin-inline': 'auto',
   }"
   >
     @for (item of data; track item) {
@@ -19,8 +28,8 @@
       #bentoItem
     >
       {{ item.id }}
-      <br>
-      {{ item.row }} x {{ item.col}}
+      <br />
+      {{ item.row }} x {{ item.col }}
     </div>
     } @if(createFillers) {@for (item of fillerItens; track item) {
 

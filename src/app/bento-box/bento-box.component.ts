@@ -6,7 +6,7 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { debounceTime, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
 
@@ -48,9 +48,18 @@ export class BentoBoxComponent {
   emptySpaces!: { [key: string]: { row: number; col: number }[] };
 
   /**
+   * Numéro atual de colunas
+   */
+  currentCols!: number;
+
+  /**
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
+  /**
+   * Referência ao elemento do container da grade.
+   */
+  @ViewChild('bentoContainer') bentoContainer!: ElementRef;
 
   /**
    * Subject responsável por gerenciar o redimensionamento da janela.
@@ -82,11 +91,21 @@ export class BentoBoxComponent {
   public cellSize: number = 160;
 
   /**
+   * Número máximo de colunas
+   */
+  public maxCols: number = 9;
+
+  /**
+   * Largura máxima do Bento
+   */
+  maxWidth: number = 0;
+
+  /**
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
   constructor(private cdr: ChangeDetectorRef) {
-    this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
+    this.resizeSubject.subscribe(() => {
       this.windowWidth = this.bento.nativeElement.offsetWidth;
       this.calculateGridCols(this.windowWidth);
     });
@@ -95,7 +114,8 @@ export class BentoBoxComponent {
   private windowWidth!: number;
 
   ngOnInit(): void {
-    this.windowWidth = window.innerWidth;
+    this.currentCols = this.maxCols;
+    this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
@@ -103,20 +123,26 @@ export class BentoBoxComponent {
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
-    const columns = Math.floor(containerWidth / this.cellSize);
+    const columns = Math.min(
+      this.maxCols,
+      Math.floor(containerWidth / this.cellSize)
+    );
+    this.currentCols = columns;
 
-    this.initializeGrid(100, columns);
-    this.fillGrid(100, columns);
+    this.initializeGrid(10, columns);
+    this.fillGrid(columns);
     this.removeEmptyRows();
 
-    this.getEmptyCells(this.grid.length, columns);
-    this.groupEmptyCells();
-    this.generateFillerItems();
+    if (this.createFillers) {
+      this.getEmptyCells(this.grid.length, columns);
+      this.groupEmptyCells();
+      this.generateFillerItems();
+    }
   }
 
   /**
    * Inicializa uma grade bidimensional de booleanos com o tamanho especificado
-   * com todas as cazes da grade como false.
+   * com todas as casas da grade como false.
    * @param rows Número de linhas da grade.
    * @param columns Número de colunas da grade.
    * @returns A grade inicializada.
@@ -136,14 +162,17 @@ export class BentoBoxComponent {
   /**
    * Preenche a grade com os itens.
    * @param columns Número de colunas da grade.
-   * @param rows Número de linhas da grade.
    */
-  fillGrid(rows: number, columns: number) {
+  fillGrid(columns: number) {
     let row = 0;
     let col = 0;
 
     this.data.forEach((item) => {
-      while (row < rows && col < columns) {
+      while (true) {
+        while (this.grid.length <= row + item.rowSpan - 1) {
+          this.grid.push(new Array(columns).fill(false));
+        }
+
         if (this.isItemFitting(item, row, col)) {
           item.row = row;
           item.col = col;
