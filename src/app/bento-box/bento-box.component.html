@@ -52,3 +52,27 @@
     }}
   </div>
 </section>
+
+@if(editMode) {
+<div class="edit-bar">
+  <label class="input-label">
+    Tamanho da célula:
+    <input type="number" [(ngModel)]="cellSize" (input)="onCustomChange()" />
+  </label>
+  <label class="input-label">
+    Máx Colunas:
+    <input type="number" [(ngModel)]="maxCols" (input)="onCustomChange()" />
+  </label>
+  <label class="input-label">
+    Criar Fillers:
+    <input
+      type="checkbox"
+      [(ngModel)]="createFillers"
+      (change)="onCustomChange()"
+    />
+  </label>
+  <button [class]="mode" (click)="switchMode()">
+    {{ mode === "autoFill" ? "Drag" : "AutoFill" }} Mode
+  </button>
+</div>
+}

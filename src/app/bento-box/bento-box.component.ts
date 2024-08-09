@@ -6,6 +6,7 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
@@ -16,7 +17,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
 @Component({
   selector: 'app-bento-box',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
@@ -79,6 +80,11 @@ export class BentoBoxComponent {
     this.resizeSubject.next();
   }
 
+   /**
+   * Modo do grid - 'autoFill' ou 'drag'
+   */
+   public mode: 'autoFill' | 'drag' = 'autoFill';
+
   //Variavies de customização---------------------------------
   /**
    * Indica se os itens filler devem ser criados.
@@ -101,6 +107,11 @@ export class BentoBoxComponent {
   maxWidth: number = 0;
 
   /**
+   * Exibe a barra de edição do grid
+   */
+  public editMode: boolean = true;
+
+  /**
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
@@ -120,6 +131,21 @@ export class BentoBoxComponent {
   }
 
   /**
+   * Handler dos modos
+   */
+  switchMode() {
+    this.mode = this.mode === 'autoFill' ? 'drag' : 'autoFill';
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  /**
+   * Cuida das customizações em run time
+   */
+  onCustomChange() {
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  /**
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
@@ -133,11 +159,14 @@ export class BentoBoxComponent {
     this.fillGrid(columns);
     this.removeEmptyRows();
 
-    if (this.createFillers) {
+    if (this.createFillers && this.mode !== 'drag') {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
       this.generateFillerItems();
+    }else{
+      this.fillerItens = [];
     }
+
   }
 
   /**
@@ -205,14 +234,14 @@ export class BentoBoxComponent {
    * @returns True / false se o item cabe
    */
   isItemFitting(item: GridItem, row: number, col: number): boolean {
-    // Check for overflow
+    // Check overflow
     if (
       row + item.rowSpan > this.grid.length ||
       col + item.colSpan > this.grid[0].length
     ) {
       return false;
     }
-    // Check each cell
+    // Check cada celula
     for (let i = row; i < row + item.rowSpan; i++) {
       for (let j = col; j < col + item.colSpan; j++) {
         if (this.grid[i][j]) {
