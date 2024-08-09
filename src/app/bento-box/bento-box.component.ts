@@ -434,6 +434,7 @@ export class BentoBoxComponent {
   onCustomChange() {
     this.cellWidth = this._cellWidth + 2 * this.gridGap;
     this.cellHeight = this._cellHeight + 2 * this.gridGap;
+    this.calculateGridCols(this.windowWidth);
   }
 
   /**

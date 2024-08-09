@@ -17,7 +17,6 @@
   >
     @for (item of data; track item) {
     <div
-      cdkDrag
       class="bento-item"
       [ngClass]="{ selected: selectedItem === item && mode === 'edit' }"
       (click)="selectItem(item)"
@@ -27,7 +26,8 @@
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
-        'grid-row-end': 'span ' + item.rowSpan
+        'grid-row-end': 'span ' + item.rowSpan,
+        'padding': gridGap + 'px'
       }"
     >
       <div
@@ -51,7 +51,8 @@
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
-        'grid-row-end': 'span ' + item.rowSpan
+        'grid-row-end': 'span ' + item.rowSpan,
+        'padding': gridGap + 'px'
       }"
     >
       <div
