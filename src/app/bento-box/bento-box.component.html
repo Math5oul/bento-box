@@ -22,7 +22,7 @@
     <div
       cdkDrag
       class="bento-item"
-      [ngClass]="{'selected': selectedItem === item && mode === 'drag'}"
+      [ngClass]="{'selected': selectedItem === item && mode === 'edit'}"
       (click)="selectItem(item)"
       [ngStyle]="{
         'width.px': item.colSpan * cellWidth,
@@ -90,14 +90,14 @@
   </button>
   <button class="new-item" (click)="createNewItem()">Novo Item</button>
 
-  @if(mode === "drag"){
+  @if(mode === "edit"){
   <div class="selected-menu">
-    <button class="delete-button" (click)="removeItem(selectedItem)">
+    <button class="delete-button" (click)="removeItem()">
       Deletar
     </button>
     <div class="move-buttons">
-      <button class="move-left-button"> < </button>
-      <button class="move-right-button"> > </button>
+      <button class="move-left-button" (click)="swapItemPosition('left')"> < </button>
+      <button class="move-right-button" (click)="swapItemPosition('right')"> > </button>
     </div>
   </div>
   }

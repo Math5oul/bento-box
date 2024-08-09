@@ -55,6 +55,11 @@ export class BentoBoxComponent {
   currentCols!: number;
 
   /**
+   * Item selecionado no modo de edição
+   */
+  public selectedItem!: GridItem ;
+
+  /**
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
@@ -83,9 +88,9 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Modo do grid - 'autoFill' ou 'drag'
+   * Modo do grid - 'autoFill' ou 'edit'
    */
-  public mode: 'autoFill' | 'drag' = 'autoFill';
+  public mode: 'autoFill' | 'edit' = 'autoFill';
 
   //Variavies de customização---------------------------------
   /**
@@ -183,14 +188,12 @@ export class BentoBoxComponent {
     //garantindo que seja entre o menor valor e o maior valor de colunas
     //com base na largura do contêiner e no tamanho da célula.
 
-    if (this.mode !== 'drag') {
-      this.currentCols = columns;
-      this.initializeGrid(10, columns);
-      this.fillGrid(columns);
-      this.removeEmptyRows();
-    }
+    this.currentCols = columns;
+    this.initializeGrid(10, columns);
+    this.fillGrid(columns);
+    this.removeEmptyRows();
 
-    if (this.createFillers && this.mode !== 'drag') {
+    if (this.createFillers && this.mode !== 'edit') {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
       this.generateFillerItems();
@@ -430,7 +433,7 @@ export class BentoBoxComponent {
    * Handler dos modos
    */
   switchMode() {
-    this.mode = this.mode === 'autoFill' ? 'drag' : 'autoFill';
+    this.mode = this.mode === 'autoFill' ? 'edit' : 'autoFill';
     this.calculateGridCols(this.windowWidth);
   }
 
@@ -484,18 +487,49 @@ export class BentoBoxComponent {
     this.calculateGridCols(this.windowWidth);
   }
 
-  public selectedItem!: GridItem;
-
-  selectItem(item: GridItem) {
-    if (this.mode === 'drag') {
-      this.selectedItem = item;
+  /**
+   * Seleciona um item no vetor que forma o grid
+   * @param selected o item a ser selecionado
+   */
+  selectItem(selected: GridItem) {
+    const index = this.data.findIndex((item) => item.id === selected.id);
+    if (this.mode === 'edit') {
+      this.selectedItem = this.data[index];
     }
   }
 
-  removeItem(item: GridItem) {
-    const index = this.data.indexOf(item);
-    if (index !== -1) {
-      this.data.splice(index, 1);
+  /**
+   * Remove o item selecionado do grid
+   */
+  removeItem() {
+    if (this.selectedItem) {
+      const index = this.data.indexOf(this.selectedItem);
+      if (index !== -1) {
+        this.data.splice(index, 1);
+      }
+    } else {
+      console.error('Seleciona um item para remover');
+    }
+  }
+
+  /**
+   * Move o item selecionado no vetor que forma o grid
+   * @param direction A direção no vetor para o qual o item sera movido
+   */
+  swapItemPosition(direction: 'left' | 'right') {
+    if (this.selectedItem) {
+      const index = this.data.findIndex((item) => item.id === this.selectedItem!.id);
+
+      if (direction === 'left' && index > 0) {
+        [this.data[index - 1], this.data[index]] = [this.data[index], this.data[index - 1]];
+      } else if (direction === 'right' && index < this.data.length - 1) {
+        [this.data[index], this.data[index + 1]] = [this.data[index + 1], this.data[index]];
+      } else {
+        console.error('Não há como mover o item selecionado para esta direção');
+      }
+      this.calculateGridCols(this.windowWidth);
+    } else {
+      console.error('Seleciona um item para mover');
     }
   }
 }

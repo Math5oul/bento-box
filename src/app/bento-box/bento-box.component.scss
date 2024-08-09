@@ -133,7 +133,7 @@ button.new-item {
       }
     }
 
-    &.drag {
+    &.edit {
       background-color: #4028a3;
       &:hover {
         background-color: darken(#4028a3, 10%);
