@@ -67,18 +67,18 @@
     }
 
     &.drag {
-      background-color: #3d3596;
+      background-color: #4028a3;
       &:hover {
-        background-color: darken(#3d3596, 10%);
+        background-color: darken(#4028a3, 10%);
       }
     }
   }
 }
 
 button.new-item {
-  background-color: #34C759;
+  background-color: #1fb344;
   &:hover {
-    background-color: darken(#34C759, 10%);
+    background-color: darken(#1fb344, 10%);
   }
   flex-grow: 1;
   max-width: 320px;

@@ -9,6 +9,8 @@
   <div
     class="bento-container"
     #bentoContainer
+    cdkDropList [cdkDropListDisabled]="mode==='autoFill'"
+    (cdkDropListDropped)="onDrag($event)"
     [ngStyle]="{
     'grid-template-columns': 'repeat(auto-fit, minmax(' + cellSize + 'px, ' + cellSize + 'px))',
     'max-width': (currentCols * cellSize) + 'px',
@@ -16,25 +18,25 @@
   }"
   >
     @for (item of data; track item) {
-    <div
-      class="bento-item"
-      [ngStyle]="{
-        'width.px': item.colSpan * cellSize,
-        'height.px': item.rowSpan * cellSize,
-        'background-color': item.backgroundColor,
-        'grid-column-start': item.col + 1,
-        'grid-column-end': 'span ' + item.colSpan,
-        'grid-row-start': item.row + 1,
-        'grid-row-end': 'span ' + item.rowSpan
-      }"
-      #bentoItem
-    >
-      {{ item.id }}
-      <br />
-      {{ item.row +1 }} x {{ item.col +1}}
-    </div>
+      <div
+        cdkDrag
+        class="bento-item"
+        [ngStyle]="{
+          'width.px': item.colSpan * cellSize,
+          'height.px': item.rowSpan * cellSize,
+          'background-color': item.backgroundColor,
+          'grid-column-start': item.col + 1,
+          'grid-column-end': 'span ' + item.colSpan,
+          'grid-row-start': item.row + 1,
+          'grid-row-end': 'span ' + item.rowSpan
+        }"
+        cdkDragHandle
+      >
+        {{ item.id }}
+        <br />
+        {{ item.row + 1 }} x {{ item.col + 1 }}
+      </div>
     } @if(createFillers) {@for (item of fillerItens; track item) {
-
     <div
       class="bento-item__filler"
       [ngStyle]="{
@@ -46,13 +48,14 @@
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan
       }"
-      #bentoItemFiller
+      cdkDragHandle
     >
       {{ item.id }}
       FILLER
       <br />
-      {{ item.row +1 }} x {{ item.col +1}}
+      {{ item.row + 1 }} x {{ item.col + 1 }}
     </div>
+
     }}
   </div>
 </section>

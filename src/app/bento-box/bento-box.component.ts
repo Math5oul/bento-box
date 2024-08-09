@@ -1,3 +1,4 @@
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -8,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
-import { data2 } from '../data/bento-itens';
+import { data } from '../data/bento-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
 
 /**
@@ -17,7 +18,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
 @Component({
   selector: 'app-bento-box',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DragDropModule ],
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
@@ -26,7 +27,7 @@ export class BentoBoxComponent {
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
-  public data: GridItem[] = data2;
+  public data: GridItem[] = data;
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -57,6 +58,17 @@ export class BentoBoxComponent {
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
+
+  /**
+   * Referência ao elemento de item da grade.
+   */
+  @ViewChild('bentoItem') bentoItem!: ElementRef
+
+
+  /**
+   * Habilitador do drag
+   */
+  private dragEnabled: boolean = false;
 
   /**
    * Subject responsável por gerenciar o redimensionamento da janela.
@@ -121,6 +133,7 @@ export class BentoBoxComponent {
   private windowWidth!: number;
 
   ngOnInit(): void {
+    console.log(window.innerWidth)
     this.currentCols = this.maxCols;
     this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
     this.calculateGridCols(this.windowWidth);
@@ -131,7 +144,33 @@ export class BentoBoxComponent {
    */
   switchMode() {
     this.mode = this.mode === 'autoFill' ? 'drag' : 'autoFill';
+    this.dragEnabled = this.mode === 'drag';
     this.calculateGridCols(this.windowWidth);
+  }
+
+  onDrag(event : CdkDragDrop<any[]>){
+    console.log(event);
+  }
+
+  isItemOverlapping(item1: GridItem, item2: GridItem): boolean {
+    if (item1 === item2) return false;
+
+    const item1Left = item1.col;
+    const item1Right = item1.col + item1.colSpan;
+    const item1Top = item1.row;
+    const item1Bottom = item1.row + item1.rowSpan;
+
+    const item2Left = item2.col;
+    const item2Right = item2.col + item2.colSpan;
+    const item2Top = item2.row;
+    const item2Bottom = item2.row + item2.rowSpan;
+
+    return (
+      item1Left < item2Right &&
+      item1Right > item2Left &&
+      item1Top < item2Bottom &&
+      item1Bottom > item2Top
+    );
   }
 
   /**
@@ -153,8 +192,8 @@ export class BentoBoxComponent {
    * Empurra um novo item para o grid
    */
   createNewItem() {
-    const colSpanInput = prompt('Enter column span:', '1');
-    const rowSpanInput = prompt('Enter row span:', '1');
+    const colSpanInput = prompt('Largura do novo item:', '1');
+    const rowSpanInput = prompt('Altura do novo item:', '1');
 
     if (colSpanInput !== null && rowSpanInput !== null) {
       const colSpan = parseInt(colSpanInput, 10);
@@ -186,7 +225,6 @@ export class BentoBoxComponent {
           row: 0,
           col: 0,
         };
-
         this.data.push(newItem);
       }
     }
@@ -198,6 +236,8 @@ export class BentoBoxComponent {
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
   calculateGridCols(containerWidth: number) {
+
+
     const columns = Math.max(
       Math.min(this.maxCols, Math.floor(containerWidth / this.cellSize)),
       this.getMinWidth()
@@ -206,10 +246,12 @@ export class BentoBoxComponent {
     //garantindo que seja entre o menor valor e o maior valor de colunas
     //com base na largura do contêiner e no tamanho da célula.
 
+  if (this.mode !== "drag"){
     this.currentCols = columns;
     this.initializeGrid(10, columns);
     this.fillGrid(columns);
     this.removeEmptyRows();
+  }
 
     if (this.createFillers && this.mode !== 'drag') {
       this.getEmptyCells(this.grid.length, columns);
