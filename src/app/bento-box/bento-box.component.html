@@ -13,8 +13,8 @@
     [cdkDropListDisabled]="mode === 'autoFill'"
     (cdkDropListDropped)="onDrag($event)"
     [ngStyle]="{
-    'grid-template-columns': 'repeat(auto-fit, minmax(' + cellSize + 'px, ' + cellSize + 'px))',
-    'max-width': (currentCols * cellSize) + 'px',
+    'grid-template-columns': 'repeat(auto-fit, minmax(' + cellWidth + 'px, ' + cellWidth + 'px))',
+    'max-width': (currentCols * cellWidth) + 'px',
     'margin-inline': 'auto',
   }"
   >
@@ -25,8 +25,8 @@
       [ngClass]="{'selected': selectedItem === item && mode === 'drag'}"
       (click)="selectItem(item)"
       [ngStyle]="{
-        'width.px': item.colSpan * cellSize,
-        'height.px': item.rowSpan * cellSize,
+        'width.px': item.colSpan * cellWidth,
+        'height.px': item.rowSpan * cellHeight,
         'background-color': item.backgroundColor,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
@@ -43,8 +43,8 @@
     <div
       class="bento-item__filler"
       [ngStyle]="{
-        'width.px': item.colSpan * cellSize,
-        'height.px': item.rowSpan * cellSize,
+        'width.px': item.colSpan * cellWidth,
+        'height.px': item.rowSpan * cellHeight,
         'background-color': item.backgroundColor,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
@@ -66,8 +66,12 @@
 @if(editMode) {
 <div class="edit-bar">
   <label class="input-label number">
-    Tamanho da célula:
-    <input type="number" [(ngModel)]="cellSize" (input)="onCustomChange()" />
+    Largura da célula:
+    <input type="number" [(ngModel)]="cellWidth" (input)="onCustomChange()" />
+  </label>
+  <label class="input-label number">
+    Altura da célula:
+    <input type="number" [(ngModel)]="cellHeight" (input)="onCustomChange()" />
   </label>
   <label class="input-label number">
     Máximo de Colunas:

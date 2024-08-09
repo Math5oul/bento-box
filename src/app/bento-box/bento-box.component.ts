@@ -94,9 +94,14 @@ export class BentoBoxComponent {
   public createFillers: boolean = true;
 
   /**
-   * Tamanho das células da grade.
+   * Largura das células da grade.
    */
-  public cellSize: number = 160;
+  public cellWidth: number = 160;
+
+  /**
+   * Altura das células da grade.
+   */
+  public cellHeight: number = 0;
 
   /**
    * Número máximo de colunas
@@ -129,6 +134,7 @@ export class BentoBoxComponent {
   ngOnInit(): void {
     this.currentCols = this.maxCols;
     this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
+    this.cellHeight = this.cellHeight !== 0 ? this.cellHeight : this.cellWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
@@ -170,7 +176,7 @@ export class BentoBoxComponent {
    */
   calculateGridCols(containerWidth: number) {
     const columns = Math.max(
-      Math.min(this.maxCols, Math.floor(containerWidth / this.cellSize)),
+      Math.min(this.maxCols, Math.floor(containerWidth / this.cellWidth)),
       this.getMinWidth()
     );
     //Calcula o número de colunas a serem exibidas,
@@ -403,8 +409,8 @@ export class BentoBoxComponent {
       this.emptySpaces[size].forEach((cell) => {
         const item = {
           id: id++,
-          width: colSpan * this.cellSize,
-          height: rowSpan * this.cellSize,
+          width: colSpan * this.cellWidth,
+          height: rowSpan * this.cellHeight,
           backgroundColor: shadesOfGray[id % shadesOfGray.length],
           colSpan,
           rowSpan,
