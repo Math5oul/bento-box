@@ -19,8 +19,10 @@
       #bentoItem
     >
       {{ item.id }}
+      <br>
+      {{ item.row }} x {{ item.col}}
     </div>
-    } @for (item of fillerItens; track item) {
+    } @if(createFillers) {@for (item of fillerItens; track item) {
 
     <div
       class="bento-item__filler"
@@ -38,6 +40,6 @@
       {{ item.id }}
       FILLER
     </div>
-    }
+    }}
   </div>
 </section>

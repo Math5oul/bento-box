@@ -1,13 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
-  QueryList,
   ViewChild,
-  ViewChildren
 } from '@angular/core';
 import { debounceTime, Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
@@ -23,12 +20,17 @@ import { GridItem } from '../interfaces/bento-box.interface';
   templateUrl: './bento-box.component.html',
   styleUrls: ['./bento-box.component.scss'],
 })
-export class BentoBoxComponent implements AfterViewInit{
+export class BentoBoxComponent {
   /**
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
   public data: GridItem[] = data;
+
+  /**
+   * Grade de booleanos que representa a ocupação das células.
+   */
+  private grid!: boolean[][];
 
   /**
    * Lista de células vazias da grade.
@@ -41,19 +43,14 @@ export class BentoBoxComponent implements AfterViewInit{
   public fillerItens!: GridItem[];
 
   /**
+   * Espaços vazios da grade, agrupados por tamanho.
+   */
+  emptySpaces!: { [key: string]: { row: number; col: number }[] };
+
+  /**
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
-
-  /**
-   * Referência ao elemento do container da grade.
-   */
-  @ViewChild('bentoContainer') bentoContainer!: ElementRef;
-
-  /**
-   * Lista de referências aos elementos dos itens da grade.
-   */
-  @ViewChildren('bentoItem') bentoItems!: QueryList<ElementRef>;
 
   /**
    * Subject responsável por gerenciar o redimensionamento da janela.
@@ -61,49 +58,28 @@ export class BentoBoxComponent implements AfterViewInit{
   private resizeSubject = new Subject<void>();
 
   /**
-   * Espaços vazios da grade, agrupados por tamanho.
-   */
-  emptySpaces: { [key: string]: { row: number; col: number }[] } = {
-    '2x2': [],
-    '2x1': [],
-    '1x2': [],
-    '1x1': [],
-  };
-
-  /**
-   * Grade de booleanos que representa a ocupação das células.
-   */
-  private grid!: boolean[][];
-
-  /**
-   * Número de colunas da grade.
-   */
-  public currentColumns: number = 0;
-
-  /**
    * Observável de quando a janela é redimensionada.
    * @param event Evento de redimensionamento.
    */
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
+    this.grid = [];
+    this.emptyCells = [];
     this.fillerItens = [];
-    this.calculateGrid();
+
     this.resizeSubject.next();
   }
 
   //Variavies de customização---------------------------------
-
   /**
    * Indica se os itens filler devem ser criados.
    */
-  private createFillers: boolean = true;
+  public createFillers: boolean = true;
 
   /**
    * Tamanho das células da grade.
    */
   public cellSize: number = 160;
-
-  private maxCols: number = 9;
 
   /**
    * Construtor do componente.
@@ -111,90 +87,41 @@ export class BentoBoxComponent implements AfterViewInit{
    */
   constructor(private cdr: ChangeDetectorRef) {
     this.resizeSubject.pipe(debounceTime(200)).subscribe(() => {
-      this.grid = [];
-      this.emptyCells = [];
-      this.fillerItens = [];
-      this.generateFillerItems();
-      this.cdr.detectChanges();
+      this.windowWidth = this.bento.nativeElement.offsetWidth;
+      this.calculateGridCols(this.windowWidth);
     });
   }
 
-  /**
-   * Método chamado após a inicialização do componente.
-   */
-  ngAfterViewInit (): void {
-    this.calculateGrid();
+  private windowWidth!: number;
+
+  ngOnInit(): void {
+    this.windowWidth = window.innerWidth;
+    this.calculateGridCols(this.windowWidth);
   }
 
   /**
    * Obtém a grade de itens e atualiza as variáveis de estado.
    */
-  calculateGrid() {
-    const containerWidth = this.bento.nativeElement.offsetWidth;
-    const columns = Math.min(
-      Math.floor(containerWidth / this.cellSize),
-      this.maxCols
-    );
-    const containerHeight = this.bento.nativeElement.offsetHeight;
-    const rows = Math.floor(containerHeight / this.cellSize);
+  calculateGridCols(containerWidth: number) {
+    const columns = Math.floor(containerWidth / this.cellSize);
 
-    this.bentoContainer.nativeElement.style.width = `${
-      columns * this.cellSize
-    }px`;
+    this.initializeGrid(100, columns);
+    this.fillGrid(100, columns);
+    this.removeEmptyRows();
 
-    if (columns !== this.currentColumns) {
-      this.fillerItens = [];
-      this.fillGrid(columns, rows);
-      this.groupEmptyCells();
-      this.generateFillerItems();
-
-      this.currentColumns = columns;
-    }
+    this.getEmptyCells(this.grid.length, columns);
+    this.groupEmptyCells();
+    this.generateFillerItems();
   }
 
   /**
-   * Preenche a grade com os itens.
-   * @param columns Número de colunas da grade.
-   * @param rows Número de linhas da grade.
-   */
-  fillGrid(columns: number, rows: number) {
-    this.grid = this.initializeGrid(rows, columns);
-    this.bentoItems.forEach((bentoItem: ElementRef) => {
-      const rect = bentoItem.nativeElement.getBoundingClientRect();
-      const top = rect.top - this.bentoContainer.nativeElement.offsetTop;
-      const left = rect.left - this.bentoContainer.nativeElement.offsetLeft;
-      const width = rect.width;
-      const height = rect.height;
-
-      const rowStart = Math.floor(top / this.cellSize);
-      const colStart = Math.floor(left / this.cellSize);
-      const rowEnd = Math.ceil((top + height) / this.cellSize);
-      const colEnd = Math.ceil((left + width) / this.cellSize);
-
-      for (let row = rowStart; row < rowEnd; row++) {
-        for (let col = colStart; col < colEnd; col++) {
-          this.grid[row][col] = true;
-        }
-      }
-    });
-
-    this.emptyCells = [];
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < columns; col++) {
-        if (!this.grid[row][col]) {
-          this.emptyCells.push({ row, col });
-        }
-      }
-    }
-  }
-
-  /**
-   * Inicializa uma grade bidimensional de booleanos com o tamanho especificado.
+   * Inicializa uma grade bidimensional de booleanos com o tamanho especificado
+   * com todas as cazes da grade como false.
    * @param rows Número de linhas da grade.
    * @param columns Número de colunas da grade.
    * @returns A grade inicializada.
    */
-  initializeGrid(rows: number, columns: number): boolean[][] {
+  initializeGrid(rows: number, columns: number): void {
     const grid: boolean[][] = [];
     for (let i = 0; i < rows; i++) {
       const row: boolean[] = [];
@@ -203,7 +130,100 @@ export class BentoBoxComponent implements AfterViewInit{
       }
       grid.push(row);
     }
-    return grid;
+    this.grid = grid;
+  }
+
+  /**
+   * Preenche a grade com os itens.
+   * @param columns Número de colunas da grade.
+   * @param rows Número de linhas da grade.
+   */
+  fillGrid(rows: number, columns: number) {
+    let row = 0;
+    let col = 0;
+
+    this.data.forEach((item) => {
+      while (row < rows && col < columns) {
+        if (this.isItemFitting(item, row, col)) {
+          item.row = row;
+          item.col = col;
+          this.markOccupiedSpaces(item);
+
+          col += item.colSpan;
+
+          if (col >= columns) {
+            col = 0;
+            row++;
+          }
+
+          break;
+        } else {
+          col++;
+          if (col >= columns) {
+            col = 0;
+            row++;
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Verifica se o item cabe no grid
+   * @param item Item que verificará se cabe no grid
+   * @param row Linha da posição de encaixe no grid
+   * @param col Coluna da posição de encaixe no grid
+   * @returns True / false se o item cabe
+   */
+  isItemFitting(item: GridItem, row: number, col: number): boolean {
+    // Check for overflow
+    if (
+      row + item.rowSpan > this.grid.length ||
+      col + item.colSpan > this.grid[0].length
+    ) {
+      return false;
+    }
+    // Check each cell
+    for (let i = row; i < row + item.rowSpan; i++) {
+      for (let j = col; j < col + item.colSpan; j++) {
+        if (this.grid[i][j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Marca a casas ocupadas por um item no grid
+   * @param item Item que marcará os espaços no grid
+   */
+  markOccupiedSpaces(item: GridItem) {
+    for (let i = item.row; i < item.row + item.rowSpan; i++) {
+      for (let j = item.col; j < item.col + item.colSpan; j++) {
+        this.grid[i][j] = true;
+      }
+    }
+  }
+
+  /**
+   * Remove as linhas não usadas do grid
+   */
+  removeEmptyRows() {
+    this.grid = this.grid.filter((row) => {
+      return row.some((cell) => cell === true);
+    });
+  }
+
+  getEmptyCells(rows: number, columns: number) {
+    this.emptyCells = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns; col++) {
+        if (!this.grid[row][col]) {
+          this.emptyCells.push({ row, col });
+        }
+      }
+    }
   }
 
   /**
@@ -281,42 +301,38 @@ export class BentoBoxComponent implements AfterViewInit{
    * DEVE SER SUBSTITUIDA POR UMA LISTA DE ITENS FILLERS QUE SERÃO SORTEADOS PARA CADA ESPAÇO
    */
   generateFillerItems() {
-    if (this.createFillers) {
-      this.fillerItens = [];
-      const shadesOfGray = ['#333333', '#666666', '#999999', '#CCCCCC'];
-      const fillerItens: {
-        id: number;
-        width: number;
-        height: number;
-        backgroundColor: string;
-        colSpan: number;
-        rowSpan: number;
-        row: number;
-        col: number;
-      }[] = [];
-      let id = this.data.length + 1;
+    this.fillerItens = [];
+    const shadesOfGray = ['#333333', '#666666', '#999999', '#CCCCCC'];
+    const fillerItens: {
+      id: number;
+      width: number;
+      height: number;
+      backgroundColor: string;
+      colSpan: number;
+      rowSpan: number;
+      row: number;
+      col: number;
+    }[] = [];
+    let id = this.data.length + 1;
 
-      Object.keys(this.emptySpaces).forEach((size) => {
-        const [rowSpan, colSpan] = size.split('x').map(Number);
+    Object.keys(this.emptySpaces).forEach((size) => {
+      const [rowSpan, colSpan] = size.split('x').map(Number);
 
-        this.emptySpaces[size].forEach((cell) => {
-          const item = {
-            id: id++,
-            width: colSpan * this.cellSize,
-            height: rowSpan * this.cellSize,
-            backgroundColor: shadesOfGray[id % shadesOfGray.length],
-            colSpan,
-            rowSpan,
-            row: cell.row,
-            col: cell.col,
-          };
-          fillerItens.push(item);
-        });
+      this.emptySpaces[size].forEach((cell) => {
+        const item = {
+          id: id++,
+          width: colSpan * this.cellSize,
+          height: rowSpan * this.cellSize,
+          backgroundColor: shadesOfGray[id % shadesOfGray.length],
+          colSpan,
+          rowSpan,
+          row: cell.row,
+          col: cell.col,
+        };
+        fillerItens.push(item);
       });
+    });
 
-      this.fillerItens = fillerItens;
-    } else {
-      this.fillerItens = [];
-    }
+    this.fillerItens = fillerItens;
   }
 }
