@@ -22,7 +22,8 @@ export const data: GridItem[] = [
     id: 1,
     component: SimpleTextComponent,
     inputs: {
-      text: `1. <p style="margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      text: `<h2 style="color: #000000;">Lorem ipsum dolor</h2>
+             <p style="margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
              <p style="margin-bottom: 8px;">Phasellus imperdiet, nulla et dictum interdum.</p>
              <p style="margin-bottom: 0;">Cras pulvinar ornare justo, et aliquet ipsum tincidunt sit amet.</p>`,
       background: '#F39C12',
@@ -37,10 +38,10 @@ export const data: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "1x2",
-      imageUrl: "https://images.unsplash.com/photo-1590922258688-6568a18e4385?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      color: 'light',
-      productName: "Jägermeister",
-      description: "Jägermeister é um digestivo alemão feito com 56 ervas e especiarias.",
+      imageUrl: "https://images.unsplash.com/photo-1678358605468-e675edee820a?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      color: 'dark',
+      productName: "Anaë Gin",
+      description: "Créé au sein du groupe familial Bollinger",
       price: "R$99.99",
     },
     colSpan: 1,
@@ -63,7 +64,6 @@ export const data: GridItem[] = [
     row: 0,
     col: 0,
   },
-
   {
     id: 4,
     component: SimpleProductComponent,
@@ -84,7 +84,8 @@ export const data: GridItem[] = [
     id: 5,
     component: SimpleTextComponent,
     inputs: {
-      text: `5. <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
+      text: `<h2 style="color: #FFFFFF;">Lorem ipsum dolor</h2>
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
       background: '#C70039',
     },
     colSpan: 1,
@@ -112,10 +113,10 @@ export const data: GridItem[] = [
     id: 7,
     component: SimpleTextComponent,
     inputs: {
-      text: `2. <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      text: `<h2 style="color: #FFFFFF;">Lorem ipsum dolor</h2>
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
              <p style="color: #FFFFFF; margin-bottom: 8px;">Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio.</p>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Sed malesuada convallis lacus, at auctor dolor.</p>
-             <p style="color: #FFFFFF; margin-bottom: 0;">Cras ultricies lacinia nibh. Etiam vel vulputate risus.</p>`,
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Sed malesuada convallis lacus, at auctor dolor.</p>`,
       background: '#900C3F',
     },
     colSpan: 1,
