@@ -1,0 +1,19 @@
+<div [ngClass]="['product-container', color]">
+  <div class="flex">
+    <div class="grid-cell image-cell">
+      <div class="title" [innerHTML]="productName | sanitize"></div>
+      <img
+        *ngIf="format !== '1x1'"
+        [src]="imageUrl"
+        alt="{{ productName }}"
+        [ngClass]="['product-image', format]"
+      />
+    </div>
+    <div class="grid-cell info-cell">
+      <div class="price-description">
+        <p class="product-price" [innerHTML]="price | sanitize"></p>
+        <p class="product-description" [innerHTML]="description | sanitize"></p>
+      </div>
+    </div>
+  </div>
+</div>

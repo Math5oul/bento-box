@@ -27,22 +27,14 @@
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan,
-        'padding': gridGap + 'px'
+        padding: gridGap + 'px'
       }"
     >
-      <div
-        [ngStyle]="{
-          'background-color': item.backgroundColor,
-          height: '-webkit-fill-available',
-          width: '-webkit-fill-available'
-        }"
-      >
-        {{ item.id }}
-        <br />
-        {{ item.row + 1 }} x {{ item.col + 1 }}
-      </div>
+      <ng-container
+        *ngComponentOutlet="item.component; inputs: item.inputs"
+      ></ng-container>
     </div>
-    } @if(createFillers) {@for (item of fillerItens; track item) {
+    } @if(createFillers) {@for (item of fillersInGrid; track item) {
     <div
       class="bento-item__filler"
       [ngStyle]="{
@@ -52,22 +44,12 @@
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan,
-        'padding': gridGap + 'px'
+        padding: gridGap + 'px'
       }"
     >
-      <div
-        [ngStyle]="{
-          'background-color': item.backgroundColor,
-          height: '-webkit-fill-available',
-          width: '-webkit-fill-available'
-        }"
-      >
-        {{ item.id }}
-        <br />
-        FILLER
-        <br />
-        {{ item.row + 1 }} x {{ item.col + 1 }}
-      </div>
+      <ng-container
+        *ngComponentOutlet="item.component; inputs: item.inputs"
+      ></ng-container>
     </div>
 
     }}
@@ -111,7 +93,7 @@
   <button [class]="mode" (click)="switchMode()">
     {{ mode === "autoFill" ? "Reordenar Grid" : "Preencher Grid" }}
   </button>
-  <button class="new-item" (click)="createNewItem()">Novo Item</button>
+  <button class="new-item">Novo Item</button>
 
   @if(mode === "edit"){
   <div class="selected-menu">

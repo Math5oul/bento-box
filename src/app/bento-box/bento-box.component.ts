@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
 import { data } from '../data/bento-itens';
+import { fillerOptions } from '../data/filler-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
 
 /**
@@ -28,6 +29,8 @@ export class BentoBoxComponent {
    */
   public data: GridItem[] = data;
 
+  public fillers: GridItem[] = fillerOptions;
+
   /**
    * Grade de booleanos que representa a ocupação das células.
    */
@@ -41,7 +44,7 @@ export class BentoBoxComponent {
   /**
    * Lista de itens de preenchimento da grade.
    */
-  public fillerItens!: GridItem[];
+  public fillersInGrid!: GridItem[];
 
   /**
    * Espaços vazios da grade, agrupados por tamanho.
@@ -81,7 +84,7 @@ export class BentoBoxComponent {
   onResize(event: Event) {
     this.grid = [];
     this.emptyCells = [];
-    this.fillerItens = [];
+    this.fillersInGrid = [];
 
     this.resizeSubject.next();
   }
@@ -146,6 +149,14 @@ export class BentoBoxComponent {
   }
 
   ngOnInit(): void {
+    this.initCells();
+
+    this.currentCols = this.maxCols;
+    this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  initCells(){
     this.cellWidth = this.cellWidth + 2 * this.gridGap;
     this.cellHeight =
       this.cellHeight !== 0
@@ -153,10 +164,6 @@ export class BentoBoxComponent {
         : this.cellWidth;
     this._cellWidth = this.cellWidth - 2 * this.gridGap;
     this._cellHeight = this.cellHeight - 2 * this.gridGap;
-
-    this.currentCols = this.maxCols;
-    this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
-    this.calculateGridCols(this.windowWidth);
   }
 
   /**
@@ -186,9 +193,9 @@ export class BentoBoxComponent {
     if (this.createFillers && this.mode !== 'edit') {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
-      this.generateFillerItems();
+      this.putFillerItens(this.fillers);
     } else {
-      this.fillerItens = [];
+      this.fillersInGrid = [];
     }
   }
 
@@ -369,43 +376,35 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Gera itens 'filler' de preenchimento para a grade com base nas células vazias.
-   * DEVE SER SUBSTITUIDA POR UMA LISTA DE ITENS FILLERS QUE SERÃO SORTEADOS PARA CADA ESPAÇO
+   * Reseta os filler atuais no grid
+   * embaralha o array de fillers e encaixa o
+   * primeiro que achar nos espaços disponiveis
    */
-  generateFillerItems() {
-    this.fillerItens = [];
-    const shadesOfGray = ['#333333', '#666666', '#999999', '#CCCCCC'];
-    const fillerItens: {
-      id: number;
-      width: number;
-      height: number;
-      backgroundColor: string;
-      colSpan: number;
-      rowSpan: number;
-      row: number;
-      col: number;
-    }[] = [];
-    let id = this.data.length + 1;
+  putFillerItens(fillers: GridItem[]) {
+    this.fillersInGrid = [];
+    const fillerItens: GridItem[] = [];
+
+    // Shuffle the fillers array
+    for (let i = fillers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [fillers[i], fillers[j]] = [fillers[j], fillers[i]];
+    }
 
     Object.keys(this.emptySpaces).forEach((size) => {
       const [rowSpan, colSpan] = size.split('x').map(Number);
 
       this.emptySpaces[size].forEach((cell) => {
-        const item = {
-          id: id++,
-          width: colSpan * this.cellWidth,
-          height: rowSpan * this.cellHeight,
-          backgroundColor: shadesOfGray[id % shadesOfGray.length],
-          colSpan,
-          rowSpan,
-          row: cell.row,
-          col: cell.col,
-        };
-        fillerItens.push(item);
+        const filler = fillers.find((filler) => filler.colSpan === colSpan && filler.rowSpan === rowSpan);
+        if (filler) {
+          filler.row = cell.row;
+          filler.col = cell.col;
+          fillerItens.push(filler);
+          fillers = fillers.filter((f) => f.id !== filler.id); // remove the found filler from the list
+        }
       });
     });
 
-    this.fillerItens = fillerItens;
+    this.fillersInGrid = fillerItens;
   }
 
   //TOOLBAR----------------------------------------
@@ -430,45 +429,28 @@ export class BentoBoxComponent {
   /**
    * Empurra um novo item para o grid
    */
-  createNewItem() {
-    const colSpanInput = prompt('Largura do novo item:', '1');
-    const rowSpanInput = prompt('Altura do novo item:', '1');
+  // createNewItem() {
+  //   const colSpanInput = prompt('Largura do novo item:', '1');
+  //   const rowSpanInput = prompt('Altura do novo item:', '1');
 
-    if (colSpanInput !== null && rowSpanInput !== null) {
-      const colSpan = parseInt(colSpanInput, 10);
-      const rowSpan = parseInt(rowSpanInput, 10);
+  //   if (colSpanInput !== null && rowSpanInput !== null) {
+  //     const colSpan = parseInt(colSpanInput, 10);
+  //     const rowSpan = parseInt(rowSpanInput, 10);
 
-      if (!isNaN(colSpan) && !isNaN(rowSpan)) {
-        const colorOptions = [
-          '#FF5733', // Bright Orange
-          '#33FF57', // Lime Green
-          '#3357FF', // Royal Blue
-          '#FF33A6', // Hot Pink
-          '#FFC300', // Golden Yellow
-          '#900C3F', // Burgundy
-          '#581845', // Dark Purple
-          '#DAF7A6', // Light Green
-          '#C70039', // Red
-          '#1F618D', // Navy Blue
-          '#F39C12', // Orange
-          '#2ECC71', // Emerald Green
-        ];
-        const backgroundColor =
-          colorOptions[Math.floor(Math.random() * colorOptions.length)];
+  //     if (!isNaN(colSpan) && !isNaN(rowSpan)) {
 
-        const newItem: GridItem = {
-          id: this.data.length + 1,
-          backgroundColor,
-          colSpan,
-          rowSpan,
-          row: 0,
-          col: 0,
-        };
-        this.data.push(newItem);
-      }
-    }
-    this.calculateGridCols(this.windowWidth);
-  }
+  //       const newItem: GridItem = {
+  //         id: this.data.length + 1,
+  //         colSpan,
+  //         rowSpan,
+  //         row: 0,
+  //         col: 0,
+  //       };
+  //       this.data.push(newItem);
+  //     }
+  //   }
+  //   this.calculateGridCols(this.windowWidth);
+  // }
 
   /**
    * Seleciona um item no vetor que forma o grid

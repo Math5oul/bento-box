@@ -1,6 +1,7 @@
 export interface GridItem {
   id: number;
-  backgroundColor: string;
+  component: any;
+  inputs?: any;
   colSpan: number;
   rowSpan: number;
   row: number;
