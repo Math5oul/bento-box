@@ -1,5 +1,6 @@
+import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
 import { GridItem } from '../interfaces/bento-box.interface';
-import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
+
 
 export const fillerOptions: GridItem[] = [
   // 2x2 Fillers

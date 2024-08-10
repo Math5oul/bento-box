@@ -1,8 +1,8 @@
+import { SimpleImageComponent } from '../components/simpleComponents/simple-image/simple-image.component';
+import { SimpleProductComponent } from '../components/simpleComponents/simple-product/simple-product.component';
+import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
+import { SimpleVideoComponent } from '../components/simpleComponents/simple-video/simple-video.component';
 import { GridItem } from '../interfaces/bento-box.interface';
-import { SimpleImageComponent } from '../simpleComponents/simple-image/simple-image.component';
-import { SimpleProductComponent } from '../simpleComponents/simple-product/simple-product.component';
-import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
-import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
 
 export const data: GridItem[] = [
   {
@@ -39,7 +39,7 @@ export const data: GridItem[] = [
     inputs: {
       format: "1x2",
       imageUrl: "https://images.unsplash.com/photo-1678358605468-e675edee820a?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      color: 'dark',
+      colorMode: 'dark',
       productName: "Anaë Gin",
       description: "Créé au sein du groupe familial Bollinger",
       price: "R$99.99",
@@ -69,7 +69,7 @@ export const data: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "1x1",
-      color: 'light',
+      colorMode: 'light',
       imageUrl: "https://via.placeholder.com/160",
       productName: "Clareza",
       description: "Contém o brilho de milhões de sois",
@@ -84,7 +84,7 @@ export const data: GridItem[] = [
     id: 5,
     component: SimpleTextComponent,
     inputs: {
-      text: `<h2 style="color: #FFFFFF;">Lorem ipsum dolor</h2>
+      text: `<h3 style="color: #FFFFFF;">Lorem ipsum dolor</h3>
              <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
       background: '#C70039',
     },

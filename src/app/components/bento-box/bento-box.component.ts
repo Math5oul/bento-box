@@ -8,9 +8,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
-import { data } from '../data/bento-itens';
-import { fillerOptions } from '../data/filler-itens';
-import { GridItem } from '../interfaces/bento-box.interface';
+import { data } from '../../data/bento-itens';
+import { fillerOptions } from '../../data/filler-itens';
+import { GridItem } from '../../interfaces/bento-box.interface';
 
 /**
  * Componente responsável por renderizar uma grade de itens.
@@ -156,7 +156,7 @@ export class BentoBoxComponent {
     this.calculateGridCols(this.windowWidth);
   }
 
-  initCells(){
+  initCells() {
     this.cellWidth = this.cellWidth + 2 * this.gridGap;
     this.cellHeight =
       this.cellHeight !== 0
@@ -394,7 +394,9 @@ export class BentoBoxComponent {
       const [rowSpan, colSpan] = size.split('x').map(Number);
 
       this.emptySpaces[size].forEach((cell) => {
-        const filler = fillers.find((filler) => filler.colSpan === colSpan && filler.rowSpan === rowSpan);
+        const filler = fillers.find(
+          (filler) => filler.colSpan === colSpan && filler.rowSpan === rowSpan
+        );
         if (filler) {
           filler.row = cell.row;
           filler.col = cell.col;
@@ -426,31 +428,6 @@ export class BentoBoxComponent {
     this.calculateGridCols(this.windowWidth);
   }
 
-  /**
-   * Empurra um novo item para o grid
-   */
-  // createNewItem() {
-  //   const colSpanInput = prompt('Largura do novo item:', '1');
-  //   const rowSpanInput = prompt('Altura do novo item:', '1');
-
-  //   if (colSpanInput !== null && rowSpanInput !== null) {
-  //     const colSpan = parseInt(colSpanInput, 10);
-  //     const rowSpan = parseInt(rowSpanInput, 10);
-
-  //     if (!isNaN(colSpan) && !isNaN(rowSpan)) {
-
-  //       const newItem: GridItem = {
-  //         id: this.data.length + 1,
-  //         colSpan,
-  //         rowSpan,
-  //         row: 0,
-  //         col: 0,
-  //       };
-  //       this.data.push(newItem);
-  //     }
-  //   }
-  //   this.calculateGridCols(this.windowWidth);
-  // }
 
   /**
    * Seleciona um item no vetor que forma o grid

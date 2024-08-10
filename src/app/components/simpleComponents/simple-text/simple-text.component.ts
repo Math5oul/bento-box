@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { SanitizePipe } from '../../pipes/saniteize.pipe';
+import { SanitizePipe } from '../../../pipes/saniteize.pipe';
+
 
 @Component({
   selector: 'app-simple-text',
