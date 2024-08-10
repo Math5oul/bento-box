@@ -4,7 +4,7 @@ import { SimpleTextComponent } from '../components/simpleComponents/simple-text/
 import { SimpleVideoComponent } from '../components/simpleComponents/simple-video/simple-video.component';
 import { GridItem } from '../interfaces/bento-box.interface';
 
-export const data: GridItem[] = [
+export const dataExamples: GridItem[] = [
   {
     id: 0,
     component: SimpleImageComponent,

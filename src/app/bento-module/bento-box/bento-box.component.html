@@ -2,7 +2,7 @@
   class="bento"
   #bento
   [ngStyle]="{
-    'max-width': maxWidth > 0 ? maxWidth + 'px' : 'none',
+    'max-width': options.maxWidth > 0 ? options.maxWidth + 'px' : 'none',
     'margin-inline': 'auto'
   }"
 >
@@ -10,8 +10,8 @@
     class="bento-container"
     #bentoContainer
     [ngStyle]="{
-    'grid-template-columns': 'repeat(auto-fit, minmax(' + cellWidth + 'px, ' + cellWidth + 'px))',
-    'max-width': (currentCols * cellWidth) + 'px',
+    'grid-template-columns': 'repeat(auto-fit, minmax(' + options.cellWidth + 'px, ' + options.cellWidth + 'px))',
+    'max-width': (currentCols * options.cellWidth) + 'px',
     'margin-inline': 'auto',
   }"
   >
@@ -21,30 +21,39 @@
       [ngClass]="{ selected: selectedItem === item && mode === 'edit' }"
       (click)="selectItem(item)"
       [ngStyle]="{
-        'width.px': item.colSpan * cellWidth,
-        'height.px': item.rowSpan * cellHeight,
+        'width.px': item.colSpan * options.cellWidth,
+        'height.px': item.rowSpan * options.cellHeight,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan,
-        padding: gridGap + 'px'
+        padding: options.gridGap + 'px'
       }"
     >
-      <ng-container
-        *ngComponentOutlet="item.component; inputs: item.inputs"
-      ></ng-container>
+      <div
+        [ngClass]="{ 'disable-click': mode === 'edit' }"
+        [ngStyle]="{
+
+      height: '-webkit-fill-available',
+      width: '-webkit-fill-available',
+    }"
+      >
+        <ng-container
+          *ngComponentOutlet="item.component; inputs: item.inputs"
+        ></ng-container>
+      </div>
     </div>
-    } @if(createFillers) {@for (item of fillersInGrid; track item) {
+    } @if(options.createFillers) {@for (item of fillersInGrid; track item) {
     <div
       class="bento-item__filler"
       [ngStyle]="{
-        'width.px': item.colSpan * cellWidth,
-        'height.px': item.rowSpan * cellHeight,
+        'width.px': item.colSpan * options.cellWidth,
+        'height.px': item.rowSpan * options.cellHeight,
         'grid-column-start': item.col + 1,
         'grid-column-end': 'span ' + item.colSpan,
         'grid-row-start': item.row + 1,
         'grid-row-end': 'span ' + item.rowSpan,
-        padding: gridGap + 'px'
+        padding: options.gridGap + 'px'
       }"
     >
       <ng-container
@@ -56,7 +65,9 @@
   </div>
 </section>
 
-@if(editMode) {
+<!-- ----------------TOOLBAR---------------- -->
+
+@if (options.editMode) {
 <div class="edit-bar">
   <label class="input-label number">
     Largura da célula:
@@ -76,17 +87,25 @@
   </label>
   <label class="input-label number">
     Gap entre as células:
-    <input type="number" [(ngModel)]="gridGap" (input)="onCustomChange()" />
+    <input
+      type="number"
+      [(ngModel)]="options.gridGap"
+      (input)="onCustomChange()"
+    />
   </label>
   <label class="input-label number">
     Máximo de Colunas:
-    <input type="number" [(ngModel)]="maxCols" (input)="onCustomChange()" />
+    <input
+      type="number"
+      [(ngModel)]="options.maxCols"
+      (input)="onCustomChange()"
+    />
   </label>
   <label class="input-label checkbox">
     Criar Fillers:
     <input
       type="checkbox"
-      [(ngModel)]="createFillers"
+      [(ngModel)]="options.createFillers"
       (change)="onCustomChange()"
     />
   </label>
@@ -109,4 +128,5 @@
   </div>
   }
 </div>
+
 }

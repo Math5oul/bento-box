@@ -4,13 +4,13 @@ import {
   Component,
   ElementRef,
   HostListener,
+  Input,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
-import { data } from '../../data/bento-itens';
-import { fillerOptions } from '../../data/filler-itens';
 import { GridItem } from '../../interfaces/bento-box.interface';
+import { bentoOptions } from '../../interfaces/bento-options.interface';
 
 /**
  * Componente responsável por renderizar uma grade de itens.
@@ -27,9 +27,9 @@ export class BentoBoxComponent {
    * Dados dos itens da grade.
    * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
    */
-  public data: GridItem[] = data;
-
-  public fillers: GridItem[] = fillerOptions;
+  @Input() data!: GridItem[];
+  @Input() fillers: GridItem[] = [];
+  @Input() options!: bentoOptions;
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -88,54 +88,24 @@ export class BentoBoxComponent {
 
     this.resizeSubject.next();
   }
-
   /**
    * Largura da tela
    */
   private windowWidth!: number;
-
   /**
    * Modo do grid - 'autoFill' ou 'edit'
    */
   public mode: 'autoFill' | 'edit' = 'autoFill';
 
-  //Variavies de customização---------------------------------
   /**
-   * Indica se os itens filler devem ser criados.
+   * Handler para a largura das células da grade.
    */
-  public createFillers: boolean = true;
-
-  /**
-   * Largura das células da grade.
-   */
-  public cellWidth: number = 160;
   public _cellWidth: number = 0;
 
   /**
-   * Altura das células da grade.
+   * Handler para a altura das células da grade.
    */
-  public cellHeight: number = 0;
   public _cellHeight: number = 0;
-
-  /**
-   * Número máximo de colunas
-   */
-  public maxCols: number = 4;
-
-  /**
-   * Largura máxima do Bento
-   */
-  public maxWidth: number = 0;
-
-  /**
-   * Gap entre as células
-   */
-  public gridGap: number = 8;
-
-  /**
-   * Exibe a barra de edição do grid
-   */
-  public editMode: boolean = true;
 
   /**
    * Construtor do componente.
@@ -151,19 +121,19 @@ export class BentoBoxComponent {
   ngOnInit(): void {
     this.initCells();
 
-    this.currentCols = this.maxCols;
-    this.windowWidth = this.maxWidth !== 0 ? this.maxWidth : window.innerWidth;
+    this.currentCols = this.options.maxCols;
+    this.windowWidth = this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
   initCells() {
-    this.cellWidth = this.cellWidth + 2 * this.gridGap;
-    this.cellHeight =
-      this.cellHeight !== 0
-        ? this.cellHeight + 2 * this.gridGap
-        : this.cellWidth;
-    this._cellWidth = this.cellWidth - 2 * this.gridGap;
-    this._cellHeight = this.cellHeight - 2 * this.gridGap;
+    this.options.cellWidth = this.options.cellWidth + 2 * this.options.gridGap;
+    this.options.cellHeight =
+      this.options.cellHeight !== 0
+        ? this.options.cellHeight + 2 * this.options.gridGap
+        : this.options.cellWidth;
+    this._cellWidth = this.options.cellWidth - 2 * this.options.gridGap;
+    this._cellHeight = this.options.cellHeight - 2 * this.options.gridGap;
   }
 
   /**
@@ -179,7 +149,7 @@ export class BentoBoxComponent {
    */
   calculateGridCols(containerWidth: number) {
     const columns = Math.max(
-      Math.min(this.maxCols, Math.floor(containerWidth / this.cellWidth)),
+      Math.min(this.options.maxCols, Math.floor(containerWidth / this.options.cellWidth)),
       this.getMinWidth()
     );
     //Calcula o número de colunas a serem exibidas,
@@ -190,7 +160,7 @@ export class BentoBoxComponent {
     this.initializeGrid(1, columns);
     this.fillGrid(columns);
 
-    if (this.createFillers && this.mode !== 'edit') {
+    if (this.options.createFillers && this.mode !== 'edit') {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
       this.putFillerItens(this.fillers);
@@ -409,25 +379,7 @@ export class BentoBoxComponent {
     this.fillersInGrid = fillerItens;
   }
 
-  //TOOLBAR----------------------------------------
-
-  /**
-   * Handler dos modos
-   */
-  switchMode() {
-    this.mode = this.mode === 'autoFill' ? 'edit' : 'autoFill';
-    this.calculateGridCols(this.windowWidth);
-  }
-
-  /**
-   * Cuida das customizações em run time
-   */
-  onCustomChange() {
-    this.cellWidth = this._cellWidth + 2 * this.gridGap;
-    this.cellHeight = this._cellHeight + 2 * this.gridGap;
-    this.calculateGridCols(this.windowWidth);
-  }
-
+  //-------------------------------TOOLBAR-------------------------------//
 
   /**
    * Seleciona um item no vetor que forma o grid
@@ -439,10 +391,20 @@ export class BentoBoxComponent {
       this.selectedItem = this.data[index];
     }
   }
-
   /**
-   * Remove o item selecionado do grid
+   * Handler das customizações em run time
    */
+  onCustomChange() {
+    this.options.cellWidth = this._cellWidth + 2 * this.options.gridGap;
+    this.options.cellHeight = this._cellHeight + 2 * this.options.gridGap;
+    this.calculateGridCols(this.windowWidth);
+  }
+
+  switchMode() {
+    this.mode = this.mode === 'autoFill' ? 'edit' : 'autoFill';
+    this.calculateGridCols(this.windowWidth);
+  }
+
   removeItem() {
     if (this.selectedItem) {
       const index = this.data.indexOf(this.selectedItem);

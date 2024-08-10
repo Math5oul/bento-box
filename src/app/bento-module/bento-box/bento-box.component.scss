@@ -83,12 +83,17 @@ button.new-item {
   max-width: 320px;
 }
 
-//Selected buttons
+.disable-click {
+  pointer-events: none;
+}
+
 
 .selected {
   z-index: 1;
-  filter: brightness(0.8);
+  filter: brightness(0.7);
 }
+
+//--------------TOOLBAR--------------//
 
 .edit-bar {
   display: flex;
