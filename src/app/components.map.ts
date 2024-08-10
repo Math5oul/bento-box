@@ -1,9 +1,15 @@
-import { SimpleImageComponent } from "./components/simpleComponents/simple-image/simple-image.component";
-import { SimpleProductComponent } from "./components/simpleComponents/simple-product/simple-product.component";
-import { SimpleTextComponent } from "./components/simpleComponents/simple-text/simple-text.component";
-import { SimpleVideoComponent } from "./components/simpleComponents/simple-video/simple-video.component";
+import { Type } from '@angular/core';
+import { SimpleImageComponent } from './components/simpleComponents/simple-image/simple-image.component';
+import { SimpleProductComponent } from './components/simpleComponents/simple-product/simple-product.component';
+import { SimpleTextComponent } from './components/simpleComponents/simple-text/simple-text.component';
+import { SimpleVideoComponent } from './components/simpleComponents/simple-video/simple-video.component';
 
-export const componentInputsMap = [
+export interface ComponentInputMap {
+  component: Type<any>;
+  inputs: { name: string; label: string; type: string; options?: string[] }[];
+}
+
+export const componentInputsMap: ComponentInputMap[] = [
   {
     component: SimpleTextComponent,
     inputs: [

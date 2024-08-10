@@ -5,7 +5,6 @@ import { GridItem } from '../interfaces/bento-box.interface';
 import { bentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
 
-
 @Component({
   selector: 'app-bento-module',
   standalone: true,
@@ -30,7 +29,6 @@ export class BentoModuleComponent {
     if (this.fillers?.length === 0){
       this.options.createFillers = false;
     }
-
   }
 
 }
