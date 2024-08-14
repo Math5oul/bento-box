@@ -1,0 +1,101 @@
+
+.edit-bar {
+  display: flex;
+  max-width: 600px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  margin-inline: auto;
+
+  .input-label {
+    font-weight: bold;
+    display: flex;
+    flex-grow: 1;
+    width: 150px;
+    &.number {
+      flex-direction: column;
+    }
+    .checkbox {
+      flex-grow: 1;
+      gap: 4px;
+    }
+  }
+
+  button {
+    padding: 8px 16px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 150px;
+    flex-grow: 1;
+
+    &.autoFill {
+      background-color: #d99a2d;
+      &:hover {
+        background-color: darken(#d99a2d, 10%);
+      }
+    }
+
+    &.edit {
+      background-color: #4028a3;
+      &:hover {
+        background-color: darken(#4028a3, 10%);
+      }
+    }
+  }
+
+  button.new-item {
+    background-color: #1fb344;
+    &:hover {
+      background-color: darken(#1fb344, 10%);
+    }
+    flex-grow: 1;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .selected-menu {
+    padding: 10px;
+    border: 1px solid #4f524f;
+    margin-top: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .delete-button {
+    background-color: #cb3434;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  .move-buttons {
+    display: flex;
+    gap: 4px;
+  }
+  .move-left-button, .move-right-button {
+    background-color: #4f524f;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .move-left-button:hover, .move-right-button:hover {
+    background-color: darken(#4f524f, 10%);
+  }
+}

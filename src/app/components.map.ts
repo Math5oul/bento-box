@@ -6,7 +6,8 @@ import { SimpleVideoComponent } from './components/simpleComponents/simple-video
 
 export interface ComponentInputMap {
   component: Type<any>;
-  inputs: { name: string; label: string; type: string; options?: string[] }[];
+  inputs: { name: string; label: string; type: string; options?: string[];}[];
+  gridDimensions: string[];
 }
 
 export const componentInputsMap: ComponentInputMap[] = [
@@ -16,6 +17,7 @@ export const componentInputsMap: ComponentInputMap[] = [
       { name: 'text', label: 'Texto', type: 'html' },
       { name: 'background', label: 'Cor de fundo', type: 'text' },
     ],
+    gridDimensions: ['1x1', '1x2', '2x1', '2x2'],
   },
   {
     component: SimpleImageComponent,
@@ -24,6 +26,7 @@ export const componentInputsMap: ComponentInputMap[] = [
       { name: 'width', label: 'Width', type: 'number' },
       { name: 'height', label: 'Height', type: 'number' },
     ],
+    gridDimensions: ['1x1', '1x2', '2x1', '2x2'],
   },
   {
     component: SimpleVideoComponent,
@@ -35,6 +38,7 @@ export const componentInputsMap: ComponentInputMap[] = [
       { name: 'width', label: 'Width', type: 'number' },
       { name: 'height', label: 'Height', type: 'number' },
     ],
+    gridDimensions: ['1x1', '1x2', '2x1', '2x2'],
   },
   {
     component: SimpleProductComponent,
@@ -62,5 +66,6 @@ export const componentInputsMap: ComponentInputMap[] = [
         options: ['light', 'dark'],
       },
     ],
+    gridDimensions: ['1x1', '1x2'],
   },
 ];

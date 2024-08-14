@@ -5,5 +5,6 @@ export interface bentoOptions {
   gridGap: number;
   maxCols: number;
   maxWidth: number;
-  editMode: boolean;
+  mode:'autoFill' | 'edit';
+
 }

@@ -3,4 +3,14 @@
 [data]="data"
 [fillers]="fillers || []"
 [options]="options"
+(selectedItemChange)="onSelectedItemChange($event)"
 ></app-bento-box>
+
+@if (toolbar){
+<app-bento-toolbar
+  [data]="data"
+  [options]="options"
+  [selectedItem]="selectedItem || null"
+>
+</app-bento-toolbar>
+}

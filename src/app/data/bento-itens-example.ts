@@ -22,10 +22,9 @@ export const dataExamples: GridItem[] = [
     id: 1,
     component: SimpleTextComponent,
     inputs: {
-      text: `<h2 style="color: #000000;">Lorem ipsum dolor</h2>
-             <p style="margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-             <p style="margin-bottom: 8px;">Phasellus imperdiet, nulla et dictum interdum.</p>
-             <p style="margin-bottom: 0;">Cras pulvinar ornare justo, et aliquet ipsum tincidunt sit amet.</p>`,
+      text: `<h2 style="color: #000000;">Grand Café</h2>
+             <p style="margin-bottom: 8px;">Rejoignez-nous pour l'inauguration de Café Aromático, votre nouveau lieu de prédilection pour le café et les pâtisseries.</p>
+             <p style="margin-bottom: 8px;">Découvrez les meilleurs breuvages et délices faits main dans une ambiance chaleureuse.</p>`,
       background: '#F39C12',
     },
     colSpan: 1,
@@ -38,11 +37,11 @@ export const dataExamples: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "1x2",
-      imageUrl: "https://images.unsplash.com/photo-1678358605468-e675edee820a?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      imageUrl: "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       colorMode: 'dark',
-      productName: "Anaë Gin",
-      description: "Créé au sein du groupe familial Bollinger",
-      price: "R$99.99",
+      productName: "Hot Chocolat",
+      description: "Boisson chaude composée de chocolat râpé ou fondu et de lait",
+      price: "14,99 €",
     },
     colSpan: 1,
     rowSpan: 2,
@@ -55,9 +54,9 @@ export const dataExamples: GridItem[] = [
     inputs: {
       format: "1x1",
       imageUrl: "https://via.placeholder.com/160",
-      productName: "Escuridão",
-      description: "Capturado diretamente de um super apagão",
-      price: "R$19.99",
+      productName: "Expresso",
+      description: "Noir comme l'âme de votre propriétaire, venez goûter",
+      price: "4,99 €",
     },
     colSpan: 1,
     rowSpan: 1,
@@ -66,26 +65,10 @@ export const dataExamples: GridItem[] = [
   },
   {
     id: 4,
-    component: SimpleProductComponent,
-    inputs: {
-      format: "1x1",
-      colorMode: 'light',
-      imageUrl: "https://via.placeholder.com/160",
-      productName: "Clareza",
-      description: "Contém o brilho de milhões de sois",
-      price: "R$24.99",
-    },
-    colSpan: 1,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 5,
     component: SimpleTextComponent,
     inputs: {
-      text: `<h3 style="color: #FFFFFF;">Lorem ipsum dolor</h3>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
+      text: `<h4 style="color: #FFFFFF;">Découvrez Notre Menu</h4>
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Découvrez nos délicieuses offres, du café aux pâtisseries.</p>`,
       background: '#C70039',
     },
     colSpan: 1,
@@ -94,7 +77,36 @@ export const dataExamples: GridItem[] = [
     col: 0,
   },
   {
+    id: 5,
+    component: SimpleProductComponent,
+    inputs: {
+      format: "1x1",
+      colorMode: 'light',
+      imageUrl: "https://via.placeholder.com/160",
+      productName: "Latte",
+      description: "Le meilleur café au lait de la ville",
+      price: "6,99 €",
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
     id: 6,
+    component: SimpleImageComponent,
+    inputs: {
+      url: 'https://images.unsplash.com/photo-1502045856-4882464b27a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      width: 160,
+      height: 320,
+    },
+    colSpan: 1,
+    rowSpan: 2,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 7,
     component: SimpleVideoComponent,
     inputs: {
       videoUrl: 'https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4',
@@ -110,13 +122,12 @@ export const dataExamples: GridItem[] = [
     col: 0,
   },
   {
-    id: 7,
+    id: 8,
     component: SimpleTextComponent,
     inputs: {
-      text: `<h2 style="color: #FFFFFF;">Lorem ipsum dolor</h2>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas odio.</p>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Sed malesuada convallis lacus, at auctor dolor.</p>`,
+      text: `<h2 style="color: #FFFFFF;">Maintenant Ouvert</h2>
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Découvrez les riches saveurs de notre café fraîchement préparé au Café Aromático.</p>
+             <p style="color: #FFFFFF; margin-bottom: 8px;">Profitez de nos mélanges signature dans une ambiance chaleureuse et accueillante.</p>`,
       background: '#900C3F',
     },
     colSpan: 1,
@@ -128,11 +139,27 @@ export const dataExamples: GridItem[] = [
     id: 9,
     component: SimpleImageComponent,
     inputs: {
-      url: 'https://images.unsplash.com/photo-1527761939622-9119094630cf?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      url: 'https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       width: 160,
       height: 160,
     },
     colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 10,
+    component: SimpleProductComponent,
+    inputs: {
+      format: "2x1",
+      imageUrl: "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      colorMode: 'dark',
+      productName: "Cappuccino",
+      description: "Intense, avec des parts égales de lait et de mousse.",
+      price: "11,99 €",
+    },
+    colSpan: 2,
     rowSpan: 1,
     row: 0,
     col: 0,

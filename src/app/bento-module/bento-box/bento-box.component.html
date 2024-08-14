@@ -18,7 +18,7 @@
     @for (item of data; track item) {
     <div
       class="bento-item"
-      [ngClass]="{ selected: selectedItem === item && mode === 'edit' }"
+      [ngClass]="{ selected: selectedItem === item && options.mode === 'edit' }"
       (click)="selectItem(item)"
       [ngStyle]="{
         'width.px': item.colSpan * options.cellWidth,
@@ -31,7 +31,7 @@
       }"
     >
       <div
-        [ngClass]="{ 'disable-click': mode === 'edit' }"
+        [ngClass]="{ 'disable-click': options.mode === 'edit' }"
         [ngStyle]="{
 
       height: '-webkit-fill-available',
@@ -64,69 +64,3 @@
     }}
   </div>
 </section>
-
-<!-- ----------------TOOLBAR---------------- -->
-
-@if (options.editMode) {
-<div class="edit-bar">
-  <label class="input-label number">
-    Largura da célula:
-    <input
-      type="number"
-      [(ngModel)]="_cellWidth"
-      (ngModelChange)="onCustomChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Altura da célula:
-    <input
-      type="number"
-      [(ngModel)]="_cellHeight"
-      (ngModelChange)="onCustomChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Gap entre as células:
-    <input
-      type="number"
-      [(ngModel)]="options.gridGap"
-      (input)="onCustomChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Máximo de Colunas:
-    <input
-      type="number"
-      [(ngModel)]="options.maxCols"
-      (input)="onCustomChange()"
-    />
-  </label>
-  <label class="input-label checkbox">
-    Criar Fillers:
-    <input
-      type="checkbox"
-      [(ngModel)]="options.createFillers"
-      (change)="onCustomChange()"
-    />
-  </label>
-  <button [class]="mode" (click)="switchMode()">
-    {{ mode === "autoFill" ? "Reordenar Grid" : "Preencher Grid" }}
-  </button>
-  <button class="new-item">Novo Item</button>
-
-  @if(mode === "edit"){
-  <div class="selected-menu">
-    <button class="delete-button" (click)="removeItem()">Deletar</button>
-    <div class="move-buttons">
-      <button class="move-left-button" (click)="swapItemPosition('left')">
-        <
-      </button>
-      <button class="move-right-button" (click)="swapItemPosition('right')">
-        >
-      </button>
-    </div>
-  </div>
-  }
-</div>
-
-}

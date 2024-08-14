@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   HostListener,
   Input,
+  Output,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { bentoOptions } from '../../interfaces/bento-options.interface';
+import { GridService } from '../../services/grid-service.service';
 
 /**
  * Componente responsável por renderizar uma grade de itens.
@@ -30,6 +32,8 @@ export class BentoBoxComponent {
   @Input() data!: GridItem[];
   @Input() fillers: GridItem[] = [];
   @Input() options!: bentoOptions;
+
+  @Output() selectedItemChange = new EventEmitter<GridItem>();
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -92,10 +96,6 @@ export class BentoBoxComponent {
    * Largura da tela
    */
   private windowWidth!: number;
-  /**
-   * Modo do grid - 'autoFill' ou 'edit'
-   */
-  public mode: 'autoFill' | 'edit' = 'autoFill';
 
   /**
    * Handler para a largura das células da grade.
@@ -111,9 +111,12 @@ export class BentoBoxComponent {
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(private gridService: GridService) {
     this.resizeSubject.subscribe(() => {
       this.windowWidth = this.bento.nativeElement.offsetWidth;
+      this.calculateGridCols(this.windowWidth);
+    });
+    this.gridService.gridChanged$.subscribe(() => {
       this.calculateGridCols(this.windowWidth);
     });
   }
@@ -122,7 +125,8 @@ export class BentoBoxComponent {
     this.initCells();
 
     this.currentCols = this.options.maxCols;
-    this.windowWidth = this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
+    this.windowWidth =
+      this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
     this.calculateGridCols(this.windowWidth);
   }
 
@@ -149,7 +153,10 @@ export class BentoBoxComponent {
    */
   calculateGridCols(containerWidth: number) {
     const columns = Math.max(
-      Math.min(this.options.maxCols, Math.floor(containerWidth / this.options.cellWidth)),
+      Math.min(
+        this.options.maxCols,
+        Math.floor(containerWidth / this.options.cellWidth)
+      ),
       this.getMinWidth()
     );
     //Calcula o número de colunas a serem exibidas,
@@ -160,7 +167,7 @@ export class BentoBoxComponent {
     this.initializeGrid(1, columns);
     this.fillGrid(columns);
 
-    if (this.options.createFillers && this.mode !== 'edit') {
+    if (this.options.createFillers && this.options.mode !== 'edit') {
       this.getEmptyCells(this.grid.length, columns);
       this.groupEmptyCells();
       this.putFillerItens(this.fillers);
@@ -380,69 +387,15 @@ export class BentoBoxComponent {
   }
 
   //-------------------------------TOOLBAR-------------------------------//
-
   /**
    * Seleciona um item no vetor que forma o grid
    * @param selected o item a ser selecionado
    */
   selectItem(selected: GridItem) {
     const index = this.data.findIndex((item) => item.id === selected.id);
-    if (this.mode === 'edit') {
+    if (this.options.mode === 'edit') {
       this.selectedItem = this.data[index];
-    }
-  }
-  /**
-   * Handler das customizações em run time
-   */
-  onCustomChange() {
-    this.options.cellWidth = this._cellWidth + 2 * this.options.gridGap;
-    this.options.cellHeight = this._cellHeight + 2 * this.options.gridGap;
-    this.calculateGridCols(this.windowWidth);
-  }
-
-  switchMode() {
-    this.mode = this.mode === 'autoFill' ? 'edit' : 'autoFill';
-    this.calculateGridCols(this.windowWidth);
-  }
-
-  removeItem() {
-    if (this.selectedItem) {
-      const index = this.data.indexOf(this.selectedItem);
-      if (index !== -1) {
-        this.data.splice(index, 1);
-        this.calculateGridCols(this.windowWidth);
-      }
-    } else {
-      console.error('Seleciona um item para remover');
-    }
-  }
-
-  /**
-   * Move o item selecionado no vetor que forma o grid
-   * @param direction A direção no vetor para o qual o item sera movido
-   */
-  swapItemPosition(direction: 'left' | 'right') {
-    if (this.selectedItem) {
-      const index = this.data.findIndex(
-        (item) => item.id === this.selectedItem!.id
-      );
-
-      if (direction === 'left' && index > 0) {
-        [this.data[index - 1], this.data[index]] = [
-          this.data[index],
-          this.data[index - 1],
-        ];
-      } else if (direction === 'right' && index < this.data.length - 1) {
-        [this.data[index], this.data[index + 1]] = [
-          this.data[index + 1],
-          this.data[index],
-        ];
-      } else {
-        console.error('Não há como mover o item selecionado para esta direção');
-      }
-      this.calculateGridCols(this.windowWidth);
-    } else {
-      console.error('Seleciona um item para mover');
+      this.selectedItemChange.emit(this.selectedItem);
     }
   }
 }
