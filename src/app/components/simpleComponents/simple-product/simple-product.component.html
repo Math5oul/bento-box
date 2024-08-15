@@ -1,26 +1,16 @@
 <div class="simple-product">
-  <div
-    [ngClass]="['product-container', colorMode]"
-  >
-    <div [ngClass]="['flex', 'format-' + format]">
-      <div class="flex-cell image-cell">
-        <img
-          *ngIf="format !== '1x1'"
-          [src]="imageUrl"
-          alt="{{ productName }}"
-          [ngClass]="['product-image-' + format]"
-        />
-      </div>
-      <div class="flex-cell info-cell">
-        <div class="title" [innerHTML]="productName | sanitize"></div>
-        <div [ngClass]="['price-description', 'format-' + format]">
-          <p class="product-price" [innerHTML]="price | sanitize"></p>
-          <p
-            class="product-description"
-            [innerHTML]="description | sanitize"
-          ></p>
-        </div>
-      </div>
+  <div [ngClass]="['product-container', colorMode, 'format-' + format]">
+    <img
+      *ngIf="format !== '1x1'"
+      [src]="imageUrl"
+      alt="{{ productName }}"
+      [ngClass]="['product-image-' + format]"
+    />
+
+    <div [ngClass]="['product-container__content', 'format-' + format]">
+      <div class="title" [innerHTML]="productName | sanitize"></div>
+      <p class="product-price" [innerHTML]="price | sanitize"></p>
+      <p class="product-description" [innerHTML]="description | sanitize"></p>
     </div>
   </div>
 </div>

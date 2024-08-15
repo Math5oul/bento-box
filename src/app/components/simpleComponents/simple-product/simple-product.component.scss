@@ -4,73 +4,71 @@
 }
 
 .product-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   border-radius: 4px;
 
-  .flex {
+  &.format-2x1 {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__content {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    &.format-2x1 {
-      flex-direction: row;
-    }
-  }
-
-  .product-image-1x1,
-  .product-image-2x1,
-  .product-image-1x2 {
-    object-fit: cover;
-    width: 160px;
-    height: 180px;
-  }
-  .product-image-1x2 {
-    border-radius: 4px 4px 0 0;
-  }
-  .product-image-2x1 {
-    width: 160px;
-    height: 180px;
-    border-radius: 4px 0 0 4px;
-  }
-
-  .title {
     width: 100%;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 8px;
-  }
-
-  .product-description {
-    font-size: 16px;
-    text-align: center;
-    margin-bottom: 16px;
-    margin-top: 16px;
-    padding: 0 2px;
-  }
-
-  .product-price {
-    font-size: 32px;
-    font-weight: bold;
-  }
-  .price-description {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    padding: 0 4px;
+    height: 100%;
 
     &.format-2x1 {
       flex-direction: column;
-      padding: 0;
+      width: 50%;
+    }
+
+    .title {
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .product-description {
+      font-size: 16px;
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    .product-price {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
     }
   }
+}
 
-  p {
-    margin: 0;
-  }
+.product-image-1x2 {
+  object-fit: cover;
+  width: 100%;
+  height: 50%
+}
+.product-image-1x2 {
+  border-radius: 4px 4px 0 0;
+}
+.product-image-2x1 {
+  object-fit: cover;
+  width: 50%;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
 
+p {
+  margin: 0;
+}
+
+//color modes
+.product-container {
   // Light mode styles
   &.light {
     background-color: #fbfbfb;
