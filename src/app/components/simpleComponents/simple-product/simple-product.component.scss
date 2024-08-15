@@ -1,4 +1,4 @@
-.simple-product{
+.simple-product {
   height: 100%;
   width: 100%;
 }
@@ -12,7 +12,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    &.format-2x1{
+    justify-content: center;
+    &.format-2x1 {
       flex-direction: row;
     }
   }
@@ -24,12 +25,12 @@
     width: 160px;
     height: 180px;
   }
-  .product-image-1x2{
-    border-radius: 4px 4px 0 0;;
+  .product-image-1x2 {
+    border-radius: 4px 4px 0 0;
   }
-  .product-image-2x1{
+  .product-image-2x1 {
     width: 160px;
-    height: 160px;
+    height: 180px;
     border-radius: 4px 0 0 4px;
   }
 
@@ -60,7 +61,7 @@
     justify-content: space-around;
     padding: 0 4px;
 
-    &.format-2x1{
+    &.format-2x1 {
       flex-direction: column;
       padding: 0;
     }

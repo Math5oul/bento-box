@@ -21,7 +21,7 @@ export class BentoModuleComponent {
   @Input() options: bentoOptions = {
     createFillers: true,
     cellWidth: 160,
-    cellHeight: 160,
+    cellHeight: 180,
     gridGap: 8,
     maxCols: 5,
     maxWidth: 0,
