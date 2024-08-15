@@ -6,4 +6,5 @@ export interface GridItem {
   rowSpan: number;
   row: number;
   col: number;
+  isFiller: boolean;
 }

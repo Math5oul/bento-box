@@ -73,6 +73,7 @@ export class BentoToolbarComponent {
         colSpan: newColSpan,
         row: 0,
         col: 0,
+        isFiller: false,
       };
 
       this.data.push(newItem);

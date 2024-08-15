@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-  ApplicationRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -112,7 +111,7 @@ export class BentoBoxComponent {
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private gridService: GridService,private appRef: ApplicationRef) {
+  constructor(private gridService: GridService) {
     this.resizeSubject.subscribe(() => {
       this.windowWidth = this.bento.nativeElement.offsetWidth;
       this.calculateGridCols(this.windowWidth);
@@ -175,7 +174,6 @@ export class BentoBoxComponent {
     } else {
       this.fillersInGrid = [];
     }
-    this.appRef.tick();
   }
 
   /**
@@ -206,6 +204,7 @@ export class BentoBoxComponent {
     let col = 0;
 
     this.data.forEach((item) => {
+
       while (true) {
         while (this.grid.length <= row + item.rowSpan - 1) {
           this.grid.push(new Array(columns).fill(false));
@@ -233,6 +232,12 @@ export class BentoBoxComponent {
         }
       }
     });
+  }
+
+  findFiller(rowSpan: number, colSpan: number): GridItem | undefined {
+    return this.fillers.find(
+      (filler) => filler.rowSpan === rowSpan && filler.colSpan === colSpan
+    );
   }
 
   /**

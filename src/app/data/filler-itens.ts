@@ -15,6 +15,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 2,
@@ -27,6 +28,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 3,
@@ -39,6 +41,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 4,
@@ -51,6 +54,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
 
   // 2x1 Fillers
@@ -65,6 +69,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 6,
@@ -77,6 +82,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 7,
@@ -89,6 +95,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 8,
@@ -101,6 +108,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
 
   // 1x2 Fillers
@@ -115,6 +123,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 10,
@@ -127,6 +136,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 11,
@@ -139,6 +149,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 12,
@@ -151,6 +162,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    isFiller: false,
   },
 
   // 1x1 Fillers
@@ -165,6 +177,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 14,
@@ -177,6 +190,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 15,
@@ -189,6 +203,7 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
   {
     id: 16,
@@ -201,5 +216,6 @@ export const fillerExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    isFiller: false,
   },
 ];
