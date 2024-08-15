@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
+  ApplicationRef,
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
   Input,
   Output,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
@@ -111,7 +112,7 @@ export class BentoBoxComponent {
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private gridService: GridService) {
+  constructor(private gridService: GridService,private appRef: ApplicationRef) {
     this.resizeSubject.subscribe(() => {
       this.windowWidth = this.bento.nativeElement.offsetWidth;
       this.calculateGridCols(this.windowWidth);
@@ -174,6 +175,7 @@ export class BentoBoxComponent {
     } else {
       this.fillersInGrid = [];
     }
+    this.appRef.tick();
   }
 
   /**

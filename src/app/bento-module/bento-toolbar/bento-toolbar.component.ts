@@ -41,8 +41,9 @@ export class BentoToolbarComponent {
   }
 
   onCellChange() {
-    this.options.cellWidth = this._cellWidth + 2 * this.options.gridGap;
     this.options.cellHeight = this._cellHeight + 2 * this.options.gridGap;
+    this.options.cellWidth = this._cellWidth + 2 * this.options.gridGap;
+    this.onGridChange();
   }
 
   switchMode() {

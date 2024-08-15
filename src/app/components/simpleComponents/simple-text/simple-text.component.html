@@ -1,11 +1,10 @@
 <div
+  class="simple-text"
   [ngStyle]="{
     'background-color': background,
-    'border-radius': '4px',
-    padding: '8px',
-    height: '-webkit-fill-available',
-    width: '-webkit-fill-available',
   }"
 >
-  <span [innerHTML]="text | sanitize"></span>
+  <div class="content">
+    <span [innerHTML]="text | sanitize"></span>
+  </div>
 </div>
