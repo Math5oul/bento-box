@@ -159,10 +159,10 @@ export class BentoBoxComponent {
       ),
       this.getMinWidth()
     );
+
     //Calcula o número de colunas a serem exibidas,
     //garantindo que seja entre o menor valor e o maior valor de colunas
     //com base na largura do contêiner e no tamanho da célula.
-
     this.currentCols = columns;
     this.initializeGrid(1, columns);
     this.fillGrid(columns);
@@ -232,12 +232,6 @@ export class BentoBoxComponent {
         }
       }
     });
-  }
-
-  findFiller(rowSpan: number, colSpan: number): GridItem | undefined {
-    return this.fillers.find(
-      (filler) => filler.rowSpan === rowSpan && filler.colSpan === colSpan
-    );
   }
 
   /**
