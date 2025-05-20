@@ -15,7 +15,7 @@
     'margin-inline': 'auto',
   }"
   >
-    @for (item of data; track item) {
+    @for (item of data; track $index) {
     <div
       class="bento-item"
       [ngClass]="{ selected: selectedItem === item && options.mode === 'edit' }"
@@ -40,7 +40,7 @@
       >
       </div>
     </div>
-    } @if(options.createFillers) {@for (item of fillersInGrid; track item) {
+    } @if(options.createFillers) {@for (item of fillersInGrid; track $index) {
     <div
       class="bento-item__filler"
       [ngStyle]="{
