@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { dataExamples } from '../data/bento-itens-example';
 import { fillerExamples } from '../data/filler-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
-import { bentoOptions } from '../interfaces/bento-options.interface';
+import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
 import { BentoToolbarComponent } from './bento-toolbar/bento-toolbar.component';
 
@@ -18,7 +18,7 @@ export class BentoModuleComponent {
   @Input() data: GridItem[] = dataExamples;
   @Input() fillers?: GridItem[] = fillerExamples;
   @Input() toolbar: boolean = true;
-  @Input() options: bentoOptions = {
+  @Input() options: BentoOptions = {
     createFillers: true,
     cellWidth: 160,
     cellHeight: 180,

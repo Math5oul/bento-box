@@ -11,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
 import { GridItem } from '../../interfaces/bento-box.interface';
-import { bentoOptions } from '../../interfaces/bento-options.interface';
+import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service.service';
 
 /**
@@ -31,9 +31,9 @@ export class BentoBoxComponent {
    */
   @Input() data!: GridItem[];
   @Input() fillers: GridItem[] = [];
-  @Input() options!: bentoOptions;
+  @Input() options!: BentoOptions;
 
-  @Output() selectedItemChange = new EventEmitter<GridItem>();
+  @Output() selectedItemChange = new EventEmitter<GridItem | null>();
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -106,6 +106,8 @@ export class BentoBoxComponent {
    * Handler para a altura das células da grade.
    */
   public _cellHeight: number = 0;
+
+  rezizeObserver!: ResizeObserver;
 
   /**
    * Construtor do componente.

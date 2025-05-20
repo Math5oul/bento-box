@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SimpleTextComponent } from '../../components/simpleComponents/simple-text/simple-text.component';
 import { GridItem } from '../../interfaces/bento-box.interface';
-import { bentoOptions } from '../../interfaces/bento-options.interface';
+import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { GridService } from '../../services/grid-service.service';
 })
 export class BentoToolbarComponent {
   @Input() data!: GridItem[];
-  @Input() options!: bentoOptions;
+  @Input() options!: BentoOptions;
   @Input() selectedItem!: GridItem;
 
   @Output() gridChanged = new EventEmitter<void>();
