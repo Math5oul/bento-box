@@ -13,7 +13,7 @@ import { ProductModalComponent } from './product-modal/product-modal.component';
 export class SimpleProductComponent {
   @Input() format: '1x1' | '1x2' | '2x1' | '2x2' = '1x1';
   @Input() colorMode: string = 'dark';
-  @Input() imageUrl: string = '';
+  @Input() images: string[] = [];
   @Input() productName: string = '';
   @Input() description: string = '';
   @Input() price: number = 0;
@@ -23,7 +23,7 @@ export class SimpleProductComponent {
     this.productModal.open();
   }
 
-  handleOrder(order: { quantity: number; observations: string }) {
+  handleOrder(order: {productName: string; quantity: number; observations: string }) {
     console.log('Pedido enviado:', order);
   }
 }

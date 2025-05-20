@@ -11,12 +11,14 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./product-modal.component.scss']
 })
 export class ProductModalComponent {
-  @Input() imageUrl: string = '';
+  @Input() images: string[] = [];
+currentImageIndex: number = 0;
   @Input() productName: string = '';
   @Input() description: string = '';
   @Input() price: number = 0;
 
   @Output() orderSubmitted = new EventEmitter<{
+    productName: string;
     quantity: number;
     observations: string;
   }>();
@@ -46,6 +48,7 @@ export class ProductModalComponent {
 
   submitOrder() {
     this.orderSubmitted.emit({
+      productName: this.productName,
       quantity: this.quantity,
       observations: this.observations
     });

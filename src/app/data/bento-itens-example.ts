@@ -39,7 +39,7 @@ export const dataExamples: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "1x2",
-      imageUrl: "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      images: ["https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
       colorMode: 'dark',
       productName: "Hot Chocolat",
       description: "Boisson chaude composée de chocolat râpé ou fondu et de lait",
@@ -56,7 +56,7 @@ export const dataExamples: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "1x1",
-      imageUrl: "https://via.placeholder.com/160",
+      images: ["https://via.placeholder.com/160", "https://via.placeholder.com/160", "https://via.placeholder.com/160"],
       productName: "Expresso",
       description: "Noir comme l'âme de votre propriétaire, venez goûter",
       price: 4.99,
@@ -87,7 +87,7 @@ export const dataExamples: GridItem[] = [
     inputs: {
       format: "1x1",
       colorMode: 'light',
-      imageUrl: "https://via.placeholder.com/160",
+      images: ["https://via.placeholder.com/160","https://via.placeholder.com/160","https://via.placeholder.com/160"],
       productName: "Latte",
       description: "Le meilleur café au lait de la ville",
       price: 6.99,
@@ -163,7 +163,7 @@ export const dataExamples: GridItem[] = [
     component: SimpleProductComponent,
     inputs: {
       format: "2x1",
-      imageUrl: "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      images: ["https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
       colorMode: 'dark',
       productName: "Cappuccino",
       description: "Intense, avec des parts égales de lait et de mousse.",

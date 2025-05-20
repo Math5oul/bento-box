@@ -2,8 +2,23 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <button class="close-button" (click)="close()">&times;</button>
 
-    <div class="product-image">
-      <img [src]="imageUrl" alt="{{ productName }}">
+    <div class="product-carousel">
+      <div class="carousel-container">
+        <div class="images-row" [style.transform]="'translateX(-' + (currentImageIndex * 100) + '%)'">
+          <div class="image-wrapper" *ngFor="let image of images">
+            <img [src]="image" [alt]="productName">
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-dots" *ngIf="images.length > 1">
+        <button
+          *ngFor="let image of images; let i = index"
+          class="dot"
+          [class.active]="i === currentImageIndex"
+          (click)="currentImageIndex = i"
+        ></button>
+      </div>
     </div>
 
     <div class="product-info">
