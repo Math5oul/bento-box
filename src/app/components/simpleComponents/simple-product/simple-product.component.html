@@ -1,11 +1,12 @@
 <div class="simple-product" (click)="openModal()">
   <div [ngClass]="['product-container', colorMode, 'format-' + format]">
+    @if (format !== '1x1') {
     <img
-      *ngIf="format !== '1x1'"
       [src]="images[0]"
       alt="{{ productName }}"
       [ngClass]="['product-image-' + format]"
     />
+    }
 
     <div [ngClass]="['product-container__content', 'format-' + format]">
       <div class="title" [innerHTML]="productName | sanitize"></div>

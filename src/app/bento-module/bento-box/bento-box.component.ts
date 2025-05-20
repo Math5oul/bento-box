@@ -1,12 +1,14 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
+  Inject,
   Input,
   Output,
-  ViewChild
+  PLATFORM_ID,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
@@ -113,13 +115,21 @@ export class BentoBoxComponent {
    * Construtor do componente.
    * @param cdr Referência ao ChangeDetectorRef.
    */
-  constructor(private gridService: GridService) {
+  constructor(
+    private gridService: GridService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.resizeSubject.subscribe(() => {
-      this.windowWidth = this.bento.nativeElement.offsetWidth;
-      this.calculateGridCols(this.windowWidth);
+      if (isPlatformBrowser(this.platformId) && this.bento?.nativeElement) {
+        this.windowWidth = this.bento.nativeElement.offsetWidth;
+        this.calculateGridCols(this.windowWidth);
+      }
     });
+
     this.gridService.gridChanged$.subscribe(() => {
-      this.calculateGridCols(this.windowWidth);
+      if (isPlatformBrowser(this.platformId)) {
+        this.calculateGridCols(this.windowWidth);
+      }
     });
   }
 
@@ -127,9 +137,11 @@ export class BentoBoxComponent {
     this.initCells();
 
     this.currentCols = this.options.maxCols;
-    this.windowWidth =
-      this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
-    this.calculateGridCols(this.windowWidth);
+    if (isPlatformBrowser(this.platformId)) {
+      this.windowWidth =
+        this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
+      this.calculateGridCols(this.windowWidth);
+    }
   }
 
   initCells() {
@@ -206,7 +218,6 @@ export class BentoBoxComponent {
     let col = 0;
 
     this.data.forEach((item) => {
-
       while (true) {
         while (this.grid.length <= row + item.rowSpan - 1) {
           this.grid.push(new Array(columns).fill(false));
