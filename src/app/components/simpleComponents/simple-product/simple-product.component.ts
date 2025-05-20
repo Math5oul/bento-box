@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, ViewChild } from '@angular/core';
-import { SanitizePipe } from '../../../pipes/saniteize.pipe';
+import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { ProductModalComponent } from './product-modal/product-modal.component';
 
 @Component({
