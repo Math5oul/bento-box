@@ -25,6 +25,9 @@ currentImageIndex: number = 0;
   isOpen: boolean = false;
   quantity: number = 1;
   observations: string = '';
+  isZoomed: boolean = false;
+  touchStartX: number = 0;
+  zoomedImage: string = '';
 
   open() {
     this.isOpen = true;
@@ -57,6 +60,41 @@ currentImageIndex: number = 0;
   private resetForm() {
     this.quantity = 1;
     this.observations = '';
+  }
+
+  nextImage() {
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+  }
+
+  prevImage() {
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+  }
+
+  handleTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  handleTouchEnd(event: TouchEvent) {
+    const touchEndX = event.changedTouches[0].clientX;
+    const diff = touchEndX - this.touchStartX;
+
+    if (Math.abs(diff) > 50) { // threshold for swipe
+      if (diff > 0) {
+        this.prevImage();
+      } else {
+        this.nextImage();
+      }
+    }
+  }
+
+  openZoom(image: string) {
+    this.isZoomed = true;
+    this.zoomedImage = image;
+  }
+
+  closeZoom() {
+    this.isZoomed = false;
+    this.zoomedImage = '';
   }
 
 }

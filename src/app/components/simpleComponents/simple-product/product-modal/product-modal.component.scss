@@ -23,6 +23,8 @@
   border-radius: 8px;
   max-width: 600px;
   width: 90%;
+  display: flex;
+  flex-direction: column;
   position: relative;
   max-height: 90%;
   display: flex;
@@ -35,7 +37,6 @@
     height: 100%;
     max-height: 100%;
     border-radius: 0;
-    padding: none;
   }
 }
 
@@ -50,14 +51,13 @@
   z-index: 2;
 }
 
-
 .product-info {
-  margin-top: 1rem;
   -webkit-overflow-scrolling: touch;
 
   .product-name {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
+    margin-top: 0;
   }
 
   .product-price {
@@ -96,7 +96,7 @@
   width: 100%;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   font-size: 14px;
   line-height: 1.5;
   transition: border-color 0.3s ease;
@@ -127,17 +127,50 @@
 
 .product-carousel {
   position: relative;
-  margin-bottom: 1rem;
+  height: 40vh;
 
   .carousel-container {
     overflow: hidden;
     position: relative;
     width: 100%;
-    max-height: 40vh;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+      transition: background 0.3s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      &.left {
+        left: 1rem;
+      }
+
+      &.right {
+        right: 1rem;
+      }
+    }
   }
 
   .images-row {
@@ -157,6 +190,7 @@
     max-width: 100%;
     height: auto;
     max-height: 50vh;
+    touch-action: manipulation;
 
     img {
       max-width: 50%;
@@ -184,6 +218,60 @@
       &.active {
         background-color: #e91e63;
       }
+    }
+  }
+}
+
+.zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+
+  .zoom-container {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+
+    .close-zoom {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .zoomed-image {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+
+
+  .zoom-container {
+    width: 100% !important;
+    padding: 10px;
+
+    .zoomed-image {
+      width: 100%;
+      height: auto;
     }
   }
 }
