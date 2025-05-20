@@ -127,7 +127,8 @@
 
 .product-carousel {
   position: relative;
-  height: 40vh;
+  height: 36vh;
+  margin-bottom: 2rem;
 
   .carousel-container {
     overflow: hidden;
@@ -194,8 +195,8 @@
 
     img {
       max-width: 50%;
-      height: 100%;
-      object-fit: contain;
+      min-height: 36vh;
+      object-fit: cover;
     }
   }
 
