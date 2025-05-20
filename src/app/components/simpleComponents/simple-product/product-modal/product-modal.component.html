@@ -1,0 +1,33 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-button" (click)="close()">&times;</button>
+
+    <div class="product-image">
+      <img [src]="imageUrl" alt="{{ productName }}">
+    </div>
+
+    <div class="product-info">
+      <h2 class="product-name">{{ productName }}</h2>
+      <p class="product-price">{{ price | currency:'BRL' }}</p>
+      <p class="product-description">{{ description }}</p>
+
+      <div class="quantity-selector">
+        <button (click)="decrementQuantity()">-</button>
+        <input type="number" [(ngModel)]="quantity" min="1">
+        <button (click)="incrementQuantity()">+</button>
+      </div>
+
+      <div class="observations">
+        <textarea
+          [(ngModel)]="observations"
+          placeholder="Adicione observações ao pedido..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <button class="submit-button" (click)="submitOrder()">
+        Enviar Pedido
+      </button>
+    </div>
+  </div>
+</div>

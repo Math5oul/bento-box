@@ -1,4 +1,4 @@
-<div class="simple-product">
+<div class="simple-product" (click)="openModal()">
   <div [ngClass]="['product-container', colorMode, 'format-' + format]">
     <img
       *ngIf="format !== '1x1'"
@@ -9,8 +9,16 @@
 
     <div [ngClass]="['product-container__content', 'format-' + format]">
       <div class="title" [innerHTML]="productName | sanitize"></div>
-      <p class="product-price" [innerHTML]="price | sanitize"></p>
+      <p class="product-price" [innerHTML]="price | currency:'BRL'"></p>
       <p class="product-description" [innerHTML]="description | sanitize"></p>
     </div>
   </div>
 </div>
+
+<app-product-modal
+  [imageUrl]="imageUrl"
+  [productName]="productName"
+  [price]="price"
+  [description]="description"
+  (orderSubmitted)="handleOrder($event)"
+></app-product-modal>
