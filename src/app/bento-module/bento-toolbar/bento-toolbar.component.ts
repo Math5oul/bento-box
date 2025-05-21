@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service/grid.service';
-import { NewItemModalComponent } from '../../components/new-item-modal/new-item-modal.component';
+import { NewItemModalComponent } from '../new-item-modal/new-item-modal.component';
 
 @Component({
   selector: 'app-bento-toolbar',
@@ -66,7 +66,6 @@ export class BentoToolbarComponent {
   closeNewItemModal() {
     this.showNewItemModal = false;
   }
-
 
   /**
    * Cria um novo item para o array do grid
