@@ -202,4 +202,52 @@ export const fillerExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
+  {
+    id: 17,
+    component: SimpleTextComponent,
+    inputs: {
+      text: 'Filler 1x1 - 5',
+      background: '#D8D8D8' // Light Gray
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 18,
+    component: SimpleTextComponent,
+    inputs: {
+      text: 'Filler 1x1 - 6',
+      background: '#E0E0E0' // Gainsboro
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 19,
+    component: SimpleTextComponent,
+    inputs: {
+      text: 'Filler 1x1 - 7',
+      background: '#E8E8E8' // Bright Gray
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 20,
+    component: SimpleTextComponent,
+    inputs: {
+      text: 'Filler 1x1 - 8',
+      background: '#F0F0F0' // White Smoke
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
 ];
