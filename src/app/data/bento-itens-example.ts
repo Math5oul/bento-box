@@ -17,7 +17,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: true,
   },
   {
     id: 1,
@@ -32,7 +31,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 2,
@@ -49,7 +47,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 3,
@@ -65,7 +62,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 4,
@@ -79,7 +75,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 5,
@@ -96,7 +91,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 6,
@@ -110,7 +104,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 7,
@@ -127,7 +120,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 8,
@@ -142,7 +134,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 9,
@@ -156,7 +147,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: false,
   },
   {
     id: 10,
@@ -173,6 +163,5 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-    isFiller: false,
   },
 ];
