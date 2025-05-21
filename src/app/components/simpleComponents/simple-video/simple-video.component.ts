@@ -10,8 +10,6 @@ import { Component, Input } from '@angular/core';
 export class SimpleVideoComponent {
 
   @Input() videoUrl!: string;
-  @Input() width: string = '360px';
-  @Input() height: string = '360px';
   @Input() autoplay: boolean = false;
   @Input() controls: boolean = true;
   @Input() loop: boolean = false;

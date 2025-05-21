@@ -10,8 +10,6 @@ export const dataExamples: GridItem[] = [
     component: SimpleImageComponent,
     inputs: {
       url: "https://images.unsplash.com/photo-1564367133818-6ac5df7debfc?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      width: 320,
-      height: 160,
     },
     colSpan: 2,
     rowSpan: 1,
@@ -109,8 +107,6 @@ export const dataExamples: GridItem[] = [
     component: SimpleImageComponent,
     inputs: {
       url: "https://images.unsplash.com/photo-1502045856-4882464b27a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      width: 160,
-      height: 320,
     },
     colSpan: 1,
     rowSpan: 2,
@@ -123,8 +119,6 @@ export const dataExamples: GridItem[] = [
     inputs: {
       videoUrl:
         "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
-      width: 320,
-      height: 320,
       autoplay: true,
       controls: true,
       loop: true,
@@ -153,8 +147,6 @@ export const dataExamples: GridItem[] = [
     component: SimpleImageComponent,
     inputs: {
       url: "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      width: 160,
-      height: 160,
     },
     colSpan: 1,
     rowSpan: 1,

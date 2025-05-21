@@ -10,7 +10,5 @@ import { Component, Input } from '@angular/core';
 })
 export class SimpleImageComponent {
   @Input() url!: string;
-  @Input() width!: number;
-  @Input() height!: number;
 
 }

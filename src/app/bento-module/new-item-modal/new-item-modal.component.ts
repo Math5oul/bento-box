@@ -111,16 +111,25 @@ export class NewItemModalComponent {
 
   /**
    * Cria um novo item com base nos valores do formulário e emite o evento `itemCreated`.
+   * Se houver o campo format ele preenche utilizando o valor de rowSpan e colSpan.
    * Em seguida, fecha o modal.
    */
+  // No NewItemModalComponent
   createItem() {
     const formValue = this.componentForm.value;
+
+    const calculatedFormat = `${formValue.rowSpan}x${formValue.colSpan}`;
+
     const newItem = {
       component: this.selectedComponent.component,
       rowSpan: formValue.rowSpan,
       colSpan: formValue.colSpan,
-      inputs: formValue.inputs,
+      inputs: {
+        ...formValue.inputs,
+        format: calculatedFormat,
+      },
     };
+
     this.itemCreated.emit(newItem);
     this.closeModal();
   }
