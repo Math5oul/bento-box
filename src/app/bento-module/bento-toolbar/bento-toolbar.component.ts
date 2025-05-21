@@ -4,11 +4,12 @@ import { SimpleTextComponent } from '../../components/simpleComponents/simple-te
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service.service';
+import { NewItemModalComponent } from '../../components/new-item-modal/new-item-modal.component';
 
 @Component({
   selector: 'app-bento-toolbar',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NewItemModalComponent],
   templateUrl: './bento-toolbar.component.html',
   styleUrl: './bento-toolbar.component.scss',
 })
@@ -18,6 +19,8 @@ export class BentoToolbarComponent {
   @Input() selectedItem!: GridItem;
 
   @Output() gridChanged = new EventEmitter<void>();
+
+  public showNewItemModal = false;
 
   /**
    * Handler para a largura das células da grade.
@@ -52,38 +55,43 @@ export class BentoToolbarComponent {
   }
 
   /**
+   * Abre o modal para criar um novo item
+   */
+  openNewItemModal() {
+    this.showNewItemModal = true;
+  }
+
+  /**
+   * Fecha o modal de novo item
+   */
+  closeNewItemModal() {
+    this.showNewItemModal = false;
+  }
+
+
+  /**
    * Cria um novo item para o array do grid
    * e o põe na ultima posição
    */
-  addItem() {
-    const newRowSpan = parseInt(prompt('Entre com a altura:') ?? '', 10);
-    const newColSpan = parseInt(prompt('Entre com a largura') ?? '', 10);
+  addNewItem(itemData: any) {
+    const newItem: GridItem = {
+      id: this.data.length + 1,
+      component: itemData.component,
+      inputs: itemData.inputs,
+      rowSpan: itemData.rowSpan,
+      colSpan: itemData.colSpan,
+      row: 0,
+      col: 0,
+    };
 
-    if (
-      !isNaN(newRowSpan) &&
-      !isNaN(newColSpan) &&
-      newRowSpan > 0 &&
-      newColSpan > 0
-    ) {
-      const newItem: GridItem = {
-        id: this.data.length + 1,
-        component: SimpleTextComponent,
-        inputs: null,
-        rowSpan: newRowSpan,
-        colSpan: newColSpan,
-        row: 0,
-        col: 0,
-      };
-
-      this.data.push(newItem);
-      this.onGridChange();
-    } else {
-      alert(
-        'Entrada Inválida. Largura e altura devem ser número inteiros positivos.'
-      );
-    }
+    this.data.push(newItem);
+    this.onGridChange();
+    this.closeNewItemModal();
   }
 
+  /**
+   * Remove o item selecionado do vetor que forma o grid
+   */
   removeItem() {
     if (this.selectedItem) {
       const index = this.data.indexOf(this.selectedItem);

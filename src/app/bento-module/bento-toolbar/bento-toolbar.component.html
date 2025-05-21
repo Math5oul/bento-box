@@ -42,7 +42,7 @@
   <button [class]="options.mode" (click)="switchMode()">
     {{ options.mode === "autoFill" ? "Reordenar Grid" : "Preencher Grid" }}
   </button>
-  <button class="new-item" (click)="addItem()">Novo Item</button>
+  <button class="new-item" (click)="openNewItemModal()">Novo Item</button>
 
   @if(options.mode === "edit"){
     <div class="selected-menu">
@@ -58,3 +58,10 @@
     </div>
     }
 </div>
+
+@if(showNewItemModal) {
+  <app-new-item-modal
+    (itemCreated)="addNewItem($event)"
+    (modalClosed)="closeNewItemModal()"
+  ></app-new-item-modal>
+}
