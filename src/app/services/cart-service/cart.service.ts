@@ -1,20 +1,20 @@
 import { Injectable } from "@angular/core";
 
-// This interface defines the structure of a cart item
 export interface CartItem {
   productName: string;
   price: number;
   quantity: number;
 }
 
-// This decorator makes the service available throughout the app
 @Injectable({ providedIn: "root" })
 export class CartService {
-  // This array will store all items added to the cart
   private items: CartItem[] = [];
 
-  // This method adds a new item to the cart or updates the quantity if it already exists
-  addItem(item: CartItem) {
+  /**
+   * Adiciona um novo item ao carrinho ou atualiza a quantidade caso ele já exista.
+   * @param item O item a ser adicionado ou atualizado no carrinho.
+   */
+  addItem(item: CartItem): void {
     const existing = this.items.find((i) => i.productName === item.productName);
     if (existing) {
       existing.quantity += item.quantity;
@@ -23,12 +23,18 @@ export class CartService {
     }
   }
 
-  // This method returns all items currently in the cart
+  /**
+   * Retorna todos os itens atualmente presentes no carrinho.
+   * @returns Um array com os itens do carrinho.
+   */
   getItems(): CartItem[] {
     return this.items;
   }
 
-  // This method calculates and returns the total price of all items in the cart
+  /**
+   * Calcula e retorna o valor total de todos os itens no carrinho.
+   * @returns O valor total dos itens como um número.
+   */
   getTotal(): number {
     return this.items.reduce(
       (sum, item) => sum + item.price * item.quantity,

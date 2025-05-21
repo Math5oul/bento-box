@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
-import { GridService } from '../../services/grid-service.service';
+import { GridService } from '../../services/grid-service/grid.service';
 
 /**
  * Componente responsável por renderizar uma grade de itens.
