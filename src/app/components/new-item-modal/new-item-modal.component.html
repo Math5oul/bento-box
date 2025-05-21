@@ -6,8 +6,6 @@
   >
     <button type="button" class="close-button" (click)="closeModal()">×</button>
 
-    <h2>Criar Novo Item</h2>
-
     <!-- Lista de componentes disponíveis -->
     @if(!showDimensionsForm){
     <div>
@@ -97,8 +95,8 @@
           <!-- Checkbox -->
           @if(input.type === 'checkbox'){
           <div>
-            <label>
-              <input type="checkbox" [formControlName]="input.name" />
+            <label class="checkbox">
+              <input  type="checkbox" [formControlName]="input.name" />
               {{ input.label }}
             </label>
           </div>
