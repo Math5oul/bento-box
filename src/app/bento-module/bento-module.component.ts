@@ -5,7 +5,7 @@ import { GridItem } from '../interfaces/bento-box.interface';
 import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
 import { BentoToolbarComponent } from './bento-toolbar/bento-toolbar.component';
-import { CartComponent } from '../components/cart/cart.component';
+import { CartComponent } from './cart/cart.component';
 import { CartService } from '../services/cart-service/cart.service';
 import { CommonModule } from '@angular/common';
 

@@ -1,8 +1,8 @@
 import { Type } from '@angular/core';
-import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
-import { SimpleImageComponent } from '../simpleComponents/simple-image/simple-image.component';
-import { SimpleProductComponent } from '../simpleComponents/simple-product/simple-product.component';
-import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
+import { SimpleImageComponent } from '../../components/simpleComponents/simple-image/simple-image.component';
+import { SimpleProductComponent } from '../../components/simpleComponents/simple-product/simple-product.component';
+import { SimpleTextComponent } from '../../components/simpleComponents/simple-text/simple-text.component';
+import { SimpleVideoComponent } from '../../components/simpleComponents/simple-video/simple-video.component';
 
 // Configuração de cada input de componente
 export interface InputConfig {
