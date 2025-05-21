@@ -1,11 +1,32 @@
-<div class="cart">
-  <h3>Carrinho</h3>
-  <div *ngFor="let item of items">
-    {{ item.productName }} x{{ item.quantity }} -
-    {{ item.price | currency : "BRL" }}
+<div class="cart-container">
+  <button class="close-button" (click)="closeCart.emit()">×</button>
+  <h2 class="cart-title">🛒 Seu Carrinho</h2>
+
+  <div class="cart-items-container">
+    @if (carrinho.length === 0) {
+      <div class="empty-cart">Seu carrinho está vazio</div>
+    }
+
+    @for (item of carrinho; track item.productName) {
+      <div class="cart-item">
+        <div class="item-info">
+          <span class="product-name">{{ item.productName }}</span>
+          <span class="product-price">{{ item.price | currency:'BRL' }}</span>
+        </div>
+
+        <div class="item-controls">
+          <span class="quantity">x{{ item.quantity }}</span>
+          <span class="item-total">{{ (item.price * item.quantity) | currency:'BRL' }}</span>
+        </div>
+      </div>
+    }
   </div>
-  <div *ngIf="items.length > 0">
-    <strong>Total: {{ total | currency : "BRL" }}</strong>
+
+  <div class="cart-footer">
+    <div class="total-container">
+      <span>Total:</span>
+      <span class="total-price">{{ total | currency:'BRL' }}</span>
+    </div>
+    <button class="checkout-button">Finalizar Compra</button>
   </div>
-  <div *ngIf="items.length === 0">Carrinho vazio.</div>
 </div>
