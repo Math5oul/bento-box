@@ -21,6 +21,7 @@ export class CartService {
     } else {
       this.items.push({ ...item });
     }
+    console.log("CARRINHO:", this.getItems());
   }
 
   /**

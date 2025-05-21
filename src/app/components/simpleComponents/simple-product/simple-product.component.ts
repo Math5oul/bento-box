@@ -31,7 +31,6 @@ export class SimpleProductComponent {
     productName?: string;
     observations?: string;
   }) {
-    console.log("Pedido enviado:", order);
 
     this.cartService.addItem({
       productName: this.productName,
@@ -39,6 +38,5 @@ export class SimpleProductComponent {
       quantity: order.quantity,
     });
 
-    console.log("Valor total do carrinho:", this.cartService.getTotal());
   }
 }
