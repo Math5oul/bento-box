@@ -54,31 +54,12 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<Typ
         type: 'text',
         required: true,
         placeholder: 'https://example.com/image.jpg'
-      },
-      {
-        name: 'width',
-        label: 'Largura (px)',
-        type: 'number',
-        defaultValue: 320
-      },
-      {
-        name: 'height',
-        label: 'Altura (px)',
-        type: 'number',
-        defaultValue: 160
       }
     ]
   }],
   [SimpleProductComponent, {
     name: 'Produto',
     inputs: [
-      {
-        name: 'format',
-        label: 'Formato',
-        type: 'select',
-        options: ['1x1', '1x2', '2x1'],
-        defaultValue: '1x1'
-      },
       {
         name: 'images',
         label: 'URLs das Imagens',
@@ -121,18 +102,6 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<Typ
         type: 'text',
         required: true,
         placeholder: 'https://example.com/video.mp4'
-      },
-      {
-        name: 'width',
-        label: 'Largura (px)',
-        type: 'number',
-        defaultValue: 320
-      },
-      {
-        name: 'height',
-        label: 'Altura (px)',
-        type: 'number',
-        defaultValue: 320
       },
       {
         name: 'autoplay',
