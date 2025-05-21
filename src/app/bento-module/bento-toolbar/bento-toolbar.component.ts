@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SimpleTextComponent } from '../../components/simpleComponents/simple-text/simple-text.component';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
-import { GridService } from '../../services/grid-service.service';
+import { GridService } from '../../services/grid-service/grid.service';
 import { NewItemModalComponent } from '../../components/new-item-modal/new-item-modal.component';
 
 @Component({

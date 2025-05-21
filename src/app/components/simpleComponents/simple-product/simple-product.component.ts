@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, ViewChild } from "@angular/core";
 import { SanitizePipe } from "../../../pipes/sanitize.pipe";
 import { ProductModalComponent } from "./product-modal/product-modal.component";
-import { CartService } from "../../../services/cart.service";
+import { CartService } from "../../../services/cart-service/cart.service";
 
 @Component({
   selector: "app-simple-product",
@@ -31,17 +31,14 @@ export class SimpleProductComponent {
     productName?: string;
     observations?: string;
   }) {
-    // This logs the order details to the browser console
     console.log("Pedido enviado:", order);
 
-    // This adds the selected product and quantity to the cart using the CartService
     this.cartService.addItem({
       productName: this.productName,
       price: this.price,
       quantity: order.quantity,
     });
 
-    // This logs the updated total value of the cart to the console
     console.log("Valor total do carrinho:", this.cartService.getTotal());
   }
 }
