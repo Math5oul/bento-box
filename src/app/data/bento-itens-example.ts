@@ -5,7 +5,45 @@ import { SimpleVideoComponent } from "../components/simpleComponents/simple-vide
 import { GridItem } from "../interfaces/bento-box.interface";
 
 export const dataExamples: GridItem[] = [
-
+  {
+    id: 1,
+    component: SimpleProductComponent,
+    inputs: {
+      format: "1x1",
+      images: [
+        "https://plus.unsplash.com/premium_photo-1723903231073-29e8762d79a8?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://via.placeholder.com/160",
+        "https://via.placeholder.com/160",
+      ],
+      productName: "Expresso",
+      description: "Noir comme l'âme de votre propriétaire, venez goûter",
+      price: 4.99,
+    },
+    colSpan: 1,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 3,
+    component: SimpleProductComponent,
+    inputs: {
+      format: "2x1",
+      images: [
+        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      ],
+      colorMode: "dark",
+      productName: "Cappuccino",
+      description: "Intense, avec des parts égales de lait et de mousse.",
+      price: 11.99,
+    },
+    colSpan: 2,
+    rowSpan: 1,
+    row: 0,
+    col: 0,
+  },
   {
     id: 0,
     component: SimpleProductComponent,
@@ -23,25 +61,6 @@ export const dataExamples: GridItem[] = [
     },
     colSpan: 1,
     rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 1,
-    component: SimpleProductComponent,
-    inputs: {
-      format: "1x1",
-      images: [
-        "https://via.placeholder.com/160",
-        "https://via.placeholder.com/160",
-        "https://via.placeholder.com/160",
-      ],
-      productName: "Expresso",
-      description: "Noir comme l'âme de votre propriétaire, venez goûter",
-      price: 4.99,
-    },
-    colSpan: 1,
-    rowSpan: 1,
     row: 0,
     col: 0,
   },
@@ -79,27 +98,6 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
-
-  {
-    id: 3,
-    component: SimpleProductComponent,
-    inputs: {
-      format: "2x1",
-      images: [
-        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      ],
-      colorMode: "dark",
-      productName: "Cappuccino",
-      description: "Intense, avec des parts égales de lait et de mousse.",
-      price: 11.99,
-    },
-    colSpan: 2,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
   {
     id: 4,
     component: SimpleProductComponent,
@@ -121,21 +119,6 @@ export const dataExamples: GridItem[] = [
     col: 0,
   },
   {
-    id: 21,
-    component: SimpleVideoComponent,
-    inputs: {
-      videoUrl:
-        "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
-      autoplay: true,
-      controls: true,
-      loop: true,
-    },
-    colSpan: 2,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-  {
     id: 5,
     component: SimpleProductComponent,
     inputs: {
@@ -153,6 +136,39 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
+  {
+    id: 22,
+    component: SimpleImageComponent,
+    inputs: {
+      url: "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    colSpan: 1,
+    rowSpan: 2,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: 21,
+    component: SimpleVideoComponent,
+    inputs: {
+      videoUrl:
+        "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
+      autoplay: true,
+      controls: true,
+      loop: true,
+    },
+    colSpan: 2,
+    rowSpan: 2,
+    row: 0,
+    col: 0,
+  },
+
+
+  /*
+
+
+
+
   {
     id: 22,
     component: SimpleImageComponent,
@@ -480,4 +496,5 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
+  */
 ];
