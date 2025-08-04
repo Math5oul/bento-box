@@ -1,14 +1,17 @@
 // cart.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CartService, CartItem } from '../../services/cart-service/cart.service';
+import {
+  CartService,
+  CartItem,
+} from '../../services/cart-service/cart.service';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   templateUrl: './cart.component.html',
   imports: [CommonModule],
-  styleUrls: ['./cart.component.scss']
+  styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent {
   @Input() isOpen = false;
@@ -24,5 +27,11 @@ export class CartComponent {
     return this._cartService.getTotal();
   }
 
+  decreaseQuantity(item: CartItem): void {
+    this._cartService.decreaseQuantity(item);
+  }
 
+  increaseQuantity(item: CartItem): void {
+    this._cartService.addItem({ ...item, quantity: 1 });
+  }
 }
