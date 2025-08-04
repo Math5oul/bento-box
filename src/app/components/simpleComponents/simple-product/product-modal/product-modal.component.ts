@@ -116,7 +116,8 @@ export class ProductModalComponent {
     const touchEndX = event.changedTouches[0].clientX;
     const diff = touchEndX - this.touchStartX;
 
-    if (Math.abs(diff) > 50) { // limite para considerar swipe
+    if (Math.abs(diff) > 50) {
+      // limite para considerar swipe
       if (diff > 0) {
         this.prevImage();
       } else {
@@ -140,5 +141,42 @@ export class ProductModalComponent {
   closeZoom() {
     this.isZoomed = false;
     this.zoomedImage = '';
+  }
+
+  dragging: boolean = false;
+  dragStartX: number = 0;
+  dragOffsetX: number = 0;
+
+  // Track X coordinate
+  private getEventX(event: MouseEvent | TouchEvent): number {
+    return event instanceof TouchEvent
+      ? event.touches[0].clientX
+      : event.clientX;
+  }
+
+  handleDragStart(event: MouseEvent | TouchEvent) {
+    this.dragging = true;
+    this.dragStartX = this.getEventX(event);
+    this.dragOffsetX = 0;
+  }
+
+  handleDragMove(event: MouseEvent | TouchEvent) {
+    if (!this.dragging) return;
+    const currentX = this.getEventX(event);
+    this.dragOffsetX = currentX - this.dragStartX;
+  }
+
+  handleDragEnd(event: MouseEvent | TouchEvent) {
+    if (!this.dragging) return;
+
+    const threshold = 100; // pixels to switch images
+    if (this.dragOffsetX > threshold) {
+      this.prevImage();
+    } else if (this.dragOffsetX < -threshold) {
+      this.nextImage();
+    }
+
+    this.dragging = false;
+    this.dragOffsetX = 0;
   }
 }

@@ -1,0 +1,49 @@
+<div class="carousel-container">
+  <button class="carousel-nav left" (click)="prevImage()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+      <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+    </svg>
+  </button>
+
+  <button class="carousel-nav right" (click)="nextImage()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+      <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+    </svg>
+  </button>
+
+  <div
+    class="images-row"
+    [style.transform]="
+      'translateX(calc(' +
+      (-currentImageIndex * 100) +
+      '% + ' +
+      dragOffsetX +
+      'px))'
+    "
+    [class.no-transition]="dragging"
+    (mousedown)="handleDragStart($event)"
+    (mousemove)="handleDragMove($event)"
+    (mouseup)="handleDragEnd()"
+    (mouseleave)="handleDragEnd()"
+    (touchstart)="handleDragStart($event)"
+    (touchmove)="handleDragMove($event)"
+    (touchend)="handleDragEnd()"
+  >
+    <div
+      class="image-wrapper"
+      *ngFor="let image of images"
+      (click)="imageClicked.emit(image)"
+    >
+      <img [src]="image" alt="Produto" />
+    </div>
+  </div>
+</div>
+
+<div class="carousel-dots" *ngIf="images.length > 1">
+  <button
+    class="dot"
+    *ngFor="let image of images; index as i"
+    [class.active]="i === currentImageIndex"
+    (click)="currentImageIndex = i"
+  ></button>
+</div>
