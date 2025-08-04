@@ -10,6 +10,8 @@
     @for (item of carrinho; track item.productName) {
       <div class="cart-item">
         <div class="item-info">
+          <span class="product-image">
+            <img [src]="item.image" alt="{{ item.productName }}" /></span>
           <span class="product-name">{{ item.productName }}</span>
           <span class="product-price">{{ item.price | currency:'BRL' }}</span>
         </div>

@@ -36,6 +36,8 @@ export class SimpleProductComponent {
       productName: this.productName,
       price: this.price,
       quantity: order.quantity,
+      observations: order.observations || "",
+      image: this.images[0],
     });
 
   }
