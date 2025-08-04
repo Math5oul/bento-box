@@ -400,9 +400,6 @@ export class BentoBoxComponent {
     this.fillersInGrid = fillerItens;
   }
 
-  //change2
-  //change 1
-
   //-------------------------------TOOLBAR-------------------------------//
   /**
    * Seleciona um item no vetor que forma o grid
