@@ -4,6 +4,10 @@ import {
   Output,
   EventEmitter,
   HostListener,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
 } from '@angular/core';
 @Component({
   selector: 'app-carrossel',
@@ -12,16 +16,51 @@ import {
   templateUrl: './carrossel.component.html',
   styleUrl: './carrossel.component.scss',
 })
-export class CarrosselComponent {
+export class CarrosselComponent implements AfterViewInit, OnDestroy {
   @Input() images: string[] = [];
   @Input() currentIndex: number = 0;
   @Output() currentIndexChange = new EventEmitter<number>();
+
+  @ViewChild('imagesRow', { static: true }) imagesRowRef!: ElementRef;
+
+  private touchStartHandler!: (e: TouchEvent) => void;
+  private touchMoveHandler!: (e: TouchEvent) => void;
 
   dragging: boolean = false;
   dragStartX: number = 0;
   dragOffsetX: number = 0;
   isZoomed: boolean = false;
   zoomedImage: string = '';
+
+  /**
+   * Inicializa os listeners de eventos `touchstart` e `touchmove` com a opção `passive: true`
+   * para otimizar o desempenho em dispositivos móveis.
+   *
+   * Os handlers são registrados diretamente com `addEventListener` para permitir a configuração
+   * da flag `passive`, que não é suportada pela API `Renderer2`.
+   */
+  ngAfterViewInit(): void {
+    const element = this.imagesRowRef.nativeElement;
+
+    this.touchStartHandler = (e: TouchEvent) => this.handleDragStart(e);
+    element.addEventListener('touchstart', this.touchStartHandler, {
+      passive: true,
+    });
+
+    this.touchMoveHandler = (e: TouchEvent) => this.handleDragMove(e);
+    element.addEventListener('touchmove', this.touchMoveHandler, {
+      passive: true,
+    });
+  }
+
+  /**
+   * Remove os listeners de `touchstart` e `touchmove` registrados manualmente no `ngAfterViewInit()`.
+   */
+  ngOnDestroy(): void {
+    const element = this.imagesRowRef.nativeElement;
+    element.removeEventListener('touchstart', this.touchStartHandler);
+    element.removeEventListener('touchmove', this.touchMoveHandler);
+  }
 
   /**
    * Avança para a próxima imagem no carrossel
@@ -103,7 +142,7 @@ export class CarrosselComponent {
    * Finaliza o arraste e decide se deve mudar de imagem com base no deslocamento
    * @param event - Evento de mouse ou touch que finalizou o arraste
    */
-  handleDragEnd(event: MouseEvent | TouchEvent): void {
+  handleDragEnd(): void {
     if (!this.dragging) return;
 
     const threshold = 100;

@@ -17,32 +17,23 @@
       </svg>
     </button>
     <div
+      #imagesRow
       class="images-row"
       [style.transform]="
-        'translateX(calc(' +
-        (-currentIndex * 100) +
-        '% + ' +
-        dragOffsetX +
-        'px))'
+        'translateX(calc(' + -currentIndex * 100 + '% + ' + dragOffsetX + 'px))'
       "
       [class.no-transition]="dragging"
       (mousedown)="handleDragStart($event)"
       (mousemove)="handleDragMove($event)"
-      (mouseup)="handleDragEnd($event)"
-      (mouseleave)="handleDragEnd($event)"
-      (touchstart)="handleDragStart($event)"
-      (touchmove)="handleDragMove($event)"
-      (touchend)="handleDragEnd($event)"
+      (mouseup)="handleDragEnd()"
+      (mouseleave)="handleDragEnd()"
+      (touchend)="handleDragEnd()"
     >
-    @for (image of images; track $index) {
-      <div class="image-wrapper" >
-        <img
-          [src]="image"
-          alt="Product image"
-          (click)="openZoom(image)"
-        />
+      @for (image of images; track $index) {
+      <div class="image-wrapper">
+        <img [src]="image" alt="Product image" (click)="openZoom(image)" />
       </div>
-    }
+      }
     </div>
   </div>
 
