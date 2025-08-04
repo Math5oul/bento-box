@@ -276,3 +276,19 @@
     }
   }
 }
+
+
+.images-row {
+  display: flex;
+  transition: transform 0.3s ease;
+  will-change: transform;
+
+  &.no-transition {
+    transition: none !important;
+  }
+}
+
+.image-wrapper {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
