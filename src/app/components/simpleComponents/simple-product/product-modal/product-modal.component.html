@@ -1,14 +1,10 @@
 @if (isOpen) {
 <div class="modal-back">
-  <div class="modal-overlay" (click)="close()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" (mousedown)="close()">
+    <div class="modal-content" (mousedown)="$event.stopPropagation()">
       <button class="close-button" (click)="close()">&times;</button>
 
-      <app-carrossel
-        class="carousel-container"
-        [images]="images"
-        [(currentIndex)]="currentImageIndex"
-      >
+      <app-carrossel [images]="images" [(currentIndex)]="currentImageIndex">
         ></app-carrossel
       >
 
