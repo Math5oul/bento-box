@@ -8,6 +8,19 @@
   padding: 1.5rem;
   z-index: 1000;
   box-sizing: border-box;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 2;
+  color: #2d3436;
 }
 
 .cart-title {
@@ -41,10 +54,10 @@
   background: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+.cart-item:last-child {
+  margin-bottom: 0;
 }
 
 .item-info {
@@ -67,20 +80,68 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.quantity-adjuster {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  padding: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.quantity-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  color: #2d3436;
+}
+
+.quantity-button:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+
+.quantity-button.decrease:hover {
+  background: #ffe3e3;
+  color: #ff6b6b;
+}
+
+.quantity-button.increase:hover {
+  background: #e3fcef;
+  color: #00b894;
 }
 
 .quantity {
+  min-width: 26px;
+  text-align: center;
+  font-weight: 600;
   font-size: 0.9rem;
-  color: #636e72;
-  background: #e9ecef;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+}
+
+.trash-icon {
+  font-size: 0.8rem;
+  display: inline-block;
+  transform: translateY(-1px);
 }
 
 .item-total {
   font-weight: 600;
   color: #2d3436;
+  font-size: 0.95rem;
 }
 
 .cart-footer {
@@ -114,21 +175,15 @@
   transition: background 0.3s ease;
   margin-top: auto;
   position: relative;
+}
 
-  @media (max-width: 768px) {
-    position: sticky;
-    bottom: 0;
-    margin-top: 1rem;
-  }
+.checkout-button:hover {
+  background: #009e7d;
+}
 
-  &:hover {
-    background: darken(#00b894, 10%);
-  }
-
-  &:disabled {
-    background: #b2bec3;
-    cursor: not-allowed;
-  }
+.checkout-button:disabled {
+  background: #b2bec3;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
@@ -157,16 +212,17 @@
   .checkout-button {
     padding: 1.2rem;
     font-size: 1.1rem;
+    position: sticky;
+    bottom: 0;
   }
-}
 
-.close-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 2;
+  .quantity-adjuster {
+    gap: 0.4rem;
+  }
+
+  .quantity-button {
+    width: 26px;
+    height: 26px;
+    font-size: 0.9rem;
+  }
 }

@@ -15,7 +15,26 @@
         </div>
 
         <div class="item-controls">
-          <span class="quantity">x{{ item.quantity }}</span>
+          <div class="quantity-adjuster">
+            <button class="quantity-button decrease"
+                    (click)="decreaseQuantity(item)"
+                    [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'">
+              @if (item.quantity === 1) {
+                <span class="trash-icon">🗑️</span>
+              } @else {
+                <span>-</span>
+              }
+            </button>
+
+            <span class="quantity">{{ item.quantity }}</span>
+
+            <button class="quantity-button increase"
+                    (click)="increaseQuantity(item)"
+                    title="Aumentar quantidade">
+              <span>+</span>
+            </button>
+          </div>
+
           <span class="item-total">{{ (item.price * item.quantity) | currency:'BRL' }}</span>
         </div>
       </div>
@@ -27,6 +46,6 @@
       <span>Total:</span>
       <span class="total-price">{{ total | currency:'BRL' }}</span>
     </div>
-    <button class="checkout-button">Finalizar Compra</button>
+    <button class="checkout-button">Enviar Pedido</button>
   </div>
 </div>
