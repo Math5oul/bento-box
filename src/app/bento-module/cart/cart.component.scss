@@ -4,11 +4,11 @@
   height: 100vh;
   background: #ffffff;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
   padding: 1.5rem;
   z-index: 1000;
   box-sizing: border-box;
   position: relative;
+  min-width: 320px;
 }
 
 .close-button {
@@ -64,11 +64,28 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  align-items: center;
+  max-width: 96px;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .product-name {
   font-weight: 600;
   color: #2d3436;
+  text-align: center;
 }
 
 .product-price {
@@ -142,6 +159,7 @@
   font-weight: 600;
   color: #2d3436;
   font-size: 0.95rem;
+  margin-right: 0.5rem;
 }
 
 .cart-footer {

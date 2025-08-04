@@ -9,16 +9,31 @@
       >
 
       <div class="product-info">
-        <h2 class="product-name">{{ productName }}</h2>
-        <p class="product-price">{{ price | currency : "BRL" }}</p>
-        <p class="product-description">{{ description }}</p>
+        <div class="product-text">
+          <h2 class="product-name">{{ productName }}</h2>
+          <p class="product-price">{{ price | currency : "BRL" }}</p>
+          <p class="product-description">{{ description }}</p>
 
-        <div class="quantity-selector">
-          <button (click)="decrementQuantity()">-</button>
-          <input type="number" [(ngModel)]="quantity" min="1" />
-          <button (click)="incrementQuantity()">+</button>
+          <div class="quantity-adjuster">
+            <button
+              class="quantity-button decrease"
+              (click)="decrementQuantity()"
+              title="Diminuir quantidade"
+            >
+              <span>-</span>
+            </button>
+
+            <span class="quantity">{{ quantity }}</span>
+
+            <button
+              class="quantity-button increase"
+              (click)="incrementQuantity()"
+              title="Aumentar quantidade"
+            >
+              <span>+</span>
+            </button>
+          </div>
         </div>
-
         <div class="observations">
           <textarea
             [(ngModel)]="observations"

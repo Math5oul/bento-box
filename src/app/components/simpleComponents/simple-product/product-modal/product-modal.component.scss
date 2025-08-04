@@ -54,6 +54,18 @@
 .product-info {
   -webkit-overflow-scrolling: touch;
 
+  .product-text{
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+  }
+
+  .product-description {
+    margin: 0.5rem 0;
+  }
+
   .product-name {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
@@ -64,31 +76,61 @@
     font-size: 1.2rem;
     color: #e91e63;
     font-weight: bold;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin: 0.5rem 0;
   }
 }
 
-.quantity-selector {
+.quantity-adjuster {
   display: flex;
+  width: 96px;
+  margin: 1rem 0;
   align-items: center;
   gap: 0.5rem;
-  margin: 1rem 0;
-
-  button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ddd;
-    background: #f5f5f5;
-    cursor: pointer;
-  }
-
-  input {
-    width: 60px;
-    text-align: center;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-  }
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  padding: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
+
+.quantity-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  color: #2d3436;
+}
+
+.quantity-button:hover {
+  background: #e9ecef;
+  transform: scale(1.05);
+}
+
+.quantity-button.decrease:hover {
+  background: #ffe3e3;
+  color: #ff6b6b;
+}
+
+.quantity-button.increase:hover {
+  background: #e3fcef;
+  color: #00b894;
+}
+
+.quantity {
+  min-width: 26px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 
 .observations textarea {
   padding: 12px 15px;

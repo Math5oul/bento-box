@@ -5,6 +5,8 @@ export interface CartItem {
   productName: string;
   price: number;
   quantity: number;
+  observations?: string;
+  image?: string;
 }
 
 @Injectable({ providedIn: 'root' })
