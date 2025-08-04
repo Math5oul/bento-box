@@ -29,8 +29,6 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
   dragging: boolean = false;
   dragStartX: number = 0;
   dragOffsetX: number = 0;
-  isZoomed: boolean = false;
-  zoomedImage: string = '';
 
   /**
    * Inicializa os listeners de eventos `touchstart` e `touchmove` com a opção `passive: true`
@@ -91,22 +89,6 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Abre uma imagem em modo de zoom
-   * @param image - URL da imagem a ser ampliada
-   */
-  openZoom(image: string): void {
-    this.isZoomed = true;
-    this.zoomedImage = image;
-  }
-
-  /**
-   * Fecha o modo de zoom da imagem
-   */
-  closeZoom(): void {
-    this.isZoomed = false;
-  }
-
-  /**
    * Obtém a coordenada X de um evento de mouse ou toque
    * @param event - Evento de mouse ou touch
    * @returns A posição horizontal do evento
@@ -123,6 +105,9 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
    * @param event - Evento de mouse ou touch que iniciou o arraste
    */
   handleDragStart(event: MouseEvent | TouchEvent): void {
+    if (event instanceof MouseEvent) {
+      event.preventDefault();
+    }
     this.dragging = true;
     this.dragStartX = this.getEventX(event);
     this.dragOffsetX = 0;
@@ -154,16 +139,5 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
 
     this.dragging = false;
     this.dragOffsetX = 0;
-  }
-
-  /**
-   * Fecha o zoom quando a tecla ESC é pressionada
-   * @param event - Evento de teclado
-   */
-  @HostListener('document:keydown.escape', ['$event'])
-  handleEscape(event: KeyboardEvent): void {
-    if (this.isZoomed) {
-      this.closeZoom();
-    }
   }
 }

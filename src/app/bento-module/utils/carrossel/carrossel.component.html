@@ -31,7 +31,7 @@
     >
       @for (image of images; track $index) {
       <div class="image-wrapper">
-        <img [src]="image" alt="Product image" (click)="openZoom(image)" />
+        <img [src]="image" alt="Product image" />
       </div>
       }
     </div>
@@ -49,12 +49,3 @@
   </div>
   }
 </div>
-
-@if (isZoomed) {
-<div class="zoom-overlay" (click)="closeZoom()">
-  <div class="zoom-container" (click)="$event.stopPropagation()">
-    <button class="close-zoom" (click)="closeZoom()">&times;</button>
-    <img [src]="zoomedImage" alt="Zoomed product image" class="zoomed-image" />
-  </div>
-</div>
-}
