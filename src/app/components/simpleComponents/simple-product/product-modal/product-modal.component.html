@@ -1,108 +1,41 @@
 @if (isOpen) {
-  <div class="modal-back">
-    <div class="modal-overlay" (click)="close()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <button class="close-button" (click)="close()">&times;</button>
+<div class="modal-back">
+  <div class="modal-overlay" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-button" (click)="close()">&times;</button>
 
-        <div class="product-carousel">
-          <div class="carousel-container">
-            <button
-              class="carousel-nav left"
-              (click)="prevImage(); $event.stopPropagation()"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="white"
-              >
-                <path
-                  d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"
-                />
-              </svg>
-            </button>
-            <button
-              class="carousel-nav right"
-              (click)="nextImage(); $event.stopPropagation()"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="white"
-              >
-                <path
-                  d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                />
-              </svg>
-            </button>
-            <div
-    class="images-row"
-    [style.transform]="
-      'translateX(calc(' +
-      (-currentImageIndex * 100) +
-      '% + ' +
-      dragOffsetX +
-      'px))'
-    "
-    [class.no-transition]="dragging"
-    (mousedown)="handleDragStart($event)"
-    (mousemove)="handleDragMove($event)"
-    (mouseup)="handleDragEnd($event)"
-    (mouseleave)="handleDragEnd($event)"
-    (touchstart)="handleDragStart($event)"
-    (touchmove)="handleDragMove($event)"
-    (touchend)="handleDragEnd($event)"
-  >
-    <div class="image-wrapper" *ngFor="let image of images">
-      <img [src]="image" [alt]="productName" />
-    </div>
-  </div>
-          </div>
+      <app-carrossel
+        class="carousel-container"
+        [images]="images"
+        [(currentIndex)]="currentImageIndex"
+      >
+        ></app-carrossel
+      >
 
-          @if (images.length > 1) {
-          <div class="carousel-dots">
-            @for (image of images; track $index) {
-            <button
-              class="dot"
-              [class.active]="$index === currentImageIndex"
-              (click)="currentImageIndex = $index; $event.stopPropagation()"
-            ></button
-            >}
-          </div>
-          }
+      <div class="product-info">
+        <h2 class="product-name">{{ productName }}</h2>
+        <p class="product-price">{{ price | currency : "BRL" }}</p>
+        <p class="product-description">{{ description }}</p>
+
+        <div class="quantity-selector">
+          <button (click)="decrementQuantity()">-</button>
+          <input type="number" [(ngModel)]="quantity" min="1" />
+          <button (click)="incrementQuantity()">+</button>
         </div>
 
-        <div class="product-info">
-          <h2 class="product-name">{{ productName }}</h2>
-          <p class="product-price">{{ price | currency : "BRL" }}</p>
-          <p class="product-description">{{ description }}</p>
-
-          <div class="quantity-selector">
-            <button (click)="decrementQuantity()">-</button>
-            <input type="number" [(ngModel)]="quantity" min="1" />
-            <button (click)="incrementQuantity()">+</button>
-          </div>
-
-          <div class="observations">
-            <textarea
-              [(ngModel)]="observations"
-              placeholder="Adicione observações ao pedido..."
-              rows="3"
-            ></textarea>
-          </div>
-
-          <button class="submit-button" (click)="submitOrder()">
-            Adicionar ao Carrinho
-          </button>
+        <div class="observations">
+          <textarea
+            [(ngModel)]="observations"
+            placeholder="Adicione observações ao pedido..."
+            rows="3"
+          ></textarea>
         </div>
+
+        <button class="submit-button" (click)="submitOrder()">
+          Adicionar ao Carrinho
+        </button>
       </div>
     </div>
-    @if (isZoomed) {
-    <div class="zoom-overlay" (click)="closeZoom()">
-      <div class="zoom-container" (click)="$event.stopPropagation()">
-        <button class="close-zoom" (click)="closeZoom()">&times;</button>
-        <img [src]="zoomedImage" [alt]="productName" class="zoomed-image" />
-      </div>
-    </div>
-    }
   </div>
-  }
+</div>
+}
