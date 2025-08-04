@@ -1,49 +1,69 @@
-<div class="carousel-container">
-  <button class="carousel-nav left" (click)="prevImage()">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-      <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
-    </svg>
-  </button>
-
-  <button class="carousel-nav right" (click)="nextImage()">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-      <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-    </svg>
-  </button>
-
-  <div
-    class="images-row"
-    [style.transform]="
-      'translateX(calc(' +
-      (-currentImageIndex * 100) +
-      '% + ' +
-      dragOffsetX +
-      'px))'
-    "
-    [class.no-transition]="dragging"
-    (mousedown)="handleDragStart($event)"
-    (mousemove)="handleDragMove($event)"
-    (mouseup)="handleDragEnd()"
-    (mouseleave)="handleDragEnd()"
-    (touchstart)="handleDragStart($event)"
-    (touchmove)="handleDragMove($event)"
-    (touchend)="handleDragEnd()"
-  >
-    <div
-      class="image-wrapper"
-      *ngFor="let image of images"
-      (click)="imageClicked.emit(image)"
+<div class="product-carousel">
+  <div class="carousel-container">
+    <button
+      class="carousel-nav left"
+      (click)="prevImage(); $event.stopPropagation()"
     >
-      <img [src]="image" alt="Produto" />
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+      </svg>
+    </button>
+    <button
+      class="carousel-nav right"
+      (click)="nextImage(); $event.stopPropagation()"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+      </svg>
+    </button>
+    <div
+      class="images-row"
+      [style.transform]="
+        'translateX(calc(' +
+        (-currentIndex * 100) +
+        '% + ' +
+        dragOffsetX +
+        'px))'
+      "
+      [class.no-transition]="dragging"
+      (mousedown)="handleDragStart($event)"
+      (mousemove)="handleDragMove($event)"
+      (mouseup)="handleDragEnd($event)"
+      (mouseleave)="handleDragEnd($event)"
+      (touchstart)="handleDragStart($event)"
+      (touchmove)="handleDragMove($event)"
+      (touchend)="handleDragEnd($event)"
+    >
+    @for (image of images; track $index) {
+      <div class="image-wrapper" >
+        <img
+          [src]="image"
+          alt="Product image"
+          (click)="openZoom(image)"
+        />
+      </div>
+    }
     </div>
   </div>
+
+  @if (images.length > 1) {
+  <div class="carousel-dots">
+    @for (image of images; track $index) {
+    <button
+      class="dot"
+      [class.active]="$index === currentIndex"
+      (click)="setCurrentIndex($index); $event.stopPropagation()"
+    ></button>
+    }
+  </div>
+  }
 </div>
 
-<div class="carousel-dots" *ngIf="images.length > 1">
-  <button
-    class="dot"
-    *ngFor="let image of images; index as i"
-    [class.active]="i === currentImageIndex"
-    (click)="currentImageIndex = i"
-  ></button>
+@if (isZoomed) {
+<div class="zoom-overlay" (click)="closeZoom()">
+  <div class="zoom-container" (click)="$event.stopPropagation()">
+    <button class="close-zoom" (click)="closeZoom()">&times;</button>
+    <img [src]="zoomedImage" alt="Zoomed product image" class="zoomed-image" />
+  </div>
 </div>
+}
