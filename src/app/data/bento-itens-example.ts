@@ -443,7 +443,7 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
-  
+
   {
     id: 23,
     component: SimpleImageComponent,
@@ -455,7 +455,7 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
-  
+
   {
     id: 24,
     component: SimpleTextComponent,
@@ -470,7 +470,7 @@ export const dataExamples: GridItem[] = [
     row: 0,
     col: 0,
   },
-  
+
   {
     id: 25,
     component: SimpleImageComponent,

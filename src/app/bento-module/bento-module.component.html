@@ -1,35 +1,20 @@
-<app-bento-box
-  [data]="data"
-  [fillers]="fillers || []"
-  [options]="options"
-  (selectedItemChange)="onSelectedItemChange($event)"
-></app-bento-box>
+<section class="bento-module">
+  <app-header class="header"></app-header>
 
-@if (toolbar) {
-<app-bento-toolbar
-  [data]="data"
-  [options]="options"
-  [selectedItem]="selectedItem || null"
->
-</app-bento-toolbar>
-}
+  <app-bento-box
+    class="bento-box"
+    [data]="data"
+    [fillers]="fillers || []"
+    [options]="options"
+    (selectedItemChange)="onSelectedItemChange($event)"
+  ></app-bento-box>
 
-<button class="cart-toggle" (click)="toggleCart()">
-  🛒 <span class="cart-badge">{{ _cartService.getCurrentItems().length }}</span>
-</button>
-
-<div
-  class="cart-overlay"
-  [class.visible]="isCartOpen"
-  [class.hidden]="!isCartOpen"
-  (click)="toggleCart()"
-></div>
-
-@if(isCartOpen) {
-<app-cart
-  class="cart-wrapper"
-  [class.open]="isCartOpen"
-  [class.closed]="!isCartOpen"
-  (closeCart)="toggleCart()"
-></app-cart>
-}
+  @if (toolbar) {
+  <app-bento-toolbar
+    [data]="data"
+    [options]="options"
+    [selectedItem]="selectedItem || null"
+  >
+  </app-bento-toolbar>
+  }
+</section>
