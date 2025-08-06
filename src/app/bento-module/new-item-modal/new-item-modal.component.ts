@@ -6,7 +6,6 @@ import {
   FormBuilder,
   FormGroup,
   FormArray,
-  FormControl,
 } from '@angular/forms';
 import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
 

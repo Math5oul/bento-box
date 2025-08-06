@@ -1,0 +1,28 @@
+<section class="header">
+  <div class="shop-header">
+    <img src="imgs/bento-logo.png" alt="Bento Logo" class="logo"/>
+    <input type="text" class="search-bar" placeholder="Search products..." />
+    <button class="cart-toggle" (click)="toggleCart()">
+      🛒
+      <span class="cart-badge">{{
+        _cartService.getCurrentItems().length
+      }}</span>
+    </button>
+  </div>
+
+  <div
+    class="cart-overlay"
+    [class.visible]="isCartOpen"
+    [class.hidden]="!isCartOpen"
+    (click)="toggleCart()"
+  ></div>
+
+  @if(isCartOpen) {
+  <app-cart
+    class="cart-wrapper"
+    [class.open]="isCartOpen"
+    [class.closed]="!isCartOpen"
+    (closeCart)="toggleCart()"
+  ></app-cart>
+  }
+</section>

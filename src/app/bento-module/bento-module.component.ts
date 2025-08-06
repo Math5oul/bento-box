@@ -5,9 +5,9 @@ import { GridItem } from '../interfaces/bento-box.interface';
 import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
 import { BentoToolbarComponent } from './bento-toolbar/bento-toolbar.component';
-import { CartComponent } from './cart/cart.component';
 import { CartService } from '../services/cart-service/cart.service';
 import { CommonModule } from '@angular/common';
+import { HeaderComponent } from './header/header.component';
 
 @Component({
   selector: 'app-bento-module',
@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
   imports: [
     BentoBoxComponent,
     BentoToolbarComponent,
-    CartComponent,
+    HeaderComponent,
     CommonModule,
   ],
   templateUrl: './bento-module.component.html',
@@ -49,9 +49,4 @@ export class BentoModuleComponent {
     this.selectedItem = event;
   }
 
-  isCartOpen = false;
-
-  toggleCart() {
-    this.isCartOpen = !this.isCartOpen;
-  }
 }
