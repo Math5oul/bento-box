@@ -1,24 +1,25 @@
-
 .shop-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: 1rem;
   background-color: #f5f3f3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 0.5rem;
 
-  .shop-title {
-    margin: 0;
-    font-size: 1.5rem;
+  .logo {
+    width: 70px;
+    flex-shrink: 0;
   }
 
   .search-bar {
-    flex: 1;
-    margin: 0 1rem;
-    padding: 0.5rem 1rem;
+    flex: 1 1 10%;
+    padding: 0.5rem;
     font-size: 1rem;
     border-radius: 0.5rem;
     border: 1px solid #ccc;
+    min-width: 0;
   }
 
   .cart-toggle {
@@ -29,6 +30,7 @@
     font-size: 1.5rem;
     padding: 0.5rem;
     z-index: 2;
+    flex-shrink: 0;
 
     .cart-badge {
       position: absolute;
