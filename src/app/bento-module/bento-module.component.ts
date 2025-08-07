@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { dataExamples } from '../data/bento-itens-example';
 import { fillerExamples } from '../data/filler-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
@@ -22,7 +22,8 @@ import { HeaderComponent } from './header/header.component';
   styleUrl: './bento-module.component.scss',
 })
 export class BentoModuleComponent {
-  @Input() data: GridItem[] = dataExamples;
+  @Input() originalData: GridItem[] = dataExamples;
+  data = [...this.originalData];
   @Input() fillers?: GridItem[] = fillerExamples;
   @Input() toolbar: boolean = true;
   @Input() options: BentoOptions = {
@@ -35,6 +36,8 @@ export class BentoModuleComponent {
     mode: 'autoFill',
   };
 
+  @ViewChild(BentoBoxComponent) bentoBoxComponent!: BentoBoxComponent;
+
   public selectedItem!: GridItem;
 
   constructor(public _cartService: CartService) {}
@@ -44,9 +47,31 @@ export class BentoModuleComponent {
       this.options.createFillers = false;
     }
   }
-
   onSelectedItemChange(event: any) {
     this.selectedItem = event;
+  }
+
+  /**
+   * Filtra os itens com base no nome do produto ou na descrição.
+   * @param searchText Texto de pesquisa para filtrar os itens.
+   */
+  onSearch(searchText: string) {
+    const term = searchText.toLowerCase().trim();
+
+    if (!term) {
+      this.data = [...this.originalData];
+    } else {
+      this.data = this.originalData.filter((item) => {
+        const name = item.inputs?.productName?.toLowerCase() || '';
+        const description = item.inputs?.description?.toLowerCase() || '';
+        return name.includes(term) || description.includes(term);
+      });
+    }
+
+    setTimeout(() => {
+      this.bentoBoxComponent.restartGrid();
+      this.bentoBoxComponent.recalculateGrid();
+    });
   }
 
 }

@@ -1,7 +1,14 @@
 <section class="header">
   <div class="shop-header">
-    <img src="imgs/bento-logo.png" alt="Bento Logo" class="logo"/>
-    <input type="text" class="search-bar" placeholder="Search products..." />
+    <img src="imgs/bento-logo.png" alt="Bento Logo" class="logo" />
+    <input
+      #searchInput
+      type="text"
+      class="search-bar"
+      placeholder="Procurrar..."
+      (input)="onSearchInput(searchInput.value)"
+    />
+
     <button class="cart-toggle" (click)="toggleCart()">
       🛒
       <span class="cart-badge">{{
