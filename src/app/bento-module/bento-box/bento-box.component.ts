@@ -83,14 +83,23 @@ export class BentoBoxComponent {
   private resizeSubject = new Subject<void>();
 
   /**
+   * Reinicia a grade, limpando os itens e espaços vazios.
+   * Isso é útil quando a grade precisa ser recalculada, por exemplo, após uma
+   * mudança de tamanho da janela ou atualização dos dados.
+   */
+  public restartGrid() {
+    this.grid = [];
+    this.emptyCells = [];
+    this.fillersInGrid = [];
+  }
+
+  /**
    * Observável de quando a janela é redimensionada.
    * @param event Evento de redimensionamento.
    */
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.grid = [];
-    this.emptyCells = [];
-    this.fillersInGrid = [];
+    this.restartGrid()
 
     this.resizeSubject.next();
   }
@@ -399,6 +408,14 @@ export class BentoBoxComponent {
 
     this.fillersInGrid = fillerItens;
   }
+
+  recalculateGrid(): void {
+    if (isPlatformBrowser(this.platformId) && this.bento?.nativeElement) {
+      this.windowWidth = this.bento.nativeElement.offsetWidth;
+      this.calculateGridCols(this.windowWidth);
+    }
+  }
+
 
   //-------------------------------TOOLBAR-------------------------------//
   /**

@@ -15,6 +15,7 @@ export const dataExamples: GridItem[] = [
         "https://conscienciacafe.com.br/wp-content/uploads/2023/09/cafe-espresso-maquina.jpg",
         "https://conscienciacafe.com.br/wp-content/uploads/2023/09/xicara-de-cafe-espresso.jpg",
       ],
+      colorMode: "dark",
       productName: "Expresso",
       description: "Noir comme l'âme de votre propriétaire, venez goûter",
       price: 4.99,
