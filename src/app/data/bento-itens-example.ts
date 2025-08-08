@@ -24,6 +24,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 3,
@@ -44,6 +45,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 0,
@@ -64,20 +66,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-  },
-  {
-    id: 20,
-    component: SimpleTextComponent,
-    inputs: {
-      text: `<h2 style="color: #FFFFFF;">Maintenant Ouvert</h2>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Découvrez les riches saveurs de notre café fraîchement préparé au Café Aromático.</p>
-             <p style="color: #FFFFFF; margin-bottom: 8px;">Profitez de nos mélanges signature dans une ambiance chaleureuse et accueillante.</p>`,
-      background: "#900C3F",
-    },
-    colSpan: 1,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 2,
@@ -98,6 +87,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 4,
@@ -118,6 +108,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 5,
@@ -138,32 +129,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
-  },
-  {
-    id: 22,
-    component: SimpleImageComponent,
-    inputs: {
-      url: "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    colSpan: 1,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 21,
-    component: SimpleVideoComponent,
-    inputs: {
-      videoUrl:
-        "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
-      autoplay: true,
-      controls: true,
-      loop: true,
-    },
-    colSpan: 2,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 10,
@@ -184,6 +150,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
 
   {
@@ -204,6 +171,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
   {
     id: 11,
@@ -224,6 +192,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    category: 'Hot Drinks',
   },
 
   {
@@ -245,6 +214,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Cold Drinks',
   },
   {
     id: 16,
@@ -265,6 +235,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    category: 'Cold Drinks',
   },
 
   {
@@ -286,6 +257,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Cold Drinks',
   },
   {
     id: 6,
@@ -306,6 +278,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Deserts',
   },
   {
     id: 8,
@@ -327,6 +300,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Snacks',
   },
   {
     id: 9,
@@ -347,6 +321,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Deserts',
   },
 
   {
@@ -368,6 +343,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Deserts',
   },
   {
     id: 13,
@@ -388,6 +364,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
+    category: 'Snacks',
   },
 
   {
@@ -409,6 +386,7 @@ export const dataExamples: GridItem[] = [
     rowSpan: 2,
     row: 0,
     col: 0,
+    category: 'Deserts',
   },
 
   {
@@ -430,78 +408,6 @@ export const dataExamples: GridItem[] = [
     rowSpan: 1,
     row: 0,
     col: 0,
-  },
-
-  /*
-  {
-    id: 22,
-    component: SimpleImageComponent,
-    inputs: {
-      url: "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    colSpan: 1,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-
-  {
-    id: 23,
-    component: SimpleImageComponent,
-    inputs: {
-      url: "https://images.unsplash.com/photo-1502045856-4882464b27a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    colSpan: 1,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-
-  {
-    id: 24,
-    component: SimpleTextComponent,
-    inputs: {
-      text: `<h2 style="color: #000000;">Grand Café</h2>
-             <p style="margin-bottom: 8px;">Rejoignez-nous pour l'inauguration de Café Aromático, votre nouveau lieu de prédilection pour le café et les pâtisseries.</p>
-             <p style="margin-bottom: 8px;">Découvrez les meilleurs breuvages et délices faits main dans une ambiance chaleureuse.</p>`,
-      background: "#F39C12",
-    },
-    colSpan: 1,
-    rowSpan: 2,
-    row: 0,
-    col: 0,
-  },
-
-  {
-    id: 25,
-    component: SimpleImageComponent,
-    inputs: {
-      url: "https://images.unsplash.com/photo-1564367133818-6ac5df7debfc?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    colSpan: 2,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  {
-    id: 19,
-    component: SimpleProductComponent,
-    inputs: {
-      format: "1x1",
-      images: [
-        'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://via.placeholder.com/200x200/FFFACD/000000',
-        'https://via.placeholder.com/200x200/FFFACD/000000'
-      ],
-      colorMode: "dark",
-      productName: "Tiramisu",
-      description: "Sobremesa italiana clássica com café e cacau em pó",
-      price: 9.25,
-    },
-    colSpan: 1,
-    rowSpan: 1,
-    row: 0,
-    col: 0,
-  },
-  */
+    category: 'Deserts',
+  }
 ];

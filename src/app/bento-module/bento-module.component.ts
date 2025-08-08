@@ -68,10 +68,6 @@ export class BentoModuleComponent {
       });
     }
 
-    setTimeout(() => {
-      this.bentoBoxComponent.restartGrid();
-      this.bentoBoxComponent.recalculateGrid();
-    });
   }
 
 }

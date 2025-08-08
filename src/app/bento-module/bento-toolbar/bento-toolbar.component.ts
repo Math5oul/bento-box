@@ -80,6 +80,7 @@ export class BentoToolbarComponent {
       colSpan: itemData.colSpan,
       row: 0,
       col: 0,
+      category: itemData.category || 'Uncategorized',
     };
 
     this.data.push(newItem);

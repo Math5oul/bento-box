@@ -1,62 +1,66 @@
-<section
-  class="bento"
-  #bento
-  [ngStyle]="{
-    'max-width': options.maxWidth > 0 ? options.maxWidth + 'px' : 'none',
-    'margin-inline': 'auto'
-  }"
->
-  <div
-    class="bento-container"
-    #bentoContainer
+@for (category of getCategories(); track $index) {
+  <section
+    class="bento"
+    #bento
     [ngStyle]="{
-    'grid-template-columns': 'repeat(auto-fit, ' + options.cellWidth + 'px)',
-    'max-width': (currentCols * options.cellWidth) + 'px',
-    'margin-inline': 'auto',
-  }"
-  >
-    @for (item of data; track $index) {
-    <div
-      class="bento-item"
-      [ngClass]="{ selected: selectedItem === item && options.mode === 'edit' }"
-      (click)="selectItem(item)"
-      [ngStyle]="{
-        'width.px': item.colSpan * options.cellWidth,
-        'height.px': item.rowSpan * options.cellHeight,
-        'grid-column-start': item.col + 1,
-        'grid-column-end': 'span ' + item.colSpan,
-        'grid-row-start': item.row + 1,
-        'grid-row-end': 'span ' + item.rowSpan,
-        padding: options.gridGap + 'px'
-      }"
-    >
-      <div
-        [ngClass]="{ 'disable-click': options.mode === 'edit' }"
-        [ngStyle]="{
-      height: '-webkit-fill-available',
-      width: '-webkit-fill-available',
+      'max-width': options.maxWidth > 0 ? options.maxWidth + 'px' : 'none',
+      'margin-inline': 'auto'
     }"
-    *ngComponentOutlet="item.component; inputs: item.inputs"
-      >
-      </div>
-    </div>
-    } @if(options.createFillers) {@for (item of fillersInGrid; track $index) {
+  >
+    <h2 class="bento-category-title">{{ category }}</h2>
+
     <div
-      class="bento-item__filler"
+      class="bento-container"
       [ngStyle]="{
-        'width.px': item.colSpan * options.cellWidth,
-        'height.px': item.rowSpan * options.cellHeight,
-        'grid-column-start': item.col + 1,
-        'grid-column-end': 'span ' + item.colSpan,
-        'grid-row-start': item.row + 1,
-        'grid-row-end': 'span ' + item.rowSpan,
-        padding: options.gridGap + 'px'
+        'grid-template-columns': 'repeat(auto-fit, ' + options.cellWidth + 'px)',
+        'max-width': (currentCols * options.cellWidth) + 'px',
+        'margin-inline': 'auto'
       }"
     >
+      @for (item of categorizedItems[category]; track $index) {
       <div
-        *ngComponentOutlet="item.component; inputs: item.inputs"
-      ></div>
+        class="bento-item"
+        [ngClass]="{ selected: selectedItem === item && options.mode === 'edit' }"
+        (click)="selectItem(item)"
+        [ngStyle]="{
+          'width.px': item.colSpan * options.cellWidth,
+          'height.px': item.rowSpan * options.cellHeight,
+          'grid-column-start': item.col + 1,
+          'grid-column-end': 'span ' + item.colSpan,
+          'grid-row-start': item.row + 1,
+          'grid-row-end': 'span ' + item.rowSpan,
+          padding: options.gridGap + 'px'
+        }"
+      >
+        <div
+          [ngClass]="{ 'disable-click': options.mode === 'edit' }"
+          [ngStyle]="{
+            height: '-webkit-fill-available',
+            width: '-webkit-fill-available'
+          }"
+          *ngComponentOutlet="item.component; inputs: item.inputs"
+        ></div>
+      </div>
+      }
+
+      @if (options.createFillers) {
+        @for (item of fillersInGridByCategory[category]; track $index) {
+        <div
+          class="bento-item__filler"
+          [ngStyle]="{
+            'width.px': item.colSpan * options.cellWidth,
+            'height.px': item.rowSpan * options.cellHeight,
+            'grid-column-start': item.col + 1,
+            'grid-column-end': 'span ' + item.colSpan,
+            'grid-row-start': item.row + 1,
+            'grid-row-end': 'span ' + item.rowSpan,
+            padding: options.gridGap + 'px'
+          }"
+        >
+          <div *ngComponentOutlet="item.component; inputs: item.inputs"></div>
+        </div>
+        }
+      }
     </div>
-    }}
-  </div>
-</section>
+  </section>
+  }
