@@ -78,6 +78,7 @@ export class BentoBoxComponent {
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.resizeSubject.next();
+    this.recalculateGrid();
   }
 
   ngOnInit(): void {
@@ -96,8 +97,27 @@ export class BentoBoxComponent {
       this.recalculateGrid();
     }
   }
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.windowWidth = this.bento.nativeElement.offsetWidth;
+      this.calculateGridCols(this.windowWidth);
+    }
+  }
 
-  private recalculateGrid() {
+  /**
+ * Recalcula completamente a disposição dos itens na grade para todas as categorias.
+ *
+ * 1. Reseta as estruturas internas de controle da grade (`gridByCategory`, `emptyCellsByCategory`, `fillersInGridByCategory`).
+ * 2. Para cada categoria:
+ *    - Inicializa uma nova grade vazia.
+ *    - Posiciona os itens dessa categoria dentro da grade, respeitando o número de colunas atual.
+ *    - Se a opção `createFillers` estiver habilitada e o modo não for `'edit'`:
+ *        a) Identifica as células vazias.
+ *        b) Agrupa os espaços vazios em blocos de tamanhos 2x2, 2x1, 1x2 e 1x1.
+ *        c) Adiciona itens de preenchimento (`fillers`) nesses espaços.
+ *      Caso contrário, a lista de fillers da categoria será vazia.
+ */
+  public recalculateGrid() {
     if (!this.currentCols) return;
 
     this.gridByCategory = {};

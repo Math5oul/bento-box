@@ -20,6 +20,13 @@ export class NewItemModalComponent {
   @Output() itemCreated = new EventEmitter<any>();
   @Output() modalClosed = new EventEmitter<void>();
 
+  categories = [
+    'Hot Drinks',
+    'Cold Drinks',
+    'Snacks',
+    'Deserts',
+  ];
+
   availableComponents = Array.from(COMPONENT_INPUTS_MAP.entries()).map(
     ([componentClass, config]) => ({
       component: componentClass,
@@ -36,6 +43,7 @@ export class NewItemModalComponent {
     this.componentForm = this.fb.group({
       rowSpan: [1],
       colSpan: [1],
+      category: [''],
       inputs: this.fb.group({}),
     });
   }
@@ -123,6 +131,7 @@ export class NewItemModalComponent {
       component: this.selectedComponent.component,
       rowSpan: formValue.rowSpan,
       colSpan: formValue.colSpan,
+      category: formValue.category,
       inputs: {
         ...formValue.inputs,
         format: calculatedFormat,
@@ -148,6 +157,7 @@ export class NewItemModalComponent {
     this.componentForm.reset({
       rowSpan: 1,
       colSpan: 1,
+      category: '',
     });
   }
 }

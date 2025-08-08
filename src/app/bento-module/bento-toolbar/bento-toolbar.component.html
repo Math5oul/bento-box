@@ -3,16 +3,17 @@
     Largura da célula:
     <input
       type="number"
-      [(ngModel)]="_cellWidth"
-      (ngModelChange)="onCellChange()"
+      [ngModel]="_cellWidth"
+      (ngModelChange)="onCellWidthChange($event)"
     />
   </label>
+
   <label class="input-label number">
     Altura da célula:
     <input
       type="number"
-      [(ngModel)]="_cellHeight"
-      (ngModelChange)="onCellChange()"
+      [ngModel]="_cellHeight"
+      (ngModelChange)="onCellHeightChange($event)"
     />
   </label>
   <label class="input-label number">

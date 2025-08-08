@@ -18,6 +18,12 @@ export class BentoToolbarComponent {
   @Input() selectedItem!: GridItem;
 
   @Output() gridChanged = new EventEmitter<void>();
+  @Output() addItem = new EventEmitter<GridItem>();
+  @Output() deleteItem = new EventEmitter<GridItem>();
+  @Output() moveItem = new EventEmitter<{
+    item: GridItem;
+    direction: 'left' | 'right';
+  }>();
 
   public showNewItemModal = false;
 
@@ -73,7 +79,7 @@ export class BentoToolbarComponent {
    */
   addNewItem(itemData: any) {
     const newItem: GridItem = {
-      id: this.data.length + 1,
+      id: 0, // Parent will set proper ID
       component: itemData.component,
       inputs: itemData.inputs,
       rowSpan: itemData.rowSpan,
@@ -83,9 +89,18 @@ export class BentoToolbarComponent {
       category: itemData.category || 'Uncategorized',
     };
 
-    this.data.push(newItem);
-    this.onGridChange();
+    this.addItem.emit(newItem);
     this.closeNewItemModal();
+  }
+
+  onCellWidthChange(value: number) {
+    this._cellWidth = value;
+    this.onCellChange();
+  }
+
+  onCellHeightChange(value: number) {
+    this._cellHeight = value;
+    this.onCellChange();
   }
 
   /**
@@ -93,11 +108,7 @@ export class BentoToolbarComponent {
    */
   removeItem() {
     if (this.selectedItem) {
-      const index = this.data.indexOf(this.selectedItem);
-      if (index !== -1) {
-        this.data.splice(index, 1);
-        this.onGridChange();
-      }
+      this.deleteItem.emit(this.selectedItem);
     } else {
       console.error('Seleciona um item para remover');
     }
@@ -109,25 +120,7 @@ export class BentoToolbarComponent {
    */
   swapItemPosition(direction: 'left' | 'right') {
     if (this.selectedItem) {
-      const index = this.data.findIndex(
-        (item) => item.id === this.selectedItem!.id
-      );
-
-      if (direction === 'left' && index > 0) {
-        [this.data[index - 1], this.data[index]] = [
-          this.data[index],
-          this.data[index - 1],
-        ];
-        this.onGridChange();
-      } else if (direction === 'right' && index < this.data.length - 1) {
-        [this.data[index], this.data[index + 1]] = [
-          this.data[index + 1],
-          this.data[index],
-        ];
-        this.onGridChange();
-      } else {
-        console.error('Não há como mover o item selecionado para esta direção');
-      }
+      this.moveItem.emit({ item: this.selectedItem, direction }); // Emit instead of modifying locally
     } else {
       console.error('Seleciona um item para mover');
     }

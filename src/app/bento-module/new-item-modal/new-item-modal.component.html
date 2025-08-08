@@ -42,6 +42,21 @@
         </label>
       </div>
 
+      <!-- Categoria -->
+      @if(selectedComponent.name == 'Produto'){
+      <div class="dimensions-form">
+        <label>
+          Categoria:
+          <select formControlName="category" required>
+            <option value="">Selecione uma categoria</option>
+            @for (cat of categories; track $index) {
+            <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      }
+
       <!-- Campos dinâmicos de inputs -->
       <div class="inputs-form" formGroupName="inputs">
         @for(input of selectedComponent.inputsConfig; track $index){
@@ -96,7 +111,7 @@
           @if(input.type === 'checkbox'){
           <div>
             <label class="checkbox">
-              <input  type="checkbox" [formControlName]="input.name" />
+              <input type="checkbox" [formControlName]="input.name" />
               {{ input.label }}
             </label>
           </div>
@@ -117,12 +132,12 @@
                 />
                 <button
                   type="button"
-                  (click)="removeMultipleInputItem(input.name,  $index)"
+                  (click)="removeMultipleInputItem(input.name, $index)"
                 >
                   Remover
                 </button>
               </div>
-            }
+              }
               <button type="button" (click)="addMultipleInputItem(input.name)">
                 Adicionar URL
               </button>
