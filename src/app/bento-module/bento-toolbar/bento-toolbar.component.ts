@@ -6,6 +6,8 @@ import { GridService } from '../../services/grid-service/grid.service';
 import { NewItemModalComponent } from '../new-item-modal/new-item-modal.component';
 import { StorageService } from '../../services/storage-service/storage.service';
 import { ComponentRegistryService } from '../../services/storage-service/component-registry.service';
+import { FillerService } from '../../services/filler-service/filler.service';
+import { COMPONENT_INPUTS_MAP } from '../new-item-modal/Components_Inputs_map';
 
 @Component({
   selector: 'app-bento-toolbar',
@@ -44,7 +46,8 @@ export class BentoToolbarComponent {
   constructor(
     private gridService: GridService,
     private storageService: StorageService,
-    private componentRegistry: ComponentRegistryService
+    private componentRegistry: ComponentRegistryService,
+    private fillerService: FillerService
   ) {}
 
   ngOnInit(): void {
@@ -110,24 +113,64 @@ export class BentoToolbarComponent {
    * Salva as alterações feitas no modo de edição
    */
   saveChanges() {
-    // Salvar as posições no MongoDB usando batch update
-    this.storageService.saveProducts(this.data).subscribe({
-      next: () => {
-        console.log('✅ Posições salvas com sucesso no MongoDB!');
-        this.originalData = [];
-        this.hasUnsavedChanges = false;
-        this.options.mode = 'autoFill';
-        this.onGridChange();
+    // Separar produtos e fillers
+    const products = this.data.filter(item => !this.isFiller(item.component));
+    const fillers = this.data.filter(item => this.isFiller(item.component));
 
-        // Feedback visual de sucesso
-        this.showSuccessMessage('Alterações salvas com sucesso!');
-      },
-      error: error => {
-        console.error('❌ Erro ao salvar posições:', error);
-        alert(
-          'Erro ao salvar as alterações. Verifique a conexão com o servidor e tente novamente.'
-        );
-      },
+    console.log(`💾 Salvando ${products.length} produtos e ${fillers.length} fillers...`);
+
+    // Criar observables para ambos (mesmo que vazios)
+    const saveObservables: any[] = [];
+
+    if (products.length > 0) {
+      saveObservables.push(this.storageService.saveProducts(products));
+    }
+
+    if (fillers.length > 0) {
+      // Preparar updates para fillers (atualiza apenas posições)
+      const fillerUpdates = fillers.map(filler => ({
+        id: String(filler.id),
+        gridPosition: {
+          row: filler.row,
+          col: filler.col,
+          rowSpan: filler.rowSpan,
+          colSpan: filler.colSpan,
+        },
+      }));
+
+      saveObservables.push(this.fillerService.updateBatchPositions(fillerUpdates));
+    }
+
+    // Se não há nada para salvar
+    if (saveObservables.length === 0) {
+      console.log('✅ Nada para salvar');
+      this.originalData = [];
+      this.hasUnsavedChanges = false;
+      this.options.mode = 'autoFill';
+      this.onGridChange();
+      return;
+    }
+
+    // Salvar tudo em paralelo
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin(saveObservables).subscribe({
+        next: results => {
+          console.log('✅ Posições salvas com sucesso no MongoDB!', results);
+          this.originalData = [];
+          this.hasUnsavedChanges = false;
+          this.options.mode = 'autoFill';
+          this.onGridChange();
+
+          // Feedback visual de sucesso
+          this.showSuccessMessage('Alterações salvas com sucesso!');
+        },
+        error: error => {
+          console.error('❌ Erro ao salvar posições:', error);
+          alert(
+            'Erro ao salvar as alterações. Verifique a conexão com o servidor e tente novamente.'
+          );
+        },
+      });
     });
   }
 
@@ -197,6 +240,162 @@ export class BentoToolbarComponent {
    * e o põe na ultima posição
    */
   addNewItem(itemData: any) {
+    console.log('🔍 Detectando tipo de item:', itemData.component);
+    console.log('🔍 Component type:', typeof itemData.component);
+    console.log('🔍 Component name:', itemData.component?.name);
+
+    // Verifica se é um Filler ou Produto
+    const isFiller = this.isFiller(itemData.component);
+    console.log('🔍 É Filler?', isFiller);
+
+    if (isFiller) {
+      this.addNewFiller(itemData);
+    } else {
+      this.addNewProduct(itemData);
+    }
+  }
+
+  /**
+   * Verifica se o componente é um Filler
+   */
+  private isFiller(component: any): boolean {
+    // Se for uma string, verifica se contém 'filler'
+    if (typeof component === 'string') {
+      return component.toLowerCase().includes('filler');
+    }
+
+    // Se for um Type/Class, busca no mapa de configuração
+    if (component) {
+      const config = COMPONENT_INPUTS_MAP.get(component);
+      if (config && config.name) {
+        return config.name.toLowerCase().includes('filler');
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Cria um novo Filler no MongoDB
+   */
+  private addNewFiller(itemData: any) {
+    console.log('➕ Criando novo Filler no MongoDB...');
+
+    // Prepara os dados do Filler
+    const fillerData: any = {
+      type: this.inferFillerType(itemData.component),
+      content: this.prepareFillerContent(itemData),
+      format: itemData.inputs.format || '1x1',
+      gridPosition: {
+        row: 0,
+        col: 0,
+        rowSpan: itemData.rowSpan || 1,
+        colSpan: itemData.colSpan || 1,
+      },
+      active: true,
+    };
+
+    // Cria o Filler no MongoDB
+    this.fillerService.createFiller(fillerData).subscribe({
+      next: createdFiller => {
+        console.log('✅ Filler criado no MongoDB:', createdFiller);
+
+        // Cria o GridItem com o ID do MongoDB
+        const newItem: GridItem = {
+          id: createdFiller._id as any,
+          component: itemData.component,
+          inputs: {
+            ...itemData.inputs,
+          },
+          rowSpan: createdFiller.gridPosition?.rowSpan || 1,
+          colSpan: createdFiller.gridPosition?.colSpan || 1,
+          row: createdFiller.gridPosition?.row || 0,
+          col: createdFiller.gridPosition?.col || 0,
+        };
+
+        this.finalizeAddItem(newItem);
+      },
+      error: error => {
+        console.error('❌ Erro ao criar Filler:', error);
+        alert('Erro ao criar o Filler. Tente novamente.');
+      },
+    });
+  }
+
+  /**
+   * Infere o tipo de Filler baseado no nome do componente
+   */
+  private inferFillerType(component: any): 'text' | 'image' | 'video' {
+    // Busca o nome do componente no mapa de configuração
+    let componentName = '';
+
+    if (typeof component === 'string') {
+      componentName = component;
+    } else if (component) {
+      const config = COMPONENT_INPUTS_MAP.get(component);
+      if (config) {
+        componentName = config.name;
+      } else if (component.name) {
+        componentName = component.name;
+      }
+    }
+
+    const nameLower = componentName.toLowerCase();
+
+    if (nameLower.includes('text')) {
+      return 'text';
+    } else if (nameLower.includes('image') || nameLower.includes('imagem')) {
+      return 'image';
+    } else if (nameLower.includes('video') || nameLower.includes('vídeo')) {
+      return 'video';
+    }
+
+    return 'text'; // Default
+  }
+
+  /**
+   * Prepara o conteúdo do Filler baseado no tipo
+   */
+  private prepareFillerContent(itemData: any): any {
+    // Busca o nome do componente no mapa
+    let componentName = '';
+
+    if (typeof itemData.component === 'string') {
+      componentName = itemData.component;
+    } else if (itemData.component) {
+      const config = COMPONENT_INPUTS_MAP.get(itemData.component);
+      if (config) {
+        componentName = config.name;
+      } else if (itemData.component.name) {
+        componentName = itemData.component.name;
+      }
+    }
+
+    const nameLower = componentName.toLowerCase();
+
+    if (nameLower.includes('text')) {
+      return {
+        text: itemData.inputs.text || itemData.inputs.productName || '',
+      };
+    } else if (nameLower.includes('image') || nameLower.includes('imagem')) {
+      return {
+        url: itemData.inputs.url || (itemData.inputs.images && itemData.inputs.images[0]) || '',
+        alt: itemData.inputs.alt || itemData.inputs.productName || '',
+      };
+    } else if (nameLower.includes('video') || nameLower.includes('vídeo')) {
+      return {
+        url: itemData.inputs.videoUrl || itemData.inputs.url || '',
+        alt: itemData.inputs.alt || '',
+      };
+    }
+
+    return {};
+  }
+
+  /**
+   * Cria um novo Produto no MongoDB
+   */
+  private addNewProduct(itemData: any) {
     console.log('➕ Criando novo produto no MongoDB...');
 
     // Prepara os dados do produto
@@ -345,46 +544,87 @@ export class BentoToolbarComponent {
 
     const index = this.data.indexOf(this.itemToEdit);
     if (index !== -1) {
-      const productId = String(this.data[index].id);
+      const itemId = String(this.data[index].id);
 
-      // Prepara os dados para atualização
-      const updateData = {
-        productName: itemData.inputs.productName,
-        description: itemData.inputs.description,
-        price: itemData.inputs.price,
-        images: itemData.inputs.images || [],
-        format: itemData.inputs.format,
-        colorMode: itemData.inputs.colorMode,
-        row: this.data[index].row,
-        col: this.data[index].col,
-        rowSpan: itemData.rowSpan,
-        colSpan: itemData.colSpan,
-      };
+      // Verifica se é um Filler ou Produto
+      if (this.isFiller(this.data[index].component)) {
+        console.log('📝 Atualizando Filler', itemId);
 
-      console.log('📝 Atualizando produto', productId, updateData);
-
-      // Atualiza no MongoDB
-      this.storageService.updateProduct(productId, updateData).subscribe({
-        next: () => {
-          // Atualiza localmente após sucesso
-          this.data[index] = {
-            ...this.data[index],
-            component: itemData.component,
-            inputs: itemData.inputs,
+        // Prepara os dados do Filler para atualização
+        const updateData = {
+          type: this.inferFillerType(itemData.component),
+          content: this.prepareFillerContent(itemData),
+          format: itemData.inputs.format,
+          gridPosition: {
+            row: this.data[index].row,
+            col: this.data[index].col,
             rowSpan: itemData.rowSpan,
             colSpan: itemData.colSpan,
-          };
+          },
+        };
 
-          console.log('✅ Produto atualizado com sucesso');
-          this.markAsChanged();
-          this.onGridChange();
-          this.closeEditItemModal();
-        },
-        error: error => {
-          console.error('❌ Erro ao atualizar produto:', error);
-          alert('Erro ao salvar as alterações do produto. Tente novamente.');
-        },
-      });
+        // Atualiza no MongoDB
+        this.fillerService.updateFiller(itemId, updateData).subscribe({
+          next: () => {
+            // Atualiza localmente após sucesso
+            this.data[index] = {
+              ...this.data[index],
+              component: itemData.component,
+              inputs: itemData.inputs,
+              rowSpan: itemData.rowSpan,
+              colSpan: itemData.colSpan,
+            };
+
+            console.log('✅ Filler atualizado com sucesso');
+            this.markAsChanged();
+            this.onGridChange();
+            this.closeEditItemModal();
+          },
+          error: error => {
+            console.error('❌ Erro ao atualizar Filler:', error);
+            alert('Erro ao salvar as alterações do Filler. Tente novamente.');
+          },
+        });
+      } else {
+        // Prepara os dados para atualização de Produto
+        const updateData = {
+          productName: itemData.inputs.productName,
+          description: itemData.inputs.description,
+          price: itemData.inputs.price,
+          images: itemData.inputs.images || [],
+          format: itemData.inputs.format,
+          colorMode: itemData.inputs.colorMode,
+          row: this.data[index].row,
+          col: this.data[index].col,
+          rowSpan: itemData.rowSpan,
+          colSpan: itemData.colSpan,
+        };
+
+        console.log('📝 Atualizando produto', itemId, updateData);
+
+        // Atualiza no MongoDB
+        this.storageService.updateProduct(itemId, updateData).subscribe({
+          next: () => {
+            // Atualiza localmente após sucesso
+            this.data[index] = {
+              ...this.data[index],
+              component: itemData.component,
+              inputs: itemData.inputs,
+              rowSpan: itemData.rowSpan,
+              colSpan: itemData.colSpan,
+            };
+
+            console.log('✅ Produto atualizado com sucesso');
+            this.markAsChanged();
+            this.onGridChange();
+            this.closeEditItemModal();
+          },
+          error: error => {
+            console.error('❌ Erro ao atualizar produto:', error);
+            alert('Erro ao salvar as alterações do produto. Tente novamente.');
+          },
+        });
+      }
     }
   }
 
@@ -395,39 +635,63 @@ export class BentoToolbarComponent {
     if (this.selectedItem) {
       const index = this.data.indexOf(this.selectedItem);
       if (index !== -1) {
+        const itemName =
+          this.selectedItem.inputs?.productName ||
+          this.selectedItem.inputs?.text ||
+          'ID: ' + this.selectedItem.id;
+
         const confirmDelete = confirm(
-          `Deseja realmente deletar o item "${this.selectedItem.inputs?.productName || 'ID: ' + this.selectedItem.id}"?\nIsso também deletará todas as imagens associadas.`
+          `Deseja realmente deletar o item "${itemName}"?${this.isFiller(this.selectedItem.component) ? '' : '\nIsso também deletará todas as imagens associadas.'}`
         );
+
         if (confirmDelete) {
-          const productId = String(this.selectedItem.id);
+          const itemId = String(this.selectedItem.id);
 
-          console.log('🗑️ Deletando produto do MongoDB:', productId);
+          // Verifica se é um Filler ou Produto
+          if (this.isFiller(this.selectedItem.component)) {
+            console.log('🗑️ Deletando Filler do MongoDB:', itemId);
 
-          // Deletar produto do MongoDB (inclui deleção de imagens via backend)
-          this.storageService.deleteProduct(productId).subscribe({
-            next: () => {
-              console.log(`✅ Produto ${productId} deletado do MongoDB`);
+            this.fillerService.deleteFiller(itemId).subscribe({
+              next: () => {
+                console.log(`✅ Filler ${itemId} deletado do MongoDB`);
+                this.data.splice(index, 1);
+                this.markAsChanged();
+                this.onGridChange();
+              },
+              error: error => {
+                console.error('❌ Erro ao deletar Filler:', error);
+                alert('Erro ao deletar o Filler. Tente novamente.');
+              },
+            });
+          } else {
+            console.log('🗑️ Deletando produto do MongoDB:', itemId);
 
-              // Remove do array local
-              this.data.splice(index, 1);
-              this.markAsChanged();
-              this.onGridChange();
+            // Deletar produto do MongoDB (inclui deleção de imagens via backend)
+            this.storageService.deleteProduct(itemId).subscribe({
+              next: () => {
+                console.log(`✅ Produto ${itemId} deletado do MongoDB`);
 
-              // Deletar pasta de imagens
-              this.storageService.deleteProductWithImages(productId).subscribe({
-                next: response => {
-                  console.log('✅ Pasta de imagens deletada:', response);
-                },
-                error: error => {
-                  console.warn('⚠️ Erro ao deletar pasta de imagens:', error);
-                },
-              });
-            },
-            error: error => {
-              console.error('❌ Erro ao deletar produto:', error);
-              alert('Erro ao deletar o produto. Tente novamente.');
-            },
-          });
+                // Remove do array local
+                this.data.splice(index, 1);
+                this.markAsChanged();
+                this.onGridChange();
+
+                // Deletar pasta de imagens
+                this.storageService.deleteProductWithImages(itemId).subscribe({
+                  next: response => {
+                    console.log('✅ Pasta de imagens deletada:', response);
+                  },
+                  error: error => {
+                    console.warn('⚠️ Erro ao deletar pasta de imagens:', error);
+                  },
+                });
+              },
+              error: error => {
+                console.error('❌ Erro ao deletar produto:', error);
+                alert('Erro ao deletar o produto. Tente novamente.');
+              },
+            });
+          }
         }
       }
     } else {
@@ -495,17 +759,45 @@ export class BentoToolbarComponent {
    */
   private autoSaveIfNotInEditMode() {
     if (this.options.mode !== 'edit') {
-      this.storageService.saveProducts(this.data).subscribe({
-        next: () => {
-          console.log('✅ Alteração salva automaticamente no MongoDB');
-          this.hasUnsavedChanges = false;
-        },
-        error: error => {
-          console.error('❌ Erro ao salvar automaticamente:', error);
-          console.warn(
-            'As alterações foram aplicadas localmente, mas não foram salvas no servidor.'
-          );
-        },
+      // Separar produtos e fillers
+      const products = this.data.filter(item => !this.isFiller(item.component));
+      const fillers = this.data.filter(item => this.isFiller(item.component));
+
+      const saveObservables: any[] = [];
+
+      if (products.length > 0) {
+        saveObservables.push(this.storageService.saveProducts(products));
+      }
+
+      if (fillers.length > 0) {
+        const fillerUpdates = fillers.map(filler => ({
+          id: String(filler.id),
+          gridPosition: {
+            row: filler.row,
+            col: filler.col,
+            rowSpan: filler.rowSpan,
+            colSpan: filler.colSpan,
+          },
+        }));
+
+        saveObservables.push(this.fillerService.updateBatchPositions(fillerUpdates));
+      }
+
+      if (saveObservables.length === 0) return;
+
+      import('rxjs').then(({ forkJoin }) => {
+        forkJoin(saveObservables).subscribe({
+          next: () => {
+            console.log('✅ Alteração salva automaticamente no MongoDB');
+            this.hasUnsavedChanges = false;
+          },
+          error: error => {
+            console.error('❌ Erro ao salvar automaticamente:', error);
+            console.warn(
+              'As alterações foram aplicadas localmente, mas não foram salvas no servidor.'
+            );
+          },
+        });
       });
     }
   }

@@ -403,30 +403,60 @@ export class BentoBoxComponent {
    * primeiro que achar nos espaços disponiveis
    */
   putFillerItens(fillers: GridItem[]) {
+    console.log('🔍 putFillerItens - Fillers recebidos:', fillers.length);
+    console.log('🔍 Fillers:', fillers);
+    console.log('🔍 Espaços vazios:', this.emptySpaces);
+
     this.fillersInGrid = [];
     const fillerItens: GridItem[] = [];
 
-    // Shuffle the fillers array
-    for (let i = fillers.length - 1; i > 0; i--) {
+    // Cria uma cópia dos fillers para não modificar o original
+    let availableFillers = [...fillers];
+
+    // Shuffle the fillers array copy
+    for (let i = availableFillers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [fillers[i], fillers[j]] = [fillers[j], fillers[i]];
+      [availableFillers[i], availableFillers[j]] = [availableFillers[j], availableFillers[i]];
     }
+
+    console.log('🔍 Fillers embaralhados:', availableFillers);
 
     Object.keys(this.emptySpaces).forEach(size => {
       const [rowSpan, colSpan] = size.split('x').map(Number);
+      console.log(`🔍 Procurando fillers para tamanho ${size} (${rowSpan}x${colSpan})`);
+      console.log(`🔍 Quantidade de espaços desse tamanho:`, this.emptySpaces[size].length);
 
       this.emptySpaces[size].forEach(cell => {
-        const filler = fillers.find(
+        console.log(`🔍 Procurando filler para célula [${cell.row}, ${cell.col}]`);
+
+        // Procura um filler disponível
+        const fillerIndex = availableFillers.findIndex(
           filler => filler.colSpan === colSpan && filler.rowSpan === rowSpan
         );
-        if (filler) {
-          filler.row = cell.row;
-          filler.col = cell.col;
+
+        console.log(`🔍 Filler encontrado no índice: ${fillerIndex}`);
+
+        if (fillerIndex !== -1) {
+          // Cria uma cópia do filler com a nova posição
+          const filler = {
+            ...availableFillers[fillerIndex],
+            row: cell.row,
+            col: cell.col,
+          };
+
+          console.log(`✅ Usando filler:`, filler);
           fillerItens.push(filler);
-          fillers = fillers.filter(f => f.id !== filler.id); // remove the found filler from the list
+
+          // Remove o filler usado da lista de disponíveis
+          availableFillers.splice(fillerIndex, 1);
+        } else {
+          console.log(`❌ Nenhum filler disponível para ${size}`);
         }
       });
     });
+
+    console.log('✅ Total de fillers no grid:', fillerItens.length);
+    console.log('✅ Fillers no grid:', fillerItens);
 
     this.fillersInGrid = fillerItens;
   }

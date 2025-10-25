@@ -13,16 +13,17 @@ import authRoutes from './routes/auth';
 import tableRoutes from './routes/table';
 import productRoutes from './routes/products';
 import uploadRoutes from './routes/upload';
+import fillerRoutes from './routes/fillers';
 
 const app: Express = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 
 /**
  * Middlewares Globais
  */
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+    origin: process.env['FRONTEND_URL'] || 'http://localhost:4200',
     credentials: true,
   })
 );
@@ -56,6 +57,9 @@ app.use('/api/table', tableRoutes);
 // Rotas de produtos
 app.use('/api/products', productRoutes);
 
+// Rotas de fillers
+app.use('/api/fillers', fillerRoutes);
+
 // Rotas de upload de imagens
 app.use('/api/upload', uploadRoutes);
 
@@ -78,7 +82,7 @@ const startServer = async (): Promise<void> => {
       console.log('🚀 Servidor iniciado!');
       console.log(`📡 Rodando na porta: ${PORT}`);
       console.log(`🌐 URL: http://localhost:${PORT}`);
-      console.log(`✅ Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`✅ Ambiente: ${process.env['NODE_ENV'] || 'development'}`);
     });
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);
