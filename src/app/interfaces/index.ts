@@ -17,3 +17,6 @@ export * from './api-response.interface';
 // Bento Box (existentes)
 export * from './bento-box.interface';
 export * from './bento-options.interface';
+
+// Filler
+export * from './filler.interface';

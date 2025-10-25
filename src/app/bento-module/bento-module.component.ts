@@ -1,6 +1,5 @@
 import { Component, Input, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 // import { dataExamples } from '../data/bento-itens-example';
-import { fillerExamples } from '../data/filler-itens';
 import { GridItem } from '../interfaces/bento-box.interface';
 import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
@@ -9,8 +8,12 @@ import { CartService } from '../services/cart-service/cart.service';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { StorageService } from '../services/storage-service/storage.service';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { FillerService } from '../services/filler-service/filler.service';
+import { Subject, Subscription, forkJoin } from 'rxjs';
+import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
+import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
+import { SimpleImageComponent } from '../components/simpleComponents/simple-image/simple-image.component';
+import { SimpleVideoComponent } from '../components/simpleComponents/simple-video/simple-video.component';
 
 @Component({
   selector: 'app-bento-module',
@@ -21,7 +24,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 })
 export class BentoModuleComponent implements OnDestroy {
   data: GridItem[] = [];
-  @Input() fillers?: GridItem[] = fillerExamples;
+  fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
   @Input() toolbar: boolean = true;
   @Input() options: BentoOptions = {
     createFillers: true,
@@ -53,14 +56,33 @@ export class BentoModuleComponent implements OnDestroy {
   constructor(
     public _cartService: CartService,
     private storageService: StorageService,
+    private fillerService: FillerService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // Load all products once and cache them
-    this.productsSub = this.storageService.getProducts().subscribe(savedData => {
-      this.allProducts = savedData;
-      this.data = savedData;
+    // Load products and fillers in parallel
+    this.productsSub = forkJoin({
+      products: this.storageService.getProducts().pipe(take(1)),
+      fillers: this.fillerService.getFillers(),
+    }).subscribe(({ products, fillers }) => {
+      console.log('📦 Produtos carregados:', products.length);
+      console.log('📦 Fillers carregados do MongoDB:', fillers.length);
+      console.log('📦 Fillers raw:', fillers);
+
+      // Converte Fillers para GridItems
+      const fillerGridItems = this.convertFillersToGridItems(fillers);
+      console.log('📦 Fillers convertidos:', fillerGridItems);
+
+      // Separa produtos e fillers
+      this.data = products; // Apenas produtos vão para o data
+      this.fillers = fillerGridItems; // Fillers vão para fillers (usado pelo bento-box para preencher espaços)
+      this.allProducts = [...products, ...fillerGridItems]; // Cache completo para busca
+
+      console.log('✅ Produtos no grid:', this.data.length);
+      console.log('✅ Fillers disponíveis:', this.fillers.length);
+      console.log('✅ Total de itens:', this.allProducts.length);
+      console.log('✅ Array de fillers:', this.fillers);
     });
 
     // Set up search subscription with debouncing
@@ -73,6 +95,41 @@ export class BentoModuleComponent implements OnDestroy {
     if (this.fillers?.length === 0) {
       this.options.createFillers = false;
     }
+  }
+
+  /**
+   * Converte Fillers do banco para GridItems
+   */
+  private convertFillersToGridItems(fillers: any[]): GridItem[] {
+    return fillers.map(filler => {
+      // Determina o componente baseado no tipo
+      let component: any = SimpleTextComponent;
+      const inputs: any = {};
+
+      if (filler.type === 'text') {
+        component = SimpleTextComponent;
+        inputs.text = filler.content.text || '';
+      } else if (filler.type === 'image') {
+        component = SimpleImageComponent;
+        inputs.url = filler.content.url || '';
+        inputs.alt = filler.content.alt || '';
+      } else if (filler.type === 'video') {
+        component = SimpleVideoComponent;
+        inputs.url = filler.content.url || '';
+      }
+
+      inputs.format = filler.format || '1x1';
+
+      return {
+        id: filler._id,
+        component: component,
+        inputs: inputs,
+        row: filler.gridPosition?.row || 0,
+        col: filler.gridPosition?.col || 0,
+        rowSpan: filler.gridPosition?.rowSpan || 1,
+        colSpan: filler.gridPosition?.colSpan || 1,
+      };
+    });
   }
 
   ngOnDestroy(): void {

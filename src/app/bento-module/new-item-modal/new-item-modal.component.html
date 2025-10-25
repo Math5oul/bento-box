@@ -91,13 +91,59 @@
                 <div>
                   <label>
                     {{ input.label }}:
-                    <input
-                      [type]="input.type"
-                      [formControlName]="input.name"
-                      [step]="input.step || '1'"
-                      [required]="input.required || false"
-                      [placeholder]="input.placeholder || ''"
-                    />
+                    @if (input.type === 'color') {
+                      <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px">
+                        <input
+                          type="color"
+                          [formControlName]="input.name"
+                          [required]="input.required || false"
+                          [id]="'color-' + input.name"
+                          style="
+                            width: 60px;
+                            height: 40px;
+                            cursor: pointer;
+                            border: 2px solid #ddd;
+                            border-radius: 6px;
+                          "
+                        />
+                        <input
+                          type="text"
+                          [value]="
+                            componentForm.get(['inputs', input.name])?.value?.toUpperCase() ||
+                            '#FFFFFF'
+                          "
+                          readonly
+                          style="
+                            flex: 1;
+                            padding: 10px;
+                            border: 2px solid #e0e0e0;
+                            border-radius: 6px;
+                            font-family: monospace;
+                            font-weight: bold;
+                            background: #f5f5f5;
+                          "
+                        />
+                        <div
+                          [style.background]="
+                            componentForm.get(['inputs', input.name])?.value || '#ffffff'
+                          "
+                          style="
+                            width: 40px;
+                            height: 40px;
+                            border: 2px solid #ddd;
+                            border-radius: 6px;
+                          "
+                        ></div>
+                      </div>
+                    } @else {
+                      <input
+                        [type]="input.type"
+                        [formControlName]="input.name"
+                        [step]="input.step || '1'"
+                        [required]="input.required || false"
+                        [placeholder]="input.placeholder || ''"
+                      />
+                    }
                   </label>
                 </div>
               }
