@@ -54,7 +54,7 @@
       }"
     >
       <div
-        *ngComponentOutlet="item.component; inputs: item.inputs"
+        *ngComponentOutlet="item.component; inputs: { inputs: item.inputs }"
       ></div>
     </div>
     }}

@@ -1,26 +1,26 @@
 
 <div class="simple-product" (click)="handleClick($event)">
-  <div [ngClass]="['product-container', colorMode, 'format-' + format]">
-    @if (format !== '1x1') {
+  <div [ngClass]="['product-container', inputs.colorMode, 'format-' + inputs.format]">
+    @if (inputs.format !== '1x1') {
     <img
-      [src]="images[0]"
-      alt="{{ productName }}"
-      [ngClass]="['product-image-' + format]"
+      [src]="inputs.images[0]"
+      alt="{{ inputs.productName }}"
+      [ngClass]="['product-image-' + inputs.format]"
     />
     }
 
-    <div [ngClass]="['product-container__content', 'format-' + format]">
-      <div class="title" [innerHTML]="productName | sanitize"></div>
-      <p class="product-price" [innerHTML]="price | currency:'BRL'"></p>
-      <p class="product-description" [innerHTML]="description | sanitize"></p>
+    <div [ngClass]="['product-container__content', 'format-' + inputs.format]">
+      <div class="title" [innerHTML]="inputs.productName | sanitize"></div>
+      <p class="product-price" [innerHTML]="inputs.price | currency:'BRL'"></p>
+      <p class="product-description" [innerHTML]="inputs.description | sanitize"></p>
     </div>
   </div>
 </div>
 
 <app-product-modal
-  [images]="images"
-  [productName]="productName"
-  [price]="price"
-  [description]="description"
+  [images]="inputs.images"
+  [productName]="inputs.productName"
+  [price]="inputs.price"
+  [description]="inputs.description"
   (orderSubmitted)="handleOrder($event)"
 ></app-product-modal>

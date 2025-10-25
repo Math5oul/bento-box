@@ -427,13 +427,13 @@ export class BentoBoxComponent {
    * @returns Os inputs modificados, se aplicável.
    */
   getComponentInputs(inputs: any): any {
-    if (inputs && inputs.format !== undefined) { // Checa se o input  possui a propriedade 'editMode'
-      return {
+    // Adiciona o editMode independente do tipo de componente
+    return {
+      inputs: {
         ...inputs,
         editMode: this.options.mode === 'edit'
-      };
-    }
-    return inputs;
+      }
+    };
   }
   /**
    * Manipula o clique em um item da grade.

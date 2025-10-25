@@ -1,48 +1,101 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
+import { tap, map, catchError, take } from 'rxjs/operators';
 import { GridItem } from '../../interfaces/bento-box.interface';
+import { ComponentRegistryService } from '../component-registry.service';
+import { environment } from '../../../environments/environment';
+
+// Server response interface for proper typing
+interface ServerMenuItem {
+  id: number;
+  component: string;
+  inputs: any;
+  colSpan: number;
+  rowSpan: number;
+  row: number;
+  col: number;
+}
+
+interface ServerResponse {
+  items: ServerMenuItem[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-  private readonly STORAGE_KEY = 'bento_products';
+  private readonly API_URL = `${environment.apiUrl}/api/menu`;
   private productsSubject = new BehaviorSubject<GridItem[]>([]);
 
-  constructor() {
-    this.loadFromLocalStorage();
+  constructor(
+    private http: HttpClient,
+    private componentRegistry: ComponentRegistryService
+  ) {
+    this.loadFromServer();
   }
 
-  private loadFromLocalStorage(): void {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    if (stored) {
-      this.productsSubject.next(JSON.parse(stored));
-    }
+  private loadFromServer(): void {
+    this.http.get<ServerResponse>(this.API_URL).pipe(
+      map(data => {
+        if (!data.items || !Array.isArray(data.items)) {
+          console.warn('No items found in server response');
+          return [];
+        }
+        return data.items.map(item => {
+          // Validate that component is a string before passing to registry
+          const componentName = typeof item.component === 'string'
+            ? item.component
+            : String(item.component);
+
+          return {
+            ...item,
+            component: this.componentRegistry.getComponent(componentName)
+          } as GridItem;
+        });
+      }),
+      catchError(error => {
+        console.error('Error loading products from server:', error);
+        // Return empty array to allow app to recover gracefully
+        return of([]);
+      }),
+      take(1) // Ensure subscription completes after first emission
+    ).subscribe(items => {
+      this.productsSubject.next(items);
+    });
   }
 
-  getProducts(): Observable<any[]> {
+  getProducts(): Observable<GridItem[]> {
     return this.productsSubject.asObservable();
   }
 
-  saveProducts(products: any[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(products));
-    this.productsSubject.next(products);
+  saveProducts(products: GridItem[]): Observable<any> {
+    return this.http.post(this.API_URL, { items: products }).pipe(
+      tap(() => {
+        // Update the subject only after successful save
+        this.productsSubject.next(products);
+      }),
+      catchError(error => {
+        console.error('Error saving products:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
-  addProduct(product: any): void {
+  // Métodos auxiliares se quiser manter a API
+  addProduct(product: GridItem): Observable<any> {
     const currentProducts = this.productsSubject.value;
     const updatedProducts = [...currentProducts, product];
-    this.saveProducts(updatedProducts);
+    return this.saveProducts(updatedProducts);
   }
 
-  removeProduct(productId: number): void {
+  removeProduct(productId: number): Observable<any> {
     const currentProducts = this.productsSubject.value;
     const updatedProducts = currentProducts.filter(p => p.id !== productId);
-    this.saveProducts(updatedProducts);
+    return this.saveProducts(updatedProducts);
   }
 
-  clearStorage(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.productsSubject.next([]);
+  clearStorage(): Observable<any> {
+    return this.saveProducts([]);
   }
 }
