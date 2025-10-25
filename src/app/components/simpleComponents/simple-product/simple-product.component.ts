@@ -18,10 +18,15 @@ export class SimpleProductComponent {
   @Input() productName: string = "";
   @Input() description: string = "";
   @Input() price: number = 0;
+  @Input() editMode: boolean = false;
 
   @ViewChild(ProductModalComponent) productModal!: ProductModalComponent;
-  openModal() {
-    this.productModal.open();
+  handleClick(event: MouseEvent) {
+    if (this.editMode) {
+      return;
+    } else {
+      this.productModal.open();
+    }
   }
 
   constructor(private cartService: CartService) {}

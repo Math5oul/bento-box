@@ -56,7 +56,6 @@ export class BentoModuleComponent {
     }
   }
   onItemClick(item: GridItem) {
-    console.log('Item clicked:', item);
     this._selectedItem = item;
   }
 

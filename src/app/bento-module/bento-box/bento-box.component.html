@@ -19,7 +19,7 @@
     <div
       class="bento-item"
       [ngClass]="{ selected: selectedId === item.id && options.mode === 'edit' }"
-      (click)="onItemClick(item)"
+      (click)="handleItemClick($event, item)"
       [ngStyle]="{
         'width.px': item.colSpan * options.cellWidth,
         'height.px': item.rowSpan * options.cellHeight,
@@ -31,12 +31,12 @@
       }"
     >
       <div
-        [ngClass]="{ 'disable-click': options.mode === 'edit' }"
+        class="component-wrapper"
         [ngStyle]="{
-      height: '-webkit-fill-available',
-      width: '-webkit-fill-available',
-    }"
-    *ngComponentOutlet="item.component; inputs: item.inputs"
+          height: '-webkit-fill-available',
+          width: '-webkit-fill-available'
+        }"
+        *ngComponentOutlet="item.component; inputs: getComponentInputs(item.inputs)"
       >
       </div>
     </div>
