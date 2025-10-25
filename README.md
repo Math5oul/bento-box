@@ -2,15 +2,38 @@
 
 Sistema inovador de gerenciamento de cardápios com grid personalizável, desenvolvido com Angular 20.
 
+🐳 **Agora com Docker!** Instale e rode em qualquer máquina com 3 comandos. [Ver guia rápido →](./QUICK-START.md)
+
 ## 📋 Índice
 
+- [Instalação Rápida (Docker)](#-instalação-rápida-docker)
 - [Visão Geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
 - [Elementos Filler](#elementos-filler)
-- [Instalação](#instalação)
+- [Instalação Manual](#instalação)
 - [Scripts Disponíveis](#scripts-disponíveis)
 - [Acesso Mobile](#acesso-mobile)
 - [Estrutura do Projeto](#estrutura-do-projeto)
+
+---
+
+## 🚀 Instalação Rápida (Docker)
+
+```bash
+# 1. Clone o projeto
+git clone https://github.com/Math5oul/bento-box.git
+cd bento-box
+
+# 2. Inicie (escolha seu sistema)
+./docker.sh start    # Linux/Mac
+docker.bat start     # Windows
+
+# 3. Acesse
+# Frontend: http://localhost
+# Manutenção: http://localhost/maintenance-hub.html
+```
+
+📚 **Documentação completa**: [QUICK-START.md](./QUICK-START.md) | [DOCKER.md](./DOCKER.md)
 
 ---
 
@@ -83,7 +106,6 @@ Sem Filler:          Com Filler:
 │ P2  │ P3  │       │ P2  │ P3  │
 └─────┴─────┘       └─────┴─────┘
 ```
-
 
 #### 2. **Storytelling Visual** 📖
 
@@ -186,18 +208,52 @@ Reforce a identidade visual da marca:
 │    4    │ (Texto) │    5    │
 └─────────┴─────────┴─────────┘
 ```
-Os Fillers NUNCA ofuscam os produtos principais. Eles são adicionados automaticamente apenas nos espaços disponíveis do grid que sobrarem após a disposição de todos os produtos. Desta forma, seus produtos sempre têm prioridade e os fillers servem apenas para complementar o layout.
----
+
+## Os Fillers NUNCA ofuscam os produtos principais. Eles são adicionados automaticamente apenas nos espaços disponíveis do grid que sobrarem após a disposição de todos os produtos. Desta forma, seus produtos sempre têm prioridade e os fillers servem apenas para complementar o layout.
 
 ## 🚀 Instalação
 
-### Pré-requisitos
+### 🐳 Opção 1: Docker (Recomendado)
+
+A maneira mais fácil e rápida de rodar o projeto!
+
+**Pré-requisitos:**
+
+- Docker e Docker Compose instalados
+
+**Início Rápido:**
+
+```bash
+# Clone o repositório
+git clone https://github.com/Math5oul/bento-box.git
+cd bento-box
+
+# Inicie com Docker (Linux/Mac)
+./docker.sh start
+
+# Ou no Windows
+docker.bat start
+```
+
+Pronto! Acesse:
+
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:3001
+- **Manutenção**: http://localhost/maintenance-hub.html
+
+📚 **Documentação completa**: [DOCKER.md](./DOCKER.md)
+
+---
+
+### 💻 Opção 2: Instalação Manual
+
+**Pré-requisitos:**
 
 - Node.js 18+
-- MongoDB 6+
+- MongoDB 8+
 - Git
 
-### Passos
+**Passos:**
 
 1. **Clone o repositório**
 
@@ -212,18 +268,25 @@ cd bento-box
 npm install
 ```
 
-3. **Configure o MongoDB**
+3. **Configure as variáveis de ambiente**
+
+```bash
+cp .env.example .env
+# Edite .env conforme necessário
+```
+
+4. **Configure o MongoDB**
 
 - Inicie o MongoDB localmente ou configure uma conexão remota
 - O sistema criará o banco automaticamente
 
-4. **Inicie o servidor de desenvolvimento**
+5. **Inicie o servidor de desenvolvimento**
 
 ```bash
 npm run dev
 ```
 
-5. **Acesse no navegador**
+6. **Acesse no navegador**
 
 ```
 http://localhost:4200

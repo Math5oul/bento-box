@@ -1,0 +1,65 @@
+# Dependências
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Arquivos de build
+dist
+.angular
+.cache
+
+# Arquivos de desenvolvimento
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Testes
+coverage
+*.spec.ts
+*.test.ts
+e2e
+
+# Documentação
+*.md
+docs
+
+# Backup
+backup
+*.bak
+
+# Uploads (serão criados no container)
+uploads/*
+
+# MongoDB data (se existir localmente)
+data
+
+# Temporários
+tmp
+temp
+.tmp
