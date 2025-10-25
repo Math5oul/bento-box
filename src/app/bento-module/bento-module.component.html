@@ -6,14 +6,15 @@
     [data]="data"
     [fillers]="fillers || []"
     [options]="options"
-    (selectedItemChange)="onSelectedItemChange($event)"
+    [selectedId]="selectedItem ? selectedItem.id : null"
+    (itemClick)="onItemClick($event)"
   ></app-bento-box>
 
   @if (toolbar) {
   <app-bento-toolbar
     [data]="data"
     [options]="options"
-    [selectedItem]="selectedItem || null"
+    [selectedItem]="selectedItem"
   >
   </app-bento-toolbar>
   }

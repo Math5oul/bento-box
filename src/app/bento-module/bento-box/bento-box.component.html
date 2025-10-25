@@ -18,8 +18,8 @@
     @for (item of data; track $index) {
     <div
       class="bento-item"
-      [ngClass]="{ selected: selectedItem === item && options.mode === 'edit' }"
-      (click)="selectItem(item)"
+      [ngClass]="{ selected: selectedId === item.id && options.mode === 'edit' }"
+      (click)="onItemClick(item)"
       [ngStyle]="{
         'width.px': item.colSpan * options.cellWidth,
         'height.px': item.rowSpan * options.cellHeight,

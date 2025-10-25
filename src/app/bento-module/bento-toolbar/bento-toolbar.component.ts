@@ -15,7 +15,7 @@ import { NewItemModalComponent } from '../new-item-modal/new-item-modal.componen
 export class BentoToolbarComponent {
   @Input() data!: GridItem[];
   @Input() options!: BentoOptions;
-  @Input() selectedItem!: GridItem;
+  @Input() selectedItem: GridItem | null = null;
 
   @Output() gridChanged = new EventEmitter<void>();
 
@@ -109,7 +109,7 @@ export class BentoToolbarComponent {
   swapItemPosition(direction: 'left' | 'right') {
     if (this.selectedItem) {
       const index = this.data.findIndex(
-        (item) => item.id === this.selectedItem!.id
+        (item) => item.id === this.selectedItem?.id
       );
 
       if (direction === 'left' && index > 0) {
