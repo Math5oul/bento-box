@@ -8,6 +8,8 @@
     [options]="options"
     [selectedId]="selectedItem ? selectedItem.id : null"
     (itemClick)="onItemClick($event)"
+    (itemEdit)="onItemEdit($event)"
+    (itemDelete)="onItemDelete($event)"
   ></app-bento-box>
 
   @if (toolbar) {

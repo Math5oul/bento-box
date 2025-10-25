@@ -34,6 +34,7 @@ export class BentoModuleComponent implements OnDestroy {
   };
 
   @ViewChild(BentoBoxComponent) bentoBoxComponent!: BentoBoxComponent;
+  @ViewChild(BentoToolbarComponent) bentoToolbarComponent!: BentoToolbarComponent;
 
   private _selectedItem: GridItem | null = null;
   private productsSub?: Subscription;
@@ -86,6 +87,29 @@ export class BentoModuleComponent implements OnDestroy {
 
   onItemClick(item: GridItem) {
     this._selectedItem = item;
+  }
+
+  /**
+   * Seleciona o item e scrolla até o toolbar para edição
+   */
+  onItemEdit(item: GridItem) {
+    this._selectedItem = item;
+
+    // Abre o modal de edição
+    if (this.bentoToolbarComponent) {
+      this.bentoToolbarComponent.openEditItemModal(item);
+    }
+  }
+
+  /**
+   * Deleta o item diretamente
+   */
+  onItemDelete(item: GridItem) {
+    this._selectedItem = item;
+
+    if (this.bentoToolbarComponent) {
+      this.bentoToolbarComponent.removeItem();
+    }
   }
 
   /**

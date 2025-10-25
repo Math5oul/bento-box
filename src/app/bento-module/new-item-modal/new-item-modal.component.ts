@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
 import { ImageUploadService } from '../../services/image-upload/image-upload.service';
+import { GridItem } from '../../interfaces/bento-box.interface';
 
 @Component({
   selector: 'app-new-item-modal',
@@ -17,7 +18,10 @@ import { ImageUploadService } from '../../services/image-upload/image-upload.ser
   templateUrl: './new-item-modal.component.html',
   styleUrls: ['./new-item-modal.component.scss'],
 })
-export class NewItemModalComponent {
+export class NewItemModalComponent implements OnInit {
+  @Input() editMode = false; // Indica se está em modo de edição
+  @Input() itemToEdit: GridItem | null = null; // Item a ser editado
+
   @Output() itemCreated = new EventEmitter<any>();
   @Output() modalClosed = new EventEmitter<void>();
 
@@ -48,6 +52,53 @@ export class NewItemModalComponent {
       colSpan: [1],
       inputs: this.fb.group({}),
     });
+  }
+
+  ngOnInit() {
+    // Se estiver em modo de edição, inicializa com os dados do item
+    if (this.editMode && this.itemToEdit) {
+      this.loadItemForEditing();
+    }
+  }
+
+  /**
+   * Carrega os dados do item para edição
+   */
+  private loadItemForEditing() {
+    if (!this.itemToEdit) return;
+
+    // Encontra o componente correspondente
+    const componentEntry = Array.from(COMPONENT_INPUTS_MAP.entries()).find(
+      ([componentClass]) => componentClass === this.itemToEdit!.component
+    );
+
+    if (componentEntry) {
+      const [componentClass, config] = componentEntry;
+      this.selectedComponent = {
+        component: componentClass,
+        name: config.name,
+        inputsConfig: config.inputs,
+      };
+
+      this.showDimensionsForm = true;
+
+      // Inicializa o formulário com os dados existentes
+      this.initInputsForm(config.inputs);
+
+      // Popula os valores
+      this.componentForm.patchValue({
+        rowSpan: this.itemToEdit.rowSpan,
+        colSpan: this.itemToEdit.colSpan,
+        inputs: this.itemToEdit.inputs,
+      });
+
+      // Se tem imagens/url, adiciona aos uploadedImagePaths para exibir preview
+      if (this.itemToEdit.inputs.images && Array.isArray(this.itemToEdit.inputs.images)) {
+        this.uploadedImagePaths = [...this.itemToEdit.inputs.images];
+      } else if (this.itemToEdit.inputs.url) {
+        this.uploadedImagePaths = [this.itemToEdit.inputs.url];
+      }
+    }
   }
 
   /**
