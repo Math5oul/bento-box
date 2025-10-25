@@ -17,14 +17,17 @@ interface ServerMenuItem {
 }
 
 interface ServerResponse {
-  items: ServerMenuItem[];
+  success: boolean;
+  data: {
+    items: ServerMenuItem[];
+  };
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
-  private readonly API_URL = `${environment.apiUrl}/api/menu`;
+  private readonly API_URL = `${environment.apiUrl}/products/menu`;
   private productsSubject = new BehaviorSubject<GridItem[]>([]);
 
   constructor(
@@ -38,12 +41,13 @@ export class StorageService {
     this.http
       .get<ServerResponse>(this.API_URL)
       .pipe(
-        map(data => {
-          if (!data.items || !Array.isArray(data.items)) {
+        map(response => {
+          const data = response.data;
+          if (!data?.items || !Array.isArray(data.items)) {
             console.warn('No items found in server response');
             return [];
           }
-          return data.items.map(item => {
+          return data.items.map((item: ServerMenuItem) => {
             // Valida e converte o componente de string para Type
             const componentName =
               typeof item.component === 'string' ? item.component : String(item.component);
