@@ -58,10 +58,11 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
       inputs: [
         {
           name: 'url',
-          label: 'URL da Imagem',
+          label: 'Imagem',
           type: 'text',
-          required: true,
-          placeholder: 'https://example.com/image.jpg',
+          required: false,
+          defaultValue: '',
+          placeholder: 'Faça upload da imagem abaixo',
         },
       ],
     },
@@ -73,9 +74,9 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
       inputs: [
         {
           name: 'images',
-          label: 'URLs das Imagens',
+          label: 'Imagens do Produto',
           type: 'multiple-text',
-          placeholder: 'https://example.com/image.jpg',
+          placeholder: 'Faça upload das imagens abaixo',
           defaultValue: [''],
         },
         {

@@ -134,6 +134,131 @@
       }
     }
   }
+
+  // Seção de upload de imagens
+  .image-upload-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+
+    h4 {
+      margin: 0 0 1rem 0;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    h5 {
+      margin: 1rem 0 0.5rem 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .upload-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      input[type='file'] {
+        display: none;
+      }
+
+      .upload-label {
+        padding: 1rem;
+        background: white;
+        border: 2px dashed #ccc;
+        border-radius: 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #666;
+
+        &:hover {
+          border-color: #999;
+          background-color: #f9f9f9;
+        }
+      }
+
+      .upload-info {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        background: #e3f2fd;
+        border-left: 3px solid #2196f3;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        color: #1565c0;
+        text-align: center;
+      }
+
+      .upload-button {
+        padding: 0.75rem 1.5rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover:not(:disabled) {
+          background-color: #0056b3;
+        }
+
+        &:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .uploaded-images {
+      margin-top: 1rem;
+
+      .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.75rem;
+
+        .image-preview-item {
+          position: relative;
+          aspect-ratio: 1;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 1px solid #ddd;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .remove-image-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+
+            &:hover {
+              background-color: rgba(220, 53, 69, 1);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {
