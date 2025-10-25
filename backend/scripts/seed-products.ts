@@ -1,10 +1,16 @@
 import dotenv from 'dotenv';
 import { connectDB } from '../config/database';
 import Product from '../models/Product';
-import menuData from '../../src/assets/data/menu-data.json';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Carrega variáveis de ambiente
 dotenv.config();
+
+// Carrega dados do backup
+const backupPath = path.join(__dirname, '..', '..', 'backup', 'menu-data.json.bak');
+const menuDataRaw = fs.readFileSync(backupPath, 'utf-8');
+const menuData = JSON.parse(menuDataRaw);
 
 /**
  * Mapeia categoria baseado no nome do produto

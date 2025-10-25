@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
-import { tap, map, catchError, take } from 'rxjs/operators';
+import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
+import { tap, map, catchError, take, switchMap } from 'rxjs/operators';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { ComponentRegistryService } from './component-registry.service';
 import { environment } from '../../../environments/environment';
+import { ProductService, BatchPositionUpdate } from '../product-service/product.service';
 
 interface ServerMenuItem {
   id: number;
@@ -32,7 +33,8 @@ export class StorageService {
 
   constructor(
     private http: HttpClient,
-    private componentRegistry: ComponentRegistryService
+    private componentRegistry: ComponentRegistryService,
+    private productService: ProductService
   ) {
     this.loadFromServer();
   }
@@ -85,7 +87,95 @@ export class StorageService {
     return this.productsSubject.asObservable();
   }
 
-  saveProducts(products: any[]): Observable<any> {
+  /**
+   * Salva as posições dos produtos no MongoDB
+   * Usa a API de batch update para atualizar múltiplos produtos de uma vez
+   */
+  saveProducts(products: GridItem[]): Observable<any> {
+    // Prepara os dados para batch update
+    const batchUpdates: BatchPositionUpdate[] = products.map(item => ({
+      id: String(item.id),
+      row: item.row,
+      col: item.col,
+      rowSpan: item.rowSpan,
+      colSpan: item.colSpan,
+    }));
+
+    console.log('📤 Salvando posições de', batchUpdates.length, 'produtos...');
+
+    return this.productService.updateBatchPositions(batchUpdates).pipe(
+      tap(() => {
+        console.log('✅ Posições salvas no MongoDB com sucesso');
+        // Atualiza o subject local
+        this.productsSubject.next(products);
+      }),
+      catchError(error => {
+        console.error('❌ Erro ao salvar posições:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Atualiza um único produto (usado para edições)
+   */
+  updateProduct(id: string, productData: any): Observable<any> {
+    console.log('📝 Atualizando produto', id, productData);
+
+    // Converte os dados do formato do grid para o formato da API
+    const apiData: any = {
+      name: productData.productName || productData.name,
+      description: productData.description,
+      price: productData.price,
+      images: productData.images || [],
+      format: productData.format || '1x1',
+      colorMode: productData.colorMode || 'light',
+      available: productData.available !== undefined ? productData.available : true,
+    };
+
+    // Adiciona gridPosition se fornecido
+    if (productData.row !== undefined) {
+      apiData.gridPosition = {
+        row: productData.row,
+        col: productData.col,
+        rowSpan: productData.rowSpan || 1,
+        colSpan: productData.colSpan || 1,
+      };
+    }
+
+    return this.productService.updateProduct(id, apiData).pipe(
+      tap(() => {
+        console.log('✅ Produto atualizado com sucesso');
+        // Recarrega os produtos do servidor
+        this.loadFromServer();
+      }),
+      catchError(error => {
+        console.error('❌ Erro ao atualizar produto:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Cria um novo produto
+   */
+  createProduct(productData: any): Observable<any> {
+    return this.productService.createProduct(productData);
+  }
+
+  /**
+   * Deleta um produto
+   */
+  deleteProduct(id: string): Observable<any> {
+    return this.productService.deleteProduct(id).pipe(
+      tap(() => {
+        // Recarrega os produtos do servidor
+        this.loadFromServer();
+      })
+    );
+  }
+
+  saveProducts_OLD(products: any[]): Observable<any> {
     // products aqui são dados preparados com component como string
     return this.http.post(this.API_URL, { items: products }).pipe(
       tap(() => {
@@ -119,14 +209,23 @@ export class StorageService {
 
   // Upload de imagens para um produto
   uploadProductImages(productId: string, files: File[]): Observable<any> {
+    console.log('📤 uploadProductImages chamado');
+    console.log('  - productId:', productId);
+    console.log('  - Número de arquivos:', files.length);
+    console.log('  - URL:', `${environment.apiUrl}/upload/${productId}`);
+
     const formData = new FormData();
     files.forEach(file => {
       formData.append('images', file);
+      console.log('  - Adicionado arquivo:', file.name, file.type, file.size);
     });
 
-    return this.http.post(`${environment.apiUrl}/api/upload/${productId}`, formData).pipe(
+    return this.http.post(`${environment.apiUrl}/upload/${productId}`, formData).pipe(
+      tap(response => {
+        console.log('✅ Resposta do upload:', response);
+      }),
       catchError(error => {
-        console.error('Error uploading images:', error);
+        console.error('❌ Error uploading images:', error);
         return throwError(() => error);
       })
     );
@@ -134,7 +233,7 @@ export class StorageService {
 
   // Deletar produto e sua pasta de imagens
   deleteProductWithImages(productId: string): Observable<any> {
-    const url = `${environment.apiUrl}/api/product/${productId}`;
+    const url = `${environment.apiUrl}/upload/product/${productId}`;
     console.log('🔗 Fazendo DELETE para:', url);
 
     return this.http.delete(url).pipe(
@@ -150,7 +249,7 @@ export class StorageService {
 
   // Renomear pasta de imagens de ID temporário para ID definitivo
   renameProductFolder(tempId: string, newId: string): Observable<{ newPaths: string[] }> {
-    const url = `${environment.apiUrl}/api/product/${tempId}/rename/${newId}`;
+    const url = `${environment.apiUrl}/upload/${tempId}/rename/${newId}`;
     console.log('🔄 Renomeando pasta de', tempId, 'para', newId);
 
     return this.http.post<{ success: boolean; newPaths: string[] }>(url, {}).pipe(
@@ -165,7 +264,7 @@ export class StorageService {
 
   // Deletar uma imagem específica
   deleteImage(imagePath: string): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/api/image`, { body: { imagePath } }).pipe(
+    return this.http.delete(`${environment.apiUrl}/upload/image`, { body: { imagePath } }).pipe(
       catchError(error => {
         console.error('Error deleting image:', error);
         return throwError(() => error);

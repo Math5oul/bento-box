@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bento Box - Central de Testes</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+
+      .logo {
+        width: 120px;
+        height: 120px;
+        background: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        color: white;
+        font-size: 3em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.2em;
+        font-weight: 300;
+      }
+
+      .status-bar {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .status-item {
+        text-align: center;
+      }
+
+      .status-label {
+        font-size: 0.85em;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+      }
+
+      .status-value {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.online {
+        background: #4caf50;
+      }
+
+      .status-indicator.offline {
+        background: #f44336;
+        animation: none;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .test-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .test-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .test-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .card-icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+      }
+
+      .card-title {
+        color: #333;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .card-description {
+        color: #666;
+        font-size: 0.95em;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .card-features {
+        list-style: none;
+        margin-bottom: 20px;
+      }
+
+      .card-features li {
+        color: #555;
+        font-size: 0.9em;
+        padding: 5px 0;
+        padding-left: 25px;
+        position: relative;
+      }
+
+      .card-features li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #4caf50;
+        font-weight: bold;
+      }
+
+      .card-button {
+        display: inline-block;
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1em;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        border: none;
+      }
+
+      .card-button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .info-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .info-section h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 1.8em;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .info-item {
+        padding: 15px;
+        background: #f5f5f5;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+      }
+
+      .info-item strong {
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .info-item code {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      footer {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 50px;
+        padding: 20px;
+        font-size: 0.9em;
+      }
+
+      footer a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2em;
+        }
+
+        .cards-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .status-bar {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <div class="logo">🍱</div>
+        <h1>Bento Box</h1>
+        <p class="subtitle">Central de Testes e Desenvolvimento</p>
+      </header>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-item">
+          <div class="status-label">Backend</div>
+          <div class="status-value">
+            <span class="status-indicator" id="backendStatus"></span>
+            <span id="backendText">Verificando...</span>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">MongoDB</div>
+          <div class="status-value">
+            <span class="status-indicator" id="mongoStatus"></span>
+            <span id="mongoText">Verificando...</span>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Produtos</div>
+          <div class="status-value" id="productCount">-</div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Porta</div>
+          <div class="status-value">3001</div>
+        </div>
+      </div>
+
+      <!-- Test Cards -->
+      <div class="cards-grid">
+        <!-- Card 1: API Tests -->
+        <div class="test-card">
+          <div class="card-icon">🔌</div>
+          <h2 class="card-title">API de Autenticação</h2>
+          <p class="card-description">
+            Teste completo das funcionalidades de autenticação, registro e gestão de usuários.
+          </p>
+          <ul class="card-features">
+            <li>Registrar Admin/Cliente</li>
+            <li>Login e Logout</li>
+            <li>Buscar Perfil</li>
+            <li>Health Check</li>
+          </ul>
+          <a href="/test-api.html" class="card-button">Abrir Testes de API</a>
+        </div>
+
+        <!-- Card 2: Upload Tests -->
+        <div class="test-card">
+          <div class="card-icon">📤</div>
+          <h2 class="card-title">Sistema de Upload</h2>
+          <p class="card-description">
+            Interface para testar upload, deleção e gerenciamento de imagens de produtos.
+          </p>
+          <ul class="card-features">
+            <li>Upload múltiplo (até 10 imagens)</li>
+            <li>Deletar imagens específicas</li>
+            <li>Deletar pasta completa</li>
+            <li>Renomear pastas</li>
+          </ul>
+          <a href="/test-upload.html" class="card-button">Abrir Testes de Upload</a>
+        </div>
+
+        <!-- Card 3: Products API -->
+        <div class="test-card">
+          <div class="card-icon">🍽️</div>
+          <h2 class="card-title">API de Produtos</h2>
+          <p class="card-description">
+            Explore e teste as rotas de produtos, categorias e menu do MongoDB.
+          </p>
+          <ul class="card-features">
+            <li>Listar produtos</li>
+            <li>Filtrar por categoria</li>
+            <li>Buscar produtos</li>
+            <li>Estatísticas por categoria</li>
+          </ul>
+          <button class="card-button" onclick="openProductsAPI()">Abrir API de Produtos</button>
+        </div>
+
+        <!-- Card 4: Frontend App -->
+        <div class="test-card">
+          <div class="card-icon">🎨</div>
+          <h2 class="card-title">Aplicação Angular</h2>
+          <p class="card-description">
+            Acesse o menu interativo do Bento Box com grid responsivo e produtos dinâmicos.
+          </p>
+          <ul class="card-features">
+            <li>Grid responsivo</li>
+            <li>Produtos do MongoDB</li>
+            <li>Interface moderna</li>
+            <li>Mobile friendly</li>
+          </ul>
+          <a href="http://localhost:4200" class="card-button" target="_blank">Abrir Aplicação</a>
+        </div>
+
+        <!-- Card 5: MongoDB Compass -->
+        <div class="test-card">
+          <div class="card-icon">🗄️</div>
+          <h2 class="card-title">MongoDB</h2>
+          <p class="card-description">
+            Instruções para conectar e gerenciar o banco de dados diretamente.
+          </p>
+          <ul class="card-features">
+            <li>Connection: localhost:27017</li>
+            <li>Database: bento-box</li>
+            <li>Collections: products, users, tables, orders</li>
+            <li>Use MongoDB Compass</li>
+          </ul>
+          <button class="card-button" onclick="copyMongoURL()">Copiar Connection String</button>
+        </div>
+
+        <!-- Card 6: Documentation -->
+        <div class="test-card">
+          <div class="card-icon">📚</div>
+          <h2 class="card-title">Documentação</h2>
+          <p class="card-description">
+            Guias completos sobre a migração MongoDB, upload de imagens e arquitetura.
+          </p>
+          <ul class="card-features">
+            <li>Guia de Migração MongoDB</li>
+            <li>Documentação de Upload</li>
+            <li>Guia de Imagens</li>
+            <li>Acesso Mobile</li>
+          </ul>
+          <button class="card-button" onclick="showDocs()">Ver Documentação</button>
+        </div>
+      </div>
+
+      <!-- Info Section -->
+      <div class="info-section">
+        <h2>🔧 Informações do Sistema</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Backend URL</strong>
+            <code>http://localhost:3001</code>
+          </div>
+          <div class="info-item">
+            <strong>Frontend URL</strong>
+            <code>http://localhost:4200</code>
+          </div>
+          <div class="info-item">
+            <strong>MongoDB URL</strong>
+            <code>mongodb://localhost:27017</code>
+          </div>
+          <div class="info-item">
+            <strong>Database</strong>
+            <code>bento-box</code>
+          </div>
+          <div class="info-item">
+            <strong>Seed Products</strong>
+            <code>npm run seed:products</code>
+          </div>
+          <div class="info-item">
+            <strong>Start Dev</strong>
+            <code>npm run dev</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer>
+        <p>
+          🍱 <strong>Bento Box</strong> - Sistema de Gerenciamento de Restaurante
+          <br />
+          Desenvolvido com ❤️ por <a href="https://github.com/Math5oul">Math5oul</a>
+          <br />
+          <small>MongoDB • Express • Angular • TypeScript</small>
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      // Check backend status
+      async function checkBackendStatus() {
+        try {
+          const response = await fetch('http://localhost:3001/api/health');
+          const data = await response.json();
+
+          const backendStatus = document.getElementById('backendStatus');
+          const backendText = document.getElementById('backendText');
+          const mongoStatus = document.getElementById('mongoStatus');
+          const mongoText = document.getElementById('mongoText');
+
+          if (response.ok) {
+            backendStatus.className = 'status-indicator online';
+            backendText.textContent = 'Online';
+            mongoStatus.className = 'status-indicator online';
+            mongoText.textContent = 'Conectado';
+          } else {
+            throw new Error('Backend offline');
+          }
+        } catch (error) {
+          const backendStatus = document.getElementById('backendStatus');
+          const backendText = document.getElementById('backendText');
+          const mongoStatus = document.getElementById('mongoStatus');
+          const mongoText = document.getElementById('mongoText');
+
+          backendStatus.className = 'status-indicator offline';
+          backendText.textContent = 'Offline';
+          mongoStatus.className = 'status-indicator offline';
+          mongoText.textContent = 'Desconectado';
+        }
+      }
+
+      // Check products count
+      async function checkProductsCount() {
+        try {
+          const response = await fetch('http://localhost:3001/api/products');
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById('productCount').textContent = data.count + ' itens';
+          }
+        } catch (error) {
+          document.getElementById('productCount').textContent = 'Erro';
+        }
+      }
+
+      // Open Products API in new window
+      function openProductsAPI() {
+        const urls = [
+          'http://localhost:3001/api/products',
+          'http://localhost:3001/api/products/menu',
+          'http://localhost:3001/api/products/categories',
+        ];
+
+        const choice = confirm(
+          'Escolha qual endpoint abrir:\n\n' +
+            'OK = Listar todos os produtos\n' +
+            'Cancelar = Ver opções'
+        );
+
+        if (choice) {
+          window.open(urls[0], '_blank');
+        } else {
+          const menu = prompt(
+            'Digite o número:\n' +
+              '1 = Todos os produtos\n' +
+              '2 = Menu formatado\n' +
+              '3 = Categorias com stats',
+            '1'
+          );
+
+          const index = parseInt(menu) - 1;
+          if (index >= 0 && index < urls.length) {
+            window.open(urls[index], '_blank');
+          }
+        }
+      }
+
+      // Copy MongoDB URL
+      function copyMongoURL() {
+        const url = 'mongodb://localhost:27017/bento-box';
+        navigator.clipboard
+          .writeText(url)
+          .then(() => {
+            alert(
+              '✅ Connection string copiada!\n\n' +
+                url +
+                '\n\nCole no MongoDB Compass para conectar.'
+            );
+          })
+          .catch(() => {
+            prompt('Copie a connection string:', url);
+          });
+      }
+
+      // Show documentation
+      function showDocs() {
+        window.open('/docs.html', '_blank');
+      }
+
+      // Initialize
+      checkBackendStatus();
+      checkProductsCount();
+
+      // Refresh status every 10 seconds
+      setInterval(() => {
+        checkBackendStatus();
+        checkProductsCount();
+      }, 10000);
+    </script>
+  </body>
+</html>

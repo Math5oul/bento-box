@@ -64,6 +64,117 @@
     }
   }
 
+  // Seção de componentes (Produto vs Fillers)
+  .component-section {
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .section-label {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-description {
+    margin: 0 0 1rem 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  // Divider entre Produto e Fillers
+  .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #9ca3af;
+    font-size: 0.875rem;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    span {
+      padding: 0 1rem;
+    }
+  }
+
+  // Grid layout para fillers
+  .component-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  // Botão de Produto (destaque)
+  .component-option-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: 2px solid #059669;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-color: #047857;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    .component-icon {
+      font-size: 2rem;
+    }
+
+    .component-name {
+      font-size: 1rem;
+    }
+  }
+
+  // Botões de Fillers (secundários)
+  .component-option-filler {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+
+    &:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .component-icon {
+      font-size: 1.75rem;
+    }
+
+    .component-name {
+      font-size: 0.875rem;
+    }
+  }
+
   .dimensions-form,
   .inputs-form {
     display: flex;

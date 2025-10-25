@@ -70,6 +70,33 @@ export class BentoBoxComponent {
   @Input() selectedId: number | null = null;
 
   /**
+   * Item sendo arrastado (drag and drop)
+   */
+  draggedItem: GridItem | null = null;
+
+  /**
+   * Item sobre o qual está sendo arrastado
+   */
+  dragOverItem: GridItem | null = null;
+
+  /**
+   * Posição inicial do touch (para mobile)
+   */
+  private touchStartX: number = 0;
+  private touchStartY: number = 0;
+
+  /**
+   * Posição atual do touch
+   */
+  private touchCurrentX: number = 0;
+  private touchCurrentY: number = 0;
+
+  /**
+   * Elemento ghost para feedback visual no mobile
+   */
+  private ghostElement: HTMLElement | null = null;
+
+  /**
    * Referência ao elemento do container da grade.
    */
   @ViewChild('bento') bento!: ElementRef;
@@ -439,6 +466,183 @@ export class BentoBoxComponent {
       this.itemClick.emit(clicked);
     } else {
       this.itemClick.emit(clicked);
+    }
+  }
+
+  /**
+   * Inicia o drag de um item
+   */
+  onDragStart(event: DragEvent, item: GridItem): void {
+    if (this.options.mode !== 'edit') return;
+
+    this.draggedItem = item;
+
+    // Define o efeito visual do drag
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', ''); // Necessário para Firefox
+    }
+  }
+
+  /**
+   * Permite o drop sobre um item
+   */
+  onDragOver(event: DragEvent, item: GridItem): void {
+    if (this.options.mode !== 'edit' || !this.draggedItem) return;
+
+    event.preventDefault(); // Necessário para permitir o drop
+
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    this.dragOverItem = item;
+  }
+
+  /**
+   * Executa a troca de posições quando o item é solto
+   */
+  onDrop(event: DragEvent, targetItem: GridItem): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.draggedItem || this.draggedItem.id === targetItem.id) {
+      return;
+    }
+
+    // Encontra os índices dos itens
+    const draggedIndex = this.data.findIndex(item => item.id === this.draggedItem!.id);
+    const targetIndex = this.data.findIndex(item => item.id === targetItem.id);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Troca as posições no array
+    [this.data[draggedIndex], this.data[targetIndex]] = [
+      this.data[targetIndex],
+      this.data[draggedIndex],
+    ];
+
+    // Notifica que houve mudanças
+    this.gridService.emitGridChanged();
+
+    this.dragOverItem = null;
+  }
+
+  /**
+   * Limpa o estado quando o drag é removido de um item
+   */
+  onDragLeave(event: DragEvent): void {
+    this.dragOverItem = null;
+  }
+
+  /**
+   * Finaliza o drag
+   */
+  onDragEnd(event: DragEvent): void {
+    this.draggedItem = null;
+    this.dragOverItem = null;
+  }
+
+  /**
+   * Inicia o touch drag (mobile)
+   */
+  onTouchStart(event: TouchEvent, item: GridItem): void {
+    if (this.options.mode !== 'edit') return;
+
+    const touch = event.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+    this.draggedItem = item;
+
+    // Cria elemento ghost para feedback visual
+    this.createGhostElement(event.target as HTMLElement, touch.clientX, touch.clientY);
+  }
+
+  /**
+   * Move o elemento ghost conforme o toque se move
+   */
+  onTouchMove(event: TouchEvent): void {
+    if (!this.draggedItem || this.options.mode !== 'edit') return;
+
+    event.preventDefault(); // Previne scroll durante drag
+
+    const touch = event.touches[0];
+    this.touchCurrentX = touch.clientX;
+    this.touchCurrentY = touch.clientY;
+
+    // Atualiza posição do ghost
+    if (this.ghostElement) {
+      this.ghostElement.style.left = `${touch.clientX - 50}px`;
+      this.ghostElement.style.top = `${touch.clientY - 50}px`;
+    }
+
+    // Detecta sobre qual item está
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elementBelow) {
+      const bentoItem = elementBelow.closest('.bento-item') as HTMLElement;
+      if (bentoItem) {
+        const itemIndex = Array.from(bentoItem.parentElement?.children || []).indexOf(bentoItem);
+        if (itemIndex >= 0 && this.data[itemIndex]) {
+          this.dragOverItem = this.data[itemIndex];
+        }
+      }
+    }
+  }
+
+  /**
+   * Finaliza o touch drag e executa a troca
+   */
+  onTouchEnd(event: TouchEvent): void {
+    if (!this.draggedItem) return;
+
+    // Se tiver um item alvo, executa a troca
+    if (this.dragOverItem && this.draggedItem.id !== this.dragOverItem.id) {
+      const draggedIndex = this.data.findIndex(item => item.id === this.draggedItem!.id);
+      const targetIndex = this.data.findIndex(item => item.id === this.dragOverItem!.id);
+
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        [this.data[draggedIndex], this.data[targetIndex]] = [
+          this.data[targetIndex],
+          this.data[draggedIndex],
+        ];
+
+        this.gridService.emitGridChanged();
+      }
+    }
+
+    // Limpa estados
+    this.removeGhostElement();
+    this.draggedItem = null;
+    this.dragOverItem = null;
+  }
+
+  /**
+   * Cria elemento ghost para feedback visual no mobile
+   */
+  private createGhostElement(sourceElement: HTMLElement, x: number, y: number): void {
+    const ghost = sourceElement.cloneNode(true) as HTMLElement;
+    ghost.style.position = 'fixed';
+    ghost.style.left = `${x - 50}px`;
+    ghost.style.top = `${y - 50}px`;
+    ghost.style.width = `${sourceElement.offsetWidth}px`;
+    ghost.style.height = `${sourceElement.offsetHeight}px`;
+    ghost.style.opacity = '0.7';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '9999';
+    ghost.style.transform = 'scale(0.95)';
+    ghost.classList.add('ghost-dragging');
+
+    document.body.appendChild(ghost);
+    this.ghostElement = ghost;
+  }
+
+  /**
+   * Remove elemento ghost
+   */
+  private removeGhostElement(): void {
+    if (this.ghostElement) {
+      document.body.removeChild(this.ghostElement);
+      this.ghostElement = null;
     }
   }
 

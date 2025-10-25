@@ -9,22 +9,84 @@
   width: 100%;
   height: 100%;
   border-radius: 4px;
+  position: relative;
+  overflow: hidden;
 
+  // Formato 2x2: Imagem de fundo
+  &.format-2x2 {
+    .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      border-radius: 4px;
+      z-index: 0;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
+      z-index: 1;
+    }
+
+    .product-container__content {
+      position: relative;
+      z-index: 2;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  // Formato 2x1: Layout horizontal (imagem à esquerda)
   &.format-2x1 {
-    flex-direction: row;
+    flex-direction: row !important;
     align-items: center;
+  }
+
+  // Formato 1x2: Layout vertical (imagem acima)
+  &.format-1x2 {
+    flex-direction: column !important;
+  }
+
+  // Formato 1x1: Apenas texto, sem imagem
+  &.format-1x1 {
+    flex-direction: column !important;
+    justify-content: center;
   }
 
   &__content {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
+    padding: 8px 0;
 
+    // Ajustes para formato 2x1 (imagem à esquerda)
     &.format-2x1 {
-      flex-direction: column;
       width: 50%;
+      padding: 8px 12px;
+    }
+
+    // Ajustes para formato 1x2 (imagem acima)
+    &.format-1x2 {
+      height: 50%;
+      padding: 0;
+      width: 100%;
+    }
+
+    // Ajustes para formato 2x2 (overlay sobre imagem)
+    &.format-2x2 {
+      padding: 16px;
+      justify-content: flex-end;
     }
 
     .title {
@@ -32,31 +94,34 @@
       text-align: center;
       font-size: 24px;
       font-weight: bold;
+      margin-bottom: 4px;
     }
 
     .product-description {
       font-size: 16px;
       text-align: center;
       padding: 0 8px;
+      margin: 4px 0;
     }
 
     .product-price {
       font-size: 32px;
       font-weight: bold;
       text-align: center;
+      margin: 4px 0;
     }
   }
 }
 
-.product-image-1x2 {
+// Imagens para diferentes formatos
+.product-image-top {
   object-fit: cover;
   width: 100%;
   height: 50%;
-}
-.product-image-1x2 {
   border-radius: 4px 4px 0 0;
 }
-.product-image-2x1 {
+
+.product-image-left {
   object-fit: cover;
   width: 50%;
   height: 100%;
@@ -86,6 +151,21 @@ p {
     .product-description {
       color: #666;
     }
+
+    // Formato 2x2: texto branco sobre imagem
+    &.format-2x2 {
+      .title {
+        color: #fff;
+      }
+
+      .product-price {
+        color: #ffd700;
+      }
+
+      .product-description {
+        color: #f0f0f0;
+      }
+    }
   }
 
   // Dark mode styles
@@ -103,6 +183,21 @@ p {
 
     .product-description {
       color: #c3c3c3;
+    }
+
+    // Formato 2x2: mantém cores claras sobre imagem
+    &.format-2x2 {
+      .title {
+        color: #fff;
+      }
+
+      .product-price {
+        color: #ffd700;
+      }
+
+      .product-description {
+        color: #f0f0f0;
+      }
     }
   }
 }

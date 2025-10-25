@@ -1,0 +1,177 @@
+LICENÇA DE SOFTWARE PROPRIETÁRIO
+BentoBox - Sistema de Gestão de Cardápio Digital
+
+Copyright (c) 2024-2025 Math5oul. Todos os direitos reservados.
+
+================================================================================
+
+TERMOS E CONDIÇÕES DE USO
+
+Este software e a documentação associada (o "Software") são propriedade
+exclusiva de Math5oul ("Licenciante") e estão protegidos por leis de direitos
+autorais e tratados internacionais de propriedade intelectual.
+
+O uso deste Software está sujeito aos seguintes termos e condições:
+
+1. CONCESSÃO DE LICENÇA
+
+   1.1. O Licenciante concede ao usuário final ("Licenciado") uma licença
+        limitada, não exclusiva, intransferível e revogável para usar o
+        Software exclusivamente para fins de avaliação e desenvolvimento
+        interno.
+
+   1.2. Esta licença NÃO permite o uso comercial, distribuição, sublicenciamento
+        ou qualquer forma de comercialização do Software sem autorização
+        expressa e por escrito do Licenciante.
+
+2. RESTRIÇÕES
+
+   O Licenciado NÃO PODE:
+
+   2.1. Copiar, modificar, adaptar, traduzir ou criar obras derivadas baseadas
+        no Software, exceto conforme expressamente permitido nesta licença.
+
+   2.2. Fazer engenharia reversa, descompilar, desmontar ou tentar descobrir
+        o código-fonte do Software.
+
+   2.3. Alugar, arrendar, emprestar, vender, sublicenciar, distribuir ou
+        transferir o Software ou qualquer parte dele a terceiros.
+
+   2.4. Remover, modificar ou obscurecer quaisquer avisos de direitos autorais,
+        marcas comerciais ou outros avisos de propriedade contidos no Software.
+
+   2.5. Usar o Software para criar um produto ou serviço concorrente.
+
+   2.6. Publicar, hospedar ou disponibilizar o Software em repositórios
+        públicos, marketplaces ou qualquer plataforma de distribuição sem
+        autorização prévia e por escrito.
+
+   2.7. Usar o Software em produção ou ambiente comercial sem uma licença
+        comercial válida.
+
+3. PROPRIEDADE INTELECTUAL
+
+   3.1. O Software, incluindo mas não limitado a código-fonte, código-objeto,
+        design, arquitetura, estrutura, documentação, interfaces gráficas,
+        algoritmos e toda a propriedade intelectual relacionada, é e
+        permanecerá propriedade exclusiva do Licenciante.
+
+   3.2. Esta licença não transfere nenhum direito de propriedade sobre o
+        Software ao Licenciado.
+
+   3.3. Todas as marcas comerciais, marcas de serviço, nomes comerciais e
+        outros identificadores proprietários usados no Software são
+        propriedade do Licenciante.
+
+4. LICENÇAS COMERCIAIS
+
+   4.1. Para uso comercial, distribuição, revenda ou qualquer uso além do
+        escopo desta licença, é necessário adquirir uma licença comercial
+        separada.
+
+   4.2. Entre em contato com o Licenciante para obter informações sobre
+        licenças comerciais:
+        - GitHub: https://github.com/Math5oul
+        - Email: [Inserir email de contato comercial]
+
+   4.3. Licenças comerciais disponíveis:
+        - Licença de Uso Único (Single Site License)
+        - Licença Empresarial (Enterprise License)
+        - Licença de Revenda (Reseller License)
+        - Licença OEM (Original Equipment Manufacturer)
+
+5. CONTRIBUIÇÕES E CÓDIGO DE TERCEIROS
+
+   5.1. Quaisquer contribuições feitas ao Software por terceiros serão
+        consideradas como transferência de direitos autorais ao Licenciante,
+        salvo acordo por escrito em contrário.
+
+   5.2. O Licenciado concorda em não enviar contribuições que contenham
+        código de terceiros sem os direitos apropriados.
+
+6. ISENÇÃO DE GARANTIAS
+
+   6.1. O SOFTWARE É FORNECIDO "NO ESTADO EM QUE SE ENCONTRA", SEM GARANTIAS
+        DE QUALQUER TIPO, EXPRESSAS OU IMPLÍCITAS, INCLUINDO, MAS NÃO SE
+        LIMITANDO A, GARANTIAS DE COMERCIALIZAÇÃO, ADEQUAÇÃO A UM PROPÓSITO
+        ESPECÍFICO E NÃO VIOLAÇÃO.
+
+   6.2. O Licenciante não garante que o Software será livre de erros,
+        funcionará sem interrupções ou atenderá aos requisitos específicos
+        do Licenciado.
+
+7. LIMITAÇÃO DE RESPONSABILIDADE
+
+   7.1. EM NENHUMA CIRCUNSTÂNCIA O LICENCIANTE SERÁ RESPONSÁVEL POR QUAISQUER
+        DANOS DIRETOS, INDIRETOS, INCIDENTAIS, ESPECIAIS, EXEMPLARES OU
+        CONSEQUENCIAIS (INCLUINDO, MAS NÃO SE LIMITANDO A, AQUISIÇÃO DE BENS
+        OU SERVIÇOS SUBSTITUTOS, PERDA DE USO, DADOS OU LUCROS, OU INTERRUPÇÃO
+        DE NEGÓCIOS) DECORRENTES DO USO OU INCAPACIDADE DE USAR O SOFTWARE.
+
+   7.2. A responsabilidade total do Licenciante sob esta licença não excederá
+        o valor pago pelo Licenciado pelo Software (se houver).
+
+8. RESCISÃO
+
+   8.1. Esta licença é efetiva até ser rescindida.
+
+   8.2. O Licenciante pode rescindir esta licença imediatamente sem aviso
+        prévio se o Licenciado violar qualquer termo desta licença.
+
+   8.3. Após a rescisão, o Licenciado deve cessar todo uso do Software e
+        destruir todas as cópias do Software em sua posse ou controle.
+
+   8.4. As seções 3, 6, 7 e 9 sobreviverão à rescisão desta licença.
+
+9. LEI APLICÁVEL E JURISDIÇÃO
+
+   9.1. Esta licença será regida e interpretada de acordo com as leis do
+        Brasil, sem considerar seus conflitos de disposições legais.
+
+   9.2. Qualquer disputa decorrente desta licença será submetida à jurisdição
+        exclusiva dos tribunais do Brasil.
+
+10. DISPOSIÇÕES GERAIS
+
+    10.1. Esta licença constitui o acordo integral entre as partes em relação
+          ao Software e substitui todos os acordos anteriores ou contemporâneos.
+
+    10.2. Nenhuma modificação desta licença será válida, a menos que feita
+          por escrito e assinada por ambas as partes.
+
+    10.3. Se qualquer disposição desta licença for considerada inválida ou
+          inexequível, as disposições restantes permanecerão em pleno vigor
+          e efeito.
+
+    10.4. A falha do Licenciante em fazer valer qualquer direito ou disposição
+          desta licença não constituirá renúncia de tal direito ou disposição.
+
+11. INFORMAÇÕES DE CONTATO
+
+    Para questões sobre esta licença, licenças comerciais ou permissões
+    especiais, entre em contato:
+
+    Licenciante: Math5oul
+    GitHub: https://github.com/Math5oul
+    Repositório: https://github.com/Math5oul/bento-box
+
+================================================================================
+
+AVISO IMPORTANTE:
+
+Este software é destinado APENAS para fins de demonstração, portfólio e
+avaliação técnica. Qualquer uso comercial ou em produção requer uma licença
+comercial separada e pagamento das taxas aplicáveis.
+
+O uso não autorizado deste software pode resultar em ações legais civis e/ou
+criminais.
+
+RECONHECIMENTO:
+
+Ao usar este Software, você reconhece que leu, compreendeu e concorda em estar
+vinculado aos termos e condições desta licença.
+
+================================================================================
+
+Data da Última Atualização: 25 de Outubro de 2025
+Versão da Licença: 1.0

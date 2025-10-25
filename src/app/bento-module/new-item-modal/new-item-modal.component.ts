@@ -207,7 +207,8 @@ export class NewItemModalComponent implements OnInit {
   private finalizeItemCreation() {
     const formValue = this.componentForm.value;
 
-    const calculatedFormat = `${formValue.rowSpan}x${formValue.colSpan}`;
+    // Formato correto: colSpan x rowSpan (largura x altura)
+    const calculatedFormat = `${formValue.colSpan}x${formValue.rowSpan}`;
 
     // Prepara os inputs baseado no tipo de componente
     const inputs = {
