@@ -417,13 +417,34 @@ export class BentoBoxComponent {
   }
 
 
+
   //-------------------------------TOOLBAR-------------------------------//
+
   /**
-   * Emite evento quando um item é clicado
-   * @param clicked o item que foi clicado
+   * Obtém os inputs do componente, adicionando o modo de edição se necessário.
+   * @param inputs Os inputs originais do componente.
+   * @param component O componente para o qual os inputs são destinados.
+   * @returns Os inputs modificados, se aplicável.
    */
-  onItemClick(clicked: GridItem) {
+  getComponentInputs(inputs: any): any {
+    if (inputs && inputs.format !== undefined) { // Checa se o input  possui a propriedade 'editMode'
+      return {
+        ...inputs,
+        editMode: this.options.mode === 'edit'
+      };
+    }
+    return inputs;
+  }
+  /**
+   * Manipula o clique em um item da grade.
+   * @param event Evento de clique.
+   * @param clicked Item clicado.
+   */
+  handleItemClick(event: MouseEvent, clicked: GridItem): void {
     if (this.options.mode === 'edit') {
+      this.selectedId = clicked.id;
+      this.itemClick.emit(clicked);
+    } else {
       this.itemClick.emit(clicked);
     }
   }

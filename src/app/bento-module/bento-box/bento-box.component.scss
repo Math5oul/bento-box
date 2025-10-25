@@ -26,5 +26,27 @@
 
 .selected {
   z-index: 1;
-  filter: brightness(0.7);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    border-radius: 4px;
+  }
+}
+
+.disable-click {
+  pointer-events: none !important;
+  user-select: none !important;
+
+  * {
+    pointer-events: none !important;
+    user-select: none !important;
+  }
 }

@@ -1,5 +1,5 @@
 
-<div class="simple-product" (click)="openModal()">
+<div class="simple-product" (click)="handleClick($event)">
   <div [ngClass]="['product-container', colorMode, 'format-' + format]">
     @if (format !== '1x1') {
     <img
