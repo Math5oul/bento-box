@@ -22,5 +22,5 @@ export class HeaderComponent {
 
   onSearchInput(value: string) {
     this.search.emit(value);
-}
+  }
 }

@@ -20,9 +20,7 @@ export class CartService {
    */
   addItem(item: CartItem): void {
     const currentItems = this.cartItemsSubject.value;
-    const existingIndex = currentItems.findIndex(
-      (i) => i.productName === item.productName
-    );
+    const existingIndex = currentItems.findIndex(i => i.productName === item.productName);
 
     const newItems = [...currentItems];
 
@@ -46,9 +44,7 @@ export class CartService {
    */
   decreaseQuantity(item: CartItem): void {
     const currentItems = [...this.cartItemsSubject.value];
-    const index = currentItems.findIndex(
-      (i) => i.productName === item.productName
-    );
+    const index = currentItems.findIndex(i => i.productName === item.productName);
 
     if (index === -1) return;
 
@@ -78,7 +74,7 @@ export class CartService {
     const newItems = [...currentItems];
     newItems[index] = {
       ...newItems[index],
-      quantity: newItems[index].quantity + 1
+      quantity: newItems[index].quantity + 1,
     };
 
     this.cartItemsSubject.next(newItems);
@@ -89,9 +85,7 @@ export class CartService {
    * @param productName Nome do produto a ser removido.
    */
   removeItem(productName: string): void {
-    const newItems = this.cartItemsSubject.value.filter(
-      (item) => item.productName !== productName
-    );
+    const newItems = this.cartItemsSubject.value.filter(item => item.productName !== productName);
     this.cartItemsSubject.next(newItems);
   }
 
@@ -115,9 +109,6 @@ export class CartService {
    * @returns O valor total dos itens como um número.
    */
   getTotal(): number {
-    return this.cartItemsSubject.value.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    return this.cartItemsSubject.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 }

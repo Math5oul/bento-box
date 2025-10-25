@@ -27,7 +27,6 @@ export class ProductModalComponent {
   quantity: number = 1;
   observations: string = '';
 
-
   /**
    * Abre o modal de produto
    */
@@ -80,5 +79,4 @@ export class ProductModalComponent {
     this.quantity = 1;
     this.observations = '';
   }
-
 }

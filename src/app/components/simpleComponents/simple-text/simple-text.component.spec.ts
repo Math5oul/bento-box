@@ -8,9 +8,8 @@ describe('SimpleTextComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SimpleTextComponent]
-    })
-    .compileComponents();
+      imports: [SimpleTextComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SimpleTextComponent);
     component = fixture.componentInstance;

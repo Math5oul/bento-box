@@ -11,9 +11,7 @@
 
     <button class="cart-toggle" (click)="toggleCart()">
       🛒
-      <span class="cart-badge">{{
-        _cartService.getCurrentItems().length
-      }}</span>
+      <span class="cart-badge">{{ _cartService.getCurrentItems().length }}</span>
     </button>
   </div>
 
@@ -24,12 +22,12 @@
     (click)="toggleCart()"
   ></div>
 
-  @if(isCartOpen) {
-  <app-cart
-    class="cart-wrapper"
-    [class.open]="isCartOpen"
-    [class.closed]="!isCartOpen"
-    (closeCart)="toggleCart()"
-  ></app-cart>
+  @if (isCartOpen) {
+    <app-cart
+      class="cart-wrapper"
+      [class.open]="isCartOpen"
+      [class.closed]="!isCartOpen"
+      (closeCart)="toggleCart()"
+    ></app-cart>
   }
 </section>

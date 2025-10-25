@@ -66,7 +66,7 @@ export class BentoToolbarComponent {
       // Usar spread para criar cópia mantendo as referências dos componentes
       this.originalData = this.data.map(item => ({
         ...item,
-        inputs: { ...item.inputs }
+        inputs: { ...item.inputs },
       }));
       this.hasUnsavedChanges = false;
       this.options.mode = 'edit';
@@ -99,7 +99,7 @@ export class BentoToolbarComponent {
         colSpan: item.colSpan,
         rowSpan: item.rowSpan,
         row: item.row,
-        col: item.col
+        col: item.col,
       };
     });
   }
@@ -122,10 +122,12 @@ export class BentoToolbarComponent {
         // Feedback visual de sucesso
         this.showSuccessMessage('Alterações salvas com sucesso!');
       },
-      error: (error) => {
+      error: error => {
         console.error('❌ Erro ao salvar dados:', error);
-        alert('Erro ao salvar as alterações. Verifique a conexão com o servidor e tente novamente.');
-      }
+        alert(
+          'Erro ao salvar as alterações. Verifique a conexão com o servidor e tente novamente.'
+        );
+      },
     });
   }
 
@@ -208,7 +210,9 @@ export class BentoToolbarComponent {
     if (this.selectedItem) {
       const index = this.data.indexOf(this.selectedItem);
       if (index !== -1) {
-        const confirmDelete = confirm(`Deseja realmente deletar o item "${this.selectedItem.inputs?.productName || 'ID: ' + this.selectedItem.id}"?`);
+        const confirmDelete = confirm(
+          `Deseja realmente deletar o item "${this.selectedItem.inputs?.productName || 'ID: ' + this.selectedItem.id}"?`
+        );
         if (confirmDelete) {
           this.data.splice(index, 1);
           this.markAsChanged();
@@ -229,23 +233,15 @@ export class BentoToolbarComponent {
    */
   swapItemPosition(direction: 'left' | 'right') {
     if (this.selectedItem) {
-      const index = this.data.findIndex(
-        (item) => item.id === this.selectedItem?.id
-      );
+      const index = this.data.findIndex(item => item.id === this.selectedItem?.id);
 
       if (direction === 'left' && index > 0) {
-        [this.data[index - 1], this.data[index]] = [
-          this.data[index],
-          this.data[index - 1],
-        ];
+        [this.data[index - 1], this.data[index]] = [this.data[index], this.data[index - 1]];
         this.markAsChanged();
         this.onGridChange();
         this.autoSaveIfNotInEditMode();
       } else if (direction === 'right' && index < this.data.length - 1) {
-        [this.data[index], this.data[index + 1]] = [
-          this.data[index + 1],
-          this.data[index],
-        ];
+        [this.data[index], this.data[index + 1]] = [this.data[index + 1], this.data[index]];
         this.markAsChanged();
         this.onGridChange();
         this.autoSaveIfNotInEditMode();
@@ -270,10 +266,12 @@ export class BentoToolbarComponent {
           console.log('✅ Alteração salva automaticamente');
           this.hasUnsavedChanges = false;
         },
-        error: (error) => {
+        error: error => {
           console.error('❌ Erro ao salvar automaticamente:', error);
-          console.warn('As alterações foram aplicadas localmente, mas não foram salvas no servidor.');
-        }
+          console.warn(
+            'As alterações foram aplicadas localmente, mas não foram salvas no servidor.'
+          );
+        },
       });
     }
   }

@@ -1,17 +1,11 @@
 <div class="product-carousel">
   <div class="carousel-container">
-    <button
-      class="carousel-nav left"
-      (click)="prevImage(); $event.stopPropagation()"
-    >
+    <button class="carousel-nav left" (click)="prevImage(); $event.stopPropagation()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
         <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
       </svg>
     </button>
-    <button
-      class="carousel-nav right"
-      (click)="nextImage(); $event.stopPropagation()"
-    >
+    <button class="carousel-nav right" (click)="nextImage(); $event.stopPropagation()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
         <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
       </svg>
@@ -19,9 +13,7 @@
     <div
       #imagesRow
       class="images-row"
-      [style.transform]="
-        'translateX(calc(' + -currentIndex * 100 + '% + ' + dragOffsetX + 'px))'
-      "
+      [style.transform]="'translateX(calc(' + -currentIndex * 100 + '% + ' + dragOffsetX + 'px))'"
       [class.no-transition]="dragging"
       (mousedown)="handleDragStart($event)"
       (mousemove)="handleDragMove($event)"
@@ -30,22 +22,22 @@
       (touchend)="handleDragEnd()"
     >
       @for (image of images; track $index) {
-      <div class="image-wrapper">
-        <img [src]="image" alt="Product image" />
-      </div>
+        <div class="image-wrapper">
+          <img [src]="image" alt="Product image" />
+        </div>
       }
     </div>
   </div>
 
   @if (images.length > 1) {
-  <div class="carousel-dots">
-    @for (image of images; track $index) {
-    <button
-      class="dot"
-      [class.active]="$index === currentIndex"
-      (click)="setCurrentIndex($index); $event.stopPropagation()"
-    ></button>
-    }
-  </div>
+    <div class="carousel-dots">
+      @for (image of images; track $index) {
+        <button
+          class="dot"
+          [class.active]="$index === currentIndex"
+          (click)="setCurrentIndex($index); $event.stopPropagation()"
+        ></button>
+      }
+    </div>
   }
 </div>

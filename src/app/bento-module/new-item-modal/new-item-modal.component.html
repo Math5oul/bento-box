@@ -1,152 +1,133 @@
 <div class="modal-overlay" (click)="closeModal()">
-  <form
-    [formGroup]="componentForm"
-    class="modal-content"
-    (click)="$event.stopPropagation()"
-  >
+  <form [formGroup]="componentForm" class="modal-content" (click)="$event.stopPropagation()">
     <button type="button" class="close-button" (click)="closeModal()">×</button>
 
     <!-- Lista de componentes disponíveis -->
-    @if(!showDimensionsForm){
-    <div>
-      <h3>Selecione um componente</h3>
-      <div class="component-options">
-        @for(comp of availableComponents; track $index){
-        <button
-          type="button"
-          (click)="selectComponent(comp)"
-          class="component-option"
-        >
-          {{ comp.name }}
-        </button>
-        }
+    @if (!showDimensionsForm) {
+      <div>
+        <h3>Selecione um componente</h3>
+        <div class="component-options">
+          @for (comp of availableComponents; track $index) {
+            <button type="button" (click)="selectComponent(comp)" class="component-option">
+              {{ comp.name }}
+            </button>
+          }
+        </div>
       </div>
-    </div>
     }
 
     <!-- Formulário de dimensões e inputs do componente selecionado -->
-    @if(showDimensionsForm){
-    <div [formGroup]="componentForm">
-      <h3>Configurar {{ selectedComponent.name }}</h3>
+    @if (showDimensionsForm) {
+      <div [formGroup]="componentForm">
+        <h3>Configurar {{ selectedComponent.name }}</h3>
 
-      <!-- Dimensões em células -->
-      <div class="dimensions-form">
-        <label>
-          Altura (em células):
-          <input type="number" formControlName="rowSpan" min="1" max="10" />
-        </label>
+        <!-- Dimensões em células -->
+        <div class="dimensions-form">
+          <label>
+            Altura (em células):
+            <input type="number" formControlName="rowSpan" min="1" max="10" />
+          </label>
 
-        <label>
-          Largura (em células):
-          <input type="number" formControlName="colSpan" min="1" max="10" />
-        </label>
-      </div>
+          <label>
+            Largura (em células):
+            <input type="number" formControlName="colSpan" min="1" max="10" />
+          </label>
+        </div>
 
-      <!-- Campos dinâmicos de inputs -->
-      <div class="inputs-form" formGroupName="inputs">
-        @for(input of selectedComponent.inputsConfig; track $index){
-        <div>
-          <!-- Text, Number, Color -->
-          @if(input.type === 'text' || input.type === 'number' || input.type ===
-          'color'){
-          <div>
-            <label>
-              {{ input.label }}:
-              <input
-                [type]="input.type"
-                [formControlName]="input.name"
-                [step]="input.step || '1'"
-                [required]="input.required || false"
-                [placeholder]="input.placeholder || ''"
-              />
-            </label>
-          </div>
-          }
+        <!-- Campos dinâmicos de inputs -->
+        <div class="inputs-form" formGroupName="inputs">
+          @for (input of selectedComponent.inputsConfig; track $index) {
+            <div>
+              <!-- Text, Number, Color -->
+              @if (input.type === 'text' || input.type === 'number' || input.type === 'color') {
+                <div>
+                  <label>
+                    {{ input.label }}:
+                    <input
+                      [type]="input.type"
+                      [formControlName]="input.name"
+                      [step]="input.step || '1'"
+                      [required]="input.required || false"
+                      [placeholder]="input.placeholder || ''"
+                    />
+                  </label>
+                </div>
+              }
 
-          <!-- Textarea -->
-          @if(input.type === 'textarea'){
-          <div>
-            <label>
-              {{ input.label }}:
-              <textarea
-                [formControlName]="input.name"
-                [required]="input.required || false"
-              ></textarea>
-            </label>
-          </div>
-          }
+              <!-- Textarea -->
+              @if (input.type === 'textarea') {
+                <div>
+                  <label>
+                    {{ input.label }}:
+                    <textarea
+                      [formControlName]="input.name"
+                      [required]="input.required || false"
+                    ></textarea>
+                  </label>
+                </div>
+              }
 
-          <!-- Select -->
-          @if(input.type === 'select'){
-          <div>
-            <label>
-              {{ input.label }}:
-              <select [formControlName]="input.name">
-                @for(option of input.options; track $index){
-                <option [value]="option">
-                  {{ option }}
-                </option>
-                }
-              </select>
-            </label>
-          </div>
-          }
+              <!-- Select -->
+              @if (input.type === 'select') {
+                <div>
+                  <label>
+                    {{ input.label }}:
+                    <select [formControlName]="input.name">
+                      @for (option of input.options; track $index) {
+                        <option [value]="option">
+                          {{ option }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+                </div>
+              }
 
-          <!-- Checkbox -->
-          @if(input.type === 'checkbox'){
-          <div>
-            <label class="checkbox">
-              <input  type="checkbox" [formControlName]="input.name" />
-              {{ input.label }}
-            </label>
-          </div>
-          }
+              <!-- Checkbox -->
+              @if (input.type === 'checkbox') {
+                <div>
+                  <label class="checkbox">
+                    <input type="checkbox" [formControlName]="input.name" />
+                    {{ input.label }}
+                  </label>
+                </div>
+              }
 
-          <!-- Multiple-text -->
-          @if(input.type === 'multiple-text'){
-          <div>
-            <label>{{ input.label }}:</label>
-            <div formArrayName="{{ input.name }}">
-              @for(ctrl of getMultipleInputControl(input.name).controls; track
-              $index){
-              <div>
-                <input
-                  type="text"
-                  [formControlName]="$index"
-                  [placeholder]="input.placeholder || ''"
-                />
-                <button
-                  type="button"
-                  (click)="removeMultipleInputItem(input.name,  $index)"
-                >
-                  Remover
-                </button>
-              </div>
-            }
-              <button type="button" (click)="addMultipleInputItem(input.name)">
-                Adicionar URL
-              </button>
+              <!-- Multiple-text -->
+              @if (input.type === 'multiple-text') {
+                <div>
+                  <label>{{ input.label }}:</label>
+                  <div formArrayName="{{ input.name }}">
+                    @for (ctrl of getMultipleInputControl(input.name).controls; track $index) {
+                      <div>
+                        <input
+                          type="text"
+                          [formControlName]="$index"
+                          [placeholder]="input.placeholder || ''"
+                        />
+                        <button type="button" (click)="removeMultipleInputItem(input.name, $index)">
+                          Remover
+                        </button>
+                      </div>
+                    }
+                    <button type="button" (click)="addMultipleInputItem(input.name)">
+                      Adicionar URL
+                    </button>
+                  </div>
+                </div>
+              }
             </div>
-          </div>
           }
         </div>
-        }
-      </div>
 
-      <!-- Botões de ação -->
-      <div class="actions">
-        <button type="button" class="create-button" (click)="createItem()">
-          Criar Item
-        </button>
-        <button
-          type="button"
-          class="back-button"
-          (click)="showDimensionsForm = false"
-        >
-          Voltar
-        </button>
+        <!-- Botões de ação -->
+        <div class="actions">
+          <button type="button" class="create-button" (click)="createItem()">Criar Item</button>
+          <button type="button" class="back-button" (click)="showDimensionsForm = false">
+            Voltar
+          </button>
+        </div>
       </div>
-    </div>
     }
   </form>
 </div>

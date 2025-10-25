@@ -71,8 +71,7 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
    * Volta para a imagem anterior no carrossel
    */
   prevImage(): void {
-    const newIndex =
-      (this.currentIndex - 1 + this.images.length) % this.images.length;
+    const newIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
     this.setCurrentIndex(newIndex);
   }
 
@@ -94,9 +93,7 @@ export class CarrosselComponent implements AfterViewInit, OnDestroy {
    * @private
    */
   private getEventX(event: MouseEvent | TouchEvent): number {
-    return event instanceof TouchEvent
-      ? event.touches[0].clientX
-      : event.clientX;
+    return event instanceof TouchEvent ? event.touches[0].clientX : event.clientX;
   }
 
   /**

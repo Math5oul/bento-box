@@ -1,10 +1,7 @@
 // cart.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  CartService,
-  CartItem,
-} from '../../services/cart-service/cart.service';
+import { CartService, CartItem } from '../../services/cart-service/cart.service';
 
 @Component({
   selector: 'app-cart',

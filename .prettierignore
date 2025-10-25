@@ -1,0 +1,12 @@
+# Ignorar arquivos de build e dependências
+dist
+node_modules
+coverage
+.angular
+
+# Ignorar arquivos gerados
+*.log
+package-lock.json
+
+# Ignorar arquivos de configuração específicos
+angular.json

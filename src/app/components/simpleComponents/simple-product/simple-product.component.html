@@ -1,17 +1,16 @@
-
 <div class="simple-product" (click)="handleClick($event)">
   <div [ngClass]="['product-container', inputs.colorMode, 'format-' + inputs.format]">
     @if (inputs.format !== '1x1') {
-    <img
-      [src]="inputs.images[0]"
-      alt="{{ inputs.productName }}"
-      [ngClass]="['product-image-' + inputs.format]"
-    />
+      <img
+        [src]="inputs.images[0]"
+        alt="{{ inputs.productName }}"
+        [ngClass]="['product-image-' + inputs.format]"
+      />
     }
 
     <div [ngClass]="['product-container__content', 'format-' + inputs.format]">
       <div class="title" [innerHTML]="inputs.productName | sanitize"></div>
-      <p class="product-price" [innerHTML]="inputs.price | currency:'BRL'"></p>
+      <p class="product-price" [innerHTML]="inputs.price | currency: 'BRL'"></p>
       <p class="product-description" [innerHTML]="inputs.description | sanitize"></p>
     </div>
   </div>

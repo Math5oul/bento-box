@@ -54,7 +54,7 @@
 .product-info {
   -webkit-overflow-scrolling: touch;
 
-  .product-text{
+  .product-text {
     font-size: 1rem;
     color: #333;
     line-height: 1.5;
@@ -130,14 +130,13 @@
   font-size: 0.9rem;
 }
 
-
 .observations textarea {
   padding: 12px 15px;
   box-sizing: border-box;
   width: 100%;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-family: "Arial", sans-serif;
+  font-family: 'Arial', sans-serif;
   font-size: 14px;
   line-height: 1.5;
   transition: border-color 0.3s ease;
