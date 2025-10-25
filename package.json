@@ -10,6 +10,7 @@
     "serve:ssr:bento-box": "node dist/bento-box/server/server.mjs",
     "backend": "node menu-server.js",
     "dev": "concurrently \"npm run backend\" \"ng serve\"",
+    "dev:mobile": "concurrently \"npm run backend\" \"ng serve --host 0.0.0.0\"",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{js,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\" \"*.{js,json}\"",
     "prepare": "husky"
