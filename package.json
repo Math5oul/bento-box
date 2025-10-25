@@ -13,6 +13,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:backend": "tsc --project tsconfig.backend.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:bento-box": "node dist/bento-box/server/server.mjs",
