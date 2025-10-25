@@ -12,6 +12,7 @@ dotenv.config();
 import authRoutes from './routes/auth';
 import tableRoutes from './routes/table';
 import productRoutes from './routes/products';
+import uploadRoutes from './routes/upload';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +33,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// Serve arquivos estáticos de imagens
+app.use('/assets/images', express.static(path.join(__dirname, '..', 'src', 'assets', 'images')));
+
 /**
  * Rotas de API
  */
@@ -51,6 +55,9 @@ app.use('/api/table', tableRoutes);
 
 // Rotas de produtos
 app.use('/api/products', productRoutes);
+
+// Rotas de upload de imagens
+app.use('/api/upload', uploadRoutes);
 
 /**
  * Middleware de Erro (deve ser o último)

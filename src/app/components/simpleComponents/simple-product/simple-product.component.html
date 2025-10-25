@@ -1,11 +1,22 @@
 <div class="simple-product" (click)="handleClick($event)">
   <div [ngClass]="['product-container', inputs.colorMode, 'format-' + inputs.format]">
-    @if (inputs.format !== '1x1') {
-      <img
-        [src]="inputs.images[0]"
-        alt="{{ inputs.productName }}"
-        [ngClass]="['product-image-' + inputs.format]"
-      />
+    <!-- Formato 2x2: Imagem de fundo com overlay -->
+    @if (inputs.format === '2x2' && inputs.images && inputs.images.length > 0) {
+      <div
+        class="background-image"
+        [style.background-image]="'url(' + inputs.images[0] + ')'"
+      ></div>
+      <div class="overlay"></div>
+    }
+
+    <!-- Formato 2x1: Imagem à esquerda -->
+    @if (inputs.format === '2x1' && inputs.images && inputs.images.length > 0) {
+      <img [src]="inputs.images[0]" alt="{{ inputs.productName }}" class="product-image-left" />
+    }
+
+    <!-- Formato 1x2: Imagem acima -->
+    @if (inputs.format === '1x2' && inputs.images && inputs.images.length > 0) {
+      <img [src]="inputs.images[0]" alt="{{ inputs.productName }}" class="product-image-top" />
     }
 
     <div [ngClass]="['product-container__content', 'format-' + inputs.format]">

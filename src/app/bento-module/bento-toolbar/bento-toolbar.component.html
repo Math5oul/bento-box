@@ -1,109 +1,201 @@
 <div class="toolbar-container">
   <div class="toolbar-header">
-    <h3 class="toolbar-title">
-      <svg
-        class="icon"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
+    <div class="header-left">
+      <h3 class="toolbar-title">
+        <svg
+          class="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M9 3v18M3 9h18M3 15h18M15 3v18" />
+        </svg>
+        Configuração do Grid
+        @if (hasUnsavedChanges) {
+          <span class="unsaved-badge" title="Você tem alterações não salvas">●</span>
+        }
+      </h3>
+      <div class="mode-indicator" [class.edit-mode]="options.mode === 'edit'">
+        {{ options.mode === 'edit' ? 'Modo Edição' : 'Modo Visualização' }}
+      </div>
+    </div>
+    <div class="header-right">
+      <a
+        href="http://localhost:3001/test-hub.html"
+        target="_blank"
+        class="btn-link"
+        title="Central de Testes"
       >
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M9 3v18M3 9h18M3 15h18M15 3v18" />
-      </svg>
-      Configuração do Grid
-      @if (hasUnsavedChanges) {
-        <span class="unsaved-badge" title="Você tem alterações não salvas">●</span>
-      }
-    </h3>
-    <div class="mode-indicator" [class.edit-mode]="options.mode === 'edit'">
-      {{ options.mode === 'edit' ? 'Modo Edição' : 'Modo Visualização' }}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="12" y1="18" x2="12" y2="12" />
+          <line x1="9" y1="15" x2="15" y2="15" />
+        </svg>
+        <span>Central de Testes</span>
+      </a>
     </div>
   </div>
 
   <div class="toolbar-body">
-    <!-- Grid Settings -->
-    <div class="settings-section">
-      <h4 class="section-title">Dimensões</h4>
-      <div class="input-grid">
-        <label class="input-label">
-          <span class="label-text">Largura da célula</span>
+    <!-- Two Column Layout: Grid Settings + Actions -->
+    <div class="main-grid">
+      <!-- Left Column: Grid Settings -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h4 class="section-title">Dimensões do Grid</h4>
+        </div>
+        <div class="input-grid-vertical">
+          <label class="input-label">
+            <span class="label-text">Largura</span>
+            <input
+              type="number"
+              class="input-field input-field-compact"
+              [(ngModel)]="_cellWidth"
+              (ngModelChange)="onCellChange()"
+              min="50"
+              max="500"
+            />
+          </label>
+          <label class="input-label">
+            <span class="label-text">Altura</span>
+            <input
+              type="number"
+              class="input-field input-field-compact"
+              [(ngModel)]="_cellHeight"
+              (ngModelChange)="onCellChange()"
+              min="50"
+              max="500"
+            />
+          </label>
+          <label class="input-label">
+            <span class="label-text">Gap</span>
+            <input
+              type="number"
+              class="input-field input-field-compact"
+              [(ngModel)]="options.gridGap"
+              (input)="onCellChange()"
+              min="0"
+              max="50"
+            />
+          </label>
+          <label class="input-label">
+            <span class="label-text">Colunas</span>
+            <input
+              type="number"
+              class="input-field input-field-compact"
+              [(ngModel)]="options.maxCols"
+              (input)="onGridChange()"
+              min="1"
+              max="12"
+            />
+          </label>
+        </div>
+
+        <label class="checkbox-label">
           <input
-            type="number"
-            class="input-field"
-            [(ngModel)]="_cellWidth"
-            (ngModelChange)="onCellChange()"
-            min="50"
-            max="500"
+            type="checkbox"
+            class="checkbox-input"
+            [(ngModel)]="options.createFillers"
+            [disabled]="options.mode === 'edit'"
           />
-        </label>
-        <label class="input-label">
-          <span class="label-text">Altura da célula</span>
-          <input
-            type="number"
-            class="input-field"
-            [(ngModel)]="_cellHeight"
-            (ngModelChange)="onCellChange()"
-            min="50"
-            max="500"
-          />
-        </label>
-        <label class="input-label">
-          <span class="label-text">Espaçamento</span>
-          <input
-            type="number"
-            class="input-field"
-            [(ngModel)]="options.gridGap"
-            (input)="onCellChange()"
-            min="0"
-            max="50"
-          />
-        </label>
-        <label class="input-label">
-          <span class="label-text">Max. Colunas</span>
-          <input
-            type="number"
-            class="input-field"
-            [(ngModel)]="options.maxCols"
-            (input)="onGridChange()"
-            min="1"
-            max="12"
-          />
+          <span class="checkbox-text">Preencher espaços vazios</span>
         </label>
       </div>
 
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          class="checkbox-input"
-          [(ngModel)]="options.createFillers"
-          [disabled]="options.mode === 'edit'"
-        />
-        <span class="checkbox-text">Preencher espaços vazios automaticamente</span>
-      </label>
+      <!-- Right Column: Action Buttons -->
+      <div class="actions-section">
+        <div class="section-header">
+          <h4 class="section-title">Gerenciar Produtos</h4>
+        </div>
+        <div class="action-buttons-vertical">
+          <button class="btn btn-primary btn-full" (click)="openNewItemModal()">
+            <svg
+              class="btn-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Novo Item
+          </button>
+
+          @if (options.mode === 'autoFill') {
+            <button class="btn btn-warning btn-full" (click)="switchMode()">
+              <svg
+                class="btn-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Modo Edição
+            </button>
+          }
+
+          @if (options.mode === 'edit') {
+            <button class="btn btn-success btn-full" (click)="saveChanges()">
+              <svg
+                class="btn-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Salvar
+            </button>
+            <button class="btn btn-secondary btn-full" (click)="cancelEdit()">
+              <svg
+                class="btn-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              Cancelar
+            </button>
+          }
+        </div>
+      </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="actions-section">
-      <h4 class="section-title">Ações</h4>
-      <div class="action-buttons">
-        <button class="btn btn-primary" (click)="openNewItemModal()">
-          <svg
-            class="btn-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Novo Item
-        </button>
+    <!-- Edit Mode Controls -->
+    @if (options.mode === 'edit' && selectedItem) {
+      <div class="edit-controls">
+        <div class="section-header">
+          <h4 class="section-title">Editar Item Selecionado</h4>
+        </div>
+        <div class="selected-item-info">
+          <span class="item-type">{{ selectedItem.component.name }}</span>
+          <span class="item-id">{{ selectedItem.id }}</span>
+        </div>
 
-        @if (options.mode === 'autoFill') {
-          <button class="btn btn-warning" (click)="switchMode()">
+        <!-- Botões de Ação Principal -->
+        <div class="edit-actions">
+          <button class="btn btn-primary btn-sm btn-edit" (click)="editItem()">
             <svg
               class="btn-icon"
               xmlns="http://www.w3.org/2000/svg"
@@ -115,51 +207,8 @@
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
-            Modo Edição
+            Editar Conteúdo
           </button>
-        }
-
-        @if (options.mode === 'edit') {
-          <button class="btn btn-success" (click)="saveChanges()">
-            <svg
-              class="btn-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            Salvar
-          </button>
-          <button class="btn btn-secondary" (click)="cancelEdit()">
-            <svg
-              class="btn-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-            Cancelar
-          </button>
-        }
-      </div>
-    </div>
-
-    <!-- Edit Mode Controls -->
-    @if (options.mode === 'edit' && selectedItem) {
-      <div class="edit-controls">
-        <h4 class="section-title">Item Selecionado</h4>
-        <div class="selected-item-info">
-          <span class="item-id">ID: {{ selectedItem.id }}</span>
-          <span class="item-type">{{ selectedItem.component.name }}</span>
-        </div>
-        <div class="edit-buttons">
           <button class="btn btn-danger btn-sm" (click)="removeItem()">
             <svg
               class="btn-icon"
@@ -176,11 +225,17 @@
             </svg>
             Deletar
           </button>
-          <div class="move-controls">
+        </div>
+
+        <!-- Controles de Movimento -->
+        <div class="move-section">
+          <h5 class="move-label">Mover no Grid</h5>
+          <div class="move-controls-grid">
+            <!-- Mover para cima -->
             <button
-              class="btn btn-icon-only"
-              (click)="swapItemPosition('left')"
-              title="Mover para esquerda"
+              class="btn btn-icon-only move-btn move-up"
+              (click)="swapItemPosition('up')"
+              title="Mover para cima"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -189,13 +244,47 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <polyline points="15 18 9 12 15 6" />
+                <polyline points="18 15 12 9 6 15" />
               </svg>
             </button>
+            <!-- Container para esquerda e direita -->
+            <div class="move-horizontal">
+              <button
+                class="btn btn-icon-only move-btn"
+                (click)="swapItemPosition('left')"
+                title="Mover para esquerda"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <button
+                class="btn btn-icon-only move-btn"
+                (click)="swapItemPosition('right')"
+                title="Mover para direita"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+            <!-- Mover para baixo -->
             <button
-              class="btn btn-icon-only"
-              (click)="swapItemPosition('right')"
-              title="Mover para direita"
+              class="btn btn-icon-only move-btn move-down"
+              (click)="swapItemPosition('down')"
+              title="Mover para baixo"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -204,7 +293,7 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <polyline points="9 18 15 12 9 6" />
+                <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
           </div>
@@ -226,7 +315,7 @@
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          Clique em um item do grid para editá-lo
+          Clique em um item para editar
         </p>
       </div>
     }

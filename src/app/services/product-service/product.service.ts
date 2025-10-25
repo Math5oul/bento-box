@@ -66,6 +66,20 @@ export interface CategoriesResponse {
   data: CategoryStats[];
 }
 
+export interface ProductResponse {
+  success: boolean;
+  data: Product;
+  message?: string;
+}
+
+export interface BatchPositionUpdate {
+  id: string;
+  row: number;
+  col: number;
+  rowSpan: number;
+  colSpan: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -105,5 +119,43 @@ export class ProductService {
    */
   getCategories(): Observable<CategoriesResponse> {
     return this.http.get<CategoriesResponse>(`${this.apiUrl}/categories`);
+  }
+
+  /**
+   * Cria novo produto
+   */
+  createProduct(product: Partial<Product>): Observable<ProductResponse> {
+    return this.http.post<ProductResponse>(this.apiUrl, product);
+  }
+
+  /**
+   * Atualiza produto completo
+   */
+  updateProduct(id: string, product: Partial<Product>): Observable<ProductResponse> {
+    return this.http.put<ProductResponse>(`${this.apiUrl}/${id}`, product);
+  }
+
+  /**
+   * Atualiza apenas a posição do grid
+   */
+  updateProductPosition(
+    id: string,
+    position: { row: number; col: number; rowSpan: number; colSpan: number }
+  ): Observable<ProductResponse> {
+    return this.http.patch<ProductResponse>(`${this.apiUrl}/${id}/position`, position);
+  }
+
+  /**
+   * Atualiza posições de múltiplos produtos em lote
+   */
+  updateBatchPositions(products: BatchPositionUpdate[]): Observable<ProductsResponse> {
+    return this.http.patch<ProductsResponse>(`${this.apiUrl}/batch/positions`, { products });
+  }
+
+  /**
+   * Deleta produto
+   */
+  deleteProduct(id: string): Observable<ProductResponse> {
+    return this.http.delete<ProductResponse>(`${this.apiUrl}/${id}`);
   }
 }

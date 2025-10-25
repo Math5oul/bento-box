@@ -5,13 +5,58 @@
     <!-- Lista de componentes disponíveis (apenas no modo de criação) -->
     @if (!showDimensionsForm && !editMode) {
       <div>
-        <h3>Selecione um componente</h3>
-        <div class="component-options">
-          @for (comp of availableComponents; track $index) {
-            <button type="button" (click)="selectComponent(comp)" class="component-option">
-              {{ comp.name }}
-            </button>
-          }
+        <h3>Selecione um tipo de item</h3>
+
+        <!-- Produto -->
+        <div class="component-section">
+          <h4 class="section-label">🛍️ Produto do Cardápio</h4>
+          <div class="component-options">
+            @for (comp of availableComponents; track $index) {
+              @if (!comp.name.includes('Filler')) {
+                <button
+                  type="button"
+                  (click)="selectComponent(comp)"
+                  class="component-option component-option-product"
+                >
+                  <span class="component-icon">🍱</span>
+                  <span class="component-name">{{ comp.name }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Separador -->
+        <div class="divider">
+          <span>ou preencha espaços vazios com</span>
+        </div>
+
+        <!-- Fillers -->
+        <div class="component-section">
+          <h4 class="section-label">📦 Elementos de Preenchimento (Fillers)</h4>
+          <p class="section-description">Elementos decorativos para preencher espaços no grid</p>
+          <div class="component-options component-options-grid">
+            @for (comp of availableComponents; track $index) {
+              @if (comp.name.includes('Filler')) {
+                <button
+                  type="button"
+                  (click)="selectComponent(comp)"
+                  class="component-option component-option-filler"
+                >
+                  <span class="component-icon">
+                    @if (comp.name.includes('Texto')) {
+                      📝
+                    } @else if (comp.name.includes('Imagem')) {
+                      🖼️
+                    } @else if (comp.name.includes('Vídeo')) {
+                      🎥
+                    }
+                  </span>
+                  <span class="component-name">{{ comp.name.replace(' (Filler)', '') }}</span>
+                </button>
+              }
+            }
+          </div>
         </div>
       </div>
     }

@@ -9,7 +9,7 @@ dotenv.config();
  */
 export const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bento-box';
+    const mongoURI = process.env['MONGODB_URI'] || 'mongodb://localhost:27017/bento-box';
 
     await mongoose.connect(mongoURI);
 

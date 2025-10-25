@@ -25,48 +25,12 @@ export interface ComponentConfig {
 /**
  * Mapeamento de componentes disponíveis e suas configurações de inputs.
  * A chave é o tipo de componente (classe) para uso direto com *ngComponentOutlet.
+ * Ordem: Produto primeiro, depois Fillers (Texto, Imagem, Vídeo)
  */
 export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
   Type<any>,
   ComponentConfig
 >([
-  [
-    SimpleTextComponent,
-    {
-      name: 'Texto',
-      inputs: [
-        {
-          name: 'text',
-          label: 'Texto (HTML)',
-          type: 'textarea',
-          required: true,
-          defaultValue: '<p>Insira seu texto aqui</p>',
-        },
-        {
-          name: 'background',
-          label: 'Cor de Fundo',
-          type: 'color',
-          defaultValue: '#FFFFFF',
-        },
-      ],
-    },
-  ],
-  [
-    SimpleImageComponent,
-    {
-      name: 'Imagem',
-      inputs: [
-        {
-          name: 'url',
-          label: 'Imagem',
-          type: 'text',
-          required: false,
-          defaultValue: '',
-          placeholder: 'Faça upload da imagem abaixo',
-        },
-      ],
-    },
-  ],
   [
     SimpleProductComponent,
     {
@@ -107,9 +71,46 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
     },
   ],
   [
+    SimpleTextComponent,
+    {
+      name: 'Texto (Filler)',
+      inputs: [
+        {
+          name: 'text',
+          label: 'Texto (HTML)',
+          type: 'textarea',
+          required: true,
+          defaultValue: '<p>Insira seu texto aqui</p>',
+        },
+        {
+          name: 'background',
+          label: 'Cor de Fundo',
+          type: 'color',
+          defaultValue: '#FFFFFF',
+        },
+      ],
+    },
+  ],
+  [
+    SimpleImageComponent,
+    {
+      name: 'Imagem (Filler)',
+      inputs: [
+        {
+          name: 'url',
+          label: 'Imagem',
+          type: 'text',
+          required: false,
+          defaultValue: '',
+          placeholder: 'Faça upload da imagem abaixo',
+        },
+      ],
+    },
+  ],
+  [
     SimpleVideoComponent,
     {
-      name: 'Vídeo',
+      name: 'Vídeo (Filler)',
       inputs: [
         {
           name: 'videoUrl',

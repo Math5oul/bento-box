@@ -110,12 +110,10 @@ export class BentoToolbarComponent {
    * Salva as alterações feitas no modo de edição
    */
   saveChanges() {
-    const dataToSave = this.prepareDataForSave(this.data);
-
-    // Salvar no servidor
-    this.storageService.saveProducts(dataToSave as any).subscribe({
+    // Salvar as posições no MongoDB usando batch update
+    this.storageService.saveProducts(this.data).subscribe({
       next: () => {
-        console.log('✅ Dados salvos com sucesso!');
+        console.log('✅ Posições salvas com sucesso no MongoDB!');
         this.originalData = [];
         this.hasUnsavedChanges = false;
         this.options.mode = 'autoFill';
@@ -125,7 +123,7 @@ export class BentoToolbarComponent {
         this.showSuccessMessage('Alterações salvas com sucesso!');
       },
       error: error => {
-        console.error('❌ Erro ao salvar dados:', error);
+        console.error('❌ Erro ao salvar posições:', error);
         alert(
           'Erro ao salvar as alterações. Verifique a conexão com o servidor e tente novamente.'
         );
@@ -199,67 +197,144 @@ export class BentoToolbarComponent {
    * e o põe na ultima posição
    */
   addNewItem(itemData: any) {
-    // Encontrar o próximo ID disponível
-    const maxId = this.data.reduce((max, item) => Math.max(max, item.id), 0);
-    const newId = maxId + 1;
+    console.log('➕ Criando novo produto no MongoDB...');
 
-    const newItem: GridItem = {
-      id: newId,
-      component: itemData.component,
-      inputs: itemData.inputs,
-      rowSpan: itemData.rowSpan,
-      colSpan: itemData.colSpan,
-      row: 0,
-      col: 0,
+    // Prepara os dados do produto
+    const productData = {
+      name: itemData.inputs.productName,
+      description: itemData.inputs.description,
+      price: itemData.inputs.price,
+      images: itemData.inputs.images || [],
+      category: this.inferCategory(itemData.inputs.productName),
+      format: itemData.inputs.format || '1x1',
+      colorMode: itemData.inputs.colorMode || 'light',
+      available: true,
+      gridPosition: {
+        row: 0,
+        col: 0,
+        rowSpan: itemData.rowSpan || 1,
+        colSpan: itemData.colSpan || 1,
+      },
     };
 
-    // Se tem ID temporário, renomear a pasta e atualizar os caminhos das imagens
-    if (itemData.tempId) {
-      console.log(`🔄 Renomeando pasta de ${itemData.tempId} para ${newId}`);
+    // Cria o produto no MongoDB
+    this.storageService.createProduct(productData).subscribe({
+      next: response => {
+        console.log('✅ Produto criado no MongoDB:', response.data);
 
-      this.storageService.renameProductFolder(itemData.tempId, String(newId)).subscribe({
-        next: response => {
-          if (response.newPaths && response.newPaths.length > 0) {
-            console.log('✅ Pasta renomeada, atualizando caminhos das imagens');
+        const newProduct = response.data;
 
-            // Atualizar os caminhos das imagens no item
-            if (newItem.inputs.images) {
-              newItem.inputs.images = response.newPaths;
-            } else if (newItem.inputs.url) {
-              newItem.inputs.url = response.newPaths[0];
-            }
+        // Cria o GridItem com o ID do MongoDB
+        const newItem: GridItem = {
+          id: newProduct._id as any, // Usa o _id do MongoDB
+          component: itemData.component,
+          inputs: {
+            ...itemData.inputs,
+            images: newProduct.images, // Usa as imagens do produto criado
+          },
+          rowSpan: newProduct.gridPosition?.rowSpan || 1,
+          colSpan: newProduct.gridPosition?.colSpan || 1,
+          row: newProduct.gridPosition?.row || 0,
+          col: newProduct.gridPosition?.col || 0,
+        };
 
-            // Adicionar ao grid e salvar
-            this.data.push(newItem);
-            this.markAsChanged();
-            this.onGridChange();
-            this.autoSaveIfNotInEditMode();
-          } else {
-            // Sem novos caminhos, apenas adiciona o item
-            this.data.push(newItem);
-            this.markAsChanged();
-            this.onGridChange();
-            this.autoSaveIfNotInEditMode();
-          }
-        },
-        error: err => {
-          console.warn('⚠️ Erro ao renomear pasta (item será adicionado mesmo assim):', err);
-          // Adiciona o item mesmo se falhar a renomeação
-          this.data.push(newItem);
-          this.markAsChanged();
-          this.onGridChange();
-          this.autoSaveIfNotInEditMode();
-        },
-      });
-    } else {
-      // Sem ID temporário, apenas adiciona o item normalmente
-      this.data.push(newItem);
-      this.markAsChanged();
-      this.onGridChange();
-      this.autoSaveIfNotInEditMode();
+        // Se tinha ID temporário e imagens, renomear pasta
+        if (itemData.tempId && itemData.inputs.images && itemData.inputs.images.length > 0) {
+          console.log(`🔄 Renomeando pasta de ${itemData.tempId} para ${newProduct._id}`);
+
+          this.storageService.renameProductFolder(itemData.tempId, newProduct._id).subscribe({
+            next: renameResponse => {
+              if (renameResponse.newPaths && renameResponse.newPaths.length > 0) {
+                console.log('✅ Pasta renomeada, atualizando imagens no MongoDB');
+
+                // Atualiza as imagens no produto
+                this.storageService
+                  .updateProduct(newProduct._id, { images: renameResponse.newPaths })
+                  .subscribe({
+                    next: () => {
+                      newItem.inputs.images = renameResponse.newPaths;
+                      this.finalizeAddItem(newItem);
+                    },
+                    error: err => {
+                      console.warn('⚠️ Erro ao atualizar imagens:', err);
+                      this.finalizeAddItem(newItem);
+                    },
+                  });
+              } else {
+                this.finalizeAddItem(newItem);
+              }
+            },
+            error: err => {
+              console.warn('⚠️ Erro ao renomear pasta:', err);
+              this.finalizeAddItem(newItem);
+            },
+          });
+        } else {
+          this.finalizeAddItem(newItem);
+        }
+      },
+      error: error => {
+        console.error('❌ Erro ao criar produto:', error);
+        alert('Erro ao criar o produto. Tente novamente.');
+      },
+    });
+  }
+
+  /**
+   * Finaliza a adição do item ao grid
+   */
+  private finalizeAddItem(newItem: GridItem) {
+    this.data.push(newItem);
+    this.markAsChanged();
+    this.onGridChange();
+    this.closeNewItemModal();
+    console.log('✅ Item adicionado ao grid');
+  }
+
+  /**
+   * Infere a categoria do produto baseado no nome
+   */
+  private inferCategory(name: string): 'beverage' | 'food' | 'dessert' | 'other' {
+    const nameLower = name.toLowerCase();
+
+    if (
+      nameLower.includes('café') ||
+      nameLower.includes('coffee') ||
+      nameLower.includes('chá') ||
+      nameLower.includes('tea') ||
+      nameLower.includes('suco') ||
+      nameLower.includes('juice') ||
+      nameLower.includes('smoothie') ||
+      nameLower.includes('latte') ||
+      nameLower.includes('cappuccino')
+    ) {
+      return 'beverage';
     }
 
-    this.closeNewItemModal();
+    if (
+      nameLower.includes('bolo') ||
+      nameLower.includes('cake') ||
+      nameLower.includes('donut') ||
+      nameLower.includes('torta') ||
+      nameLower.includes('pie') ||
+      nameLower.includes('sobremesa') ||
+      nameLower.includes('dessert')
+    ) {
+      return 'dessert';
+    }
+
+    if (
+      nameLower.includes('sanduíche') ||
+      nameLower.includes('sandwich') ||
+      nameLower.includes('pão') ||
+      nameLower.includes('bread') ||
+      nameLower.includes('pizza') ||
+      nameLower.includes('hamburguer')
+    ) {
+      return 'food';
+    }
+
+    return 'other';
   }
 
   /**
@@ -270,21 +345,46 @@ export class BentoToolbarComponent {
 
     const index = this.data.indexOf(this.itemToEdit);
     if (index !== -1) {
-      // Atualiza o item mantendo o ID e posição
-      this.data[index] = {
-        ...this.data[index],
-        component: itemData.component,
-        inputs: itemData.inputs,
+      const productId = String(this.data[index].id);
+
+      // Prepara os dados para atualização
+      const updateData = {
+        productName: itemData.inputs.productName,
+        description: itemData.inputs.description,
+        price: itemData.inputs.price,
+        images: itemData.inputs.images || [],
+        format: itemData.inputs.format,
+        colorMode: itemData.inputs.colorMode,
+        row: this.data[index].row,
+        col: this.data[index].col,
         rowSpan: itemData.rowSpan,
         colSpan: itemData.colSpan,
       };
 
-      this.markAsChanged();
-      this.onGridChange();
-      this.closeEditItemModal();
+      console.log('📝 Atualizando produto', productId, updateData);
 
-      // Salvar automaticamente após editar
-      this.autoSaveIfNotInEditMode();
+      // Atualiza no MongoDB
+      this.storageService.updateProduct(productId, updateData).subscribe({
+        next: () => {
+          // Atualiza localmente após sucesso
+          this.data[index] = {
+            ...this.data[index],
+            component: itemData.component,
+            inputs: itemData.inputs,
+            rowSpan: itemData.rowSpan,
+            colSpan: itemData.colSpan,
+          };
+
+          console.log('✅ Produto atualizado com sucesso');
+          this.markAsChanged();
+          this.onGridChange();
+          this.closeEditItemModal();
+        },
+        error: error => {
+          console.error('❌ Erro ao atualizar produto:', error);
+          alert('Erro ao salvar as alterações do produto. Tente novamente.');
+        },
+      });
     }
   }
 
@@ -301,31 +401,33 @@ export class BentoToolbarComponent {
         if (confirmDelete) {
           const productId = String(this.selectedItem.id);
 
-          console.log('🗑️ Iniciando deleção - productId:', productId);
+          console.log('🗑️ Deletando produto do MongoDB:', productId);
 
-          // Deletar a pasta de imagens do produto no servidor
-          this.storageService.deleteProductWithImages(productId).subscribe({
-            next: response => {
-              console.log(
-                `✅ Pasta de imagens do produto ${productId} deletada. Resposta:`,
-                response
-              );
+          // Deletar produto do MongoDB (inclui deleção de imagens via backend)
+          this.storageService.deleteProduct(productId).subscribe({
+            next: () => {
+              console.log(`✅ Produto ${productId} deletado do MongoDB`);
+
+              // Remove do array local
+              this.data.splice(index, 1);
+              this.markAsChanged();
+              this.onGridChange();
+
+              // Deletar pasta de imagens
+              this.storageService.deleteProductWithImages(productId).subscribe({
+                next: response => {
+                  console.log('✅ Pasta de imagens deletada:', response);
+                },
+                error: error => {
+                  console.warn('⚠️ Erro ao deletar pasta de imagens:', error);
+                },
+              });
             },
             error: error => {
-              console.warn(
-                '⚠️ Erro ao deletar pasta de imagens (produto será removido mesmo assim):',
-                error
-              );
+              console.error('❌ Erro ao deletar produto:', error);
+              alert('Erro ao deletar o produto. Tente novamente.');
             },
           });
-
-          // Remove do array local
-          this.data.splice(index, 1);
-          this.markAsChanged();
-          this.onGridChange();
-
-          // Salvar automaticamente após deletar
-          this.autoSaveIfNotInEditMode();
         }
       }
     } else {
@@ -334,12 +436,24 @@ export class BentoToolbarComponent {
   }
 
   /**
+   * Abre o modal de edição para o item selecionado
+   */
+  editItem() {
+    if (this.selectedItem) {
+      this.openEditItemModal(this.selectedItem);
+    } else {
+      console.warn('⚠️ Selecione um item para editar');
+    }
+  }
+
+  /**
    * Move o item selecionado no vetor que forma o grid
    * @param direction A direção no vetor para o qual o item sera movido
    */
-  swapItemPosition(direction: 'left' | 'right') {
+  swapItemPosition(direction: 'left' | 'right' | 'up' | 'down') {
     if (this.selectedItem) {
       const index = this.data.findIndex(item => item.id === this.selectedItem?.id);
+      const maxCols = this.options.maxCols || 6;
 
       if (direction === 'left' && index > 0) {
         [this.data[index - 1], this.data[index]] = [this.data[index], this.data[index - 1]];
@@ -348,6 +462,22 @@ export class BentoToolbarComponent {
         this.autoSaveIfNotInEditMode();
       } else if (direction === 'right' && index < this.data.length - 1) {
         [this.data[index], this.data[index + 1]] = [this.data[index + 1], this.data[index]];
+        this.markAsChanged();
+        this.onGridChange();
+        this.autoSaveIfNotInEditMode();
+      } else if (direction === 'up' && index >= maxCols) {
+        // Move uma "linha" acima (troca com o item maxCols posições antes)
+        const targetIndex = index - maxCols;
+        if (targetIndex >= 0) {
+          [this.data[targetIndex], this.data[index]] = [this.data[index], this.data[targetIndex]];
+          this.markAsChanged();
+          this.onGridChange();
+          this.autoSaveIfNotInEditMode();
+        }
+      } else if (direction === 'down' && index + maxCols < this.data.length) {
+        // Move uma "linha" abaixo (troca com o item maxCols posições depois)
+        const targetIndex = index + maxCols;
+        [this.data[targetIndex], this.data[index]] = [this.data[index], this.data[targetIndex]];
         this.markAsChanged();
         this.onGridChange();
         this.autoSaveIfNotInEditMode();
@@ -365,11 +495,9 @@ export class BentoToolbarComponent {
    */
   private autoSaveIfNotInEditMode() {
     if (this.options.mode !== 'edit') {
-      const dataToSave = this.prepareDataForSave(this.data);
-
-      this.storageService.saveProducts(dataToSave as any).subscribe({
+      this.storageService.saveProducts(this.data).subscribe({
         next: () => {
-          console.log('✅ Alteração salva automaticamente');
+          console.log('✅ Alteração salva automaticamente no MongoDB');
           this.hasUnsavedChanges = false;
         },
         error: error => {

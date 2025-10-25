@@ -151,4 +151,187 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/products
+ * Cria novo produto
+ */
+router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const productData = req.body;
+
+    const newProduct = new Product(productData);
+    await newProduct.save();
+
+    res.status(201).json({
+      success: true,
+      data: newProduct,
+      message: 'Produto criado com sucesso',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: 'Erro ao criar produto',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/products/:id
+ * Atualiza produto completo
+ */
+router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params['id'], req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!product) {
+      res.status(404).json({
+        success: false,
+        message: 'Produto não encontrado',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: product,
+      message: 'Produto atualizado com sucesso',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: 'Erro ao atualizar produto',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PATCH /api/products/:id/position
+ * Atualiza apenas a posição do grid de um produto
+ */
+router.patch('/:id/position', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { row, col, rowSpan, colSpan } = req.body;
+
+    const product = await Product.findByIdAndUpdate(
+      req.params['id'],
+      {
+        $set: {
+          'gridPosition.row': row,
+          'gridPosition.col': col,
+          'gridPosition.rowSpan': rowSpan,
+          'gridPosition.colSpan': colSpan,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      res.status(404).json({
+        success: false,
+        message: 'Produto não encontrado',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: product,
+      message: 'Posição atualizada com sucesso',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: 'Erro ao atualizar posição',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PATCH /api/products/batch/positions
+ * Atualiza posições de múltiplos produtos de uma vez
+ */
+router.patch(
+  '/batch/positions',
+  optionalAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { products } = req.body; // Array de { id, row, col, rowSpan, colSpan }
+
+      if (!Array.isArray(products)) {
+        res.status(400).json({
+          success: false,
+          message: 'Formato inválido. Esperado: { products: [...] }',
+        });
+        return;
+      }
+
+      // Atualiza todos os produtos em paralelo
+      const updatePromises = products.map(item =>
+        Product.findByIdAndUpdate(
+          item.id,
+          {
+            $set: {
+              'gridPosition.row': item.row,
+              'gridPosition.col': item.col,
+              'gridPosition.rowSpan': item.rowSpan,
+              'gridPosition.colSpan': item.colSpan,
+            },
+          },
+          { new: true }
+        )
+      );
+
+      const updatedProducts = await Promise.all(updatePromises);
+
+      res.json({
+        success: true,
+        data: updatedProducts.filter(p => p !== null),
+        message: `${updatedProducts.length} produtos atualizados`,
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: 'Erro ao atualizar posições em lote',
+        error: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * DELETE /api/products/:id
+ * Deleta produto
+ */
+router.delete('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params['id']);
+
+    if (!product) {
+      res.status(404).json({
+        success: false,
+        message: 'Produto não encontrado',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: 'Produto deletado com sucesso',
+      data: product,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao deletar produto',
+      error: error.message,
+    });
+  }
+});
+
 export default router;
