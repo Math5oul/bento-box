@@ -35,7 +35,7 @@ export class BentoBoxComponent {
   @Input() fillers: GridItem[] = [];
   @Input() options!: BentoOptions;
 
-  @Output() selectedItemChange = new EventEmitter<GridItem | null>();
+  @Output() itemClick = new EventEmitter<GridItem>();
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -63,9 +63,9 @@ export class BentoBoxComponent {
   currentCols!: number;
 
   /**
-   * Item selecionado no modo de edição
+   * ID do item selecionado no modo de edição
    */
-  public selectedItem!: GridItem;
+  @Input() selectedId: number | null = null;
 
   /**
    * Referência ao elemento do container da grade.
@@ -419,14 +419,12 @@ export class BentoBoxComponent {
 
   //-------------------------------TOOLBAR-------------------------------//
   /**
-   * Seleciona um item no vetor que forma o grid
-   * @param selected o item a ser selecionado
+   * Emite evento quando um item é clicado
+   * @param clicked o item que foi clicado
    */
-  selectItem(selected: GridItem) {
-    const index = this.data.findIndex((item) => item.id === selected.id);
+  onItemClick(clicked: GridItem) {
     if (this.options.mode === 'edit') {
-      this.selectedItem = this.data[index];
-      this.selectedItemChange.emit(this.selectedItem);
+      this.itemClick.emit(clicked);
     }
   }
 }

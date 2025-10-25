@@ -38,7 +38,15 @@ export class BentoModuleComponent {
 
   @ViewChild(BentoBoxComponent) bentoBoxComponent!: BentoBoxComponent;
 
-  public selectedItem!: GridItem;
+  private _selectedItem: GridItem | null = null;
+
+  get selectedItem(): GridItem | null {
+    return this._selectedItem;
+  }
+
+  set selectedItem(value: GridItem | null) {
+    this._selectedItem = value;
+  }
 
   constructor(public _cartService: CartService) {}
 
@@ -47,8 +55,9 @@ export class BentoModuleComponent {
       this.options.createFillers = false;
     }
   }
-  onSelectedItemChange(event: any) {
-    this.selectedItem = event;
+  onItemClick(item: GridItem) {
+    console.log('Item clicked:', item);
+    this._selectedItem = item;
   }
 
   /**
