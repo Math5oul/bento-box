@@ -42,6 +42,30 @@
           >
           </ng-container>
         </div>
+
+        <!-- Botões de ação no modo de edição -->
+        @if (options.mode === 'edit') {
+          <div class="edit-actions">
+            <button
+              class="action-btn edit-btn"
+              (click)="onEditItem($event, item)"
+              title="Clique para editar este item no toolbar"
+              aria-label="Editar item"
+              style="transition-delay: 0ms"
+            >
+              <span class="btn-icon">✏️</span>
+            </button>
+            <button
+              class="action-btn delete-btn"
+              (click)="onDeleteItem($event, item)"
+              title="Clique para excluir este item permanentemente"
+              aria-label="Excluir item"
+              style="transition-delay: 50ms"
+            >
+              <span class="btn-icon">🗑️</span>
+            </button>
+          </div>
+        }
       </div>
     }
     @if (options.createFillers) {

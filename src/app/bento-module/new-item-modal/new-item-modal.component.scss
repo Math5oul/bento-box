@@ -101,11 +101,13 @@
   }
 
   .actions {
+    margin-top: 16px;
     display: flex;
     justify-content: space-between;
     gap: 1rem;
 
     .create-button,
+    .cancel-button,
     .back-button {
       padding: 0.6rem 1.2rem;
       font-weight: 600;
@@ -122,6 +124,15 @@
 
       &:hover {
         background-color: #218838;
+      }
+    }
+
+    .cancel-button {
+      background-color: #dc3545;
+      color: white;
+
+      &:hover {
+        background-color: #c82333;
       }
     }
 
@@ -272,6 +283,7 @@
       align-items: stretch;
 
       .create-button,
+      .cancel-button,
       .back-button {
         width: 100%;
       }

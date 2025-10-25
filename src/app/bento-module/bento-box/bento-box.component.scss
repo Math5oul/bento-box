@@ -7,6 +7,149 @@
   background: transparent;
   border: none;
   box-sizing: border-box;
+  position: relative;
+
+  // Overlay escuro que aparece no hover (só no modo edit)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+    pointer-events: none;
+    z-index: 9;
+    border-radius: 12px;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  // Borda animada no hover (modo edit)
+  &::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    opacity: 0;
+    transition: all 0.25s ease-in-out;
+    pointer-events: none;
+    z-index: 9;
+  }
+
+  &:hover::after {
+    border-color: rgba(255, 255, 255, 0.3);
+    opacity: 1;
+  }
+
+  // Botões de ação no modo de edição
+  .edit-actions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    display: flex;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+  }
+
+  // Mostra os botões ao passar o mouse
+  &:hover .edit-actions {
+    opacity: 1;
+    pointer-events: all;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .action-btn {
+    width: 64px;
+    height: 64px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+
+    // Efeito de brilho
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+    }
+
+    .btn-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    &:hover {
+      transform: scale(1.2) rotate(5deg);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.4);
+
+      .btn-icon {
+        transform: scale(1.1);
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+      }
+
+      &::before {
+        left: 100%;
+      }
+    }
+
+    &:active {
+      transform: scale(1.05);
+
+      .btn-icon {
+        transform: scale(0.9);
+      }
+    }
+  }
+
+  .edit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    &:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+      box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+    }
+  }
+
+  .delete-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+
+    &:hover {
+      background: linear-gradient(135deg, #e67fe8 0%, #e0435a 100%);
+      box-shadow: 0 12px 32px rgba(245, 87, 108, 0.6);
+    }
+  }
 }
 
 .bento-item__filler {

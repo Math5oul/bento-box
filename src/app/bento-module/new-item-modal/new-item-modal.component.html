@@ -2,8 +2,8 @@
   <form [formGroup]="componentForm" class="modal-content" (click)="$event.stopPropagation()">
     <button type="button" class="close-button" (click)="closeModal()">×</button>
 
-    <!-- Lista de componentes disponíveis -->
-    @if (!showDimensionsForm) {
+    <!-- Lista de componentes disponíveis (apenas no modo de criação) -->
+    @if (!showDimensionsForm && !editMode) {
       <div>
         <h3>Selecione um componente</h3>
         <div class="component-options">
@@ -19,7 +19,7 @@
     <!-- Formulário de dimensões e inputs do componente selecionado -->
     @if (showDimensionsForm) {
       <div [formGroup]="componentForm">
-        <h3>Configurar {{ selectedComponent.name }}</h3>
+        <h3>{{ editMode ? 'Editar' : 'Configurar' }} {{ selectedComponent.name }}</h3>
 
         <!-- Dimensões em células -->
         <div class="dimensions-form">
@@ -197,10 +197,15 @@
 
         <!-- Botões de ação -->
         <div class="actions">
-          <button type="button" class="create-button" (click)="createItem()">Criar Item</button>
-          <button type="button" class="back-button" (click)="showDimensionsForm = false">
-            Voltar
+          <button type="button" class="create-button" (click)="createItem()">
+            {{ editMode ? 'Salvar Alterações' : 'Criar Item' }}
           </button>
+          <button type="button" class="cancel-button" (click)="closeModal()">Cancelar</button>
+          @if (!editMode) {
+            <button type="button" class="back-button" (click)="showDimensionsForm = false">
+              Voltar
+            </button>
+          }
         </div>
       </div>
     }

@@ -36,6 +36,8 @@ export class BentoBoxComponent {
   @Input() options!: BentoOptions;
 
   @Output() itemClick = new EventEmitter<GridItem>();
+  @Output() itemEdit = new EventEmitter<GridItem>();
+  @Output() itemDelete = new EventEmitter<GridItem>();
 
   /**
    * Grade de booleanos que representa a ocupação das células.
@@ -438,5 +440,21 @@ export class BentoBoxComponent {
     } else {
       this.itemClick.emit(clicked);
     }
+  }
+
+  /**
+   * Emite evento para editar um item
+   */
+  onEditItem(event: MouseEvent, item: GridItem): void {
+    event.stopPropagation();
+    this.itemEdit.emit(item);
+  }
+
+  /**
+   * Emite evento para deletar um item
+   */
+  onDeleteItem(event: MouseEvent, item: GridItem): void {
+    event.stopPropagation();
+    this.itemDelete.emit(item);
   }
 }

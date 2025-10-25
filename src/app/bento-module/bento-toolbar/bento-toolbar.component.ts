@@ -22,6 +22,8 @@ export class BentoToolbarComponent {
   @Output() gridChanged = new EventEmitter<void>();
 
   public showNewItemModal = false;
+  public showEditItemModal = false;
+  public itemToEdit: GridItem | null = null;
 
   // Backup dos dados originais para cancelamento
   private originalData: GridItem[] = [];
@@ -177,6 +179,22 @@ export class BentoToolbarComponent {
   }
 
   /**
+   * Abre o modal para editar um item existente
+   */
+  openEditItemModal(item: GridItem) {
+    this.itemToEdit = item;
+    this.showEditItemModal = true;
+  }
+
+  /**
+   * Fecha o modal de edição
+   */
+  closeEditItemModal() {
+    this.showEditItemModal = false;
+    this.itemToEdit = null;
+  }
+
+  /**
    * Cria um novo item para o array do grid
    * e o põe na ultima posição
    */
@@ -242,6 +260,32 @@ export class BentoToolbarComponent {
     }
 
     this.closeNewItemModal();
+  }
+
+  /**
+   * Atualiza um item existente com os novos dados
+   */
+  updateItem(itemData: any) {
+    if (!this.itemToEdit) return;
+
+    const index = this.data.indexOf(this.itemToEdit);
+    if (index !== -1) {
+      // Atualiza o item mantendo o ID e posição
+      this.data[index] = {
+        ...this.data[index],
+        component: itemData.component,
+        inputs: itemData.inputs,
+        rowSpan: itemData.rowSpan,
+        colSpan: itemData.colSpan,
+      };
+
+      this.markAsChanged();
+      this.onGridChange();
+      this.closeEditItemModal();
+
+      // Salvar automaticamente após editar
+      this.autoSaveIfNotInEditMode();
+    }
   }
 
   /**
