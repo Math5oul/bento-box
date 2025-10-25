@@ -36,8 +36,11 @@
           height: '-webkit-fill-available',
           width: '-webkit-fill-available'
         }"
-        *ngComponentOutlet="item.component; inputs: getComponentInputs(item.inputs)"
       >
+        <ng-container
+          *ngComponentOutlet="item.component; inputs: getComponentInputs(item.inputs)"
+        >
+        </ng-container>
       </div>
     </div>
     } @if(options.createFillers) {@for (item of fillersInGrid; track $index) {
