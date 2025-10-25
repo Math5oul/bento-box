@@ -8,6 +8,7 @@ import {
   FormArray,
 } from '@angular/forms';
 import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
+import { ImageUploadService } from '../../services/image-upload/image-upload.service';
 
 @Component({
   selector: 'app-new-item-modal',
@@ -32,7 +33,16 @@ export class NewItemModalComponent {
   showDimensionsForm = false;
   componentForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  // Upload de imagens
+  selectedFiles: File[] = [];
+  uploadedImagePaths: string[] = [];
+  isUploading = false;
+  currentTempId: string | null = null; // Guarda o ID temporário usado no upload
+
+  constructor(
+    private fb: FormBuilder,
+    private imageUploadService: ImageUploadService
+  ) {
     this.componentForm = this.fb.group({
       rowSpan: [1],
       colSpan: [1],
@@ -110,24 +120,176 @@ export class NewItemModalComponent {
    * Se houver o campo format ele preenche utilizando o valor de rowSpan e colSpan.
    * Em seguida, fecha o modal.
    */
-  // No NewItemModalComponent
   createItem() {
+    // Se há arquivos selecionados mas não enviados, faz upload primeiro
+    if (this.selectedFiles.length > 0 && this.uploadedImagePaths.length === 0) {
+      console.log('⏳ Fazendo upload das imagens antes de criar o item...');
+      this.isUploading = true;
+
+      const tempId = this.generateTempProductId();
+      this.currentTempId = tempId; // Salva o ID temporário
+
+      this.imageUploadService.uploadImages(tempId, this.selectedFiles).subscribe({
+        next: paths => {
+          this.uploadedImagePaths = paths;
+          this.isUploading = false;
+          console.log('✅ Upload concluído automaticamente:', paths);
+
+          // Agora cria o item com as imagens
+          this.finalizeItemCreation();
+        },
+        error: err => {
+          this.isUploading = false;
+          console.error('❌ Erro no upload:', err);
+          alert('Erro ao fazer upload das imagens. Tente novamente.');
+        },
+      });
+    } else {
+      // Se já tem imagens ou não tem arquivos, cria diretamente
+      this.finalizeItemCreation();
+    }
+  }
+
+  /**
+   * Finaliza a criação do item após upload (se necessário)
+   */
+  private finalizeItemCreation() {
     const formValue = this.componentForm.value;
 
     const calculatedFormat = `${formValue.rowSpan}x${formValue.colSpan}`;
+
+    // Prepara os inputs baseado no tipo de componente
+    const inputs = {
+      ...formValue.inputs,
+      format: calculatedFormat,
+    };
+
+    // Se há imagens enviadas via upload, usa elas
+    if (this.uploadedImagePaths.length > 0) {
+      // Para SimpleImageComponent, usa apenas a primeira imagem no campo 'url'
+      if (this.hasInput('url') && !this.hasInput('images')) {
+        inputs.url = this.uploadedImagePaths[0];
+      }
+      // Para SimpleProductComponent, usa array de imagens
+      else if (this.hasInput('images')) {
+        inputs.images = this.uploadedImagePaths;
+      }
+    }
 
     const newItem = {
       component: this.selectedComponent.component,
       rowSpan: formValue.rowSpan,
       colSpan: formValue.colSpan,
-      inputs: {
-        ...formValue.inputs,
-        format: calculatedFormat,
-      },
+      inputs: inputs,
+      tempId: this.uploadedImagePaths.length > 0 ? this.currentTempId : null, // Adiciona o ID temporário se houver upload
     };
 
     this.itemCreated.emit(newItem);
     this.closeModal();
+  }
+
+  /**
+   * Handler para seleção de arquivos de imagem
+   */
+  onFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    console.log('📁 Input multiple:', input.multiple);
+    console.log('📁 Arquivos selecionados:', input.files?.length || 0);
+
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+
+      // Valida os arquivos
+      const validFiles = this.imageUploadService.validateFiles(files);
+
+      if (validFiles.length > 0) {
+        this.selectedFiles = validFiles;
+        console.log(`✅ ${validFiles.length} arquivo(s) selecionado(s)`);
+      }
+    }
+  }
+
+  /**
+   * Faz upload das imagens selecionadas
+   */
+  uploadImages(productId: string) {
+    if (this.selectedFiles.length === 0) {
+      return;
+    }
+
+    this.isUploading = true;
+
+    this.imageUploadService.uploadImages(productId, this.selectedFiles).subscribe({
+      next: paths => {
+        this.uploadedImagePaths = paths;
+        this.isUploading = false;
+        console.log('✅ Upload concluído:', paths);
+
+        // Atualiza o form control de images se existir
+        const imagesControl = this.componentForm.get(['inputs', 'images']);
+        if (imagesControl) {
+          imagesControl.setValue(paths);
+        }
+      },
+      error: err => {
+        this.isUploading = false;
+        console.error('❌ Erro no upload:', err);
+        alert('Erro ao fazer upload das imagens. Tente novamente.');
+      },
+    });
+  }
+
+  /**
+   * Remove uma imagem da lista de uploads
+   */
+  removeUploadedImage(index: number) {
+    const imagePath = this.uploadedImagePaths[index];
+
+    const confirmDelete = confirm('Deseja remover esta imagem?');
+    if (!confirmDelete) return;
+
+    // Deleta do servidor
+    this.imageUploadService.deleteImage(imagePath).subscribe({
+      next: () => {
+        this.uploadedImagePaths.splice(index, 1);
+        console.log('✅ Imagem removida');
+      },
+      error: err => {
+        console.error('❌ Erro ao remover imagem:', err);
+      },
+    });
+  }
+
+  /**
+   * Verifica se o componente selecionado suporta upload de imagens
+   */
+  supportsImageUpload(): boolean {
+    if (!this.selectedComponent) return false;
+
+    // Verifica se o componente tem um input chamado 'images' ou 'url' (para imagem única)
+    return this.selectedComponent.inputsConfig.some(
+      (input: any) => input.name === 'images' || input.name === 'url'
+    );
+  }
+
+  /**
+   * Verifica se o componente tem um input específico
+   */
+  hasInput(inputName: string): boolean {
+    if (!this.selectedComponent) return false;
+    const result = this.selectedComponent.inputsConfig.some(
+      (input: any) => input.name === inputName
+    );
+    console.log(`🔍 hasInput('${inputName}'):`, result);
+    return result;
+  }
+
+  /**
+   * Gera um ID temporário para o produto (será substituído pelo ID real)
+   */
+  generateTempProductId(): string {
+    return `temp-${Date.now()}`;
   }
 
   closeModal() {
@@ -142,6 +304,10 @@ export class NewItemModalComponent {
   private resetForm() {
     this.selectedComponent = null;
     this.showDimensionsForm = false;
+    this.selectedFiles = [];
+    this.uploadedImagePaths = [];
+    this.isUploading = false;
+    this.currentTempId = null;
     this.componentForm.reset({
       rowSpan: 1,
       colSpan: 1,

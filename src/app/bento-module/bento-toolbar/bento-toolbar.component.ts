@@ -183,9 +183,10 @@ export class BentoToolbarComponent {
   addNewItem(itemData: any) {
     // Encontrar o próximo ID disponível
     const maxId = this.data.reduce((max, item) => Math.max(max, item.id), 0);
+    const newId = maxId + 1;
 
     const newItem: GridItem = {
-      id: maxId + 1,
+      id: newId,
       component: itemData.component,
       inputs: itemData.inputs,
       rowSpan: itemData.rowSpan,
@@ -194,13 +195,53 @@ export class BentoToolbarComponent {
       col: 0,
     };
 
-    this.data.push(newItem);
-    this.markAsChanged();
-    this.onGridChange();
-    this.closeNewItemModal();
+    // Se tem ID temporário, renomear a pasta e atualizar os caminhos das imagens
+    if (itemData.tempId) {
+      console.log(`🔄 Renomeando pasta de ${itemData.tempId} para ${newId}`);
 
-    // Salvar automaticamente o novo item
-    this.autoSaveIfNotInEditMode();
+      this.storageService.renameProductFolder(itemData.tempId, String(newId)).subscribe({
+        next: response => {
+          if (response.newPaths && response.newPaths.length > 0) {
+            console.log('✅ Pasta renomeada, atualizando caminhos das imagens');
+
+            // Atualizar os caminhos das imagens no item
+            if (newItem.inputs.images) {
+              newItem.inputs.images = response.newPaths;
+            } else if (newItem.inputs.url) {
+              newItem.inputs.url = response.newPaths[0];
+            }
+
+            // Adicionar ao grid e salvar
+            this.data.push(newItem);
+            this.markAsChanged();
+            this.onGridChange();
+            this.autoSaveIfNotInEditMode();
+          } else {
+            // Sem novos caminhos, apenas adiciona o item
+            this.data.push(newItem);
+            this.markAsChanged();
+            this.onGridChange();
+            this.autoSaveIfNotInEditMode();
+          }
+        },
+        error: err => {
+          console.warn('⚠️ Erro ao renomear pasta (item será adicionado mesmo assim):', err);
+          // Adiciona o item mesmo se falhar a renomeação
+          this.data.push(newItem);
+          this.markAsChanged();
+          this.onGridChange();
+          this.autoSaveIfNotInEditMode();
+        },
+      });
+    } else {
+      // Sem ID temporário, apenas adiciona o item normalmente
+      this.data.push(newItem);
+      this.markAsChanged();
+      this.onGridChange();
+      this.autoSaveIfNotInEditMode();
+    }
+
+    this.closeNewItemModal();
   }
 
   /**
@@ -211,9 +252,30 @@ export class BentoToolbarComponent {
       const index = this.data.indexOf(this.selectedItem);
       if (index !== -1) {
         const confirmDelete = confirm(
-          `Deseja realmente deletar o item "${this.selectedItem.inputs?.productName || 'ID: ' + this.selectedItem.id}"?`
+          `Deseja realmente deletar o item "${this.selectedItem.inputs?.productName || 'ID: ' + this.selectedItem.id}"?\nIsso também deletará todas as imagens associadas.`
         );
         if (confirmDelete) {
+          const productId = String(this.selectedItem.id);
+
+          console.log('🗑️ Iniciando deleção - productId:', productId);
+
+          // Deletar a pasta de imagens do produto no servidor
+          this.storageService.deleteProductWithImages(productId).subscribe({
+            next: response => {
+              console.log(
+                `✅ Pasta de imagens do produto ${productId} deletada. Resposta:`,
+                response
+              );
+            },
+            error: error => {
+              console.warn(
+                '⚠️ Erro ao deletar pasta de imagens (produto será removido mesmo assim):',
+                error
+              );
+            },
+          });
+
+          // Remove do array local
           this.data.splice(index, 1);
           this.markAsChanged();
           this.onGridChange();

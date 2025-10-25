@@ -112,4 +112,60 @@ export class StorageService {
   clearStorage(): Observable<any> {
     return this.saveProducts([]);
   }
+
+  // Upload de imagens para um produto
+  uploadProductImages(productId: string, files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
+    });
+
+    return this.http.post(`${environment.apiUrl}/api/upload/${productId}`, formData).pipe(
+      catchError(error => {
+        console.error('Error uploading images:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Deletar produto e sua pasta de imagens
+  deleteProductWithImages(productId: string): Observable<any> {
+    const url = `${environment.apiUrl}/api/product/${productId}`;
+    console.log('🔗 Fazendo DELETE para:', url);
+
+    return this.http.delete(url).pipe(
+      tap(response => {
+        console.log(`✅ Produto ${productId} e suas imagens deletados. Resposta:`, response);
+      }),
+      catchError(error => {
+        console.error('❌ Error deleting product:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Renomear pasta de imagens de ID temporário para ID definitivo
+  renameProductFolder(tempId: string, newId: string): Observable<{ newPaths: string[] }> {
+    const url = `${environment.apiUrl}/api/product/${tempId}/rename/${newId}`;
+    console.log('🔄 Renomeando pasta de', tempId, 'para', newId);
+
+    return this.http.post<{ success: boolean; newPaths: string[] }>(url, {}).pipe(
+      map(response => ({ newPaths: response.newPaths || [] })),
+      catchError(error => {
+        console.error('❌ Erro ao renomear pasta:', error);
+        // Retorna vazio em caso de erro (pasta pode não existir)
+        return of({ newPaths: [] });
+      })
+    );
+  }
+
+  // Deletar uma imagem específica
+  deleteImage(imagePath: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/api/image`, { body: { imagePath } }).pipe(
+      catchError(error => {
+        console.error('Error deleting image:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

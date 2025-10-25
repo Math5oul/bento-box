@@ -38,8 +38,11 @@
         <div class="inputs-form" formGroupName="inputs">
           @for (input of selectedComponent.inputsConfig; track $index) {
             <div>
-              <!-- Text, Number, Color -->
-              @if (input.type === 'text' || input.type === 'number' || input.type === 'color') {
+              <!-- Text, Number, Color (exceto se for campo de imagem e componente suportar upload) -->
+              @if (
+                (input.type === 'text' || input.type === 'number' || input.type === 'color') &&
+                !(supportsImageUpload() && (input.name === 'url' || input.name === 'images'))
+              ) {
                 <div>
                   <label>
                     {{ input.label }}:
@@ -93,8 +96,11 @@
                 </div>
               }
 
-              <!-- Multiple-text -->
-              @if (input.type === 'multiple-text') {
+              <!-- Multiple-text (esconder se for campo de imagens e componente suportar upload) -->
+              @if (
+                input.type === 'multiple-text' &&
+                !(supportsImageUpload() && input.name === 'images')
+              ) {
                 <div>
                   <label>{{ input.label }}:</label>
                   <div formArrayName="{{ input.name }}">
@@ -111,7 +117,7 @@
                       </div>
                     }
                     <button type="button" (click)="addMultipleInputItem(input.name)">
-                      Adicionar URL
+                      Adicionar Item
                     </button>
                   </div>
                 </div>
@@ -119,6 +125,75 @@
             </div>
           }
         </div>
+
+        <!-- Upload de Imagens (se o componente suportar) -->
+        @if (supportsImageUpload()) {
+          <div class="image-upload-section">
+            <h4>📸 Upload de Imagens</h4>
+
+            <div class="upload-area">
+              <input
+                type="file"
+                id="imageUpload"
+                [multiple]="hasInput('images') || selectedComponent?.name === 'Produto'"
+                accept="image/*"
+                (change)="onFilesSelected($event)"
+                [disabled]="isUploading"
+              />
+              <label for="imageUpload" class="upload-label">
+                @if (selectedFiles.length > 0) {
+                  <span>✅ {{ selectedFiles.length }} arquivo(s) selecionado(s)</span>
+                } @else {
+                  @if (hasInput('url')) {
+                    <span>Clique para selecionar uma imagem</span>
+                  } @else {
+                    <span>Clique para selecionar imagens (pode selecionar várias)</span>
+                  }
+                }
+              </label>
+
+              @if (selectedFiles.length > 0 && uploadedImagePaths.length === 0) {
+                <p class="upload-info">
+                  💡 As imagens serão enviadas automaticamente ao criar o item
+                </p>
+                <button
+                  type="button"
+                  class="upload-button"
+                  (click)="uploadImages(generateTempProductId())"
+                  [disabled]="isUploading"
+                >
+                  @if (isUploading) {
+                    <span>⏳ Enviando...</span>
+                  } @else {
+                    <span>⬆️ Ou clique aqui para enviar agora</span>
+                  }
+                </button>
+              }
+            </div>
+
+            <!-- Preview das imagens enviadas -->
+            @if (uploadedImagePaths.length > 0) {
+              <div class="uploaded-images">
+                <h5>Imagens Enviadas:</h5>
+                <div class="image-preview-grid">
+                  @for (imagePath of uploadedImagePaths; track $index) {
+                    <div class="image-preview-item">
+                      <img [src]="imagePath" [alt]="'Imagem ' + ($index + 1)" />
+                      <button
+                        type="button"
+                        class="remove-image-btn"
+                        (click)="removeUploadedImage($index)"
+                        title="Remover imagem"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
 
         <!-- Botões de ação -->
         <div class="actions">

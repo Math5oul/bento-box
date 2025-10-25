@@ -476,6 +476,26 @@
       "rowSpan": 1,
       "row": 9,
       "col": 3
+    },
+    {
+      "id": 51,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "images": [
+          "assets/images/51/1761402079118.avif",
+          "assets/images/51/1761402079122.avif",
+          "assets/images/51/1761402079127.avif"
+        ],
+        "colorMode": "light",
+        "productName": "12",
+        "description": "ad",
+        "price": "11",
+        "format": "2x2"
+      },
+      "colSpan": 2,
+      "rowSpan": 2,
+      "row": 10,
+      "col": 1
     }
   ]
 }
