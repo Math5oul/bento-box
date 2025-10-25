@@ -38,31 +38,24 @@ export class StorageService {
     this.http
       .get<ServerResponse>(this.API_URL)
       .pipe(
-        map((data) => {
+        map(data => {
           if (!data.items || !Array.isArray(data.items)) {
             console.warn('No items found in server response');
             return [];
           }
-          return data.items.map((item) => {
+          return data.items.map(item => {
             // Valida e converte o componente de string para Type
             const componentName =
-              typeof item.component === 'string'
-                ? item.component
-                : String(item.component);
+              typeof item.component === 'string' ? item.component : String(item.component);
 
-            const componentType =
-              this.componentRegistry.getComponent(componentName);
+            const componentType = this.componentRegistry.getComponent(componentName);
 
             if (!componentType) {
-              console.error(
-                `Component not found in registry: ${componentName}`
-              );
+              console.error(`Component not found in registry: ${componentName}`);
               // Fallback para um componente padrão, se necessário
               return {
                 ...item,
-                component: this.componentRegistry.getComponent(
-                  'SimpleProductComponent'
-                ),
+                component: this.componentRegistry.getComponent('SimpleProductComponent'),
               } as GridItem;
             }
 
@@ -72,14 +65,14 @@ export class StorageService {
             } as GridItem;
           });
         }),
-        catchError((error) => {
+        catchError(error => {
           console.error('Error loading products from server:', error);
           // Returna vazio em caso de erro
           return of([]);
         }),
         take(1)
       )
-      .subscribe((items) => {
+      .subscribe(items => {
         this.productsSubject.next(items);
       });
   }
@@ -96,7 +89,7 @@ export class StorageService {
         // que está sendo observado pelo componente
         console.log('✅ Dados salvos no servidor com sucesso');
       }),
-      catchError((error) => {
+      catchError(error => {
         console.error('Error saving products:', error);
         return throwError(() => error);
       })
@@ -112,7 +105,7 @@ export class StorageService {
 
   removeProduct(productId: number): Observable<any> {
     const currentProducts = this.productsSubject.value;
-    const updatedProducts = currentProducts.filter((p) => p.id !== productId);
+    const updatedProducts = currentProducts.filter(p => p.id !== productId);
     return this.saveProducts(updatedProducts);
   }
 

@@ -13,4 +13,5 @@ export class SimpleTextComponent {
   inputs!: {
     text: string;
     background: string;
-  };}
+  };
+}

@@ -8,9 +8,8 @@ describe('BentoModuleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BentoModuleComponent]
-    })
-    .compileComponents();
+      imports: [BentoModuleComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(BentoModuleComponent);
     component = fixture.componentInstance;

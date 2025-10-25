@@ -11,16 +11,19 @@
       <div class="cart-item">
         <div class="item-info">
           <span class="product-image">
-            <img [src]="item.image" alt="{{ item.productName }}" /></span>
+            <img [src]="item.image" alt="{{ item.productName }}"
+          /></span>
           <span class="product-name">{{ item.productName }}</span>
-          <span class="product-price">{{ item.price | currency:'BRL' }}</span>
+          <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
         </div>
 
         <div class="item-controls">
           <div class="quantity-adjuster">
-            <button class="quantity-button decrease"
-                    (click)="decreaseQuantity(item)"
-                    [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'">
+            <button
+              class="quantity-button decrease"
+              (click)="decreaseQuantity(item)"
+              [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'"
+            >
               @if (item.quantity === 1) {
                 <span class="trash-icon">🗑️</span>
               } @else {
@@ -30,14 +33,16 @@
 
             <span class="quantity">{{ item.quantity }}</span>
 
-            <button class="quantity-button increase"
-                    (click)="increaseQuantity(item)"
-                    title="Aumentar quantidade">
+            <button
+              class="quantity-button increase"
+              (click)="increaseQuantity(item)"
+              title="Aumentar quantidade"
+            >
               <span>+</span>
             </button>
           </div>
 
-          <span class="item-total">{{ (item.price * item.quantity) | currency:'BRL' }}</span>
+          <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
         </div>
       </div>
     }
@@ -46,7 +51,7 @@
   <div class="cart-footer">
     <div class="total-container">
       <span>Total:</span>
-      <span class="total-price">{{ total | currency:'BRL' }}</span>
+      <span class="total-price">{{ total | currency: 'BRL' }}</span>
     </div>
     <button class="checkout-button">Enviar Pedido</button>
   </div>

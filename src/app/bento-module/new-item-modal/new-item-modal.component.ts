@@ -57,17 +57,14 @@ export class NewItemModalComponent {
   initInputsForm(inputsConfig: any[]) {
     const inputsGroup = this.fb.group({});
 
-    inputsConfig.forEach((input) => {
+    inputsConfig.forEach(input => {
       if (input.type === 'multiple-text') {
         const arrayControls = input.defaultValue.map((defaultVal: string) =>
           this.fb.control(defaultVal)
         );
         inputsGroup.addControl(input.name, this.fb.array(arrayControls));
       } else {
-        inputsGroup.addControl(
-          input.name,
-          this.fb.control(input.defaultValue || '')
-        );
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || ''));
       }
     });
 

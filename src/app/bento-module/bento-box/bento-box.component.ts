@@ -99,7 +99,7 @@ export class BentoBoxComponent {
    */
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.restartGrid()
+    this.restartGrid();
 
     this.resizeSubject.next();
   }
@@ -147,8 +147,7 @@ export class BentoBoxComponent {
 
     this.currentCols = this.options.maxCols;
     if (isPlatformBrowser(this.platformId)) {
-      this.windowWidth =
-        this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
+      this.windowWidth = this.options.maxWidth !== 0 ? this.options.maxWidth : window.innerWidth;
       this.calculateGridCols(this.windowWidth);
     }
   }
@@ -168,7 +167,7 @@ export class BentoBoxComponent {
    * @returns o comprimento do maior item para o grid
    */
   getMinWidth(): number {
-    return Math.max(...this.data.map((item) => item.colSpan));
+    return Math.max(...this.data.map(item => item.colSpan));
   }
 
   /**
@@ -176,10 +175,7 @@ export class BentoBoxComponent {
    */
   calculateGridCols(containerWidth: number) {
     const columns = Math.max(
-      Math.min(
-        this.options.maxCols,
-        Math.floor(containerWidth / this.options.cellWidth)
-      ),
+      Math.min(this.options.maxCols, Math.floor(containerWidth / this.options.cellWidth)),
       this.getMinWidth()
     );
 
@@ -226,7 +222,7 @@ export class BentoBoxComponent {
     let row = 0;
     let col = 0;
 
-    this.data.forEach((item) => {
+    this.data.forEach(item => {
       while (true) {
         while (this.grid.length <= row + item.rowSpan - 1) {
           this.grid.push(new Array(columns).fill(false));
@@ -265,10 +261,7 @@ export class BentoBoxComponent {
    */
   isItemFitting(item: GridItem, row: number, col: number): boolean {
     // Check overflow
-    if (
-      row + item.rowSpan > this.grid.length ||
-      col + item.colSpan > this.grid[0].length
-    ) {
+    if (row + item.rowSpan > this.grid.length || col + item.colSpan > this.grid[0].length) {
       return false;
     }
     // Check cada celula
@@ -390,18 +383,18 @@ export class BentoBoxComponent {
       [fillers[i], fillers[j]] = [fillers[j], fillers[i]];
     }
 
-    Object.keys(this.emptySpaces).forEach((size) => {
+    Object.keys(this.emptySpaces).forEach(size => {
       const [rowSpan, colSpan] = size.split('x').map(Number);
 
-      this.emptySpaces[size].forEach((cell) => {
+      this.emptySpaces[size].forEach(cell => {
         const filler = fillers.find(
-          (filler) => filler.colSpan === colSpan && filler.rowSpan === rowSpan
+          filler => filler.colSpan === colSpan && filler.rowSpan === rowSpan
         );
         if (filler) {
           filler.row = cell.row;
           filler.col = cell.col;
           fillerItens.push(filler);
-          fillers = fillers.filter((f) => f.id !== filler.id); // remove the found filler from the list
+          fillers = fillers.filter(f => f.id !== filler.id); // remove the found filler from the list
         }
       });
     });
@@ -416,8 +409,6 @@ export class BentoBoxComponent {
     }
   }
 
-
-
   //-------------------------------TOOLBAR-------------------------------//
 
   /**
@@ -431,8 +422,8 @@ export class BentoBoxComponent {
     return {
       inputs: {
         ...inputs,
-        editMode: this.options.mode === 'edit'
-      }
+        editMode: this.options.mode === 'edit',
+      },
     };
   }
   /**

@@ -1,9 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { GridService } from './grid.service';
 
-
-
-
 describe('GridServiceService', () => {
   let service: GridService;
 

@@ -33,8 +33,8 @@ app.post('/api/menu', (req, res) => {
   // Garantir que salvamos no formato correto { "items": [...] }
   const dataToSave = req.body.items ? req.body : { items: req.body };
   const newData = JSON.stringify(dataToSave, null, 2);
-  
-  fs.writeFile(DATA_PATH, newData, 'utf8', (err) => {
+
+  fs.writeFile(DATA_PATH, newData, 'utf8', err => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao salvar o arquivo de dados.' });
     }

@@ -15,12 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-bento-module',
   standalone: true,
-  imports: [
-    BentoBoxComponent,
-    BentoToolbarComponent,
-    HeaderComponent,
-    CommonModule,
-  ],
+  imports: [BentoBoxComponent, BentoToolbarComponent, HeaderComponent, CommonModule],
   templateUrl: './bento-module.component.html',
   styleUrl: './bento-module.component.scss',
 })
@@ -69,10 +64,7 @@ export class BentoModuleComponent implements OnDestroy {
 
     // Set up search subscription with debouncing
     this.searchSub = this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
+      .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(searchTerm => {
         this.filterProducts(searchTerm);
       });
@@ -126,5 +118,4 @@ export class BentoModuleComponent implements OnDestroy {
       this.bentoBoxComponent.recalculateGrid();
     }
   }
-
 }

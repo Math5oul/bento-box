@@ -17,5 +17,6 @@ export class SimpleVideoComponent {
     videoUrl: '',
     autoplay: false,
     controls: true,
-    loop: false
-  };}
+    loop: false,
+  };
+}
