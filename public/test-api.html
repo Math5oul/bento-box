@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teste API Bento Box</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .test-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .test-card h2 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+      }
+
+      .test-card label {
+        display: block;
+        margin-top: 10px;
+        color: #555;
+        font-weight: 600;
+      }
+
+      .test-card input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border 0.3s;
+      }
+
+      .test-card input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .test-card button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .test-card button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .test-card button:active {
+        transform: translateY(0);
+      }
+
+      .result {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f5f5f5;
+        border-radius: 6px;
+        border-left: 4px solid #667eea;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .result.success {
+        background: #e8f5e9;
+        border-left-color: #4caf50;
+      }
+
+      .result.error {
+        background: #ffebee;
+        border-left-color: #f44336;
+      }
+
+      .token-display {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .token-display h3 {
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .token-display code {
+        display: block;
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 6px;
+        word-break: break-all;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Teste API Bento Box</h1>
+
+      <div class="token-display">
+        <h3>🔑 Token Atual</h3>
+        <code id="currentToken">Nenhum token ainda</code>
+      </div>
+
+      <div class="test-grid">
+        <!-- Test 1: Health Check -->
+        <div class="test-card">
+          <h2>1️⃣ Health Check</h2>
+          <button onclick="testHealth()">Testar</button>
+          <div id="result1" class="result" style="display: none"></div>
+        </div>
+
+        <!-- Test 2: Register Admin -->
+        <div class="test-card">
+          <h2>2️⃣ Registrar Admin</h2>
+          <label>Nome:</label>
+          <input type="text" id="adminName" value="Admin Bento" />
+          <label>Email:</label>
+          <input type="email" id="adminEmail" value="admin@bentobox.com" />
+          <label>Senha:</label>
+          <input type="password" id="adminPassword" value="admin123" />
+          <button onclick="registerAdmin()">Registrar</button>
+          <div id="result2" class="result" style="display: none"></div>
+        </div>
+
+        <!-- Test 3: Register Client -->
+        <div class="test-card">
+          <h2>3️⃣ Registrar Cliente</h2>
+          <label>Nome:</label>
+          <input type="text" id="clientName" value="João Silva" />
+          <label>Email:</label>
+          <input type="email" id="clientEmail" value="joao@email.com" />
+          <label>Senha:</label>
+          <input type="password" id="clientPassword" value="senha123" />
+          <button onclick="registerClient()">Registrar</button>
+          <div id="result3" class="result" style="display: none"></div>
+        </div>
+
+        <!-- Test 4: Login -->
+        <div class="test-card">
+          <h2>4️⃣ Login</h2>
+          <label>Email:</label>
+          <input type="email" id="loginEmail" value="joao@email.com" />
+          <label>Senha:</label>
+          <input type="password" id="loginPassword" value="senha123" />
+          <button onclick="login()">Login</button>
+          <div id="result4" class="result" style="display: none"></div>
+        </div>
+
+        <!-- Test 5: Get Profile -->
+        <div class="test-card">
+          <h2>5️⃣ Buscar Perfil</h2>
+          <p style="color: #888; font-size: 14px; margin-bottom: 10px">
+            ⚠️ Requer autenticação (faça login primeiro)
+          </p>
+          <button onclick="getProfile()">Buscar</button>
+          <div id="result5" class="result" style="display: none"></div>
+        </div>
+
+        <!-- Test 6: Logout -->
+        <div class="test-card">
+          <h2>6️⃣ Logout</h2>
+          <p style="color: #888; font-size: 14px; margin-bottom: 10px">⚠️ Requer autenticação</p>
+          <button onclick="logout()">Logout</button>
+          <div id="result6" class="result" style="display: none"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentToken = null;
+
+      function updateToken(token) {
+        currentToken = token;
+        document.getElementById('currentToken').textContent = token || 'Nenhum token';
+      }
+
+      function showResult(id, data, isSuccess = true) {
+        const resultDiv = document.getElementById('result' + id);
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+        resultDiv.textContent = JSON.stringify(data, null, 2);
+      }
+
+      async function testHealth() {
+        try {
+          const response = await fetch('http://localhost:3001/api/health');
+          const data = await response.json();
+          showResult(1, data, response.ok);
+        } catch (error) {
+          showResult(1, { error: error.message }, false);
+        }
+      }
+
+      async function registerAdmin() {
+        try {
+          const response = await fetch('http://localhost:3001/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: document.getElementById('adminName').value,
+              email: document.getElementById('adminEmail').value,
+              password: document.getElementById('adminPassword').value,
+              role: 'admin',
+            }),
+          });
+          const data = await response.json();
+          if (data.data?.token) updateToken(data.data.token);
+          showResult(2, data, response.ok);
+        } catch (error) {
+          showResult(2, { error: error.message }, false);
+        }
+      }
+
+      async function registerClient() {
+        try {
+          const response = await fetch('http://localhost:3001/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: document.getElementById('clientName').value,
+              email: document.getElementById('clientEmail').value,
+              password: document.getElementById('clientPassword').value,
+              role: 'client',
+            }),
+          });
+          const data = await response.json();
+          if (data.data?.token) updateToken(data.data.token);
+          showResult(3, data, response.ok);
+        } catch (error) {
+          showResult(3, { error: error.message }, false);
+        }
+      }
+
+      async function login() {
+        try {
+          const response = await fetch('http://localhost:3001/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: document.getElementById('loginEmail').value,
+              password: document.getElementById('loginPassword').value,
+            }),
+          });
+          const data = await response.json();
+          if (data.data?.token) updateToken(data.data.token);
+          showResult(4, data, response.ok);
+        } catch (error) {
+          showResult(4, { error: error.message }, false);
+        }
+      }
+
+      async function getProfile() {
+        if (!currentToken) {
+          showResult(5, { error: 'Faça login primeiro!' }, false);
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost:3001/api/auth/me', {
+            headers: { Authorization: 'Bearer ' + currentToken },
+          });
+          const data = await response.json();
+          showResult(5, data, response.ok);
+        } catch (error) {
+          showResult(5, { error: error.message }, false);
+        }
+      }
+
+      async function logout() {
+        if (!currentToken) {
+          showResult(6, { error: 'Faça login primeiro!' }, false);
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost:3001/api/auth/logout', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + currentToken },
+          });
+          const data = await response.json();
+          if (response.ok) updateToken(null);
+          showResult(6, data, response.ok);
+        } catch (error) {
+          showResult(6, { error: error.message }, false);
+        }
+      }
+    </script>
+  </body>
+</html>
