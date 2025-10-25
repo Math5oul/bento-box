@@ -1,479 +1,481 @@
-[
-  {
-    "id": 1,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://plus.unsplash.com/premium_photo-1723903231073-29e8762d79a8?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://conscienciacafe.com.br/wp-content/uploads/2023/09/cafe-espresso-maquina.jpg",
-        "https://conscienciacafe.com.br/wp-content/uploads/2023/09/xicara-de-cafe-espresso.jpg"
-      ],
-      "colorMode": "dark",
-      "productName": "Expresso",
-      "description": "Noir comme l'âme de votre propriétaire, venez goûter",
-      "price": 4.99
+{
+  "items": [
+    {
+      "id": 1,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://plus.unsplash.com/premium_photo-1723903231073-29e8762d79a8?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://conscienciacafe.com.br/wp-content/uploads/2023/09/cafe-espresso-maquina.jpg",
+          "https://conscienciacafe.com.br/wp-content/uploads/2023/09/xicara-de-cafe-espresso.jpg"
+        ],
+        "colorMode": "dark",
+        "productName": "Expresso",
+        "description": "Noir comme l'âme de votre propriétaire, venez goûter",
+        "price": 4.99
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 0,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 3,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://t4.ftcdn.net/jpg/01/55/79/11/360_F_155791133_z8cGolAA1R2YrOYt8Uo5r9KxGifREs74.jpg",
-        "https://media.istockphoto.com/id/505168330/pt/foto/copo-de-caf%C3%A9-latte-cafecom-gr%C3%A3os-de-caf%C3%A9-e-paus-de-canela.jpg?s=612x612&w=0&k=20&c=SO8LoLtoftBKPG9ruXpmtJAw0ZCINWvaLIn83TRmy88="
-      ],
-      "colorMode": "dark",
-      "productName": "Cappuccino",
-      "description": "Intense, avec des parts égales de lait et de mousse.",
-      "price": 11.99
+    {
+      "id": 3,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1494314671902-399b18174975?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://t4.ftcdn.net/jpg/01/55/79/11/360_F_155791133_z8cGolAA1R2YrOYt8Uo5r9KxGifREs74.jpg",
+          "https://media.istockphoto.com/id/505168330/pt/foto/copo-de-caf%C3%A9-latte-cafecom-gr%C3%A3os-de-caf%C3%A9-e-paus-de-canela.jpg?s=612x612&w=0&k=20&c=SO8LoLtoftBKPG9ruXpmtJAw0ZCINWvaLIn83TRmy88="
+        ],
+        "colorMode": "dark",
+        "productName": "Cappuccino",
+        "description": "Intense, avec des parts égales de lait et de mousse.",
+        "price": 11.99
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 0,
+      "col": 1
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 1
-  },
-  {
-    "id": 0,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x2",
-      "images": [
-        "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Hot Chocolat",
-      "description": "Boisson chaude composée de chocolat râpé ou fondu et de lait",
-      "price": 14.99
+    {
+      "id": 0,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x2",
+        "images": [
+          "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Hot Chocolat",
+        "description": "Boisson chaude composée de chocolat râpé ou fondu et de lait",
+        "price": 14.99
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 0,
+      "col": 3
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 20,
-    "component": "SimpleTextComponent",
-    "inputs": {
-      "text": "<h2 style=\"color: #FFFFFF;\">Maintenant Ouvert</h2><p style=\"color: #FFFFFF; margin-bottom: 8px;\">Découvrez les riches saveurs de notre café fraîchement préparé au Café Aromático.</p><p style=\"color: #FFFFFF; margin-bottom: 8px;\">Profitez de nos mélanges signature dans une ambiance chaleureuse et accueillante.</p>",
-      "background": "#900C3F"
+    {
+      "id": 20,
+      "component": "SimpleTextComponent",
+      "inputs": {
+        "text": "<h2 style=\"color: #FFFFFF;\">Maintenant Ouvert</h2><p style=\"color: #FFFFFF; margin-bottom: 8px;\">Découvrez les riches saveurs de notre café fraîchement préparé au Café Aromático.</p><p style=\"color: #FFFFFF; margin-bottom: 8px;\">Profitez de nos mélanges signature dans une ambiance chaleureuse et accueillante.</p>",
+        "background": "#900C3F"
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 0,
+      "col": 4
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 2,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "colorMode": "light",
-      "images": [
-        "https://via.placeholder.com/200x200/ADD8E6/000000",
-        "https://via.placeholder.com/200x200/ADD8E6/000000",
-        "https://via.placeholder.com/200x200/ADD8E6/000000"
-      ],
-      "productName": "Latte",
-      "description": "Le meilleur café au lait de la ville",
-      "price": 6.99
+    {
+      "id": 2,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "colorMode": "light",
+        "images": [
+          "https://via.placeholder.com/200x200/ADD8E6/000000",
+          "https://via.placeholder.com/200x200/ADD8E6/000000",
+          "https://via.placeholder.com/200x200/ADD8E6/000000"
+        ],
+        "productName": "Latte",
+        "description": "Le meilleur café au lait de la ville",
+        "price": 6.99
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 1,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 4,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://via.placeholder.com/200x200/FFFACD/000000",
-        "https://via.placeholder.com/200x200/FFFACD/000000",
-        "https://via.placeholder.com/200x200/FFFACD/000000"
-      ],
-      "colorMode": "light",
-      "productName": "Americano",
-      "description": "Café espresso diluído em água quente, intenso e encorpado",
-      "price": 5.99
+    {
+      "id": 4,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://via.placeholder.com/200x200/FFFACD/000000",
+          "https://via.placeholder.com/200x200/FFFACD/000000",
+          "https://via.placeholder.com/200x200/FFFACD/000000"
+        ],
+        "colorMode": "light",
+        "productName": "Americano",
+        "description": "Café espresso diluído em água quente, intenso e encorpado",
+        "price": 5.99
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 1,
+      "col": 1
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 5,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x2",
-      "images": [
-        "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Mocha",
-      "description": "Espresso com chocolate e leite vaporizado, finalizado com chantilly",
-      "price": 8.5
+    {
+      "id": 5,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x2",
+        "images": [
+          "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Mocha",
+        "description": "Espresso com chocolate e leite vaporizado, finalizado com chantilly",
+        "price": 8.5
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 1,
+      "col": 2
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 22,
-    "component": "SimpleImageComponent",
-    "inputs": {
-      "url": "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    {
+      "id": 22,
+      "component": "SimpleImageComponent",
+      "inputs": {
+        "url": "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 2,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 21,
-    "component": "SimpleVideoComponent",
-    "inputs": {
-      "videoUrl": "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
-      "autoplay": true,
-      "controls": true,
-      "loop": true
+    {
+      "id": 21,
+      "component": "SimpleVideoComponent",
+      "inputs": {
+        "videoUrl": "https://cdn.pixabay.com/video/2024/03/21/205006-926015709_large.mp4",
+        "autoplay": true,
+        "controls": true,
+        "loop": true
+      },
+      "colSpan": 2,
+      "rowSpan": 2,
+      "row": 2,
+      "col": 3
     },
-    "colSpan": 2,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 10,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://images.unsplash.com/photo-1594223274513-31dff2d0b0e6?q=80&w=1925&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://via.placeholder.com/200x200/ADD8E6/000000",
-        "https://via.placeholder.com/200x200/ADD8E6/000000"
-      ],
-      "colorMode": "light",
-      "productName": "Chá Latte",
-      "description": "Chá preto com leite vaporizado e espuma",
-      "price": 6.25
+    {
+      "id": 10,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://images.unsplash.com/photo-1594223274513-31dff2d0b0e6?q=80&w=1925&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://via.placeholder.com/200x200/ADD8E6/000000",
+          "https://via.placeholder.com/200x200/ADD8E6/000000"
+        ],
+        "colorMode": "light",
+        "productName": "Chá Latte",
+        "description": "Chá preto com leite vaporizado e espuma",
+        "price": 6.25
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 3,
+      "col": 1
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 7,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://plus.unsplash.com/premium_photo-1664970900069-47e15574f7bf?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1735645568851-0323e4cc17d7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Flat White",
-      "description": "Café cremoso com duplo espresso e leite microespumoso",
-      "price": 7.25
+    {
+      "id": 7,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://plus.unsplash.com/premium_photo-1664970900069-47e15574f7bf?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1735645568851-0323e4cc17d7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Flat White",
+        "description": "Café cremoso com duplo espresso e leite microespumoso",
+        "price": 7.25
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 3,
+      "col": 2
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 11,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x2",
-      "images": [
-        "https://images.unsplash.com/photo-1582785513054-8d1bf9d69c1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1628088784459-0eebea2d3ecf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Matcha Latte",
-      "description": "Chá verde japonês com leite vaporizado",
-      "price": 8.75
+    {
+      "id": 11,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x2",
+        "images": [
+          "https://images.unsplash.com/photo-1582785513054-8d1bf9d69c1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1628088784459-0eebea2d3ecf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Matcha Latte",
+        "description": "Chá verde japonês com leite vaporizado",
+        "price": 8.75
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 4,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 14,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1515316416554-1af1fbca57a2?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1589985902809-39d25db22101?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Iced Coffee",
-      "description": "Café gelado com leite e xarope de baunilha",
-      "price": 6.99
+    {
+      "id": 14,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1515316416554-1af1fbca57a2?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1589985902809-39d25db22101?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Iced Coffee",
+        "description": "Café gelado com leite e xarope de baunilha",
+        "price": 6.99
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 4,
+      "col": 1
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 16,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x2",
-      "images": [
-        "https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://plus.unsplash.com/premium_photo-1663126827264-409d695e0be7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1600718374662-0483d2b9da44?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Smoothie de Frutas",
-      "description": "Mistura de frutas frescas com iogurte natural",
-      "price": 7.5
+    {
+      "id": 16,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x2",
+        "images": [
+          "https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://plus.unsplash.com/premium_photo-1663126827264-409d695e0be7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1600718374662-0483d2b9da44?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Smoothie de Frutas",
+        "description": "Mistura de frutas frescas com iogurte natural",
+        "price": 7.5
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 4,
+      "col": 3
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 18,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1575596510825-f748919a2bf7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1621263764928-df1444c5e859?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1555949366-819808d99159?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Limonada Fresca",
-      "description": "Limonada natural com hortelã e gelo",
-      "price": 4.25
+    {
+      "id": 18,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1575596510825-f748919a2bf7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1621263764928-df1444c5e859?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1555949366-819808d99159?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Limonada Fresca",
+        "description": "Limonada natural com hortelã e gelo",
+        "price": 4.25
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 5,
+      "col": 1
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 6,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1618411640018-972400a01458?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1551106652-a5bcf4b29ab6?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Donuts",
-      "description": "Donuts fresquinhos com cobertura de chocolate e granulado",
-      "price": 6.75
+    {
+      "id": 6,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1618411640018-972400a01458?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1551106652-a5bcf4b29ab6?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Donuts",
+        "description": "Donuts fresquinhos com cobertura de chocolate e granulado",
+        "price": 6.75
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 6,
+      "col": 0
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 8,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://images.unsplash.com/photo-1623334044303-241021148842?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Croissant",
-      "description": "Folhado tradicional francês, perfeito para acompanhar seu café",
-      "price": 4.5
+    {
+      "id": 8,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://images.unsplash.com/photo-1623334044303-241021148842?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Croissant",
+        "description": "Folhado tradicional francês, perfeito para acompanhar seu café",
+        "price": 4.5
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 6,
+      "col": 2
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 9,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1989&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://plus.unsplash.com/premium_photo-1715015440855-7d95cf92608a?q=80&w=2576&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Bolo de Chocolate",
-      "description": "Fatia generosa de bolo de chocolate com ganache",
-      "price": 7.99
+    {
+      "id": 9,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1989&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://plus.unsplash.com/premium_photo-1715015440855-7d95cf92608a?q=80&w=2576&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Bolo de Chocolate",
+        "description": "Fatia generosa de bolo de chocolate com ganache",
+        "price": 7.99
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 6,
+      "col": 3
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 12,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://images.unsplash.com/photo-1558303420-f814d8a590f5?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1722251172903-cc8774501df7?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1637087788449-222cf1da072a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "light",
-      "productName": "Muffin de Blueberry",
-      "description": "Muffin fofinho com mirtilos frescos",
-      "price": 5.25
+    {
+      "id": 12,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://images.unsplash.com/photo-1558303420-f814d8a590f5?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1722251172903-cc8774501df7?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1637087788449-222cf1da072a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "light",
+        "productName": "Muffin de Blueberry",
+        "description": "Muffin fofinho com mirtilos frescos",
+        "price": 5.25
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 7,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 13,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1736928840243-63b83b4bf80f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1670710029403-607db8eeec83?q=80&w=2652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://plus.unsplash.com/premium_photo-1738431707788-3960bf6fddc3?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Sanduíche de Peru",
-      "description": "Pão integral com peru defumado e vegetais frescos",
-      "price": 9.5
+    {
+      "id": 13,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1736928840243-63b83b4bf80f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1670710029403-607db8eeec83?q=80&w=2652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://plus.unsplash.com/premium_photo-1738431707788-3960bf6fddc3?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Sanduíche de Peru",
+        "description": "Pão integral com peru defumado e vegetais frescos",
+        "price": 9.5
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 7,
+      "col": 1
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 15,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x2",
-      "images": [
-        "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?q=80&w=2755&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1676300185983-d5f242babe34?q=80&w=2590&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1578775887804-699de7086ff9?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Cheesecake",
-      "description": "Fatia de cheesecake clássico com calda de frutas vermelhas",
-      "price": 8.99
+    {
+      "id": 15,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x2",
+        "images": [
+          "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?q=80&w=2755&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1676300185983-d5f242babe34?q=80&w=2590&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1578775887804-699de7086ff9?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Cheesecake",
+        "description": "Fatia de cheesecake clássico com calda de frutas vermelhas",
+        "price": 8.99
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 7,
+      "col": 3
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 17,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "2x1",
-      "images": [
-        "https://images.unsplash.com/photo-1734056650036-7002ede7b8f8?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://plus.unsplash.com/premium_photo-1707757442370-c86084c6ae0c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1677844592730-ce9c936d8f1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ],
-      "colorMode": "dark",
-      "productName": "Crepes",
-      "description": "Crepe recheado com Chantilly e morangos frescos",
-      "price": 6.75
+    {
+      "id": 17,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "2x1",
+        "images": [
+          "https://images.unsplash.com/photo-1734056650036-7002ede7b8f8?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://plus.unsplash.com/premium_photo-1707757442370-c86084c6ae0c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1677844592730-ce9c936d8f1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        ],
+        "colorMode": "dark",
+        "productName": "Crepes",
+        "description": "Crepe recheado com Chantilly e morangos frescos",
+        "price": 6.75
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 8,
+      "col": 0
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 50,
-    "component": "SimpleImageComponent",
-    "inputs": {
-      "url": "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    {
+      "id": 50,
+      "component": "SimpleImageComponent",
+      "inputs": {
+        "url": "https://images.unsplash.com/photo-1495774856032-8b90bbb32b32?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 8,
+      "col": 2
     },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 23,
-    "component": "SimpleImageComponent",
-    "inputs": {
-      "url": "https://images.unsplash.com/photo-1502045856-4882464b27a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    {
+      "id": 24,
+      "component": "SimpleTextComponent",
+      "inputs": {
+        "text": "<h2 style=\"color: #000000;\">Grand Café</h2><p style=\"margin-bottom: 8px;\">Rejoignez-nous pour l'inauguration de Café Aromático, votre nouveau lieu de prédilection pour le café et les pâtisseries.</p><p style=\"margin-bottom: 8px;\">Découvrez les meilleurs breuvages et délices faits main dans une ambiance chaleureuse.</p>",
+        "background": "#F39C12"
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 8,
+      "col": 4
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 24,
-    "component": "SimpleTextComponent",
-    "inputs": {
-      "text": "<h2 style=\"color: #000000;\">Grand Café</h2><p style=\"margin-bottom: 8px;\">Rejoignez-nous pour l'inauguration de Café Aromático, votre nouveau lieu de prédilection pour le café et les pâtisseries.</p><p style=\"margin-bottom: 8px;\">Découvrez les meilleurs breuvages et délices faits main dans une ambiance chaleureuse.</p>",
-      "background": "#F39C12"
+    {
+      "id": 23,
+      "component": "SimpleImageComponent",
+      "inputs": {
+        "url": "https://images.unsplash.com/photo-1502045856-4882464b27a9?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      "colSpan": 1,
+      "rowSpan": 2,
+      "row": 9,
+      "col": 0
     },
-    "colSpan": 1,
-    "rowSpan": 2,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 25,
-    "component": "SimpleImageComponent",
-    "inputs": {
-      "url": "https://images.unsplash.com/photo-1564367133818-6ac5df7debfc?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    {
+      "id": 25,
+      "component": "SimpleImageComponent",
+      "inputs": {
+        "url": "https://images.unsplash.com/photo-1564367133818-6ac5df7debfc?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      "colSpan": 2,
+      "rowSpan": 1,
+      "row": 9,
+      "col": 1
     },
-    "colSpan": 2,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  },
-  {
-    "id": 19,
-    "component": "SimpleProductComponent",
-    "inputs": {
-      "format": "1x1",
-      "images": [
-        "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://via.placeholder.com/200x200/FFFACD/000000",
-        "https://via.placeholder.com/200x200/FFFACD/000000"
-      ],
-      "colorMode": "dark",
-      "productName": "Tiramisu",
-      "description": "Sobremesa italiana clássica com café e cacau em pó",
-      "price": 9.25
-    },
-    "colSpan": 1,
-    "rowSpan": 1,
-    "row": 0,
-    "col": 0
-  }
-]
+    {
+      "id": 19,
+      "component": "SimpleProductComponent",
+      "inputs": {
+        "format": "1x1",
+        "images": [
+          "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://via.placeholder.com/200x200/FFFACD/000000",
+          "https://via.placeholder.com/200x200/FFFACD/000000"
+        ],
+        "colorMode": "dark",
+        "productName": "Tiramisu",
+        "description": "Sobremesa italiana clássica com café e cacau em pó",
+        "price": 9.25
+      },
+      "colSpan": 1,
+      "rowSpan": 1,
+      "row": 9,
+      "col": 3
+    }
+  ]
+}

@@ -1,62 +1,165 @@
-<div class="edit-bar">
-  <label class="input-label number">
-    Largura da célula:
-    <input
-      type="number"
-      [(ngModel)]="_cellWidth"
-      (ngModelChange)="onCellChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Altura da célula:
-    <input
-      type="number"
-      [(ngModel)]="_cellHeight"
-      (ngModelChange)="onCellChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Gap entre as células:
-    <input
-      type="number"
-      [(ngModel)]="options.gridGap"
-      (input)="onCellChange()"
-    />
-  </label>
-  <label class="input-label number">
-    Máximo de Colunas:
-    <input
-      type="number"
-      [(ngModel)]="options.maxCols"
-      (input)="onGridChange()"
-    />
-  </label>
-  <label class="input-label checkbox">
-    Criar Fillers:
-    <input
-      type="checkbox"
-      [(ngModel)]="options.createFillers"
-      [disabled]="options.mode === 'edit'"
-    />
-  </label>
-  <button [class]="options.mode" (click)="switchMode()">
-    {{ options.mode === "autoFill" ? "Editar" : "Salvar" }}
-  </button>
-  <button class="new-item" (click)="openNewItemModal()">Novo Item</button>
+<div class="toolbar-container">
+  <div class="toolbar-header">
+    <h3 class="toolbar-title">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M9 3v18M3 9h18M3 15h18M15 3v18"/>
+      </svg>
+      Configuração do Grid
+      @if(hasUnsavedChanges) {
+        <span class="unsaved-badge" title="Você tem alterações não salvas">●</span>
+      }
+    </h3>
+    <div class="mode-indicator" [class.edit-mode]="options.mode === 'edit'">
+      {{ options.mode === "edit" ? "Modo Edição" : "Modo Visualização" }}
+    </div>
+  </div>
 
-  @if(options.mode === "edit"){
-    <div class="selected-menu">
-      <button class="delete-button" (click)="removeItem()">Deletar</button>
-      <div class="move-buttons">
-        <button class="move-left-button" (click)="swapItemPosition('left')">
-          <
+  <div class="toolbar-body">
+    <!-- Grid Settings -->
+    <div class="settings-section">
+      <h4 class="section-title">Dimensões</h4>
+      <div class="input-grid">
+        <label class="input-label">
+          <span class="label-text">Largura da célula</span>
+          <input
+            type="number"
+            class="input-field"
+            [(ngModel)]="_cellWidth"
+            (ngModelChange)="onCellChange()"
+            min="50"
+            max="500"
+          />
+        </label>
+        <label class="input-label">
+          <span class="label-text">Altura da célula</span>
+          <input
+            type="number"
+            class="input-field"
+            [(ngModel)]="_cellHeight"
+            (ngModelChange)="onCellChange()"
+            min="50"
+            max="500"
+          />
+        </label>
+        <label class="input-label">
+          <span class="label-text">Espaçamento</span>
+          <input
+            type="number"
+            class="input-field"
+            [(ngModel)]="options.gridGap"
+            (input)="onCellChange()"
+            min="0"
+            max="50"
+          />
+        </label>
+        <label class="input-label">
+          <span class="label-text">Max. Colunas</span>
+          <input
+            type="number"
+            class="input-field"
+            [(ngModel)]="options.maxCols"
+            (input)="onGridChange()"
+            min="1"
+            max="12"
+          />
+        </label>
+      </div>
+
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          class="checkbox-input"
+          [(ngModel)]="options.createFillers"
+          [disabled]="options.mode === 'edit'"
+        />
+        <span class="checkbox-text">Preencher espaços vazios automaticamente</span>
+      </label>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-section">
+      <h4 class="section-title">Ações</h4>
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="openNewItemModal()">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Novo Item
         </button>
-        <button class="move-right-button" (click)="swapItemPosition('right')">
-          >
-        </button>
+
+        @if(options.mode === "autoFill") {
+          <button class="btn btn-warning" (click)="switchMode()">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Modo Edição
+          </button>
+        }
+
+        @if(options.mode === "edit") {
+          <button class="btn btn-success" (click)="saveChanges()">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Salvar
+          </button>
+          <button class="btn btn-secondary" (click)="cancelEdit()">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Cancelar
+          </button>
+        }
       </div>
     </div>
+
+    <!-- Edit Mode Controls -->
+    @if(options.mode === "edit" && selectedItem) {
+      <div class="edit-controls">
+        <h4 class="section-title">Item Selecionado</h4>
+        <div class="selected-item-info">
+          <span class="item-id">ID: {{ selectedItem.id }}</span>
+          <span class="item-type">{{ selectedItem.component.name }}</span>
+        </div>
+        <div class="edit-buttons">
+          <button class="btn btn-danger btn-sm" (click)="removeItem()">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Deletar
+          </button>
+          <div class="move-controls">
+            <button class="btn btn-icon-only" (click)="swapItemPosition('left')" title="Mover para esquerda">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button class="btn btn-icon-only" (click)="swapItemPosition('right')" title="Mover para direita">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     }
+    @if(options.mode === "edit" && !selectedItem) {
+      <div class="edit-controls no-selection">
+        <p class="hint-text">
+          <svg class="hint-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Clique em um item do grid para editá-lo
+        </p>
+      </div>
+    }
+  </div>
 </div>
 
 @if(showNewItemModal) {

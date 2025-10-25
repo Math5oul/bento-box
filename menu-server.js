@@ -17,13 +17,23 @@ app.get('/api/menu', (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao ler o arquivo de dados.' });
     }
-    res.json({ items: JSON.parse(data) });
+    const jsonData = JSON.parse(data);
+    // Se já tem a estrutura { items: [] }, retorna diretamente
+    // Senão, envolve em { items: [] }
+    if (jsonData.items) {
+      res.json(jsonData);
+    } else {
+      res.json({ items: jsonData });
+    }
   });
 });
 
 // Endpoint para salvar o cardápio
 app.post('/api/menu', (req, res) => {
-  const newData = JSON.stringify(req.body, null, 2);
+  // Garantir que salvamos no formato correto { "items": [...] }
+  const dataToSave = req.body.items ? req.body : { items: req.body };
+  const newData = JSON.stringify(dataToSave, null, 2);
+  
   fs.writeFile(DATA_PATH, newData, 'utf8', (err) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao salvar o arquivo de dados.' });
