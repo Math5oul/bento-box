@@ -84,15 +84,8 @@ Sem Filler:          Com Filler:
 └─────┴─────┘       └─────┴─────┘
 ```
 
-#### 2. **Hierarquia de Informação** 📊
 
-Use fillers de texto para criar seções, títulos ou categorias no cardápio:
-
-- **"Bebidas Geladas"** antes dos produtos de bebidas
-- **"Promoções do Dia"** destacando ofertas
-- **"Menu Infantil"** separando itens especiais
-
-#### 3. **Storytelling Visual** 📖
+#### 2. **Storytelling Visual** 📖
 
 Imagens e vídeos como fillers contam histórias:
 
@@ -101,7 +94,7 @@ Imagens e vídeos como fillers contam histórias:
 - Imagens dos ingredientes frescos
 - Depoimentos de clientes satisfeitos
 
-#### 4. **Direcionamento de Atenção** 👁️
+#### 3. **Direcionamento de Atenção** 👁️
 
 Fillers estrategicamente posicionados guiam o olhar do cliente:
 
@@ -109,7 +102,7 @@ Fillers estrategicamente posicionados guiam o olhar do cliente:
 - Imagens grandes criam pontos focais
 - Vídeos adicionam movimento e dinamismo
 
-#### 5. **Branding e Identidade** 🎯
+#### 4. **Branding e Identidade** 🎯
 
 Reforce a identidade visual da marca:
 
@@ -166,7 +159,6 @@ Reforce a identidade visual da marca:
 
 #### ✅ Faça:
 
-- Use fillers para criar seções visuais claras
 - Mantenha consistência no estilo (cores, fontes, tom)
 - Posicione fillers estrategicamente entre produtos
 - Use textos curtos e objetivos
@@ -194,24 +186,7 @@ Reforce a identidade visual da marca:
 │    4    │ (Texto) │    5    │
 └─────────┴─────────┴─────────┘
 ```
-
-Neste exemplo:
-
-- **Texto "MENU"** cria hierarquia
-- **Logo** reforça branding
-- **Texto "Novo!"** destaca lançamentos
-- Produtos estão bem distribuídos
-
-### Impacto nos Resultados
-
-Uso estratégico de fillers pode:
-
-- 📈 **Aumentar conversões** - Layout profissional aumenta confiança
-- 👁️ **Melhorar navegação** - Usuários encontram produtos mais rápido
-- 💡 **Destacar promoções** - Fillers chamam atenção para ofertas
-- 🎨 **Fortalecer marca** - Consistência visual cria identidade
-- ⏱️ **Reduzir bounce rate** - Design atraente mantém visitantes
-
+Os Fillers NUNCA ofuscam os produtos principais. Eles são adicionados automaticamente apenas nos espaços disponíveis do grid que sobrarem após a disposição de todos os produtos. Desta forma, seus produtos sempre têm prioridade e os fillers servem apenas para complementar o layout.
 ---
 
 ## 🚀 Instalação
