@@ -9,6 +9,8 @@ import { SanitizePipe } from '../../../pipes/sanitize.pipe';
   styleUrl: './simple-text.component.scss',
 })
 export class SimpleTextComponent {
-  @Input() text: string = '';
-  @Input() background: string = 'rebeccapurple';
-}
+  @Input()
+  inputs!: {
+    text: string;
+    background: string;
+  };}

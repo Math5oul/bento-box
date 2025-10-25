@@ -6,9 +6,12 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './simple-image.component.html',
-  styleUrl: './simple-image.component.scss'
+  styleUrl: './simple-image.component.scss',
 })
 export class SimpleImageComponent {
-  @Input() url!: string;
-
+  @Input() inputs: {
+    url: string;
+  } = {
+    url: '',
+  };
 }

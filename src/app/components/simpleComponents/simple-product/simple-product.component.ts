@@ -12,17 +12,27 @@ import { CartService } from "../../../services/cart-service/cart.service";
   styleUrl: "./simple-product.component.scss",
 })
 export class SimpleProductComponent {
-  @Input() format: "1x1" | "1x2" | "2x1" | "2x2" = "1x1";
-  @Input() colorMode: string = "dark";
-  @Input() images: string[] = [];
-  @Input() productName: string = "";
-  @Input() description: string = "";
-  @Input() price: number = 0;
-  @Input() editMode: boolean = false;
+  @Input() inputs: {
+    format: "1x1" | "1x2" | "2x1" | "2x2";
+    colorMode: string;
+    images: string[];
+    productName: string;
+    description: string;
+    price: number;
+    editMode: boolean;
+  } = {
+    format: "1x1",
+    colorMode: "dark",
+    images: [],
+    productName: "",
+    description: "",
+    price: 0,
+    editMode: false
+  };
 
   @ViewChild(ProductModalComponent) productModal!: ProductModalComponent;
   handleClick(event: MouseEvent) {
-    if (this.editMode) {
+    if (this.inputs.editMode) {
       return;
     } else {
       this.productModal.open();
@@ -38,11 +48,11 @@ export class SimpleProductComponent {
   }) {
 
     this.cartService.addItem({
-      productName: this.productName,
-      price: this.price,
+      productName: this.inputs.productName,
+      price: this.inputs.price,
       quantity: order.quantity,
       observations: order.observations || "",
-      image: this.images[0],
+      image: this.inputs.images[0],
     });
 
   }

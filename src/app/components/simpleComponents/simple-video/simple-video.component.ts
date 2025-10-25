@@ -5,13 +5,17 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './simple-video.component.html',
-  styleUrl: './simple-video.component.scss'
+  styleUrl: './simple-video.component.scss',
 })
 export class SimpleVideoComponent {
-
-  @Input() videoUrl!: string;
-  @Input() autoplay: boolean = false;
-  @Input() controls: boolean = true;
-  @Input() loop: boolean = false;
-
-}
+  @Input() inputs: {
+    videoUrl: string;
+    autoplay: boolean;
+    controls: boolean;
+    loop: boolean;
+  } = {
+    videoUrl: '',
+    autoplay: false,
+    controls: true,
+    loop: false
+  };}
