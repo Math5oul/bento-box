@@ -376,14 +376,15 @@ export class BentoToolbarComponent {
    */
   private addNewProduct(itemData: any) {
     console.log('➕ Criando novo produto no MongoDB...');
+    console.log('📝 Dados recebidos do modal:', itemData);
 
     // Prepara os dados do produto
     const productData = {
       name: itemData.inputs.productName,
-      description: itemData.inputs.description,
-      price: itemData.inputs.price,
+      description: itemData.inputs.description || '',
+      price: itemData.inputs.price || 0,
       images: itemData.inputs.images || [],
-      category: this.inferCategory(itemData.inputs.productName),
+      category: itemData.inputs.category || this.inferCategory(itemData.inputs.productName),
       format: itemData.inputs.format || '1x1',
       colorMode: itemData.inputs.colorMode || 'light',
       available: true,
@@ -394,6 +395,8 @@ export class BentoToolbarComponent {
         colSpan: itemData.colSpan || 1,
       },
     };
+
+    console.log('📦 Dados do produto a serem enviados:', productData);
 
     // Cria o produto no MongoDB
     this.storageService.createProduct(productData).subscribe({
@@ -571,6 +574,7 @@ export class BentoToolbarComponent {
           description: itemData.inputs.description,
           price: itemData.inputs.price,
           images: itemData.inputs.images || [],
+          category: itemData.inputs.category,
           format: itemData.inputs.format,
           colorMode: itemData.inputs.colorMode,
           row: this.data[index].row,
