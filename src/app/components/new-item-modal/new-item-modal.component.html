@@ -2,324 +2,334 @@
   <form [formGroup]="componentForm" class="modal-content" (click)="$event.stopPropagation()">
     <button type="button" class="close-button" (click)="closeModal()">×</button>
 
-    <!-- Lista de componentes disponíveis (apenas no modo de criação) -->
-    @if (!showDimensionsForm && !editMode) {
-      <div>
-        <h3>Selecione um tipo de item</h3>
+    <!-- Área scrollável -->
+    <div class="modal-scroll-area">
+      <!-- Lista de componentes disponíveis (apenas no modo de criação) -->
+      @if (!showDimensionsForm && !editMode) {
+        <div>
+          <h3>Selecione um tipo de item</h3>
 
-        <!-- Produto -->
-        <div class="component-section">
-          <h4 class="section-label">🛍️ Produto do Cardápio</h4>
-          <div class="component-options">
-            @for (comp of availableComponents; track $index) {
-              @if (!comp.name.includes('Filler')) {
-                <button
-                  type="button"
-                  (click)="selectComponent(comp)"
-                  class="component-option component-option-product"
-                >
-                  <span class="component-icon">🍱</span>
-                  <span class="component-name">{{ comp.name }}</span>
-                </button>
+          <!-- Produto -->
+          <div class="component-section">
+            <h4 class="section-label">🛍️ Produto do Cardápio</h4>
+            <div class="component-options">
+              @for (comp of availableComponents; track $index) {
+                @if (!comp.name.includes('Filler')) {
+                  <button
+                    type="button"
+                    (click)="selectComponent(comp)"
+                    class="component-option component-option-product"
+                  >
+                    <span class="component-icon">🍱</span>
+                    <span class="component-name">{{ comp.name }}</span>
+                  </button>
+                }
               }
-            }
+            </div>
           </div>
-        </div>
 
-        <!-- Separador -->
-        <div class="divider">
-          <span>ou preencha espaços vazios com</span>
-        </div>
-
-        <!-- Fillers -->
-        <div class="component-section">
-          <h4 class="section-label">📦 Elementos de Preenchimento (Fillers)</h4>
-          <p class="section-description">Elementos decorativos para preencher espaços no grid</p>
-          <div class="component-options component-options-grid">
-            @for (comp of availableComponents; track $index) {
-              @if (comp.name.includes('Filler')) {
-                <button
-                  type="button"
-                  (click)="selectComponent(comp)"
-                  class="component-option component-option-filler"
-                >
-                  <span class="component-icon">
-                    @if (comp.name.includes('Texto')) {
-                      📝
-                    } @else if (comp.name.includes('Imagem')) {
-                      🖼️
-                    } @else if (comp.name.includes('Vídeo')) {
-                      🎥
-                    }
-                  </span>
-                  <span class="component-name">{{ comp.name.replace(' (Filler)', '') }}</span>
-                </button>
-              }
-            }
+          <!-- Separador -->
+          <div class="divider">
+            <span>ou preencha espaços vazios com</span>
           </div>
-        </div>
-      </div>
-    }
 
-    <!-- Formulário de dimensões e inputs do componente selecionado -->
-    @if (showDimensionsForm) {
-      <div [formGroup]="componentForm">
-        <h3>{{ editMode ? 'Editar' : 'Configurar' }} {{ selectedComponent.name }}</h3>
-
-        <!-- Campos dinâmicos de inputs -->
-        <div class="inputs-form" formGroupName="inputs">
-          @for (input of selectedComponent.inputsConfig; track $index) {
-            <div>
-              <!-- Text, Number, Color (exceto se for campo de imagem e componente suportar upload) -->
-              @if (
-                (input.type === 'text' || input.type === 'number' || input.type === 'color') &&
-                !(supportsImageUpload() && (input.name === 'url' || input.name === 'images'))
-              ) {
-                <div>
-                  <label>
-                    {{ input.label }}:
-                    @if (input.type === 'color') {
-                      <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px">
-                        <input
-                          type="color"
-                          [formControlName]="input.name"
-                          [required]="input.required || false"
-                          [id]="'color-' + input.name"
-                          style="
-                            width: 60px;
-                            height: 40px;
-                            cursor: pointer;
-                            border: 2px solid #ddd;
-                            border-radius: 6px;
-                          "
-                        />
-                        <input
-                          type="text"
-                          [value]="
-                            componentForm.get(['inputs', input.name])?.value?.toUpperCase() ||
-                            '#FFFFFF'
-                          "
-                          readonly
-                          style="
-                            flex: 1;
-                            padding: 10px;
-                            border: 2px solid #e0e0e0;
-                            border-radius: 6px;
-                            font-family: monospace;
-                            font-weight: bold;
-                            background: #f5f5f5;
-                          "
-                        />
-                        <div
-                          [style.background]="
-                            componentForm.get(['inputs', input.name])?.value || '#ffffff'
-                          "
-                          style="
-                            width: 40px;
-                            height: 40px;
-                            border: 2px solid #ddd;
-                            border-radius: 6px;
-                          "
-                        ></div>
-                      </div>
-                    } @else {
-                      <input
-                        [type]="input.type"
-                        [formControlName]="input.name"
-                        [step]="input.step || '1'"
-                        [required]="input.required || false"
-                        [placeholder]="input.placeholder || ''"
-                      />
-                    }
-                  </label>
-                </div>
-              }
-
-              <!-- Textarea -->
-              @if (input.type === 'textarea') {
-                <div>
-                  <label>
-                    {{ input.label }}:
-                    <textarea
-                      [formControlName]="input.name"
-                      [required]="input.required || false"
-                    ></textarea>
-                  </label>
-                </div>
-              }
-
-              <!-- Select -->
-              @if (input.type === 'select') {
-                <div>
-                  <label>
-                    {{ input.label }}:
-                    <select [formControlName]="input.name" [required]="input.required || false">
-                      @for (option of input.options; track $index) {
-                        <option [value]="option">
-                          @if (input.name === 'category') {
-                            {{ getCategoryDisplayName(option) }}
-                          } @else if (input.name === 'format') {
-                            {{ getFormatDisplayName(option) }}
-                          } @else {
-                            {{ option }}
-                          }
-                        </option>
+          <!-- Fillers -->
+          <div class="component-section">
+            <h4 class="section-label">📦 Elementos de Preenchimento (Fillers)</h4>
+            <p class="section-description">Elementos decorativos para preencher espaços no grid</p>
+            <div class="component-options component-options-grid">
+              @for (comp of availableComponents; track $index) {
+                @if (comp.name.includes('Filler')) {
+                  <button
+                    type="button"
+                    (click)="selectComponent(comp)"
+                    class="component-option component-option-filler"
+                  >
+                    <span class="component-icon">
+                      @if (comp.name.includes('Texto')) {
+                        📝
+                      } @else if (comp.name.includes('Imagem')) {
+                        🖼️
+                      } @else if (comp.name.includes('Vídeo')) {
+                        🎥
                       }
-                    </select>
-                  </label>
-                </div>
+                    </span>
+                    <span class="component-name">{{ comp.name.replace(' (Filler)', '') }}</span>
+                  </button>
+                }
               }
+            </div>
+          </div>
+        </div>
+      }
 
-              <!-- Multi-Select -->
-              @if (input.type === 'multi-select') {
-                <div>
-                  <label>{{ input.label }}:</label>
-                  <div class="multi-select-container">
-                    @for (option of input.options; track $index) {
-                      <label class="multi-select-option">
+      <!-- Formulário de dimensões e inputs do componente selecionado -->
+      @if (showDimensionsForm) {
+        <div [formGroup]="componentForm">
+          <h3>{{ editMode ? 'Editar' : 'Configurar' }} {{ selectedComponent.name }}</h3>
+
+          <!-- Campos dinâmicos de inputs -->
+          <div class="inputs-form" formGroupName="inputs">
+            @for (input of selectedComponent.inputsConfig; track $index) {
+              <div>
+                <!-- Text, Number, Color (exceto se for campo de imagem e componente suportar upload) -->
+                @if (
+                  (input.type === 'text' || input.type === 'number' || input.type === 'color') &&
+                  !(supportsImageUpload() && (input.name === 'url' || input.name === 'images'))
+                ) {
+                  <div>
+                    <label>
+                      {{ input.label }}:
+                      @if (input.type === 'color') {
+                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px">
+                          <input
+                            type="color"
+                            [formControlName]="input.name"
+                            [required]="input.required || false"
+                            [id]="'color-' + input.name"
+                            style="
+                              width: 60px;
+                              height: 40px;
+                              cursor: pointer;
+                              border: 2px solid #ddd;
+                              border-radius: 6px;
+                            "
+                          />
+                          <input
+                            type="text"
+                            [value]="
+                              componentForm.get(['inputs', input.name])?.value?.toUpperCase() ||
+                              '#FFFFFF'
+                            "
+                            readonly
+                            style="
+                              flex: 1;
+                              padding: 10px;
+                              border: 2px solid #e0e0e0;
+                              border-radius: 6px;
+                              font-family: monospace;
+                              font-weight: bold;
+                              background: #f5f5f5;
+                            "
+                          />
+                          <div
+                            [style.background]="
+                              componentForm.get(['inputs', input.name])?.value || '#ffffff'
+                            "
+                            style="
+                              width: 40px;
+                              height: 40px;
+                              border: 2px solid #ddd;
+                              border-radius: 6px;
+                            "
+                          ></div>
+                        </div>
+                      } @else {
                         <input
-                          type="checkbox"
-                          [checked]="isCategorySelected(input.name, option)"
-                          (change)="toggleCategorySelection(input.name, option)"
-                        />
-                        <span class="multi-select-label">{{ getCategoryDisplayName(option) }}</span>
-                      </label>
-                    }
-                  </div>
-                  @if (componentForm.get(['inputs', input.name])?.value?.length === 0) {
-                    <p class="multi-select-hint">
-                      ⚠️ Selecione pelo menos uma categoria para que o item apareça no menu
-                    </p>
-                  } @else {
-                    <p class="multi-select-hint">
-                      ✅ Este item aparecerá em
-                      {{ componentForm.get(['inputs', input.name])?.value?.length }} categoria(s)
-                    </p>
-                  }
-                </div>
-              }
-
-              <!-- Checkbox -->
-              @if (input.type === 'checkbox') {
-                <div>
-                  <label class="checkbox">
-                    <input type="checkbox" [formControlName]="input.name" />
-                    {{ input.label }}
-                  </label>
-                </div>
-              }
-
-              <!-- Multiple-text (esconder se for campo de imagens e componente suportar upload) -->
-              @if (
-                input.type === 'multiple-text' &&
-                !(supportsImageUpload() && input.name === 'images')
-              ) {
-                <div>
-                  <label>{{ input.label }}:</label>
-                  <div formArrayName="{{ input.name }}">
-                    @for (ctrl of getMultipleInputControl(input.name).controls; track $index) {
-                      <div>
-                        <input
-                          type="text"
-                          [formControlName]="$index"
+                          [type]="input.type"
+                          [formControlName]="input.name"
+                          [step]="input.step || '1'"
+                          [required]="input.required || false"
                           [placeholder]="input.placeholder || ''"
                         />
-                        <button type="button" (click)="removeMultipleInputItem(input.name, $index)">
-                          Remover
-                        </button>
-                      </div>
-                    }
-                    <button type="button" (click)="addMultipleInputItem(input.name)">
-                      Adicionar Item
-                    </button>
+                      }
+                    </label>
                   </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <!-- Upload de Imagens (se o componente suportar) -->
-        @if (supportsImageUpload()) {
-          <div class="image-upload-section">
-            <h4>📸 Upload de Imagens</h4>
-
-            <div class="upload-area">
-              <input
-                type="file"
-                id="imageUpload"
-                [multiple]="hasInput('images') || selectedComponent?.name === 'Produto'"
-                accept="image/*"
-                (change)="onFilesSelected($event)"
-                [disabled]="isUploading"
-              />
-              <label for="imageUpload" class="upload-label">
-                @if (selectedFiles.length > 0) {
-                  <span>✅ {{ selectedFiles.length }} arquivo(s) selecionado(s)</span>
-                } @else {
-                  @if (hasInput('url')) {
-                    <span>Clique para selecionar uma imagem</span>
-                  } @else {
-                    <span>Clique para selecionar imagens (pode selecionar várias)</span>
-                  }
                 }
-              </label>
 
-              @if (selectedFiles.length > 0 && uploadedImagePaths.length === 0) {
-                <p class="upload-info">
-                  💡 As imagens serão enviadas automaticamente ao criar o item
-                </p>
-                <button
-                  type="button"
-                  class="upload-button"
-                  (click)="uploadImages(generateTempProductId())"
-                  [disabled]="isUploading"
-                >
-                  @if (isUploading) {
-                    <span>⏳ Enviando...</span>
-                  } @else {
-                    <span>⬆️ Ou clique aqui para enviar agora</span>
-                  }
-                </button>
-              }
-            </div>
+                <!-- Textarea -->
+                @if (input.type === 'textarea') {
+                  <div>
+                    <label>
+                      {{ input.label }}:
+                      <textarea
+                        [formControlName]="input.name"
+                        [required]="input.required || false"
+                      ></textarea>
+                    </label>
+                  </div>
+                }
 
-            <!-- Preview das imagens enviadas -->
-            @if (uploadedImagePaths.length > 0) {
-              <div class="uploaded-images">
-                <h5>Imagens Enviadas:</h5>
-                <div class="image-preview-grid">
-                  @for (imagePath of uploadedImagePaths; track $index) {
-                    <div class="image-preview-item">
-                      <img [src]="imagePath" [alt]="'Imagem ' + ($index + 1)" />
-                      <button
-                        type="button"
-                        class="remove-image-btn"
-                        (click)="removeUploadedImage($index)"
-                        title="Remover imagem"
-                      >
-                        ×
+                <!-- Select -->
+                @if (input.type === 'select') {
+                  <div>
+                    <label>
+                      {{ input.label }}:
+                      <select [formControlName]="input.name" [required]="input.required || false">
+                        @for (option of input.options; track $index) {
+                          <option [value]="option">
+                            @if (input.name === 'category') {
+                              {{ getCategoryDisplayName(option) }}
+                            } @else if (input.name === 'format') {
+                              {{ getFormatDisplayName(option) }}
+                            } @else {
+                              {{ option }}
+                            }
+                          </option>
+                        }
+                      </select>
+                    </label>
+                  </div>
+                }
+
+                <!-- Multi-Select -->
+                @if (input.type === 'multi-select') {
+                  <div>
+                    <label>{{ input.label }}:</label>
+                    <div class="multi-select-container">
+                      @for (option of input.options; track $index) {
+                        <label class="multi-select-option">
+                          <input
+                            type="checkbox"
+                            [checked]="isCategorySelected(input.name, option)"
+                            (change)="toggleCategorySelection(input.name, option)"
+                          />
+                          <span class="multi-select-label">{{
+                            getCategoryDisplayName(option)
+                          }}</span>
+                        </label>
+                      }
+                    </div>
+                    @if (componentForm.get(['inputs', input.name])?.value?.length === 0) {
+                      <p class="multi-select-hint">
+                        ⚠️ Selecione pelo menos uma categoria para que o item apareça no menu
+                      </p>
+                    } @else {
+                      <p class="multi-select-hint">
+                        ✅ Este item aparecerá em
+                        {{ componentForm.get(['inputs', input.name])?.value?.length }} categoria(s)
+                      </p>
+                    }
+                  </div>
+                }
+
+                <!-- Checkbox -->
+                @if (input.type === 'checkbox') {
+                  <div>
+                    <label class="checkbox">
+                      <input type="checkbox" [formControlName]="input.name" />
+                      {{ input.label }}
+                    </label>
+                  </div>
+                }
+
+                <!-- Multiple-text (esconder se for campo de imagens e componente suportar upload) -->
+                @if (
+                  input.type === 'multiple-text' &&
+                  !(supportsImageUpload() && input.name === 'images')
+                ) {
+                  <div>
+                    <label>{{ input.label }}:</label>
+                    <div formArrayName="{{ input.name }}">
+                      @for (ctrl of getMultipleInputControl(input.name).controls; track $index) {
+                        <div>
+                          <input
+                            type="text"
+                            [formControlName]="$index"
+                            [placeholder]="input.placeholder || ''"
+                          />
+                          <button
+                            type="button"
+                            (click)="removeMultipleInputItem(input.name, $index)"
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      }
+                      <button type="button" (click)="addMultipleInputItem(input.name)">
+                        Adicionar Item
                       </button>
                     </div>
-                  }
-                </div>
+                  </div>
+                }
               </div>
             }
           </div>
-        }
 
-        <!-- Botões de ação -->
-        <div class="actions">
-          <button type="button" class="create-button" (click)="createItem()">
-            {{ editMode ? 'Salvar Alterações' : 'Criar Item' }}
-          </button>
-          <button type="button" class="cancel-button" (click)="closeModal()">Cancelar</button>
-          @if (!editMode) {
-            <button type="button" class="back-button" (click)="showDimensionsForm = false">
-              Voltar
-            </button>
+          <!-- Upload de Imagens (se o componente suportar) -->
+          @if (supportsImageUpload()) {
+            <div class="image-upload-section">
+              <h4>📸 Upload de Imagens</h4>
+
+              <div class="upload-area">
+                <input
+                  type="file"
+                  id="imageUpload"
+                  [multiple]="hasInput('images') || selectedComponent?.name === 'Produto'"
+                  accept="image/*"
+                  (change)="onFilesSelected($event)"
+                  [disabled]="isUploading"
+                />
+                <label for="imageUpload" class="upload-label">
+                  @if (selectedFiles.length > 0) {
+                    <span>✅ {{ selectedFiles.length }} arquivo(s) selecionado(s)</span>
+                  } @else {
+                    @if (hasInput('url')) {
+                      <span>Clique para selecionar uma imagem</span>
+                    } @else {
+                      <span>Clique para selecionar imagens (pode selecionar várias)</span>
+                    }
+                  }
+                </label>
+
+                @if (selectedFiles.length > 0 && uploadedImagePaths.length === 0) {
+                  <p class="upload-info">
+                    💡 As imagens serão enviadas automaticamente ao criar o item
+                  </p>
+                  <button
+                    type="button"
+                    class="upload-button"
+                    (click)="uploadImages(generateTempProductId())"
+                    [disabled]="isUploading"
+                  >
+                    @if (isUploading) {
+                      <span>⏳ Enviando...</span>
+                    } @else {
+                      <span>⬆️ Ou clique aqui para enviar agora</span>
+                    }
+                  </button>
+                }
+              </div>
+
+              <!-- Preview das imagens enviadas -->
+              @if (uploadedImagePaths.length > 0) {
+                <div class="uploaded-images">
+                  <h5>Imagens Enviadas:</h5>
+                  <div class="image-preview-grid">
+                    @for (imagePath of uploadedImagePaths; track $index) {
+                      <div class="image-preview-item">
+                        <img [src]="imagePath" [alt]="'Imagem ' + ($index + 1)" />
+                        <button
+                          type="button"
+                          class="remove-image-btn"
+                          (click)="removeUploadedImage($index)"
+                          title="Remover imagem"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
+      }
+    </div>
+
+    <!-- Botões de ação (fora da área scrollável) -->
+    @if (showDimensionsForm) {
+      <div class="actions">
+        <button type="button" class="create-button" (click)="createItem()">
+          {{ editMode ? 'Salvar Alterações' : 'Criar Item' }}
+        </button>
+        <button type="button" class="cancel-button" (click)="closeModal()">Cancelar</button>
+        @if (!editMode) {
+          <button type="button" class="back-button" (click)="showDimensionsForm = false">
+            Voltar
+          </button>
+        }
       </div>
     }
   </form>
