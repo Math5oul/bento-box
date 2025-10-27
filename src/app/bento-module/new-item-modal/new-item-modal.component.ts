@@ -124,6 +124,9 @@ export class NewItemModalComponent implements OnInit {
           this.fb.control(defaultVal)
         );
         inputsGroup.addControl(input.name, this.fb.array(arrayControls));
+      } else if (input.type === 'multi-select') {
+        // Para multi-select, inicializa com array vazio ou valor padrão
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || []));
       } else {
         inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || ''));
       }
@@ -164,6 +167,54 @@ export class NewItemModalComponent implements OnInit {
    */
   removeMultipleInputItem(inputName: string, index: number) {
     this.getMultipleInputControl(inputName).removeAt(index);
+  }
+
+  /**
+   * Alterna a seleção de uma categoria no multi-select
+   */
+  toggleCategorySelection(inputName: string, category: string) {
+    const control = this.componentForm.get(['inputs', inputName]);
+    if (!control) return;
+
+    const currentValue: string[] = control.value || [];
+    const index = currentValue.indexOf(category);
+
+    if (index > -1) {
+      // Remove se já está selecionado
+      currentValue.splice(index, 1);
+    } else {
+      // Adiciona se não está selecionado
+      currentValue.push(category);
+    }
+
+    control.setValue([...currentValue]);
+  }
+
+  /**
+   * Verifica se uma categoria está selecionada no multi-select
+   */
+  isCategorySelected(inputName: string, category: string): boolean {
+    const control = this.componentForm.get(['inputs', inputName]);
+    if (!control) return false;
+
+    const currentValue: string[] = control.value || [];
+    return currentValue.includes(category);
+  }
+
+  /**
+   * Retorna o nome traduzido de uma categoria
+   */
+  getCategoryDisplayName(category: string): string {
+    const categoryNames: { [key: string]: string } = {
+      food: '🥐 Pratos',
+      'hot beverage': '☕ Bebidas Quentes',
+      'cold beverage': '🥤 Bebidas Frias',
+      dessert: '🍰 Sobremesas',
+      alcoholic: '🍺 Bebidas Alcoólicas',
+      beverage: '🍹 Bebidas',
+      other: '📦 Outros',
+    };
+    return categoryNames[category] || category;
   }
 
   /**

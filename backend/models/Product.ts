@@ -8,7 +8,14 @@ export interface IProduct extends Document {
   description: string;
   price: number;
   images: string[];
-  category: 'beverage' | 'food' | 'dessert' | 'other';
+  category:
+    | 'food'
+    | 'hot beverage'
+    | 'cold beverage'
+    | 'dessert'
+    | 'alcoholic'
+    | 'beverage'
+    | 'other';
   format?: '1x1' | '1x2' | '2x1' | '2x2';
   colorMode?: 'light' | 'dark';
   available: boolean;
@@ -56,7 +63,7 @@ const ProductSchema: Schema = new Schema(
     },
     category: {
       type: String,
-      enum: ['beverage', 'food', 'dessert', 'other'],
+      enum: ['food', 'hot beverage', 'cold beverage', 'dessert', 'alcoholic', 'beverage', 'other'],
       default: 'other',
     },
     format: {

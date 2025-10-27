@@ -1,16 +1,53 @@
 <section class="bento-module">
   <app-header class="header" (search)="onSearch($event)"></app-header>
 
-  <app-bento-box
-    class="bento-box"
-    [data]="data"
-    [fillers]="fillers || []"
-    [options]="options"
-    [selectedId]="selectedItem ? selectedItem.id : null"
-    (itemClick)="onItemClick($event)"
-    (itemEdit)="onItemEdit($event)"
-    (itemDelete)="onItemDelete($event)"
-  ></app-bento-box>
+  <!-- Grid único quando há pesquisa ativa -->
+  @if (isSearchActive) {
+    <div class="search-results-container">
+      <div class="search-header">
+        <span class="search-icon">🔍</span>
+        <h2 class="search-title">Resultados da Pesquisa</h2>
+      </div>
+
+      <app-bento-box
+        class="bento-box"
+        [data]="filteredProducts"
+        [fillers]="fillers || []"
+        [options]="options"
+        [selectedId]="selectedItem ? selectedItem.id : null"
+        (itemClick)="onItemClick($event)"
+        (itemEdit)="onItemEdit($event)"
+        (itemDelete)="onItemDelete($event)"
+      ></app-bento-box>
+    </div>
+  }
+
+  <!-- Iterar sobre cada categoria quando não há pesquisa -->
+  @if (!isSearchActive) {
+    <div class="categories-container">
+      @for (category of orderedCategories; track category) {
+        <div class="category-section">
+          <!-- Cabeçalho da categoria -->
+          <div class="category-header">
+            <span class="category-icon">{{ getCategoryIcon(category) }}</span>
+            <h2 class="category-title">{{ getCategoryName(category) }}</h2>
+          </div>
+
+          <!-- Bento box para esta categoria -->
+          <app-bento-box
+            class="bento-box"
+            [data]="getProductsByCategory(category)"
+            [fillers]="fillers || []"
+            [options]="options"
+            [selectedId]="selectedItem ? selectedItem.id : null"
+            (itemClick)="onItemClick($event)"
+            (itemEdit)="onItemEdit($event)"
+            (itemDelete)="onItemDelete($event)"
+          ></app-bento-box>
+        </div>
+      }
+    </div>
+  }
 
   @if (toolbar) {
     <app-bento-toolbar [data]="data" [options]="options" [selectedItem]="selectedItem">

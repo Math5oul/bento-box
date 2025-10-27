@@ -166,14 +166,42 @@
                 <div>
                   <label>
                     {{ input.label }}:
-                    <select [formControlName]="input.name">
+                    <select [formControlName]="input.name" [required]="input.required || false">
                       @for (option of input.options; track $index) {
                         <option [value]="option">
-                          {{ option }}
+                          @if (input.name === 'category') {
+                            {{ getCategoryDisplayName(option) }}
+                          } @else {
+                            {{ option }}
+                          }
                         </option>
                       }
                     </select>
                   </label>
+                </div>
+              }
+
+              <!-- Multi-Select -->
+              @if (input.type === 'multi-select') {
+                <div>
+                  <label>{{ input.label }}:</label>
+                  <div class="multi-select-container">
+                    @for (option of input.options; track $index) {
+                      <label class="multi-select-option">
+                        <input
+                          type="checkbox"
+                          [checked]="isCategorySelected(input.name, option)"
+                          (change)="toggleCategorySelection(input.name, option)"
+                        />
+                        <span class="multi-select-label">{{ getCategoryDisplayName(option) }}</span>
+                      </label>
+                    }
+                  </div>
+                  @if (componentForm.get(['inputs', input.name])?.value?.length === 0) {
+                    <p class="multi-select-hint">
+                      💡 Deixe vazio para exibir em todas as categorias
+                    </p>
+                  }
                 </div>
               }
 

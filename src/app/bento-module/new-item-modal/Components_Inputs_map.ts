@@ -8,7 +8,15 @@ import { SimpleVideoComponent } from '../../components/simpleComponents/simple-v
 export interface InputConfig {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'color' | 'textarea' | 'select' | 'checkbox' | 'multiple-text';
+  type:
+    | 'text'
+    | 'number'
+    | 'color'
+    | 'textarea'
+    | 'select'
+    | 'checkbox'
+    | 'multiple-text'
+    | 'multi-select';
   required?: boolean;
   defaultValue?: any;
   placeholder?: string;
@@ -42,6 +50,22 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           type: 'multiple-text',
           placeholder: 'Faça upload das imagens abaixo',
           defaultValue: [''],
+        },
+        {
+          name: 'category',
+          label: 'Categoria',
+          type: 'select',
+          options: [
+            'food',
+            'hot beverage',
+            'cold beverage',
+            'dessert',
+            'alcoholic',
+            'beverage',
+            'other',
+          ],
+          defaultValue: 'food',
+          required: true,
         },
         {
           name: 'colorMode',
@@ -88,6 +112,21 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           type: 'color',
           defaultValue: '#FFFFFF',
         },
+        {
+          name: 'categories',
+          label: 'Categorias onde pode ser exibido',
+          type: 'multi-select',
+          options: [
+            'food',
+            'hot beverage',
+            'cold beverage',
+            'dessert',
+            'alcoholic',
+            'beverage',
+            'other',
+          ],
+          defaultValue: [],
+        },
       ],
     },
   ],
@@ -103,6 +142,21 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           required: false,
           defaultValue: '',
           placeholder: 'Faça upload da imagem abaixo',
+        },
+        {
+          name: 'categories',
+          label: 'Categorias onde pode ser exibido',
+          type: 'multi-select',
+          options: [
+            'food',
+            'hot beverage',
+            'cold beverage',
+            'dessert',
+            'alcoholic',
+            'beverage',
+            'other',
+          ],
+          defaultValue: [],
         },
       ],
     },
@@ -136,6 +190,21 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           label: 'Repetir',
           type: 'checkbox',
           defaultValue: false,
+        },
+        {
+          name: 'categories',
+          label: 'Categorias onde pode ser exibido',
+          type: 'multi-select',
+          options: [
+            'food',
+            'hot beverage',
+            'cold beverage',
+            'dessert',
+            'alcoholic',
+            'beverage',
+            'other',
+          ],
+          defaultValue: [],
         },
       ],
     },

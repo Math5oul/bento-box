@@ -10,8 +10,8 @@
     class="bento-container"
     #bentoContainer
     [ngStyle]="{
-      'grid-template-columns': 'repeat(auto-fit, ' + options.cellWidth + 'px)',
-      'max-width': currentCols * options.cellWidth + 'px',
+      'grid-template-columns': 'repeat(auto-fit, ' + localCellWidth + 'px)',
+      'max-width': currentCols * localCellWidth + 'px',
       'margin-inline': 'auto',
     }"
   >
@@ -34,8 +34,8 @@
         (touchmove)="onTouchMove($event)"
         (touchend)="onTouchEnd($event)"
         [ngStyle]="{
-          'width.px': item.colSpan * options.cellWidth,
-          'height.px': item.rowSpan * options.cellHeight,
+          'width.px': item.colSpan * localCellWidth,
+          'height.px': item.rowSpan * localCellHeight,
           'grid-column-start': item.col + 1,
           'grid-column-end': 'span ' + item.colSpan,
           'grid-row-start': item.row + 1,
@@ -84,8 +84,8 @@
         <div
           class="bento-item__filler"
           [ngStyle]="{
-            'width.px': item.colSpan * options.cellWidth,
-            'height.px': item.rowSpan * options.cellHeight,
+            'width.px': item.colSpan * localCellWidth,
+            'height.px': item.rowSpan * localCellHeight,
             'grid-column-start': item.col + 1,
             'grid-column-end': 'span ' + item.colSpan,
             'grid-row-start': item.row + 1,

@@ -147,6 +147,12 @@ export class BentoBoxComponent {
    */
   public _cellHeight: number = 0;
 
+  /**
+   * Cópias locais das dimensões das células para não modificar o objeto options original
+   */
+  public localCellWidth: number = 0;
+  public localCellHeight: number = 0;
+
   rezizeObserver!: ResizeObserver;
 
   /**
@@ -182,13 +188,14 @@ export class BentoBoxComponent {
   }
 
   initCells() {
-    this.options.cellWidth = this.options.cellWidth + 2 * this.options.gridGap;
-    this.options.cellHeight =
+    // Usa cópias locais para não modificar o objeto options original compartilhado
+    this.localCellWidth = this.options.cellWidth + 2 * this.options.gridGap;
+    this.localCellHeight =
       this.options.cellHeight !== 0
         ? this.options.cellHeight + 2 * this.options.gridGap
-        : this.options.cellWidth;
-    this._cellWidth = this.options.cellWidth - 2 * this.options.gridGap;
-    this._cellHeight = this.options.cellHeight - 2 * this.options.gridGap;
+        : this.localCellWidth;
+    this._cellWidth = this.localCellWidth - 2 * this.options.gridGap;
+    this._cellHeight = this.localCellHeight - 2 * this.options.gridGap;
   }
 
   /**
@@ -204,7 +211,7 @@ export class BentoBoxComponent {
    */
   calculateGridCols(containerWidth: number) {
     const columns = Math.max(
-      Math.min(this.options.maxCols, Math.floor(containerWidth / this.options.cellWidth)),
+      Math.min(this.options.maxCols, Math.floor(containerWidth / this.localCellWidth)),
       this.getMinWidth()
     );
 

@@ -33,16 +33,6 @@ export class BentoToolbarComponent {
   // Flag para indicar se há mudanças não salvas
   public hasUnsavedChanges = false;
 
-  /**
-   * Handler para a largura das células da grade.
-   */
-  public _cellWidth: number = 0;
-
-  /**
-   * Handler para a altura das células da grade.
-   */
-  public _cellHeight: number = 0;
-
   constructor(
     private gridService: GridService,
     private storageService: StorageService,
@@ -50,19 +40,8 @@ export class BentoToolbarComponent {
     private fillerService: FillerService
   ) {}
 
-  ngOnInit(): void {
-    this._cellWidth = this.options.cellWidth - 2 * this.options.gridGap;
-    this._cellHeight = this.options.cellHeight - 2 * this.options.gridGap;
-  }
-
   onGridChange() {
     this.gridService.emitGridChanged();
-  }
-
-  onCellChange() {
-    this.options.cellHeight = this._cellHeight + 2 * this.options.gridGap;
-    this.options.cellWidth = this._cellWidth + 2 * this.options.gridGap;
-    this.onGridChange();
   }
 
   switchMode() {

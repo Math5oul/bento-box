@@ -1,6 +1,7 @@
 .bento-module {
-  background-color: rgb(221, 218, 218, 0.5);
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f3f7 100%);
   width: 100%;
+  min-height: 100vh;
 }
 
 .header {
@@ -10,10 +11,142 @@
   width: 100%;
   z-index: 1000;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
 }
 
-.bento-box {
-  display: block;
+.categories-container {
   margin-top: 80px;
+  padding: 3rem 1.5rem;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+
+  .category-section {
+    margin-bottom: 5rem;
+
+    &:last-child {
+      margin-bottom: 3rem;
+    }
+
+    .category-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-left: 5%;
+      padding: 0.75rem 1.25rem;
+      position: relative;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(102, 126, 234, 0.1);
+
+      .category-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .category-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+    }
+
+    .bento-box {
+      display: block;
+      margin-top: 0;
+    }
+  }
+}
+
+// Container para resultados de pesquisa
+.search-results-container {
+  margin-top: 80px;
+  padding: 3rem 1.5rem;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+
+  .search-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: 5%;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+    .search-icon {
+      font-size: 1.75rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .search-title {
+      font-size: 1.25rem;
+      padding: 0.25rem;
+      font-weight: 600;
+      color: white;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .bento-box {
+    display: block;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .categories-container {
+    padding: 2rem 1rem;
+
+    .category-section {
+      margin-bottom: 3.5rem;
+
+      .category-header {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        padding: 0.625rem 1rem;
+
+        .category-icon {
+          font-size: 1.5rem;
+        }
+
+        .category-title {
+          font-size: 1.25rem;
+        }
+      }
+    }
+  }
+}
+
+// Animações suaves
+.category-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Adiciona delay progressivo para cada categoria
+@for $i from 1 through 10 {
+  .category-section:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
 }
