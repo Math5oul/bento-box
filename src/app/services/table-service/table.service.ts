@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {
@@ -15,12 +16,15 @@ export class TableService {
   private tablesSubject = new BehaviorSubject<Table[]>([]);
   public tables$ = this.tablesSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.loadTables();
   }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
+    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('auth_token') : null;
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

@@ -5,8 +5,10 @@ import {
   ViewChildren,
   QueryList,
   OnDestroy,
+  OnInit,
   ChangeDetectorRef,
 } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GridItem } from '../interfaces/bento-box.interface';
 import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
@@ -17,6 +19,7 @@ import { HeaderComponent } from './header/header.component';
 import { StorageService } from '../services/storage-service/storage.service';
 import { FillerService } from '../services/filler-service/filler.service';
 import { AuthService } from '../services/auth-service/auth.service';
+import { TableService } from '../services/table-service/table.service';
 import { Subject, Subscription, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
@@ -37,7 +40,7 @@ import { FooterComponent } from '../components/footer/footer.component';
   templateUrl: './bento-module.component.html',
   styleUrl: './bento-module.component.scss',
 })
-export class BentoModuleComponent implements OnDestroy {
+export class BentoModuleComponent implements OnDestroy, OnInit {
   data: GridItem[] = [];
   fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
 
@@ -123,6 +126,9 @@ export class BentoModuleComponent implements OnDestroy {
     private storageService: StorageService,
     private fillerService: FillerService,
     private authService: AuthService,
+    private tableService: TableService,
+    private route: ActivatedRoute,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -131,6 +137,14 @@ export class BentoModuleComponent implements OnDestroy {
   }
 
   ngOnInit(): void {
+    // Verifica se está acessando via QR Code (rota /table/:tableId/join)
+    this.route.params.subscribe(params => {
+      const tableId = params['tableId'];
+      if (tableId) {
+        this.joinTable(tableId);
+      }
+    });
+
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers(),
@@ -377,5 +391,53 @@ export class BentoModuleComponent implements OnDestroy {
         box.recalculateGrid();
       });
     }, 0);
+  }
+
+  /**
+   * Entra em uma mesa via QR Code
+   */
+  async joinTable(tableId: string): Promise<void> {
+    try {
+      console.log('🔗 Acessando mesa via QR Code:', tableId);
+
+      // Faz request para o backend para criar sessão
+      const response = await fetch(`/api/tables/${tableId}/join`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Importante para cookies de sessão
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('✅ Conectado à mesa com sucesso:', data);
+
+        // Se retornou sessionToken, salva no localStorage
+        if (data.sessionToken) {
+          localStorage.setItem('sessionToken', data.sessionToken);
+          localStorage.setItem('tableId', tableId);
+          localStorage.setItem('tableNumber', data.table.number);
+        }
+
+        // Redireciona para a página principal (sem o /join na URL)
+        this.router.navigate(['/'], {
+          queryParams: {
+            table: data.table.number,
+            joined: 'true',
+          },
+        });
+
+        // Mostra mensagem de boas-vindas
+        alert(`🎉 Bem-vindo à Mesa ${data.table.number}!`);
+      } else {
+        console.error('❌ Erro ao conectar à mesa:', data.message);
+        alert(`Erro: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao acessar mesa:', error);
+      alert('Erro ao conectar à mesa. Tente novamente.');
+    }
   }
 }

@@ -77,6 +77,51 @@ h2 {
   font-size: 1.8rem;
 }
 
+.anonymous-session-notice {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 2px solid #ffb74d;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.4s ease;
+
+  .icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .text {
+    flex: 1;
+
+    strong {
+      display: block;
+      color: #e65100;
+      margin-bottom: 0.25rem;
+      font-size: 1rem;
+    }
+
+    p {
+      margin: 0;
+      color: #f57c00;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .form-group {
   margin-bottom: 1.5rem;
 

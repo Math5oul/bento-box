@@ -33,6 +33,8 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  hasAnonymousSession = false;
+  anonymousTableNumber = '';
 
   formData = {
     name: '',
@@ -44,6 +46,15 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Move o elemento para o body ao inicializar
     this.renderer.appendChild(document.body, this.elementRef.nativeElement);
+
+    // Verifica se existe sessão anônima
+    this.hasAnonymousSession = this.authService.hasAnonymousSession();
+    if (this.hasAnonymousSession) {
+      const session = this.authService.getAnonymousSession();
+      if (session) {
+        this.anonymousTableNumber = session.tableNumber;
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -92,29 +103,53 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-    const endpoint = this.isRegistering ? '/api/auth/register' : '/api/auth/login';
-    const payload = this.isRegistering
-      ? {
-          name: this.formData.name,
-          email: this.formData.email,
-          password: this.formData.password,
-          confirmPassword: this.formData.confirmPassword,
-        }
-      : {
-          email: this.formData.email,
-          password: this.formData.password,
-        };
-
     try {
-      const response: any = await this.http.post(endpoint, payload).toPromise();
+      let response: any;
 
-      if (response.token) {
-        this.successMessage = this.isRegistering
-          ? 'Conta criada com sucesso!'
-          : 'Login realizado com sucesso!';
+      // Se tem sessão anônima, usa a rota de conversão
+      if (this.hasAnonymousSession) {
+        if (this.isRegistering) {
+          response = await this.authService.convertAnonymousWithRegister(
+            this.formData.name,
+            this.formData.email,
+            this.formData.password
+          );
+          this.successMessage = `✅ Conta criada e vinculada à Mesa ${this.anonymousTableNumber}!`;
+        } else {
+          response = await this.authService.convertAnonymousWithLogin(
+            this.formData.email,
+            this.formData.password
+          );
+          this.successMessage = `✅ Login realizado e conta vinculada à Mesa ${this.anonymousTableNumber}!`;
+        }
+      } else {
+        // Login/registro normal sem sessão anônima
+        const endpoint = this.isRegistering ? '/api/auth/register' : '/api/auth/login';
+        const payload = this.isRegistering
+          ? {
+              name: this.formData.name,
+              email: this.formData.email,
+              password: this.formData.password,
+              confirmPassword: this.formData.confirmPassword,
+            }
+          : {
+              email: this.formData.email,
+              password: this.formData.password,
+            };
 
-        // Usa o AuthService para gerenciar o login
-        this.authService.login(response.token, response.user);
+        response = await this.http.post(endpoint, payload).toPromise();
+
+        if (response.token) {
+          this.successMessage = this.isRegistering
+            ? 'Conta criada com sucesso!'
+            : 'Login realizado com sucesso!';
+
+          // Usa o AuthService para gerenciar o login
+          this.authService.login(response.token, response.user);
+        }
+      }
+
+      if (response && (response.token || response.success)) {
         this.loginSuccess.emit({ token: response.token, user: response.user });
 
         setTimeout(() => {

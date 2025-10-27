@@ -4,6 +4,21 @@
 
     <h2>{{ isRegistering ? 'Criar Conta' : 'Login' }}</h2>
 
+    <!-- Aviso de sessão anônima -->
+    <div class="anonymous-session-notice" *ngIf="hasAnonymousSession">
+      <span class="icon">🍱</span>
+      <div class="text">
+        <strong>Você está na Mesa {{ anonymousTableNumber }}</strong>
+        <p>
+          {{
+            isRegistering
+              ? 'Sua conta será vinculada a esta mesa'
+              : 'Sua conta será vinculada a esta mesa'
+          }}
+        </p>
+      </div>
+    </div>
+
     <form (ngSubmit)="onSubmit()">
       <div class="form-group" *ngIf="isRegistering">
         <label for="name">Nome:</label>
