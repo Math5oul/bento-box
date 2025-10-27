@@ -1,0 +1,31 @@
+<div class="admin-orders">
+  <h2>Pedidos por Mesa</h2>
+  <div *ngIf="isLoading" class="loading">Carregando pedidos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="!isLoading && !error">
+    <div *ngFor="let mesa of ordersByTable" class="mesa-block">
+      <h3>Mesa {{ mesa.tableNumber }}</h3>
+      <div *ngIf="mesa.orders.length === 0" class="no-orders">Nenhum pedido nesta mesa.</div>
+      <div *ngFor="let order of mesa.orders" class="order-card">
+        <div class="order-header">
+          <span class="order-id">Pedido #{{ order.id }}</span>
+          <span class="order-status" [style.background]="getStatusColor(order.status)">
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+        <div class="order-details">
+          <div><b>Cliente:</b> {{ order.clientName }}</div>
+          <div>
+            <b>Itens:</b>
+            <ul>
+              <li *ngFor="let item of order.items">
+                {{ item.productName }} <span *ngIf="item.quantity">x{{ item.quantity }}</span>
+              </li>
+            </ul>
+          </div>
+          <div><b>Status:</b> {{ getStatusLabel(order.status) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,50 +2,8 @@ import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  PREPARING = 'preparing',
-  READY = 'ready',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
-
-export interface OrderItem {
-  productId: number;
-  productName: string;
-  productImage?: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  notes?: string;
-}
-
-export interface Order {
-  _id?: string;
-  id?: string;
-  tableId: string;
-  clientId?: string;
-  sessionToken?: string;
-  clientName: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: OrderStatus;
-  notes?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deliveredAt?: Date;
-  cancelledAt?: Date;
-}
-
-export interface CreateOrderDTO {
-  tableId: string;
-  sessionToken?: string;
-  items: OrderItem[];
-  notes?: string;
-}
+import { tap, map } from 'rxjs/operators';
+import { Order, OrderStatus, CreateOrderDTO } from '../../interfaces/order.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -84,48 +42,32 @@ export class OrderService {
       orderData.sessionToken = this.getSessionToken() || undefined;
     }
 
-    return this.http.post('/api/orders', orderData, { headers }).pipe(
-      tap(() => {
-        // Recarrega lista de pedidos após criar
-        this.loadMyOrders().subscribe();
-      })
-    );
+    return this.http.post('/api/orders', orderData, { headers });
   }
 
   /**
-   * Carrega pedidos do usuário/sessão atual
+   * Busca todos os pedidos e agrupa por mesa (Admin)
    */
-  loadMyOrders(): Observable<any> {
-    const headers = this.getHeaders();
-    const sessionToken = this.getSessionToken();
-
-    let params = new HttpParams();
-    if (sessionToken) {
-      params = params.set('sessionToken', sessionToken);
-    }
-
-    return this.http.get('/api/orders/my-orders', { headers, params }).pipe(
-      tap((response: any) => {
-        if (response.success) {
-          this.ordersSubject.next(response.orders);
+  getAllOrdersGroupedByTable(): Observable<
+    { tableNumber: number; tableId: string; orders: Order[] }[]
+  > {
+    return this.getAllOrders().pipe(
+      map((response: any) => {
+        const orders: Order[] = response.orders || [];
+        const grouped: Record<string, { tableNumber: number; tableId: string; orders: Order[] }> =
+          {};
+        for (const order of orders) {
+          const tableId = order.tableId;
+          // Se não vier tableNumber, coloca 0 (ou buscar depois)
+          const tableNumber = (order as any).tableNumber || 0;
+          if (!grouped[tableId]) {
+            grouped[tableId] = { tableNumber, tableId, orders: [] };
+          }
+          grouped[tableId].orders.push(order);
         }
+        return Object.values(grouped).sort((a, b) => a.tableNumber - b.tableNumber);
       })
     );
-  }
-
-  /**
-   * Busca um pedido específico por ID
-   */
-  getOrder(orderId: string): Observable<any> {
-    const headers = this.getHeaders();
-    const sessionToken = this.getSessionToken();
-
-    let params = new HttpParams();
-    if (sessionToken) {
-      params = params.set('sessionToken', sessionToken);
-    }
-
-    return this.http.get(`/api/orders/${orderId}`, { headers, params });
   }
 
   /**
@@ -156,12 +98,7 @@ export class OrderService {
       params = params.set('sessionToken', sessionToken);
     }
 
-    return this.http.delete(`/api/orders/${orderId}`, { headers, params }).pipe(
-      tap(() => {
-        // Recarrega lista após cancelar
-        this.loadMyOrders().subscribe();
-      })
-    );
+    return this.http.delete(`/api/orders/${orderId}`, { headers, params });
   }
 
   /**
