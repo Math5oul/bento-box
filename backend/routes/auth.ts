@@ -147,6 +147,71 @@ router.post('/logout', authenticate, async (req: Request, res: Response): Promis
 });
 
 /**
+ * POST /api/auth/change-password
+ * Altera senha do usuário autenticado
+ */
+router.post(
+  '/change-password',
+  authenticate,
+  runValidations([
+    body('currentPassword').notEmpty().withMessage('Senha atual é obrigatória'),
+    body('newPassword')
+      .isLength({ min: 6 })
+      .withMessage('Nova senha deve ter pelo menos 6 caracteres'),
+    body('confirmPassword').custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Senhas não conferem');
+      }
+      return true;
+    }),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user?.userId;
+
+      // Busca usuário com senha
+      const user = await User.findById(userId).select('+password');
+
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: 'Usuário não encontrado',
+        });
+        return;
+      }
+
+      // Verifica senha atual
+      const isPasswordValid = await user.comparePassword(currentPassword);
+
+      if (!isPasswordValid) {
+        res.status(401).json({
+          success: false,
+          message: 'Senha atual incorreta',
+        });
+        return;
+      }
+
+      // Atualiza senha
+      user.password = newPassword;
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Senha alterada com sucesso',
+      });
+    } catch (error) {
+      console.error('Erro ao alterar senha:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao alterar senha',
+      });
+    }
+  }
+);
+
+/**
  * GET /api/auth/me
  * Retorna dados do usuário autenticado
  */

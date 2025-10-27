@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface User {
   _id: string;
@@ -89,11 +89,21 @@ export class AuthService {
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
     return this.http
-      .post('/api/auth/change-password', {
-        currentPassword,
-        newPassword,
-      })
+      .post(
+        '/api/auth/change-password',
+        {
+          currentPassword,
+          newPassword,
+          confirmPassword: newPassword,
+        },
+        { headers }
+      )
       .toPromise();
   }
 }
