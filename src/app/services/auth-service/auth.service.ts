@@ -52,13 +52,23 @@ export class AuthService {
 
   login(token: string, user: User): void {
     if (this.isBrowser) {
+      // Preserva tableId se existir (usuário estava em uma mesa)
+      const existingTableId = localStorage.getItem('tableId');
+      const existingTableNumber = localStorage.getItem('tableNumber');
+
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Remove tokens de sessão anônima após login
+      // Remove apenas sessionToken (token anônimo), mas mantém tableId
       localStorage.removeItem('sessionToken');
-      localStorage.removeItem('tableId');
-      localStorage.removeItem('tableNumber');
+
+      // Restaura tableId se existia (usuário estava em uma mesa antes do login)
+      if (existingTableId) {
+        localStorage.setItem('tableId', existingTableId);
+      }
+      if (existingTableNumber) {
+        localStorage.setItem('tableNumber', existingTableNumber);
+      }
     }
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
@@ -163,7 +173,14 @@ export class AuthService {
 
       // Atualiza estado de autenticação
       if (response && (response as any).success) {
-        const { token, user } = response as any;
+        const { token, user, table } = response as any;
+
+        // Se retornou informações da mesa, salva no localStorage
+        if (table && this.isBrowser) {
+          localStorage.setItem('tableId', table.tableId);
+          localStorage.setItem('tableNumber', table.tableNumber);
+        }
+
         this.login(token, user);
       }
 
@@ -194,7 +211,14 @@ export class AuthService {
 
       // Atualiza estado de autenticação
       if (response && (response as any).success) {
-        const { token, user } = response as any;
+        const { token, user, table } = response as any;
+
+        // Se retornou informações da mesa, salva no localStorage
+        if (table && this.isBrowser) {
+          localStorage.setItem('tableId', table.tableId);
+          localStorage.setItem('tableNumber', table.tableNumber);
+        }
+
         this.login(token, user);
       }
 

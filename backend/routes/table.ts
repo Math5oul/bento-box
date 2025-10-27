@@ -538,8 +538,27 @@ router.get(
       }
 
       // Cria sessão anônima
+      // Gera ID único de 4 dígitos para identificação
+      const uniqueId = Math.floor(1000 + Math.random() * 9000);
+
+      // Extrai tipo de device do user-agent (opcional)
+      const userAgent = req.headers['user-agent'] || '';
+      let deviceType = '';
+
+      if (userAgent.includes('iPhone')) {
+        deviceType = ' (iPhone)';
+      } else if (userAgent.includes('iPad')) {
+        deviceType = ' (iPad)';
+      } else if (userAgent.includes('Android')) {
+        deviceType = ' (Android)';
+      } else if (userAgent.includes('Windows')) {
+        deviceType = ' (PC)';
+      } else if (userAgent.includes('Mac')) {
+        deviceType = ' (Mac)';
+      }
+
       const anonymousUser = new User({
-        name: `Cliente Mesa ${table.number}`,
+        name: `Cliente Mesa ${table.number} #${uniqueId}${deviceType}`,
         role: UserRole.CLIENT,
         isAnonymous: true,
         currentTableId: table._id,

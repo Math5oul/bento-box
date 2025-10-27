@@ -357,11 +357,24 @@ router.post(
       const userResponse = targetUser.toObject();
       delete userResponse.password;
 
+      // Busca informações da mesa se houver
+      let tableInfo = null;
+      if (targetUser.currentTableId) {
+        const table = await Table.findById(targetUser.currentTableId);
+        if (table) {
+          tableInfo = {
+            tableId: (table._id as any).toString(),
+            tableNumber: table.number,
+          };
+        }
+      }
+
       res.json({
         success: true,
         message: 'Sessão convertida com sucesso',
         token,
         user: userResponse,
+        table: tableInfo,
       });
     } catch (error) {
       console.error('Erro ao converter sessão:', error);

@@ -111,4 +111,11 @@ export class CartService {
   getTotal(): number {
     return this.cartItemsSubject.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
+
+  /**
+   * Limpa todos os itens do carrinho
+   */
+  clearCart(): void {
+    this.cartItemsSubject.next([]);
+  }
 }

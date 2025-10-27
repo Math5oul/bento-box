@@ -53,10 +53,30 @@
   </div>
 
   <div class="cart-footer">
+    <!-- Mensagens de sucesso/erro -->
+    @if (orderSuccess) {
+      <div class="success-message">✅ Pedido enviado com sucesso!</div>
+    }
+
+    @if (orderError) {
+      <div class="error-message">❌ {{ orderError }}</div>
+    }
+
     <div class="total-container">
       <span>Total:</span>
       <span class="total-price">{{ total | currency: 'BRL' }}</span>
     </div>
-    <button class="checkout-button">Enviar Pedido</button>
+
+    <button
+      class="checkout-button"
+      (click)="finalizarPedido()"
+      [disabled]="isPlacingOrder || carrinho.length === 0"
+    >
+      @if (isPlacingOrder) {
+        <span>⏳ Enviando...</span>
+      } @else {
+        <span>🍱 Enviar Pedido</span>
+      }
+    </button>
   </div>
 </div>
