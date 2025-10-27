@@ -1,29 +1,48 @@
 <div class="admin-orders">
-  <h2>Pedidos por Mesa</h2>
+  <div class="orders-header">
+    <h2>📦 Pedidos por Mesa</h2>
+  </div>
   <div *ngIf="isLoading" class="loading">Carregando pedidos...</div>
   <div *ngIf="error" class="error">{{ error }}</div>
   <div *ngIf="!isLoading && !error">
-    <div *ngFor="let mesa of ordersByTable" class="mesa-block">
-      <h3>Mesa {{ mesa.tableNumber }}</h3>
+    <div
+      *ngFor="let mesa of ordersByTable"
+      class="mesa-block"
+      [attr.data-table-number]="mesa.tableNumber"
+    >
+      <div class="mesa-title-row">
+        <div class="mesa-icon">🪑</div>
+        <h3>Mesa {{ mesa.tableNumber }}</h3>
+        <span class="mesa-total" *ngIf="mesa.orders.length > 0"
+          >{{ mesa.orders.length }} pedido{{ mesa.orders.length > 1 ? 's' : '' }}</span
+        >
+      </div>
       <div *ngIf="mesa.orders.length === 0" class="no-orders">Nenhum pedido nesta mesa.</div>
-      <div *ngFor="let order of mesa.orders" class="order-card">
-        <div class="order-header">
-          <span class="order-id">Pedido #{{ order.id }}</span>
-          <span class="order-status" [style.background]="getStatusColor(order.status)">
-            {{ getStatusLabel(order.status) }}
-          </span>
-        </div>
-        <div class="order-details">
-          <div><b>Cliente:</b> {{ order.clientName }}</div>
-          <div>
-            <b>Itens:</b>
-            <ul>
-              <li *ngFor="let item of order.items">
-                {{ item.productName }} <span *ngIf="item.quantity">x{{ item.quantity }}</span>
-              </li>
-            </ul>
+      <div class="orders-list">
+        <div *ngFor="let order of mesa.orders" class="order-card">
+          <div class="order-header">
+            <div class="order-avatar">{{ order.clientName.charAt(0) }}</div>
+            <div class="order-id-status">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-status" [style.background]="getStatusColor(order.status)">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </div>
+            <div class="order-total">R$ {{ order.totalAmount.toFixed(2) || '0.00' }}</div>
           </div>
-          <div><b>Status:</b> {{ getStatusLabel(order.status) }}</div>
+          <div class="order-details">
+            <div class="order-client"><b>Cliente:</b> {{ order.clientName }}</div>
+            <div class="order-items">
+              <b>Itens:</b>
+              <ul>
+                <li *ngFor="let item of order.items">
+                  <span class="item-name">{{ item.productName }}</span>
+                  <span class="item-qty" *ngIf="item.quantity">x{{ item.quantity }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="order-notes" *ngIf="order.notes">📝 {{ order.notes }}</div>
+          </div>
         </div>
       </div>
     </div>

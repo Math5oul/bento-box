@@ -1,69 +1,193 @@
 .admin-orders {
-  padding: 2rem 1rem;
-  max-width: 900px;
+  padding: 2.5rem 1rem 2rem 1rem;
+  max-width: 1000px;
   margin: 0 auto;
+}
+
+.orders-header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+  border-bottom: 2px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.orders-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 .mesa-block {
   background: #f8fafc;
-  border-radius: 10px;
-  margin-bottom: 2rem;
-  padding: 1.5rem 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition:
+    box-shadow 0.3s,
+    border 0.3s;
+}
+
+.mesa-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.mesa-icon {
+  font-size: 1.7rem;
+  color: #4f46e5;
 }
 
 .mesa-block h3 {
-  margin-top: 0;
-  color: #059669;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.mesa-total {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: 1.05rem;
+  background: #eef2ff;
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
 }
 
 .order-card {
   background: #fff;
-  border-radius: 8px;
-  margin: 1rem 0;
-  padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  margin: 1.1rem 0;
+  padding: 1.1rem 1.2rem 1.2rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  border: 1.5px solid #e0e7ef;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 
 .order-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+
+.order-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.08);
+}
+
+.order-id-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .order-id {
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
+  font-size: 1.08rem;
 }
 
 .order-status {
   color: #fff;
   border-radius: 6px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.95rem;
+  padding: 0.22rem 0.7rem;
+  font-size: 0.97rem;
   font-weight: 600;
-  margin-left: 1rem;
+  margin-top: 0.1rem;
+  display: inline-block;
+}
+
+.order-total {
+  margin-left: auto;
+  color: #059669;
+  font-weight: 700;
+  font-size: 1.08rem;
+  background: #e0f7ef;
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
 }
 
 .order-details {
-  font-size: 0.98rem;
+  font-size: 1.01rem;
   color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.order-client {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.order-items ul {
+  margin: 0.2rem 0 0 0.5rem;
+  padding: 0;
+  list-style: disc inside;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #374151;
+}
+
+.item-qty {
+  color: #059669;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+
+.order-notes {
+  color: #a16207;
+  background: #fef9c3;
+  border-radius: 6px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.97rem;
+  margin-top: 0.2rem;
+  display: inline-block;
+}
+
+.mesa-highlight {
+  box-shadow:
+    0 0 0 4px #34d399,
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 2px solid #34d399;
 }
 
 .loading {
   color: #888;
   font-size: 1.1rem;
+  text-align: center;
+  margin-top: 2rem;
 }
 
 .error {
   color: #dc2626;
   font-weight: 600;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .no-orders {
   color: #888;
   font-style: italic;
   margin-bottom: 0.5rem;
+  text-align: center;
 }
