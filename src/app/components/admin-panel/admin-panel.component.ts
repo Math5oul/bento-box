@@ -15,6 +15,7 @@ import { TableService } from '../../services/table-service/table.service';
 import { Table, TableStatus } from '../../interfaces/table.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { AdminOrdersComponent } from '../admin/admin-orders.component';
+import { ViewChild } from '@angular/core';
 
 interface ReservationInfo {
   clientName: string;
@@ -61,6 +62,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
   tables: TableWithDetails[] = [];
   selectedTable: TableWithDetails | null = null;
+  // When set, AdminOrdersComponent will scroll to this table number
+  // keep for compatibility but we'll call child method directly
+  pendingScrollTableNumber: number | null = null;
+
+  @ViewChild(AdminOrdersComponent) adminOrdersComponent?: AdminOrdersComponent;
   showReserveModal = false;
   showQRCode = false;
   showOrdersModal = false;
@@ -202,8 +208,23 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   viewTableOrders(table: TableWithDetails) {
+    // Open orders tab
     this.activeTab = 'orders';
+    // wait for child to render then call its scroll method
     this.cdr.detectChanges();
+    setTimeout(() => {
+      try {
+        if (this.adminOrdersComponent) {
+          this.adminOrdersComponent.scrollToTable(table.number);
+        } else {
+          // Fallback: set the pending number so Input-based approach still works
+          this.pendingScrollTableNumber = table.number;
+          setTimeout(() => (this.pendingScrollTableNumber = null), 500);
+        }
+      } catch (err) {
+        console.error('Erro ao instruir child para rolar:', err);
+      }
+    }, 60);
   }
 
   async viewTableClients(table: TableWithDetails) {

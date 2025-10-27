@@ -290,12 +290,29 @@
   }
 
   &.btn-delete {
-    background: #fee2e2;
-    color: #ef4444;
-    border: 1px solid #fecaca;
+    background: #dd5757;
+    color: #ffffff;
+    border: 1px solid #f87171;
 
     &:hover {
-      background: #fecaca;
+      background: #dc2626;
+    }
+  }
+
+  &.is-disabled {
+    background: #e5e7eb;
+    color: #6b7280;
+    border-color: #d1d5db;
+    opacity: 0.5;
+    filter: grayscale(0.6);
+    cursor: default;
+    pointer-events: none;
+    box-shadow: none;
+    transform: none;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
     }
   }
 
