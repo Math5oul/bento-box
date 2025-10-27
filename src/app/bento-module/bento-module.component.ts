@@ -16,16 +16,24 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { StorageService } from '../services/storage-service/storage.service';
 import { FillerService } from '../services/filler-service/filler.service';
+import { AuthService } from '../services/auth-service/auth.service';
 import { Subject, Subscription, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
 import { SimpleImageComponent } from '../components/simpleComponents/simple-image/simple-image.component';
 import { SimpleVideoComponent } from '../components/simpleComponents/simple-video/simple-video.component';
+import { FooterComponent } from '../components/footer/footer.component';
 
 @Component({
   selector: 'app-bento-module',
   standalone: true,
-  imports: [BentoBoxComponent, BentoToolbarComponent, HeaderComponent, CommonModule],
+  imports: [
+    BentoBoxComponent,
+    BentoToolbarComponent,
+    HeaderComponent,
+    FooterComponent,
+    CommonModule,
+  ],
   templateUrl: './bento-module.component.html',
   styleUrl: './bento-module.component.scss',
 })
@@ -114,8 +122,13 @@ export class BentoModuleComponent implements OnDestroy {
     public _cartService: CartService,
     private storageService: StorageService,
     private fillerService: FillerService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   ngOnInit(): void {
     this.productsSub = forkJoin({

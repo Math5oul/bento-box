@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CarrosselComponent } from '../../../../bento-module/utils/carrossel/carrossel.component';
+import { CarrosselComponent } from '../../../carrossel/carrossel.component';
 
 @Component({
   selector: 'app-product-modal',

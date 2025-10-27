@@ -14,7 +14,7 @@
 
   // Garante que todos os elementos filhos sejam centralizados
   * {
-    text-align: center !important;
+    text-align: center;
   }
 
   // Estilos para elementos comuns
@@ -27,7 +27,7 @@
   h6,
   div,
   span {
-    text-align: center !important;
+    text-align: center;
     margin: 0 auto;
   }
 }
