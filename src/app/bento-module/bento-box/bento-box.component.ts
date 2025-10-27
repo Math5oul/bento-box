@@ -407,7 +407,7 @@ export class BentoBoxComponent {
   /**
    * Reseta os filler atuais no grid
    * embaralha o array de fillers e encaixa o
-   * primeiro que achar nos espaços disponiveis
+   * primeiro que achar nos espaços disponiveis, priorizando o maior formato possível
    */
   putFillerItens(fillers: GridItem[]) {
     console.log('🔍 putFillerItens - Fillers recebidos:', fillers.length);
@@ -428,31 +428,91 @@ export class BentoBoxComponent {
 
     console.log('🔍 Fillers embaralhados:', availableFillers);
 
-    Object.keys(this.emptySpaces).forEach(size => {
+    // Função auxiliar para calcular área do formato
+    const getFormatArea = (format: string): number => {
+      const [rows, cols] = format.split('x').map(Number);
+      return rows * cols;
+    };
+
+    // Ordena formatos por área (maior primeiro): 2x2 > 2x1 = 1x2 > 1x1
+    const sortFormatsBySize = (formats: string[]): string[] => {
+      return [...formats].sort((a, b) => getFormatArea(b) - getFormatArea(a));
+    };
+
+    // Marca células como usadas para evitar sobreposição
+    const usedCells = new Set<string>();
+
+    // Itera sobre todos os espaços vazios, começando pelos maiores
+    const sortedSizes = Object.keys(this.emptySpaces).sort((a, b) => {
+      return getFormatArea(b) - getFormatArea(a);
+    });
+
+    sortedSizes.forEach(size => {
       const [rowSpan, colSpan] = size.split('x').map(Number);
       console.log(`🔍 Procurando fillers para tamanho ${size} (${rowSpan}x${colSpan})`);
       console.log(`🔍 Quantidade de espaços desse tamanho:`, this.emptySpaces[size].length);
 
       this.emptySpaces[size].forEach(cell => {
+        const cellKey = `${cell.row},${cell.col}`;
+
+        // Verifica se a célula já foi usada
+        if (usedCells.has(cellKey)) {
+          console.log(`⏭️ Célula [${cell.row}, ${cell.col}] já está ocupada`);
+          return;
+        }
+
         console.log(`🔍 Procurando filler para célula [${cell.row}, ${cell.col}]`);
 
-        // Procura um filler disponível
-        const fillerIndex = availableFillers.findIndex(
-          filler => filler.colSpan === colSpan && filler.rowSpan === rowSpan
-        );
+        // Procura um filler disponível que possa usar este espaço
+        let fillerIndex = -1;
+        let selectedFormat = '';
 
-        console.log(`🔍 Filler encontrado no índice: ${fillerIndex}`);
+        for (let i = 0; i < availableFillers.length; i++) {
+          const filler = availableFillers[i];
+
+          // Obtém os formatos válidos do filler (ou usa o formato padrão como fallback)
+          const validFormats = filler.inputs?.formats || [
+            filler.inputs?.format || `${filler.rowSpan}x${filler.colSpan}`,
+          ];
+
+          console.log(`🔍 Filler ${i} - formatos válidos:`, validFormats);
+
+          // Ordena os formatos por tamanho (maior primeiro)
+          const sortedFormats = sortFormatsBySize(validFormats);
+
+          // Tenta cada formato, começando pelo maior
+          for (const format of sortedFormats) {
+            const [fRowSpan, fColSpan] = format.split('x').map(Number);
+
+            // Verifica se este formato cabe no espaço disponível
+            if (fRowSpan === rowSpan && fColSpan === colSpan) {
+              fillerIndex = i;
+              selectedFormat = format;
+              console.log(`✅ Formato ${format} cabe no espaço ${size}`);
+              break;
+            }
+          }
+
+          if (fillerIndex !== -1) break;
+        }
 
         if (fillerIndex !== -1) {
-          // Cria uma cópia do filler com a nova posição
+          const [selectedRowSpan, selectedColSpan] = selectedFormat.split('x').map(Number);
+
+          // Cria uma cópia do filler com a nova posição e tamanho selecionado
           const filler = {
             ...availableFillers[fillerIndex],
             row: cell.row,
             col: cell.col,
+            rowSpan: selectedRowSpan,
+            colSpan: selectedColSpan,
           };
 
-          console.log(`✅ Usando filler:`, filler);
+          console.log(`✅ Usando filler com formato ${selectedFormat}:`, filler);
           fillerItens.push(filler);
+
+          // Marca a célula como usada
+          usedCells.add(cellKey);
 
           // Remove o filler usado da lista de disponíveis
           availableFillers.splice(fillerIndex, 1);

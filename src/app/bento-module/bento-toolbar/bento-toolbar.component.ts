@@ -259,11 +259,14 @@ export class BentoToolbarComponent {
    */
   private addNewFiller(itemData: any) {
     console.log('➕ Criando novo Filler no MongoDB...');
+    console.log('📝 Dados do Filler:', itemData);
 
     // Prepara os dados do Filler
     const fillerData: any = {
       type: this.inferFillerType(itemData.component),
       content: this.prepareFillerContent(itemData),
+      categories: itemData.inputs.categories || [], // Adiciona as categorias
+      formats: itemData.inputs.formats || ['1x1'], // Formatos válidos
       format: itemData.inputs.format || '1x1',
       gridPosition: {
         row: 0,
@@ -273,6 +276,8 @@ export class BentoToolbarComponent {
       },
       active: true,
     };
+
+    console.log('📦 Dados do Filler a serem enviados:', fillerData);
 
     // Cria o Filler no MongoDB
     this.fillerService.createFiller(fillerData).subscribe({
@@ -353,8 +358,16 @@ export class BentoToolbarComponent {
     const nameLower = componentName.toLowerCase();
 
     if (nameLower.includes('text')) {
+      const backgroundColor =
+        itemData.inputs.backgroundColor || itemData.inputs.background || '#ffffff';
+      console.log('🎨 Preparando conteúdo de texto:');
+      console.log('  - backgroundColor (inputs):', itemData.inputs.backgroundColor);
+      console.log('  - background (inputs):', itemData.inputs.background);
+      console.log('  - Cor final:', backgroundColor);
+
       return {
         text: itemData.inputs.text || itemData.inputs.productName || '',
+        backgroundColor: backgroundColor,
       };
     } else if (nameLower.includes('image') || nameLower.includes('imagem')) {
       return {
@@ -536,6 +549,8 @@ export class BentoToolbarComponent {
         const updateData = {
           type: this.inferFillerType(itemData.component),
           content: this.prepareFillerContent(itemData),
+          categories: itemData.inputs.categories || [], // Adiciona as categorias
+          formats: itemData.inputs.formats || ['1x1'], // Formatos válidos
           format: itemData.inputs.format,
           gridPosition: {
             row: this.data[index].row,
@@ -544,6 +559,8 @@ export class BentoToolbarComponent {
             colSpan: itemData.colSpan,
           },
         };
+
+        console.log('📦 Dados de atualização do Filler:', updateData);
 
         // Atualiza no MongoDB
         this.fillerService.updateFiller(itemId, updateData).subscribe({

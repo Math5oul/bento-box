@@ -153,6 +153,7 @@ export class BentoModuleComponent implements OnDestroy {
   private groupProductsByCategory(products: GridItem[]): void {
     this.productsByCategory.clear();
 
+    // Agrupa produtos
     products.forEach(product => {
       const category = product.inputs?.category || 'other';
 
@@ -162,6 +163,9 @@ export class BentoModuleComponent implements OnDestroy {
 
       this.productsByCategory.get(category)!.push(product);
     });
+
+    console.log('✅ Produtos agrupados por categoria:', this.productsByCategory);
+    console.log('📦 Fillers disponíveis:', this.fillers.length);
   }
 
   /**
@@ -177,6 +181,25 @@ export class BentoModuleComponent implements OnDestroy {
    */
   getProductsByCategory(category: string): GridItem[] {
     return this.productsByCategory.get(category) || [];
+  }
+
+  /**
+   * Retorna apenas os fillers de uma categoria específica
+   */
+  getFillersByCategory(category: string): GridItem[] {
+    const filtered = this.fillers.filter(filler => {
+      const categories = filler.inputs?.categories || [];
+      const matches = categories.includes(category);
+
+      if (matches) {
+        console.log(`✅ Filler ${filler.id} pertence à categoria ${category}`);
+      }
+
+      return matches;
+    });
+
+    console.log(`📊 Categoria "${category}": ${filtered.length} filler(s)`);
+    return filtered;
   }
 
   /**
@@ -197,7 +220,12 @@ export class BentoModuleComponent implements OnDestroy {
    * Converte Fillers do banco para GridItems
    */
   private convertFillersToGridItems(fillers: any[]): GridItem[] {
+    console.log('🔄 Convertendo fillers do MongoDB para GridItems...');
+
     return fillers.map(filler => {
+      console.log('📦 Convertendo filler:', filler._id);
+      console.log('  - Categorias no DB:', filler.categories);
+
       // Determina o componente baseado no tipo
       let component: any = SimpleTextComponent;
       const inputs: any = {};
@@ -205,6 +233,7 @@ export class BentoModuleComponent implements OnDestroy {
       if (filler.type === 'text') {
         component = SimpleTextComponent;
         inputs.text = filler.content.text || '';
+        inputs.background = filler.content.backgroundColor || '#ffffff'; // Mapeia backgroundColor para background
       } else if (filler.type === 'image') {
         component = SimpleImageComponent;
         inputs.url = filler.content.url || '';
@@ -215,8 +244,12 @@ export class BentoModuleComponent implements OnDestroy {
       }
 
       inputs.format = filler.format || '1x1';
+      inputs.formats = filler.formats || ['1x1']; // Formatos válidos
+      inputs.categories = filler.categories || []; // Adiciona as categorias aos inputs
 
-      return {
+      console.log('  - Categorias em inputs:', inputs.categories);
+
+      const gridItem = {
         id: filler._id,
         component: component,
         inputs: inputs,
@@ -225,6 +258,10 @@ export class BentoModuleComponent implements OnDestroy {
         rowSpan: filler.gridPosition?.rowSpan || 1,
         colSpan: filler.gridPosition?.colSpan || 1,
       };
+
+      console.log('  ✅ GridItem criado:', gridItem);
+
+      return gridItem;
     });
   }
 

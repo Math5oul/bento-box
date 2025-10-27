@@ -67,6 +67,9 @@ export class NewItemModalComponent implements OnInit {
   private loadItemForEditing() {
     if (!this.itemToEdit) return;
 
+    console.log('🔧 Carregando item para edição:', this.itemToEdit);
+    console.log('📋 Inputs do item:', this.itemToEdit.inputs);
+
     // Encontra o componente correspondente
     const componentEntry = Array.from(COMPONENT_INPUTS_MAP.entries()).find(
       ([componentClass]) => componentClass === this.itemToEdit!.component
@@ -80,6 +83,9 @@ export class NewItemModalComponent implements OnInit {
         inputsConfig: config.inputs,
       };
 
+      console.log('🔧 Componente selecionado:', this.selectedComponent.name);
+      console.log('🔧 Config de inputs:', config.inputs);
+
       this.showDimensionsForm = true;
 
       // Inicializa o formulário com os dados existentes
@@ -91,6 +97,22 @@ export class NewItemModalComponent implements OnInit {
         colSpan: this.itemToEdit.colSpan,
         inputs: this.itemToEdit.inputs,
       });
+
+      console.log('📝 Formulário populado com valores:', this.componentForm.value);
+
+      // Se tem categorias (multi-select), garante que são carregadas corretamente
+      if (this.itemToEdit.inputs.categories && Array.isArray(this.itemToEdit.inputs.categories)) {
+        const categoriesControl = this.componentForm.get(['inputs', 'categories']);
+        if (categoriesControl) {
+          categoriesControl.setValue([...this.itemToEdit.inputs.categories]);
+          console.log('📋 Categorias carregadas para edição:', this.itemToEdit.inputs.categories);
+          console.log('📋 Valor do control após setValue:', categoriesControl.value);
+        } else {
+          console.warn('⚠️ Control de categorias não encontrado no formulário');
+        }
+      } else {
+        console.log('📋 Item não possui categorias ou não é um array');
+      }
 
       // Se tem imagens/url, adiciona aos uploadedImagePaths para exibir preview
       if (this.itemToEdit.inputs.images && Array.isArray(this.itemToEdit.inputs.images)) {
@@ -195,10 +217,25 @@ export class NewItemModalComponent implements OnInit {
    */
   isCategorySelected(inputName: string, category: string): boolean {
     const control = this.componentForm.get(['inputs', inputName]);
-    if (!control) return false;
+    if (!control) {
+      console.log(`🔍 Control não encontrado para ${inputName}`);
+      return false;
+    }
 
     const currentValue: string[] = control.value || [];
-    return currentValue.includes(category);
+    const isSelected = currentValue.includes(category);
+
+    // Log apenas em modo de edição para não poluir o console
+    if (this.editMode) {
+      console.log(
+        `🔍 isCategorySelected(${inputName}, ${category}):`,
+        isSelected,
+        'valores:',
+        currentValue
+      );
+    }
+
+    return isSelected;
   }
 
   /**
