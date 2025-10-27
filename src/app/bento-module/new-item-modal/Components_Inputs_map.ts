@@ -4,6 +4,19 @@ import { SimpleProductComponent } from '../../components/simpleComponents/simple
 import { SimpleTextComponent } from '../../components/simpleComponents/simple-text/simple-text.component';
 import { SimpleVideoComponent } from '../../components/simpleComponents/simple-video/simple-video.component';
 
+/**
+ * Lista de categorias disponíveis para produtos e fillers
+ */
+export const PRODUCT_CATEGORIES = [
+  'food',
+  'hot beverage',
+  'cold beverage',
+  'dessert',
+  'alcoholic',
+  'beverage',
+  'other',
+] as const;
+
 // Configuração de cada input de componente
 export interface InputConfig {
   name: string;
@@ -21,7 +34,7 @@ export interface InputConfig {
   defaultValue?: any;
   placeholder?: string;
   step?: number;
-  options?: string[];
+  options?: string[] | readonly string[];
 }
 
 // Configuração associada a cada componente
@@ -55,15 +68,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'category',
           label: 'Categoria',
           type: 'select',
-          options: [
-            'food',
-            'hot beverage',
-            'cold beverage',
-            'dessert',
-            'alcoholic',
-            'beverage',
-            'other',
-          ],
+          options: PRODUCT_CATEGORIES,
           defaultValue: 'food',
           required: true,
         },
@@ -116,15 +121,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: [
-            'food',
-            'hot beverage',
-            'cold beverage',
-            'dessert',
-            'alcoholic',
-            'beverage',
-            'other',
-          ],
+          options: PRODUCT_CATEGORIES,
           defaultValue: [],
         },
       ],
@@ -147,15 +144,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: [
-            'food',
-            'hot beverage',
-            'cold beverage',
-            'dessert',
-            'alcoholic',
-            'beverage',
-            'other',
-          ],
+          options: PRODUCT_CATEGORIES,
           defaultValue: [],
         },
       ],
@@ -195,15 +184,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: [
-            'food',
-            'hot beverage',
-            'cold beverage',
-            'dessert',
-            'alcoholic',
-            'beverage',
-            'other',
-          ],
+          options: PRODUCT_CATEGORIES,
           defaultValue: [],
         },
       ],

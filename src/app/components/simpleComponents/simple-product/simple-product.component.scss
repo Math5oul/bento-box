@@ -53,6 +53,7 @@
   // Formato 1x2: Layout vertical (imagem acima)
   &.format-1x2 {
     flex-direction: column !important;
+    font-size: 16px;
   }
 
   // Formato 1x1: Apenas texto, sem imagem
@@ -70,31 +71,22 @@
     height: 100%;
     padding: 8px 0;
 
-    // Ajustes para formato 2x1 (imagem à esquerda)
-    &.format-2x1 {
-      width: 50%;
-      padding: 8px 12px;
-    }
-
-    // Ajustes para formato 1x2 (imagem acima)
-    &.format-1x2 {
-      height: 50%;
-      padding: 0;
-      width: 100%;
-    }
-
-    // Ajustes para formato 2x2 (overlay sobre imagem)
-    &.format-2x2 {
-      padding: 16px;
-      justify-content: flex-end;
-    }
-
     .title {
       width: 100%;
       text-align: center;
       font-size: 24px;
       font-weight: bold;
       margin-bottom: 4px;
+
+      // Limita o texto a 2 linhas
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      max-height: 2.4em; // 2 linhas * 1.2 line-height
     }
 
     .product-description {
@@ -102,6 +94,16 @@
       text-align: center;
       padding: 0 8px;
       margin: 4px 0;
+
+      // Limita o texto a 3 linhas
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.4;
+      max-height: 4.2em; // 3 linhas * 1.4 line-height
     }
 
     .product-price {
@@ -109,6 +111,78 @@
       font-weight: bold;
       text-align: center;
       margin: 4px 0;
+    }
+
+    // Ajustes para formato 2x1 (imagem à esquerda)
+    &.format-2x1 {
+      width: 50%;
+      padding: 8px 12px;
+
+      .title {
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+      }
+
+      .product-price {
+        font-size: 24px;
+      }
+    }
+
+    // Ajustes para formato 1x2 (imagem acima)
+    &.format-1x2 {
+      height: 50%;
+      padding: 0;
+      width: 100%;
+
+      .title {
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        max-height: 1.2em;
+      }
+      .product-price {
+        font-size: 20px;
+      }
+    }
+
+    // Ajustes para formato 1x1 (sem imagem)
+    &.format-1x1 {
+      .title {
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+      }
+
+      .product-description {
+        font-size: 16px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        max-height: 2.8em;
+      }
+
+      .product-price {
+        font-size: 24px;
+      }
+    }
+
+    // Ajustes para formato 2x2 (overlay sobre imagem)
+    &.format-2x2 {
+      padding: 16px;
+      justify-content: flex-end;
+
+      .title {
+        font-size: 28px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+      }
+
+      .product-description {
+        font-size: 16px;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+      }
+
+      .product-price {
+        font-size: 36px;
+      }
     }
   }
 }
