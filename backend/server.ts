@@ -38,6 +38,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/table', tableRoutes);
+app.use('/api/tables', tableRoutes); // Alias para compatibilidade
 app.use('/api/products', productRoutes);
 app.use('/api/fillers', fillerRoutes);
 app.use('/api/upload', uploadRoutes);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {
   Table,
@@ -19,54 +19,123 @@ export class TableService {
     this.loadTables();
   }
 
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
   async loadTables(): Promise<void> {
     try {
-      const tables = await this.http.get<Table[]>('/api/tables').toPromise();
-      this.tablesSubject.next(tables || []);
+      const response = await this.http
+        .get<{ success: boolean; tables: Table[] }>('/api/tables', {
+          headers: this.getHeaders(),
+        })
+        .toPromise();
+      this.tablesSubject.next(response?.tables || []);
     } catch (error) {
       console.error('Erro ao carregar mesas:', error);
+      this.tablesSubject.next([]);
     }
   }
 
   async createTable(data: CreateTableDTO): Promise<Table> {
-    const table = await this.http.post<Table>('/api/tables', data).toPromise();
+    const response = await this.http
+      .post<{ success: boolean; table: Table }>('/api/tables', data, {
+        headers: this.getHeaders(),
+      })
+      .toPromise();
     await this.loadTables();
-    return table as Table;
+    return response?.table as Table;
   }
 
   async updateTable(id: string, data: UpdateTableDTO): Promise<Table> {
-    const table = await this.http.put<Table>(`/api/tables/${id}`, data).toPromise();
+    const response = await this.http
+      .put<{ success: boolean; table: Table }>(`/api/tables/${id}`, data, {
+        headers: this.getHeaders(),
+      })
+      .toPromise();
     await this.loadTables();
-    return table as Table;
+    return response?.table as Table;
   }
 
   async deleteTable(id: string): Promise<void> {
-    await this.http.delete(`/api/tables/${id}`).toPromise();
+    await this.http.delete(`/api/tables/${id}`, { headers: this.getHeaders() }).toPromise();
     await this.loadTables();
   }
 
   async openTable(id: string): Promise<Table> {
-    const table = await this.http.post<Table>(`/api/tables/${id}/open`, {}).toPromise();
+    const response = await this.http
+      .post<{ success: boolean; table: Table }>(
+        `/api/tables/${id}/open`,
+        {},
+        {
+          headers: this.getHeaders(),
+        }
+      )
+      .toPromise();
     await this.loadTables();
-    return table as Table;
+    return response?.table as Table;
   }
 
   async closeTable(id: string): Promise<Table> {
-    const table = await this.http.post<Table>(`/api/tables/${id}/close`, {}).toPromise();
+    const response = await this.http
+      .post<{ success: boolean; table: Table }>(
+        `/api/tables/${id}/close`,
+        {},
+        {
+          headers: this.getHeaders(),
+        }
+      )
+      .toPromise();
     await this.loadTables();
-    return table as Table;
+    return response?.table as Table;
+  }
+
+  async clearTable(id: string): Promise<Table> {
+    const response = await this.http
+      .post<{ success: boolean; table: Table }>(
+        `/api/tables/${id}/clear`,
+        {},
+        {
+          headers: this.getHeaders(),
+        }
+      )
+      .toPromise();
+    await this.loadTables();
+    return response?.table as Table;
+  }
+
+  async reserveTable(
+    id: string,
+    data: { clientName: string; clientPhone: string; dateTime: string; notes?: string }
+  ): Promise<Table> {
+    const response = await this.http
+      .post<{ success: boolean; table: Table }>(`/api/tables/${id}/reserve`, data, {
+        headers: this.getHeaders(),
+      })
+      .toPromise();
+    await this.loadTables();
+    return response?.table as Table;
   }
 
   async generateQRCode(id: string): Promise<string> {
     const response = await this.http
-      .get<{ qrCode: string }>(`/api/tables/${id}/qr-code`)
+      .get<{ success: boolean; qrCode: string }>(`/api/tables/${id}/qrcode`, {
+        headers: this.getHeaders(),
+      })
       .toPromise();
     return response?.qrCode || '';
   }
 
   async getTableOrders(id: string): Promise<any[]> {
-    const orders = await this.http.get<any[]>(`/api/tables/${id}/orders`).toPromise();
-    return orders || [];
+    const response = await this.http
+      .get<{ success: boolean; orders: any[] }>(`/api/tables/${id}/orders`, {
+        headers: this.getHeaders(),
+      })
+      .toPromise();
+    return response?.orders || [];
   }
 
   getTables(): Table[] {

@@ -22,6 +22,18 @@ export interface IAnonymousSession {
 }
 
 /**
+ * Interface das Informações de Reserva
+ */
+export interface IReservationInfo {
+  clientName: string;
+  clientPhone: string;
+  dateTime: Date;
+  notes?: string;
+  createdAt: Date;
+  createdBy?: mongoose.Types.ObjectId;
+}
+
+/**
  * Interface do Documento Table do MongoDB
  */
 export interface ITable extends Document {
@@ -37,6 +49,7 @@ export interface ITable extends Document {
   openedAt?: Date;
   closedAt?: Date;
   openedBy?: mongoose.Types.ObjectId;
+  reservationInfo?: IReservationInfo;
   createdAt: Date;
   updatedAt: Date;
 
@@ -53,6 +66,18 @@ const AnonymousSessionSchema = new Schema<IAnonymousSession>({
   joinedAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, required: true },
   deviceInfo: String,
+});
+
+/**
+ * Schema das Informações de Reserva
+ */
+const ReservationInfoSchema = new Schema<IReservationInfo>({
+  clientName: { type: String, required: true },
+  clientPhone: { type: String, required: true },
+  dateTime: { type: Date, required: true },
+  notes: String,
+  createdAt: { type: Date, default: Date.now },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 
 /**
@@ -90,6 +115,7 @@ const TableSchema = new Schema<ITable>(
     openedAt: Date,
     closedAt: Date,
     openedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    reservationInfo: ReservationInfoSchema,
   },
   {
     timestamps: true,
