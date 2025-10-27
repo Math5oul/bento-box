@@ -9,7 +9,14 @@ export interface Product {
   description: string;
   price: number;
   images: string[];
-  category: 'beverage' | 'food' | 'dessert' | 'other';
+  category:
+    | 'food'
+    | 'hot beverage'
+    | 'cold beverage'
+    | 'dessert'
+    | 'alcoholic'
+    | 'beverage'
+    | 'other';
   format?: '1x1' | '1x2' | '2x1' | '2x2';
   colorMode?: 'light' | 'dark';
   available: boolean;

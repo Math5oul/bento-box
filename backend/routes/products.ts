@@ -69,6 +69,7 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
         productName: product.name,
         description: product.description,
         price: product.price,
+        category: product.category,
       },
       colSpan: product.gridPosition?.colSpan || 1,
       rowSpan: product.gridPosition?.rowSpan || 1,

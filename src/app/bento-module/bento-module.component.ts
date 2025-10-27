@@ -1,4 +1,12 @@
-import { Component, Input, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  ViewChild,
+  ViewChildren,
+  QueryList,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 // import { dataExamples } from '../data/bento-itens-example';
 import { GridItem } from '../interfaces/bento-box.interface';
 import { BentoOptions } from '../interfaces/bento-options.interface';
@@ -25,6 +33,49 @@ import { SimpleVideoComponent } from '../components/simpleComponents/simple-vide
 export class BentoModuleComponent implements OnDestroy {
   data: GridItem[] = [];
   fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
+
+  // Mapa de produtos organizados por categoria
+  productsByCategory = new Map<string, GridItem[]>();
+
+  // Produtos filtrados pela pesquisa (quando houver pesquisa ativa)
+  filteredProducts: GridItem[] = [];
+
+  // Flag para indicar se há uma pesquisa ativa
+  isSearchActive: boolean = false;
+
+  // Ordem de exibição das categorias
+  categoryOrder: string[] = [
+    'food',
+    'hot beverage',
+    'cold beverage',
+    'dessert',
+    'alcoholic',
+    'beverage',
+    'other',
+  ];
+
+  // Mapa de nomes traduzidos das categorias
+  categoryNames: { [key: string]: string } = {
+    food: 'Pratos',
+    'hot beverage': 'Bebidas Quentes',
+    'cold beverage': 'Bebidas Frias',
+    dessert: 'Sobremesas',
+    alcoholic: 'Bebidas Alcoólicas',
+    beverage: 'Bebidas',
+    other: 'Outros',
+  };
+
+  // Ícones para cada categoria
+  categoryIcons: { [key: string]: string } = {
+    food: '🥐',
+    'hot beverage': '☕',
+    'cold beverage': '🥤',
+    dessert: '🍰',
+    alcoholic: '🍺',
+    beverage: '🍹',
+    other: '📦',
+  };
+
   @Input() toolbar: boolean = true;
   @Input() options: BentoOptions = {
     createFillers: true,
@@ -37,6 +88,7 @@ export class BentoModuleComponent implements OnDestroy {
   };
 
   @ViewChild(BentoBoxComponent) bentoBoxComponent!: BentoBoxComponent;
+  @ViewChildren(BentoBoxComponent) bentoBoxComponents!: QueryList<BentoBoxComponent>;
   @ViewChild(BentoToolbarComponent) bentoToolbarComponent!: BentoToolbarComponent;
 
   private _selectedItem: GridItem | null = null;
@@ -68,21 +120,19 @@ export class BentoModuleComponent implements OnDestroy {
     }).subscribe(({ products, fillers }) => {
       console.log('📦 Produtos carregados:', products.length);
       console.log('📦 Fillers carregados do MongoDB:', fillers.length);
-      console.log('📦 Fillers raw:', fillers);
 
       // Converte Fillers para GridItems
       const fillerGridItems = this.convertFillersToGridItems(fillers);
-      console.log('📦 Fillers convertidos:', fillerGridItems);
 
-      // Separa produtos e fillers
-      this.data = products; // Apenas produtos vão para o data
-      this.fillers = fillerGridItems; // Fillers vão para fillers (usado pelo bento-box para preencher espaços)
-      this.allProducts = [...products, ...fillerGridItems]; // Cache completo para busca
+      // Guarda todos os produtos
+      this.data = products;
+      this.fillers = fillerGridItems;
+      this.allProducts = [...products];
 
-      console.log('✅ Produtos no grid:', this.data.length);
-      console.log('✅ Fillers disponíveis:', this.fillers.length);
-      console.log('✅ Total de itens:', this.allProducts.length);
-      console.log('✅ Array de fillers:', this.fillers);
+      // Agrupa produtos por categoria
+      this.groupProductsByCategory(products);
+
+      console.log('✅ Produtos agrupados por categoria:', this.productsByCategory);
     });
 
     // Set up search subscription with debouncing
@@ -95,6 +145,52 @@ export class BentoModuleComponent implements OnDestroy {
     if (this.fillers?.length === 0) {
       this.options.createFillers = false;
     }
+  }
+
+  /**
+   * Agrupa produtos por categoria
+   */
+  private groupProductsByCategory(products: GridItem[]): void {
+    this.productsByCategory.clear();
+
+    products.forEach(product => {
+      const category = product.inputs?.category || 'other';
+
+      if (!this.productsByCategory.has(category)) {
+        this.productsByCategory.set(category, []);
+      }
+
+      this.productsByCategory.get(category)!.push(product);
+    });
+  }
+
+  /**
+   * Retorna as categorias na ordem definida, filtrando apenas as que existem
+   */
+  get orderedCategories(): string[] {
+    const availableCategories = Array.from(this.productsByCategory.keys());
+    return this.categoryOrder.filter(cat => availableCategories.includes(cat));
+  }
+
+  /**
+   * Retorna os produtos de uma categoria específica
+   */
+  getProductsByCategory(category: string): GridItem[] {
+    return this.productsByCategory.get(category) || [];
+  }
+
+  /**
+   * Retorna o nome traduzido de uma categoria
+   */
+  getCategoryName(category: string): string {
+    return this.categoryNames[category] || category;
+  }
+
+  /**
+   * Retorna o ícone de uma categoria
+   */
+  getCategoryIcon(category: string): string {
+    return this.categoryIcons[category] || '📦';
   }
 
   /**
@@ -184,19 +280,33 @@ export class BentoModuleComponent implements OnDestroy {
   private filterProducts(searchText: string): void {
     const term = searchText.toLowerCase().trim();
 
-    this.data = !term
-      ? this.allProducts
-      : this.allProducts.filter((item: GridItem) => {
-          const name = item.inputs?.productName?.toLowerCase() || '';
-          const description = item.inputs?.description?.toLowerCase() || '';
-          return name.includes(term) || description.includes(term);
-        });
+    if (!term) {
+      // Sem pesquisa: volta ao modo categorizado
+      this.isSearchActive = false;
+      this.filteredProducts = [];
+      this.data = this.allProducts;
+      this.groupProductsByCategory(this.allProducts);
+    } else {
+      // Com pesquisa: mostra todos em um único grid
+      this.isSearchActive = true;
+      const filtered = this.allProducts.filter((item: GridItem) => {
+        const name = item.inputs?.productName?.toLowerCase() || '';
+        const description = item.inputs?.description?.toLowerCase() || '';
+        return name.includes(term) || description.includes(term);
+      });
+
+      this.filteredProducts = filtered;
+      this.data = filtered;
+    }
 
     // Trigger grid recalculation deterministically
     this.cdr.detectChanges();
-    if (this.bentoBoxComponent) {
-      this.bentoBoxComponent.restartGrid();
-      this.bentoBoxComponent.recalculateGrid();
-    }
+
+    // Recalcula o grid após a mudança
+    setTimeout(() => {
+      this.bentoBoxComponents?.forEach(box => {
+        box.recalculateGrid();
+      });
+    }, 0);
   }
 }
