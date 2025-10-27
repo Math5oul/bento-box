@@ -39,16 +39,8 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
  */
 router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('📥 Recebendo requisição POST /api/fillers');
-    console.log('📦 Body da requisição:', JSON.stringify(req.body, null, 2));
-    console.log('🏷️ Categorias recebidas:', req.body.categories);
-
     const filler = new Filler(req.body);
-    console.log('📝 Filler antes de salvar:', JSON.stringify(filler.toObject(), null, 2));
-
     const savedFiller = await filler.save();
-    console.log('✅ Filler salvo com sucesso:', JSON.stringify(savedFiller.toObject(), null, 2));
-
     res.status(201).json(savedFiller);
   } catch (error: any) {
     console.error('❌ Erro ao criar filler:', error);
@@ -62,10 +54,6 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
  */
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('📥 Recebendo requisição PUT /api/fillers/' + req.params['id']);
-    console.log('📦 Body da requisição:', JSON.stringify(req.body, null, 2));
-    console.log('🏷️ Categorias recebidas:', req.body.categories);
-
     const filler = await Filler.findByIdAndUpdate(req.params['id'], req.body, {
       new: true,
       runValidators: true,
@@ -76,7 +64,6 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    console.log('✅ Filler atualizado:', JSON.stringify(filler.toObject(), null, 2));
     res.json(filler);
   } catch (error: any) {
     console.error('❌ Erro ao atualizar filler:', error);
@@ -129,7 +116,7 @@ router.patch('/:id/position', async (req: Request, res: Response): Promise<void>
  */
 router.patch('/batch/positions', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { updates } = req.body; // Array de { id, gridPosition }
+    const { updates } = req.body;
 
     if (!Array.isArray(updates)) {
       res.status(400).json({ message: 'Updates deve ser um array' });

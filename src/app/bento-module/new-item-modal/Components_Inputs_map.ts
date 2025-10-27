@@ -17,7 +17,6 @@ export const PRODUCT_CATEGORIES = [
   'other',
 ] as const;
 
-// Configuração de cada input de componente
 export interface InputConfig {
   name: string;
   label: string;
@@ -37,15 +36,13 @@ export interface InputConfig {
   options?: string[] | readonly string[];
 }
 
-// Configuração associada a cada componente
 export interface ComponentConfig {
   name: string;
   inputs: InputConfig[];
 }
 
 /**
- * Mapeamento de componentes disponíveis e suas configurações de inputs.
- * A chave é o tipo de componente (classe) para uso direto com *ngComponentOutlet.
+ * Mapeamento de componentes disponíveis e suas configurações de inputs
  * Ordem: Produto primeiro, depois Fillers (Texto, Imagem, Vídeo)
  */
 export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<

@@ -6,13 +6,12 @@ const router = Router();
 
 /**
  * GET /api/products
- * Lista todos os produtos disponíveis
+ * Lista todos os produtos com filtros opcionais
  */
 router.get('/', optionalAuth, async (req: Request, res: Response) => {
   try {
     const { category, available, search, sortBy = 'name', order = 'asc' } = req.query;
 
-    // Constrói filtros
     const filter: any = {};
 
     if (category) {
@@ -23,12 +22,10 @@ router.get('/', optionalAuth, async (req: Request, res: Response) => {
       filter.available = available === 'true';
     }
 
-    // Busca por texto
     if (search) {
       filter.$text = { $search: search as string };
     }
 
-    // Busca produtos
     const products = await Product.find(filter).sort({
       [sortBy as string]: order === 'asc' ? 1 : -1,
     });
@@ -58,7 +55,6 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
       'gridPosition.col': 1,
     });
 
-    // Formata para o formato esperado pelo frontend
     const menuItems = products.map(product => ({
       id: product._id,
       component: 'SimpleProductComponent',
@@ -92,7 +88,7 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
 
 /**
  * GET /api/products/categories
- * Lista todas as categorias com contagem
+ * Lista todas as categorias com estatísticas
  */
 router.get('/categories', optionalAuth, async (req: Request, res: Response) => {
   try {
@@ -255,14 +251,14 @@ router.patch('/:id/position', optionalAuth, async (req: Request, res: Response):
 
 /**
  * PATCH /api/products/batch/positions
- * Atualiza posições de múltiplos produtos de uma vez
+ * Atualiza posições de múltiplos produtos
  */
 router.patch(
   '/batch/positions',
   optionalAuth,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { products } = req.body; // Array de { id, row, col, rowSpan, colSpan }
+      const { products } = req.body;
 
       if (!Array.isArray(products)) {
         res.status(400).json({
@@ -272,7 +268,6 @@ router.patch(
         return;
       }
 
-      // Atualiza todos os produtos em paralelo
       const updatePromises = products.map(item =>
         Product.findByIdAndUpdate(
           item.id,

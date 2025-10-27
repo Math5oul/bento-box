@@ -1,21 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-/**
- * Interface do Filler
- */
 export interface IFiller extends Document {
   type: 'text' | 'image' | 'video';
   content: {
-    text?: string; // Para tipo texto
-    backgroundColor?: string; // Cor de fundo para tipo texto
-    url?: string; // Para imagem ou vídeo
-    alt?: string; // Texto alternativo para imagem
-    autoplay?: boolean; // Autoplay para vídeo
-    controls?: boolean; // Mostrar controles para vídeo
-    loop?: boolean; // Loop para vídeo
+    text?: string;
+    backgroundColor?: string;
+    url?: string;
+    alt?: string;
+    autoplay?: boolean;
+    controls?: boolean;
+    loop?: boolean;
   };
-  categories?: string[]; // Categorias do filler
-  formats?: ('1x1' | '1x2' | '2x1' | '2x2')[]; // Formatos válidos para o filler
+  categories?: string[];
+  formats?: ('1x1' | '1x2' | '2x1' | '2x2')[];
   gridPosition?: {
     row: number;
     col: number;
@@ -27,9 +24,6 @@ export interface IFiller extends Document {
   updatedAt: Date;
 }
 
-/**
- * Schema do Filler
- */
 const FillerSchema: Schema = new Schema(
   {
     type: {
@@ -96,11 +90,13 @@ const FillerSchema: Schema = new Schema(
   }
 );
 
-// Índices para melhorar performance
 FillerSchema.index({ type: 1, active: 1 });
 FillerSchema.index({ 'gridPosition.row': 1, 'gridPosition.col': 1 });
 
-// Validação customizada: se tipo for 'text', deve ter content.text
+/**
+ * Valida que fillers do tipo 'text' tenham content.text,
+ * e fillers de 'image'/'video' tenham content.url
+ */
 FillerSchema.pre<IFiller>('save', function (next) {
   if (this.type === 'text' && !this.content?.text) {
     next(new Error('Fillers do tipo texto devem ter conteúdo de texto'));

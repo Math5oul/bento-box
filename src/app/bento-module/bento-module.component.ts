@@ -39,8 +39,8 @@ export class BentoModuleComponent implements OnDestroy {
   // Mapa de fillers organizados por categoria (cache)
   fillersByCategory = new Map<string, GridItem[]>();
 
-  // Fillers já utilizados (controle para evitar duplicação)
-  private usedFillers = new Set<string>();
+  // Set de IDs de fillers que já foram usados em alguma categoria
+  private usedFillerIds = new Set<string>();
 
   // Produtos filtrados pela pesquisa (quando houver pesquisa ativa)
   filteredProducts: GridItem[] = [];
@@ -118,32 +118,21 @@ export class BentoModuleComponent implements OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Load products and fillers in parallel
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers(),
     }).subscribe(({ products, fillers }) => {
-      console.log('📦 Produtos carregados:', products.length);
-      console.log('📦 Fillers carregados do MongoDB:', fillers.length);
-
-      // Converte Fillers para GridItems
       const fillerGridItems = this.convertFillersToGridItems(fillers);
 
-      // Reseta o controle de fillers usados
-      this.resetUsedFillers();
+      this.resetFillerCache();
 
-      // Guarda todos os produtos
       this.data = products;
       this.fillers = fillerGridItems;
       this.allProducts = [...products];
 
-      // Agrupa produtos por categoria
       this.groupProductsByCategory(products);
-
-      console.log('✅ Produtos agrupados por categoria:', this.productsByCategory);
     });
 
-    // Set up search subscription with debouncing
     this.searchSub = this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(searchTerm => {
@@ -156,12 +145,12 @@ export class BentoModuleComponent implements OnDestroy {
   }
 
   /**
-   * Agrupa produtos por categoria
+   * Agrupa produtos por categoria para exibição organizada
    */
   private groupProductsByCategory(products: GridItem[]): void {
     this.productsByCategory.clear();
+    this.fillersByCategory.clear();
 
-    // Agrupa produtos
     products.forEach(product => {
       const category = product.inputs?.category || 'other';
 
@@ -172,108 +161,79 @@ export class BentoModuleComponent implements OnDestroy {
       this.productsByCategory.get(category)!.push(product);
     });
 
-    console.log('✅ Produtos agrupados por categoria:', this.productsByCategory);
-    console.log('📦 Fillers disponíveis:', this.fillers.length);
+    // Pré-distribui fillers entre categorias respeitando a ordem
+    this.distributeFillersByCategory();
   }
 
   /**
-   * Retorna as categorias na ordem definida, filtrando apenas as que existem
+   * Distribui fillers entre categorias em ordem, garantindo que não se repitam
    */
+  private distributeFillersByCategory(): void {
+    this.usedFillerIds.clear();
+
+    // Processa categorias na ordem definida
+    this.orderedCategories.forEach(category => {
+      const categoryFillers = this.fillers.filter(filler => {
+        const categories = filler.inputs?.categories || [];
+        const fillerId = filler.id?.toString() || '';
+
+        const belongsToCategory = categories.includes(category);
+        const notUsedYet = !this.usedFillerIds.has(fillerId);
+
+        // Se o filler pertence a esta categoria e ainda não foi usado, marca como usado
+        if (belongsToCategory && notUsedYet) {
+          this.usedFillerIds.add(fillerId);
+          return true;
+        }
+
+        return false;
+      });
+
+      this.fillersByCategory.set(category, categoryFillers);
+    });
+  }
+
   get orderedCategories(): string[] {
     const availableCategories = Array.from(this.productsByCategory.keys());
     return this.categoryOrder.filter(cat => availableCategories.includes(cat));
   }
 
-  /**
-   * Retorna os produtos de uma categoria específica
-   */
   getProductsByCategory(category: string): GridItem[] {
     return this.productsByCategory.get(category) || [];
   }
 
   /**
-   * Retorna apenas os fillers de uma categoria específica
-   * Usa cache para evitar recalcular a cada render
+   * Retorna fillers pré-distribuídos para a categoria
    */
   getFillersByCategory(category: string): GridItem[] {
-    // Se já existe no cache, retorna
-    if (this.fillersByCategory.has(category)) {
-      return this.fillersByCategory.get(category)!;
-    }
-
-    // Senão, calcula e armazena no cache
-    const filtered = this.fillers.filter(filler => {
-      const categories = filler.inputs?.categories || [];
-      const fillerId = filler.id?.toString() || '';
-
-      // Verifica se o filler pertence a esta categoria E ainda não foi usado
-      const belongsToCategory = categories.includes(category);
-      const alreadyUsed = this.usedFillers.has(fillerId);
-
-      if (belongsToCategory && !alreadyUsed) {
-        console.log(`✅ Filler ${fillerId} adicionado à categoria ${category}`);
-        // Marca o filler como usado
-        this.usedFillers.add(fillerId);
-        return true;
-      }
-
-      if (belongsToCategory && alreadyUsed) {
-        console.log(`⚠️ Filler ${fillerId} já foi usado em outra categoria, pulando...`);
-      }
-
-      return false;
-    });
-
-    console.log(`📊 Categoria "${category}": ${filtered.length} filler(s) disponível(is)`);
-
-    // Armazena no cache
-    this.fillersByCategory.set(category, filtered);
-
-    return filtered;
+    return this.fillersByCategory.get(category) || [];
   }
 
-  /**
-   * Reseta o controle de fillers usados
-   * Útil ao recarregar os dados
-   */
-  private resetUsedFillers(): void {
-    this.usedFillers.clear();
-    this.fillersByCategory.clear(); // Limpa o cache também
-    console.log('🔄 Controle de fillers usados resetado');
+  private resetFillerCache(): void {
+    this.fillersByCategory.clear();
+    this.usedFillerIds.clear();
   }
 
-  /**
-   * Retorna o nome traduzido de uma categoria
-   */
   getCategoryName(category: string): string {
     return this.categoryNames[category] || category;
   }
 
-  /**
-   * Retorna o ícone de uma categoria
-   */
   getCategoryIcon(category: string): string {
     return this.categoryIcons[category] || '📦';
   }
 
   /**
-   * Converte Fillers do banco para GridItems
+   * Converte fillers do MongoDB para o formato GridItem usado pelo componente
    */
   private convertFillersToGridItems(fillers: any[]): GridItem[] {
-    console.log('🔄 Convertendo fillers do MongoDB para GridItems...');
-
     return fillers.map(filler => {
-      console.log('📦 Convertendo filler:', filler._id);
-      console.log('  - Categorias no DB:', filler.categories);
-
-      // Determina o componente baseado no tipo
       let component: any = SimpleTextComponent;
       const inputs: any = {};
 
       if (filler.type === 'text') {
         component = SimpleTextComponent;
         inputs.text = filler.content.text || '';
-        inputs.background = filler.content.backgroundColor || '#ffffff'; // Mapeia backgroundColor para background
+        inputs.background = filler.content.backgroundColor || '#ffffff';
       } else if (filler.type === 'image') {
         component = SimpleImageComponent;
         inputs.url = filler.content.url || '';
@@ -287,10 +247,8 @@ export class BentoModuleComponent implements OnDestroy {
       }
 
       inputs.format = filler.format || '1x1';
-      inputs.formats = filler.formats || ['1x1']; // Formatos válidos
-      inputs.categories = filler.categories || []; // Adiciona as categorias aos inputs
-
-      console.log('  - Categorias em inputs:', inputs.categories);
+      inputs.formats = filler.formats || ['1x1'];
+      inputs.categories = filler.categories || [];
 
       const gridItem = {
         id: filler._id,
@@ -301,8 +259,6 @@ export class BentoModuleComponent implements OnDestroy {
         rowSpan: filler.gridPosition?.rowSpan || 1,
         colSpan: filler.gridPosition?.colSpan || 1,
       };
-
-      console.log('  ✅ GridItem criado:', gridItem);
 
       return gridItem;
     });
@@ -322,21 +278,14 @@ export class BentoModuleComponent implements OnDestroy {
     this._selectedItem = item;
   }
 
-  /**
-   * Seleciona o item e scrolla até o toolbar para edição
-   */
   onItemEdit(item: GridItem) {
     this._selectedItem = item;
 
-    // Abre o modal de edição
     if (this.bentoToolbarComponent) {
       this.bentoToolbarComponent.openEditItemModal(item);
     }
   }
 
-  /**
-   * Deleta o item diretamente
-   */
   onItemDelete(item: GridItem) {
     this._selectedItem = item;
 
@@ -346,83 +295,57 @@ export class BentoModuleComponent implements OnDestroy {
   }
 
   /**
-   * Reagrupa os produtos por categoria e atualiza a view
-   * Chamado externamente quando itens são editados/adicionados/removidos
+   * Reagrupa os produtos por categoria após modificações (add/edit/delete)
    */
   public refreshProductGroups(): void {
-    console.log('🔄 Reagrupando produtos por categoria...');
+    this.resetFillerCache();
     this.groupProductsByCategory(this.data);
-    // NÃO reseta os fillers usados aqui - eles devem permanecer nos mesmos lugares
     this.cdr.detectChanges();
-    console.log('✅ Produtos reagrupados e view atualizada');
   }
 
   /**
-   * Recarrega todos os dados do servidor
-   * Chamado quando a edição é cancelada para garantir estado consistente
+   * Recarrega todos os dados do servidor quando a edição é cancelada
    */
   public reloadAllData(): void {
-    console.log('🔄 Recarregando todos os dados do servidor...');
-
-    // Cancela subscriptions anteriores se existirem
     if (this.productsSub) {
       this.productsSub.unsubscribe();
     }
 
-    // Recarrega produtos e fillers
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers(),
     }).subscribe(({ products, fillers }) => {
-      console.log('📦 Produtos recarregados:', products.length);
-      console.log('📦 Fillers recarregados:', fillers.length);
-
-      // Converte Fillers para GridItems
       const fillerGridItems = this.convertFillersToGridItems(fillers);
 
-      // Reseta o controle de fillers usados
-      this.resetUsedFillers();
+      this.resetFillerCache();
 
-      // Atualiza todos os dados
       this.data = products;
       this.fillers = fillerGridItems;
       this.allProducts = [...products];
 
-      // Agrupa produtos por categoria
       this.groupProductsByCategory(products);
 
-      // Trigger change detection
       this.cdr.detectChanges();
-
-      console.log('✅ Dados recarregados com sucesso!');
     });
   }
 
-  /**
-   * Filtra os itens com base no nome do produto ou na descrição.
-   * @param searchText Texto de pesquisa para filtrar os itens.
-   */
   onSearch(searchText: string) {
     this.searchSubject.next(searchText);
   }
 
   /**
-   * Filtra os produtos em cache com base no termo de pesquisa.
-   * @param searchText Termo de pesquisa
+   * Filtra produtos com base no termo de pesquisa
    */
   private filterProducts(searchText: string): void {
     const term = searchText.toLowerCase().trim();
 
     if (!term) {
-      // Sem pesquisa: volta ao modo categorizado
       this.isSearchActive = false;
       this.filteredProducts = [];
       this.data = this.allProducts;
       this.groupProductsByCategory(this.allProducts);
-      // Reseta os fillers usados ao voltar para o modo categorizado
-      this.resetUsedFillers();
+      this.resetFillerCache();
     } else {
-      // Com pesquisa: mostra todos em um único grid
       this.isSearchActive = true;
       const filtered = this.allProducts.filter((item: GridItem) => {
         const name = item.inputs?.productName?.toLowerCase() || '';
@@ -434,10 +357,8 @@ export class BentoModuleComponent implements OnDestroy {
       this.data = filtered;
     }
 
-    // Trigger grid recalculation deterministically
     this.cdr.detectChanges();
 
-    // Recalcula o grid após a mudança
     setTimeout(() => {
       this.bentoBoxComponents?.forEach(box => {
         box.recalculateGrid();

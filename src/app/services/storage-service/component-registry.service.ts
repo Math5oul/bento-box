@@ -20,16 +20,14 @@ export class ComponentRegistryService {
   }
 
   /**
-   * Obtém o nome da string a partir do componente Type
+   * Retorna o nome string de um componente Type
    */
   getComponentName(component: Type<any>): string {
-    // Procura no registry pelo componente
     for (const [name, comp] of Object.entries(this.componentRegistry)) {
       if (comp === component) {
         return name;
       }
     }
-    // Fallback: retorna o nome do construtor
     return component.name || 'SimpleProductComponent';
   }
 }

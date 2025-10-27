@@ -22,17 +22,14 @@ export class BentoToolbarComponent {
   @Input() selectedItem: GridItem | null = null;
 
   @Output() gridChanged = new EventEmitter<void>();
-  @Output() dataModified = new EventEmitter<void>(); // Evento quando dados são editados/adicionados/removidos
-  @Output() editCancelled = new EventEmitter<void>(); // Evento quando edição é cancelada
+  @Output() dataModified = new EventEmitter<void>();
+  @Output() editCancelled = new EventEmitter<void>();
 
   public showNewItemModal = false;
   public showEditItemModal = false;
   public itemToEdit: GridItem | null = null;
 
-  // Backup dos dados originais para cancelamento
   private originalData: GridItem[] = [];
-
-  // Flag para indicar se há mudanças não salvas
   public hasUnsavedChanges = false;
 
   constructor(
@@ -46,9 +43,11 @@ export class BentoToolbarComponent {
     this.gridService.emitGridChanged();
   }
 
+  /**
+   * Alterna entre modo de edição e visualização
+   */
   switchMode() {
     if (this.options.mode === 'autoFill') {
-      // Entrando no modo de edição - fazer backup profundo dos dados
       this.originalData = this.data.map(item => ({
         id: item.id,
         component: item.component,
@@ -59,29 +58,23 @@ export class BentoToolbarComponent {
         col: item.col,
       }));
 
-      console.log('📋 Backup criado com', this.originalData.length, 'itens');
       this.hasUnsavedChanges = false;
       this.options.mode = 'edit';
     } else {
-      // Saindo do modo de edição - não faz nada aqui, usa saveChanges ou cancelEdit
       this.options.mode = 'autoFill';
     }
     this.onGridChange();
   }
 
-  /**
-   * Marca que há mudanças não salvas
-   */
   private markAsChanged() {
     this.hasUnsavedChanges = true;
   }
 
   /**
-   * Converte os dados do grid para o formato do servidor
+   * Converte dados do grid para formato do servidor
    */
   private prepareDataForSave(items: GridItem[]) {
     return items.map(item => {
-      // Obter o nome correto do componente usando o registry
       const componentName = this.componentRegistry.getComponentName(item.component);
 
       return {
@@ -97,16 +90,12 @@ export class BentoToolbarComponent {
   }
 
   /**
-   * Salva as alterações feitas no modo de edição
+   * Salva alterações feitas no modo de edição
    */
   saveChanges() {
-    // Separar produtos e fillers
     const products = this.data.filter(item => !this.isFiller(item.component));
     const fillers = this.data.filter(item => this.isFiller(item.component));
 
-    console.log(`💾 Salvando ${products.length} produtos e ${fillers.length} fillers...`);
-
-    // Criar observables para ambos (mesmo que vazios)
     const saveObservables: any[] = [];
 
     if (products.length > 0) {
@@ -114,7 +103,6 @@ export class BentoToolbarComponent {
     }
 
     if (fillers.length > 0) {
-      // Preparar updates para fillers (atualiza apenas posições)
       const fillerUpdates = fillers.map(filler => ({
         id: String(filler.id),
         gridPosition: {
@@ -128,9 +116,7 @@ export class BentoToolbarComponent {
       saveObservables.push(this.fillerService.updateBatchPositions(fillerUpdates));
     }
 
-    // Se não há nada para salvar
     if (saveObservables.length === 0) {
-      console.log('✅ Nada para salvar');
       this.originalData = [];
       this.hasUnsavedChanges = false;
       this.options.mode = 'autoFill';
@@ -138,17 +124,14 @@ export class BentoToolbarComponent {
       return;
     }
 
-    // Salvar tudo em paralelo
     import('rxjs').then(({ forkJoin }) => {
       forkJoin(saveObservables).subscribe({
         next: results => {
-          console.log('✅ Posições salvas com sucesso no MongoDB!', results);
           this.originalData = [];
           this.hasUnsavedChanges = false;
           this.options.mode = 'autoFill';
           this.onGridChange();
 
-          // Feedback visual de sucesso
           this.showSuccessMessage('Alterações salvas com sucesso!');
         },
         error: error => {
@@ -161,16 +144,10 @@ export class BentoToolbarComponent {
     });
   }
 
-  /**
-   * Mostra uma mensagem de sucesso temporária
-   */
-  private showSuccessMessage(message: string) {
-    // Pode ser implementado com um toast/snackbar posteriormente
-    console.log(message);
-  }
+  private showSuccessMessage(message: string) {}
 
   /**
-   * Cancela as alterações e restaura o estado anterior
+   * Cancela alterações e restaura estado anterior
    */
   cancelEdit() {
     if (this.hasUnsavedChanges) {
@@ -180,7 +157,6 @@ export class BentoToolbarComponent {
       }
     }
 
-    // Restaurar dados originais se existir backup
     if (this.originalData.length > 0) {
       this.data.length = 0;
       this.data.push(...this.originalData);
@@ -190,7 +166,6 @@ export class BentoToolbarComponent {
     this.hasUnsavedChanges = false;
     this.options.mode = 'autoFill';
 
-    // Emite evento para recarregar os dados do servidor
     this.editCancelled.emit();
 
     this.onGridChange();
@@ -218,26 +193,13 @@ export class BentoToolbarComponent {
     this.showEditItemModal = true;
   }
 
-  /**
-   * Fecha o modal de edição
-   */
   closeEditItemModal() {
     this.showEditItemModal = false;
     this.itemToEdit = null;
   }
 
-  /**
-   * Cria um novo item para o array do grid
-   * e o põe na ultima posição
-   */
   addNewItem(itemData: any) {
-    console.log('🔍 Detectando tipo de item:', itemData.component);
-    console.log('🔍 Component type:', typeof itemData.component);
-    console.log('🔍 Component name:', itemData.component?.name);
-
-    // Verifica se é um Filler ou Produto
     const isFiller = this.isFiller(itemData.component);
-    console.log('🔍 É Filler?', isFiller);
 
     if (isFiller) {
       this.addNewFiller(itemData);
@@ -250,12 +212,10 @@ export class BentoToolbarComponent {
    * Verifica se o componente é um Filler
    */
   private isFiller(component: any): boolean {
-    // Se for uma string, verifica se contém 'filler'
     if (typeof component === 'string') {
       return component.toLowerCase().includes('filler');
     }
 
-    // Se for um Type/Class, busca no mapa de configuração
     if (component) {
       const config = COMPONENT_INPUTS_MAP.get(component);
       if (config && config.name) {
@@ -270,15 +230,11 @@ export class BentoToolbarComponent {
    * Cria um novo Filler no MongoDB
    */
   private addNewFiller(itemData: any) {
-    console.log('➕ Criando novo Filler no MongoDB...');
-    console.log('📝 Dados do Filler:', itemData);
-
-    // Prepara os dados do Filler
     const fillerData: any = {
       type: this.inferFillerType(itemData.component),
       content: this.prepareFillerContent(itemData),
-      categories: itemData.inputs.categories || [], // Adiciona as categorias
-      formats: itemData.inputs.formats || ['1x1'], // Formatos válidos
+      categories: itemData.inputs.categories || [],
+      formats: itemData.inputs.formats || ['1x1'],
       format: itemData.inputs.format || '1x1',
       gridPosition: {
         row: 0,
@@ -289,14 +245,8 @@ export class BentoToolbarComponent {
       active: true,
     };
 
-    console.log('📦 Dados do Filler a serem enviados:', fillerData);
-
-    // Cria o Filler no MongoDB
     this.fillerService.createFiller(fillerData).subscribe({
       next: createdFiller => {
-        console.log('✅ Filler criado no MongoDB:', createdFiller);
-
-        // Cria o GridItem com o ID do MongoDB
         const newItem: GridItem = {
           id: createdFiller._id as any,
           component: itemData.component,
@@ -319,10 +269,9 @@ export class BentoToolbarComponent {
   }
 
   /**
-   * Infere o tipo de Filler baseado no nome do componente
+   * Infere o tipo de Filler baseado no componente
    */
   private inferFillerType(component: any): 'text' | 'image' | 'video' {
-    // Busca o nome do componente no mapa de configuração
     let componentName = '';
 
     if (typeof component === 'string') {
@@ -346,14 +295,13 @@ export class BentoToolbarComponent {
       return 'video';
     }
 
-    return 'text'; // Default
+    return 'text';
   }
 
   /**
    * Prepara o conteúdo do Filler baseado no tipo
    */
   private prepareFillerContent(itemData: any): any {
-    // Busca o nome do componente no mapa
     let componentName = '';
 
     if (typeof itemData.component === 'string') {
@@ -372,10 +320,6 @@ export class BentoToolbarComponent {
     if (nameLower.includes('text')) {
       const backgroundColor =
         itemData.inputs.backgroundColor || itemData.inputs.background || '#ffffff';
-      console.log('🎨 Preparando conteúdo de texto:');
-      console.log('  - backgroundColor (inputs):', itemData.inputs.backgroundColor);
-      console.log('  - background (inputs):', itemData.inputs.background);
-      console.log('  - Cor final:', backgroundColor);
 
       return {
         text: itemData.inputs.text || itemData.inputs.productName || '',
@@ -400,10 +344,6 @@ export class BentoToolbarComponent {
    * Cria um novo Produto no MongoDB
    */
   private addNewProduct(itemData: any) {
-    console.log('➕ Criando novo produto no MongoDB...');
-    console.log('📝 Dados recebidos do modal:', itemData);
-
-    // Prepara os dados do produto
     const productData = {
       name: itemData.inputs.productName,
       description: itemData.inputs.description || '',
@@ -421,22 +361,16 @@ export class BentoToolbarComponent {
       },
     };
 
-    console.log('📦 Dados do produto a serem enviados:', productData);
-
-    // Cria o produto no MongoDB
     this.storageService.createProduct(productData).subscribe({
       next: response => {
-        console.log('✅ Produto criado no MongoDB:', response.data);
-
         const newProduct = response.data;
 
-        // Cria o GridItem com o ID do MongoDB
         const newItem: GridItem = {
-          id: newProduct._id as any, // Usa o _id do MongoDB
+          id: newProduct._id as any,
           component: itemData.component,
           inputs: {
             ...itemData.inputs,
-            images: newProduct.images, // Usa as imagens do produto criado
+            images: newProduct.images,
           },
           rowSpan: newProduct.gridPosition?.rowSpan || 1,
           colSpan: newProduct.gridPosition?.colSpan || 1,
@@ -444,16 +378,10 @@ export class BentoToolbarComponent {
           col: newProduct.gridPosition?.col || 0,
         };
 
-        // Se tinha ID temporário e imagens, renomear pasta
         if (itemData.tempId && itemData.inputs.images && itemData.inputs.images.length > 0) {
-          console.log(`🔄 Renomeando pasta de ${itemData.tempId} para ${newProduct._id}`);
-
           this.storageService.renameProductFolder(itemData.tempId, newProduct._id).subscribe({
             next: renameResponse => {
               if (renameResponse.newPaths && renameResponse.newPaths.length > 0) {
-                console.log('✅ Pasta renomeada, atualizando imagens no MongoDB');
-
-                // Atualiza as imagens no produto
                 this.storageService
                   .updateProduct(newProduct._id, { images: renameResponse.newPaths })
                   .subscribe({
@@ -486,16 +414,12 @@ export class BentoToolbarComponent {
     });
   }
 
-  /**
-   * Finaliza a adição do item ao grid
-   */
   private finalizeAddItem(newItem: GridItem) {
     this.data.push(newItem);
     this.markAsChanged();
     this.onGridChange();
-    this.dataModified.emit(); // Notifica que os dados foram modificados
+    this.dataModified.emit();
     this.closeNewItemModal();
-    console.log('✅ Item adicionado ao grid');
   }
 
   /**
@@ -554,16 +478,12 @@ export class BentoToolbarComponent {
     if (index !== -1) {
       const itemId = String(this.data[index].id);
 
-      // Verifica se é um Filler ou Produto
       if (this.isFiller(this.data[index].component)) {
-        console.log('📝 Atualizando Filler', itemId);
-
-        // Prepara os dados do Filler para atualização
         const updateData = {
           type: this.inferFillerType(itemData.component),
           content: this.prepareFillerContent(itemData),
-          categories: itemData.inputs.categories || [], // Adiciona as categorias
-          formats: itemData.inputs.formats || ['1x1'], // Formatos válidos
+          categories: itemData.inputs.categories || [],
+          formats: itemData.inputs.formats || ['1x1'],
           format: itemData.inputs.format,
           gridPosition: {
             row: this.data[index].row,
@@ -573,12 +493,8 @@ export class BentoToolbarComponent {
           },
         };
 
-        console.log('📦 Dados de atualização do Filler:', updateData);
-
-        // Atualiza no MongoDB
         this.fillerService.updateFiller(itemId, updateData).subscribe({
           next: () => {
-            // Atualiza localmente após sucesso
             this.data[index] = {
               ...this.data[index],
               component: itemData.component,
@@ -587,10 +503,9 @@ export class BentoToolbarComponent {
               colSpan: itemData.colSpan,
             };
 
-            console.log('✅ Filler atualizado com sucesso');
             this.markAsChanged();
             this.onGridChange();
-            this.dataModified.emit(); // Notifica que os dados foram modificados
+            this.dataModified.emit();
             this.closeEditItemModal();
           },
           error: error => {
@@ -599,7 +514,6 @@ export class BentoToolbarComponent {
           },
         });
       } else {
-        // Prepara os dados para atualização de Produto
         const updateData = {
           productName: itemData.inputs.productName,
           description: itemData.inputs.description,
@@ -614,12 +528,8 @@ export class BentoToolbarComponent {
           colSpan: itemData.colSpan,
         };
 
-        console.log('📝 Atualizando produto', itemId, updateData);
-
-        // Atualiza no MongoDB
         this.storageService.updateProduct(itemId, updateData).subscribe({
           next: () => {
-            // Atualiza localmente após sucesso
             this.data[index] = {
               ...this.data[index],
               component: itemData.component,
@@ -628,10 +538,9 @@ export class BentoToolbarComponent {
               colSpan: itemData.colSpan,
             };
 
-            console.log('✅ Produto atualizado com sucesso');
             this.markAsChanged();
             this.onGridChange();
-            this.dataModified.emit(); // Notifica que os dados foram modificados
+            this.dataModified.emit();
             this.closeEditItemModal();
           },
           error: error => {
@@ -644,7 +553,7 @@ export class BentoToolbarComponent {
   }
 
   /**
-   * Remove o item selecionado do vetor que forma o grid
+   * Remove o item selecionado do grid
    */
   removeItem() {
     if (this.selectedItem) {
@@ -662,17 +571,13 @@ export class BentoToolbarComponent {
         if (confirmDelete) {
           const itemId = String(this.selectedItem.id);
 
-          // Verifica se é um Filler ou Produto
           if (this.isFiller(this.selectedItem.component)) {
-            console.log('🗑️ Deletando Filler do MongoDB:', itemId);
-
             this.fillerService.deleteFiller(itemId).subscribe({
               next: () => {
-                console.log(`✅ Filler ${itemId} deletado do MongoDB`);
                 this.data.splice(index, 1);
                 this.markAsChanged();
                 this.onGridChange();
-                this.dataModified.emit(); // Notifica que os dados foram modificados
+                this.dataModified.emit();
               },
               error: error => {
                 console.error('❌ Erro ao deletar Filler:', error);
@@ -680,26 +585,17 @@ export class BentoToolbarComponent {
               },
             });
           } else {
-            console.log('🗑️ Deletando produto do MongoDB:', itemId);
-
-            // Deletar produto do MongoDB (inclui deleção de imagens via backend)
             this.storageService.deleteProduct(itemId).subscribe({
               next: () => {
-                console.log(`✅ Produto ${itemId} deletado do MongoDB`);
-
-                // Remove do array local
                 this.data.splice(index, 1);
                 this.markAsChanged();
                 this.onGridChange();
-                this.dataModified.emit(); // Notifica que os dados foram modificados
+                this.dataModified.emit();
 
-                // Deletar pasta de imagens
                 this.storageService.deleteProductWithImages(itemId).subscribe({
-                  next: response => {
-                    console.log('✅ Pasta de imagens deletada:', response);
-                  },
+                  next: () => {},
                   error: error => {
-                    console.warn('⚠️ Erro ao deletar pasta de imagens:', error);
+                    console.error('❌ Erro ao deletar pasta de imagens:', error);
                   },
                 });
               },
@@ -711,25 +607,18 @@ export class BentoToolbarComponent {
           }
         }
       }
-    } else {
-      console.warn('⚠️ Selecione um item para remover');
     }
   }
 
-  /**
-   * Abre o modal de edição para o item selecionado
-   */
   editItem() {
     if (this.selectedItem) {
       this.openEditItemModal(this.selectedItem);
-    } else {
-      console.warn('⚠️ Selecione um item para editar');
     }
   }
 
   /**
-   * Move o item selecionado no vetor que forma o grid
-   * @param direction A direção no vetor para o qual o item sera movido
+   * Move o item selecionado no grid
+   * @param direction A direção para mover o item
    */
   swapItemPosition(direction: 'left' | 'right' | 'up' | 'down') {
     if (this.selectedItem) {
@@ -747,7 +636,6 @@ export class BentoToolbarComponent {
         this.onGridChange();
         this.autoSaveIfNotInEditMode();
       } else if (direction === 'up' && index >= maxCols) {
-        // Move uma "linha" acima (troca com o item maxCols posições antes)
         const targetIndex = index - maxCols;
         if (targetIndex >= 0) {
           [this.data[targetIndex], this.data[index]] = [this.data[index], this.data[targetIndex]];
@@ -756,27 +644,20 @@ export class BentoToolbarComponent {
           this.autoSaveIfNotInEditMode();
         }
       } else if (direction === 'down' && index + maxCols < this.data.length) {
-        // Move uma "linha" abaixo (troca com o item maxCols posições depois)
         const targetIndex = index + maxCols;
         [this.data[targetIndex], this.data[index]] = [this.data[index], this.data[targetIndex]];
         this.markAsChanged();
         this.onGridChange();
         this.autoSaveIfNotInEditMode();
-      } else {
-        console.warn('⚠️ Não há como mover o item selecionado para esta direção');
       }
-    } else {
-      console.warn('⚠️ Selecione um item para mover');
     }
   }
 
   /**
    * Salva automaticamente se não estiver no modo de edição
-   * No modo de edição, as mudanças são acumuladas até o usuário clicar em "Salvar"
    */
   private autoSaveIfNotInEditMode() {
     if (this.options.mode !== 'edit') {
-      // Separar produtos e fillers
       const products = this.data.filter(item => !this.isFiller(item.component));
       const fillers = this.data.filter(item => this.isFiller(item.component));
 
@@ -805,14 +686,10 @@ export class BentoToolbarComponent {
       import('rxjs').then(({ forkJoin }) => {
         forkJoin(saveObservables).subscribe({
           next: () => {
-            console.log('✅ Alteração salva automaticamente no MongoDB');
             this.hasUnsavedChanges = false;
           },
           error: error => {
             console.error('❌ Erro ao salvar automaticamente:', error);
-            console.warn(
-              'As alterações foram aplicadas localmente, mas não foram salvas no servidor.'
-            );
           },
         });
       });
