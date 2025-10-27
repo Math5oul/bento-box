@@ -584,6 +584,20 @@
               <label>URL do Vídeo</label>
               <input type="text" id="editVideoUrl" />
             </div>
+            <div class="form-group">
+              <label class="category-option">
+                <input type="checkbox" id="editVideoAutoplay" />
+                <span>▶️ Autoplay</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" id="editVideoControls" />
+                <span>🎮 Mostrar Controles</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" id="editVideoLoop" />
+                <span>🔁 Loop</span>
+              </label>
+            </div>
           </div>
 
           <div class="form-group">
@@ -753,6 +767,20 @@
               <label>URL do Vídeo *</label>
               <input type="text" id="createVideoUrl" placeholder="https://exemplo.com/video.mp4" />
             </div>
+            <div class="form-group">
+              <label class="category-option">
+                <input type="checkbox" id="createVideoAutoplay" />
+                <span>▶️ Autoplay</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" id="createVideoControls" checked />
+                <span>🎮 Mostrar Controles</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" id="createVideoLoop" />
+                <span>🔁 Loop</span>
+              </label>
+            </div>
           </div>
 
           <div class="form-group">
@@ -844,6 +872,40 @@
 
     <script>
       const API_URL = 'http://localhost:3001/api';
+
+      /**
+       * Garante que o texto tenha formatação centralizada
+       * Remove estilos conflitantes e envolve em div centralizada se necessário
+       */
+      function ensureCenteredText(text) {
+        if (!text) return text;
+
+        // Remove estilos inline que possam interferir no alinhamento
+        let processedText = text
+          .replace(/text-align:\s*left/gi, 'text-align: center')
+          .replace(/text-align:\s*right/gi, 'text-align: center')
+          .replace(/text-align:\s*justify/gi, 'text-align: center');
+
+        // Se o texto não contém tags de estilo de alinhamento, adiciona
+        if (!processedText.includes('text-align') && !processedText.includes('style=')) {
+          // Envolve parágrafos e headings com estilo centralizado
+          processedText = processedText
+            .replace(/<p>/gi, '<p style="text-align: center;">')
+            .replace(/<h1>/gi, '<h1 style="text-align: center;">')
+            .replace(/<h2>/gi, '<h2 style="text-align: center;">')
+            .replace(/<h3>/gi, '<h3 style="text-align: center;">')
+            .replace(/<h4>/gi, '<h4 style="text-align: center;">')
+            .replace(/<h5>/gi, '<h5 style="text-align: center;">')
+            .replace(/<h6>/gi, '<h6 style="text-align: center;">');
+
+          // Se não há tags HTML, envolve em div centralizada
+          if (!processedText.includes('<')) {
+            processedText = `<div style="text-align: center;">${processedText}</div>`;
+          }
+        }
+
+        return processedText;
+      }
 
       // Carrega os fillers ao iniciar
       document.addEventListener('DOMContentLoaded', () => {
@@ -1041,6 +1103,10 @@
         document.getElementById('editImageUrl').value = filler.content.url || '';
         document.getElementById('editImageAlt').value = filler.content.alt || '';
         document.getElementById('editVideoUrl').value = filler.content.url || '';
+        document.getElementById('editVideoAutoplay').checked = filler.content.autoplay || false;
+        document.getElementById('editVideoControls').checked =
+          filler.content.controls !== undefined ? filler.content.controls : true;
+        document.getElementById('editVideoLoop').checked = filler.content.loop || false;
 
         // Carrega formatos
         const formats = filler.formats || ['1x1'];
@@ -1230,7 +1296,8 @@
             alert('⚠️ O campo de texto é obrigatório!');
             return;
           }
-          content.text = text;
+          // Processa o texto para garantir formatação centralizada
+          content.text = ensureCenteredText(text);
           content.backgroundColor = document.getElementById('createBackgroundColor').value;
         } else if (type === 'image') {
           const url = document.getElementById('createImageUrl').value;
@@ -1247,6 +1314,9 @@
             return;
           }
           content.url = url;
+          content.autoplay = document.getElementById('createVideoAutoplay').checked;
+          content.controls = document.getElementById('createVideoControls').checked;
+          content.loop = document.getElementById('createVideoLoop').checked;
         }
 
         const newFiller = {
@@ -1311,13 +1381,17 @@
 
         let content = {};
         if (type === 'text') {
-          content.text = document.getElementById('editText').value;
+          // Processa o texto para garantir formatação centralizada
+          content.text = ensureCenteredText(document.getElementById('editText').value);
           content.backgroundColor = document.getElementById('editBackgroundColor').value;
         } else if (type === 'image') {
           content.url = document.getElementById('editImageUrl').value;
           content.alt = document.getElementById('editImageAlt').value;
         } else if (type === 'video') {
           content.url = document.getElementById('editVideoUrl').value;
+          content.autoplay = document.getElementById('editVideoAutoplay').checked;
+          content.controls = document.getElementById('editVideoControls').checked;
+          content.loop = document.getElementById('editVideoLoop').checked;
         }
 
         const updateData = {

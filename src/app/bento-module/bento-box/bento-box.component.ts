@@ -9,6 +9,7 @@ import {
   Output,
   PLATFORM_ID,
   ViewChild,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms'; //
 import { Subject } from 'rxjs';
@@ -161,6 +162,7 @@ export class BentoBoxComponent {
    */
   constructor(
     private gridService: GridService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.resizeSubject.subscribe(() => {
@@ -172,7 +174,10 @@ export class BentoBoxComponent {
 
     this.gridService.gridChanged$.subscribe(() => {
       if (isPlatformBrowser(this.platformId)) {
+        console.log('🔄 Grid change detected, recalculating...');
         this.calculateGridCols(this.windowWidth);
+        this.cdr.detectChanges();
+        console.log('✅ Grid recalculated and change detection triggered');
       }
     });
   }
@@ -578,7 +583,58 @@ export class BentoBoxComponent {
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/html', ''); // Necessário para Firefox
+
+      // Cria uma imagem de drag customizada
+      const dragElement = event.target as HTMLElement;
+      const clone = dragElement.cloneNode(true) as HTMLElement;
+
+      // Estiliza o clone para torná-lo visível e bonito
+      clone.style.position = 'absolute';
+      clone.style.top = '-9999px';
+      clone.style.left = '-9999px';
+      clone.style.width = dragElement.offsetWidth + 'px';
+      clone.style.height = dragElement.offsetHeight + 'px';
+      clone.style.opacity = '0.9';
+      clone.style.transform = 'rotate(3deg) scale(1.05)';
+      clone.style.boxShadow =
+        '0 15px 50px rgba(59, 130, 246, 0.5), 0 0 0 4px rgba(59, 130, 246, 0.3)';
+      clone.style.borderRadius = '12px';
+      clone.style.border = '3px solid rgba(59, 130, 246, 0.8)';
+      clone.style.background = 'rgba(255, 255, 255, 0.95)';
+      clone.style.pointerEvents = 'none';
+
+      // Remove os botões de ação do clone
+      const editActions = clone.querySelector('.edit-actions') as HTMLElement;
+      if (editActions) {
+        editActions.style.display = 'none';
+      }
+
+      document.body.appendChild(clone);
+
+      // Define a imagem de drag
+      event.dataTransfer.setDragImage(
+        clone,
+        dragElement.offsetWidth / 2,
+        dragElement.offsetHeight / 2
+      );
+
+      // Remove o clone após um curto delay
+      setTimeout(() => {
+        if (clone.parentNode) {
+          document.body.removeChild(clone);
+        }
+      }, 0);
     }
+
+    // Timeout de segurança: se após 5 segundos ainda estiver com draggedItem, limpa
+    setTimeout(() => {
+      if (this.draggedItem === item) {
+        console.warn('⚠️ Timeout de drag detectado, limpando estado...');
+        this.draggedItem = null;
+        this.dragOverItem = null;
+        this.cdr.detectChanges();
+      }
+    }, 5000);
   }
 
   /**
@@ -604,6 +660,9 @@ export class BentoBoxComponent {
     event.stopPropagation();
 
     if (!this.draggedItem || this.draggedItem.id === targetItem.id) {
+      // Limpa o estado mesmo se não houver troca
+      this.draggedItem = null;
+      this.dragOverItem = null;
       return;
     }
 
@@ -611,7 +670,12 @@ export class BentoBoxComponent {
     const draggedIndex = this.data.findIndex(item => item.id === this.draggedItem!.id);
     const targetIndex = this.data.findIndex(item => item.id === targetItem.id);
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
+    if (draggedIndex === -1 || targetIndex === -1) {
+      // Limpa o estado se os índices forem inválidos
+      this.draggedItem = null;
+      this.dragOverItem = null;
+      return;
+    }
 
     // Troca as posições no array
     [this.data[draggedIndex], this.data[targetIndex]] = [
@@ -622,22 +686,48 @@ export class BentoBoxComponent {
     // Notifica que houve mudanças
     this.gridService.emitGridChanged();
 
+    // Limpa o estado de drag imediatamente após a troca
+    this.draggedItem = null;
     this.dragOverItem = null;
+
+    // Força atualização da view para remover classes CSS de drag
+    this.cdr.detectChanges();
   }
 
   /**
    * Limpa o estado quando o drag é removido de um item
    */
   onDragLeave(event: DragEvent): void {
+    // Só limpa dragOverItem, não draggedItem
     this.dragOverItem = null;
   }
 
   /**
    * Finaliza o drag
+   * Este evento é disparado quando o drag termina, independente de ter havido drop
    */
   onDragEnd(event: DragEvent): void {
+    // Força a limpeza do estado de drag
+    console.log('🏁 Drag finalizado, limpando estado...');
     this.draggedItem = null;
     this.dragOverItem = null;
+
+    // Força atualização da view para remover classes CSS
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Handler de drop no container (fallback)
+   * Garante que o estado seja limpo mesmo se o drop ocorrer fora de um item
+   */
+  onContainerDrop(event: DragEvent): void {
+    event.preventDefault();
+    console.log('📦 Drop no container, limpando estado...');
+    this.draggedItem = null;
+    this.dragOverItem = null;
+
+    // Força atualização da view
+    this.cdr.detectChanges();
   }
 
   /**

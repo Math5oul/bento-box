@@ -12,36 +12,146 @@
   transition:
     transform 0.2s ease,
     opacity 0.2s ease;
+}
 
+// Estilos específicos para itens interativos (produtos)
+.bento-item {
   // Cursor de drag no modo de edição
   &[draggable='true'] {
     cursor: grab;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:active {
       cursor: grabbing;
+      transform: scale(1.02);
+    }
+
+    // Hover no modo drag
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   }
 
   // Estado de dragging (item sendo arrastado)
   &.dragging {
-    opacity: 0.4;
-    transform: scale(0.95);
+    opacity: 0.3;
+    transform: scale(0.9);
     cursor: grabbing;
+    filter: blur(2px);
+    position: relative;
+
+    // Adiciona uma borda pontilhada animada no lugar vazio
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 3px dashed rgba(59, 130, 246, 0.5);
+      border-radius: 12px;
+      opacity: 1 !important;
+      animation: dash 1s linear infinite;
+      background: rgba(59, 130, 246, 0.05);
+      pointer-events: none;
+    }
+
+    // Ícone de "sendo movido"
+    &::before {
+      content: '✋';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      opacity: 0.8 !important;
+      z-index: 100;
+      animation: float 1s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      pointer-events: none;
+    }
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -20;
+      border-color: rgba(99, 179, 237, 0.7);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, -50%) translateY(-10px);
+    }
   }
 
   // Estado de drag-over (item sobre o qual está sendo arrastado)
   &.drag-over {
-    transform: scale(1.05);
+    transform: scale(1.03);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+    border-radius: 12px;
+    animation: pulse-glow 0.8s ease-in-out infinite;
+    z-index: 5;
 
     &::before {
       opacity: 1;
-      background: rgba(59, 130, 246, 0.3); // Azul semi-transparente
+      background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.15),
+        rgba(99, 179, 237, 0.15)
+      ); // Gradiente azul
     }
 
     &::after {
-      border-color: rgba(59, 130, 246, 0.8);
+      border-color: rgba(59, 130, 246, 1);
       border-width: 3px;
       opacity: 1;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+
+    // Seta indicando troca
+    .drop-arrow {
+      display: block !important;
+    }
+  }
+
+  // Seta de troca (escondida por padrão)
+  .drop-arrow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 64px;
+    z-index: 200;
+    animation: rotate-arrow 1s ease-in-out infinite;
+    filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.8));
+    pointer-events: none;
+
+    &::before {
+      content: '🔄';
+    }
+  }
+
+  @keyframes rotate-arrow {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    50% {
+      transform: translate(-50%, -50%) rotate(180deg);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.6);
     }
   }
 
@@ -250,5 +360,39 @@
     border: 3px solid rgba(59, 130, 246, 0.6);
     border-radius: 12px;
     pointer-events: none;
+  }
+}
+
+// Indicador de posição de drop
+.drop-indicator {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+
+  &::before {
+    content: '↓ Soltar aqui';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(59, 130, 246, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    animation: bounce 0.6s ease-in-out infinite;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px);
   }
 }

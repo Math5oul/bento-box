@@ -66,21 +66,6 @@
       <div [formGroup]="componentForm">
         <h3>{{ editMode ? 'Editar' : 'Configurar' }} {{ selectedComponent.name }}</h3>
 
-        <!-- Dimensões em células (apenas para produtos, não para fillers) -->
-        @if (!selectedComponent.name.includes('Filler')) {
-          <div class="dimensions-form">
-            <label>
-              Altura (em células):
-              <input type="number" formControlName="rowSpan" min="1" max="10" />
-            </label>
-
-            <label>
-              Largura (em células):
-              <input type="number" formControlName="colSpan" min="1" max="10" />
-            </label>
-          </div>
-        }
-
         <!-- Campos dinâmicos de inputs -->
         <div class="inputs-form" formGroupName="inputs">
           @for (input of selectedComponent.inputsConfig; track $index) {
@@ -173,6 +158,8 @@
                         <option [value]="option">
                           @if (input.name === 'category') {
                             {{ getCategoryDisplayName(option) }}
+                          } @else if (input.name === 'format') {
+                            {{ getFormatDisplayName(option) }}
                           } @else {
                             {{ option }}
                           }
