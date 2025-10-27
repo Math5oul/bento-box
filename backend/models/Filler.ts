@@ -7,10 +7,12 @@ export interface IFiller extends Document {
   type: 'text' | 'image' | 'video';
   content: {
     text?: string; // Para tipo texto
+    backgroundColor?: string; // Cor de fundo para tipo texto
     url?: string; // Para imagem ou vídeo
     alt?: string; // Texto alternativo para imagem
   };
-  format?: '1x1' | '1x2' | '2x1' | '2x2';
+  categories?: string[]; // Categorias do filler
+  formats?: ('1x1' | '1x2' | '2x1' | '2x2')[]; // Formatos válidos para o filler
   gridPosition?: {
     row: number;
     col: number;
@@ -38,6 +40,11 @@ const FillerSchema: Schema = new Schema(
         trim: true,
         maxlength: [1000, 'Texto não pode ter mais de 1000 caracteres'],
       },
+      backgroundColor: {
+        type: String,
+        trim: true,
+        default: '#ffffff',
+      },
       url: {
         type: String,
         trim: true,
@@ -48,10 +55,15 @@ const FillerSchema: Schema = new Schema(
         maxlength: [200, 'Texto alternativo não pode ter mais de 200 caracteres'],
       },
     },
-    format: {
-      type: String,
+    categories: {
+      type: [String],
+      enum: ['food', 'hot beverage', 'cold beverage', 'dessert', 'alcoholic', 'beverage', 'other'],
+      default: [],
+    },
+    formats: {
+      type: [String],
       enum: ['1x1', '1x2', '2x1', '2x2'],
-      default: '1x1',
+      default: ['1x1'],
     },
     gridPosition: {
       row: { type: Number },

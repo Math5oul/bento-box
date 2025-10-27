@@ -87,6 +87,8 @@
         padding: 20px;
         background: #f9f9f9;
         transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
       }
 
       .filler-card:hover {
@@ -143,6 +145,18 @@
         margin: 8px 0;
         color: #555;
         font-size: 0.95em;
+        word-break: break-word;
+      }
+
+      .filler-content .url-text {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #667eea;
+        font-family: monospace;
+        font-size: 0.85em;
       }
 
       .filler-content strong {
@@ -161,7 +175,8 @@
       .filler-actions {
         display: flex;
         gap: 10px;
-        margin-top: 15px;
+        margin-top: auto;
+        padding-top: 15px;
       }
 
       .btn {
@@ -343,6 +358,92 @@
         font-size: 0.9em;
         opacity: 0.9;
       }
+
+      .categories-container,
+      .formats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .category-option {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: #f5f5f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .category-option:hover {
+        background: #e8e8e8;
+      }
+
+      .category-option input[type='checkbox'] {
+        width: auto;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+
+      .category-option.selected {
+        background: #e3f2fd;
+        border-color: #667eea;
+      }
+
+      .category-hint {
+        font-size: 0.85em;
+        color: #666;
+        margin-top: 8px;
+        padding: 8px;
+        background: #fff3cd;
+        border-left: 3px solid #ffc107;
+        border-radius: 4px;
+      }
+
+      .category-hint.success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+      }
+
+      .preview-container {
+        margin: 10px 0;
+        border-radius: 6px;
+        overflow: hidden;
+        max-height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 150px;
+        object-fit: contain;
+      }
+
+      .preview-video {
+        max-width: 100%;
+        max-height: 150px;
+      }
+
+      .preview-text {
+        padding: 15px;
+        border-radius: 6px;
+        min-height: 80px;
+        max-height: 150px;
+        overflow: hidden;
+        font-size: 0.9em;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -486,13 +587,67 @@
           </div>
 
           <div class="form-group">
-            <label>Formato</label>
-            <select id="editFormat" required>
-              <option value="1x1">1x1 (Quadrado)</option>
-              <option value="1x2">1x2 (Horizontal)</option>
-              <option value="2x1">2x1 (Vertical)</option>
-              <option value="2x2">2x2 (Grande)</option>
-            </select>
+            <label>Formatos Válidos</label>
+            <div class="formats-container">
+              <label class="category-option">
+                <input type="checkbox" value="1x1" class="format-checkbox-edit" />
+                <span>📐 1x1 (Quadrado)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="1x2" class="format-checkbox-edit" />
+                <span>📏 1x2 (Horizontal)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="2x1" class="format-checkbox-edit" />
+                <span>📏 2x1 (Vertical)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="2x2" class="format-checkbox-edit" />
+                <span>📦 2x2 (Grande)</span>
+              </label>
+            </div>
+            <div id="editFormatHint" class="category-hint">✅ 0 formato(s) selecionado(s)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Categorias</label>
+            <div class="categories-container">
+              <label class="category-option">
+                <input type="checkbox" value="food" onchange="updateCategoryHint('edit')" />
+                <span>🥐 Pratos</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="hot beverage" onchange="updateCategoryHint('edit')" />
+                <span>☕ Bebidas Quentes</span>
+              </label>
+              <label class="category-option">
+                <input
+                  type="checkbox"
+                  value="cold beverage"
+                  onchange="updateCategoryHint('edit')"
+                />
+                <span>🥤 Bebidas Frias</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="dessert" onchange="updateCategoryHint('edit')" />
+                <span>🍰 Sobremesas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="alcoholic" onchange="updateCategoryHint('edit')" />
+                <span>🍺 Bebidas Alcoólicas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="beverage" onchange="updateCategoryHint('edit')" />
+                <span>🍹 Bebidas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="other" onchange="updateCategoryHint('edit')" />
+                <span>📦 Outros</span>
+              </label>
+            </div>
+            <div id="editCategoryHint" class="category-hint">
+              ⚠️ Selecione pelo menos uma categoria para que o item apareça no menu
+            </div>
           </div>
 
           <div class="form-group">
@@ -601,13 +756,71 @@
           </div>
 
           <div class="form-group">
-            <label>Formato *</label>
-            <select id="createFormat" required>
-              <option value="1x1">1x1 (Quadrado)</option>
-              <option value="1x2">1x2 (Horizontal)</option>
-              <option value="2x1">2x1 (Vertical)</option>
-              <option value="2x2">2x2 (Grande)</option>
-            </select>
+            <label>Formatos Válidos *</label>
+            <div class="formats-container">
+              <label class="category-option">
+                <input type="checkbox" value="1x1" class="format-checkbox-create" checked />
+                <span>📐 1x1 (Quadrado)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="1x2" class="format-checkbox-create" />
+                <span>📏 1x2 (Horizontal)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="2x1" class="format-checkbox-create" />
+                <span>📏 2x1 (Vertical)</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="2x2" class="format-checkbox-create" />
+                <span>📦 2x2 (Grande)</span>
+              </label>
+            </div>
+            <div id="createFormatHint" class="category-hint">✅ 1 formato(s) selecionado(s)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Categorias *</label>
+            <div class="categories-container">
+              <label class="category-option">
+                <input type="checkbox" value="food" onchange="updateCategoryHint('create')" />
+                <span>🥐 Pratos</span>
+              </label>
+              <label class="category-option">
+                <input
+                  type="checkbox"
+                  value="hot beverage"
+                  onchange="updateCategoryHint('create')"
+                />
+                <span>☕ Bebidas Quentes</span>
+              </label>
+              <label class="category-option">
+                <input
+                  type="checkbox"
+                  value="cold beverage"
+                  onchange="updateCategoryHint('create')"
+                />
+                <span>🥤 Bebidas Frias</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="dessert" onchange="updateCategoryHint('create')" />
+                <span>🍰 Sobremesas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="alcoholic" onchange="updateCategoryHint('create')" />
+                <span>🍺 Bebidas Alcoólicas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="beverage" onchange="updateCategoryHint('create')" />
+                <span>🍹 Bebidas</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" value="other" onchange="updateCategoryHint('create')" />
+                <span>📦 Outros</span>
+              </label>
+            </div>
+            <div id="createCategoryHint" class="category-hint">
+              ⚠️ Selecione pelo menos uma categoria para que o item apareça no menu
+            </div>
           </div>
 
           <div class="form-group">
@@ -655,6 +868,18 @@
           createColorText.value = color;
           createColorPreview.style.background = color;
         });
+
+        // Adiciona event listeners para checkboxes de formato
+        document.querySelectorAll('.format-checkbox-edit').forEach(checkbox => {
+          checkbox.addEventListener('change', () => updateFormatHint('edit'));
+        });
+
+        document.querySelectorAll('.format-checkbox-create').forEach(checkbox => {
+          checkbox.addEventListener('change', () => updateFormatHint('create'));
+        });
+
+        // Atualiza hints iniciais
+        updateFormatHint('create');
       });
 
       async function loadFillers() {
@@ -709,22 +934,70 @@
         const typeEmoji = filler.type === 'text' ? '📝' : filler.type === 'image' ? '🖼️' : '🎥';
 
         let contentHtml = '';
+        let previewHtml = '';
+
         if (filler.type === 'text') {
           const bgColor = filler.content.backgroundColor || '#ffffff';
+          const displayText = filler.content.text || 'Vazio';
+          const truncatedText =
+            displayText.length > 100 ? displayText.substring(0, 100) + '...' : displayText;
+
+          previewHtml = `
+            <div class="preview-container">
+              <div class="preview-text" style="background-color: ${bgColor}; width: 100%;">
+                ${displayText.substring(0, 150)}${displayText.length > 150 ? '...' : ''}
+              </div>
+            </div>
+          `;
+
           contentHtml = `
-            <p><strong>Texto:</strong> ${filler.content.text ? filler.content.text.substring(0, 100) + '...' : 'Vazio'}</p>
+            <p><strong>Texto:</strong> ${truncatedText}</p>
             <p><strong>Cor de Fundo:</strong> <span style="display: inline-block; width: 20px; height: 20px; background: ${bgColor}; border: 1px solid #ccc; vertical-align: middle; border-radius: 3px;"></span> ${bgColor}</p>
           `;
         } else if (filler.type === 'image') {
+          const url = filler.content.url || 'Não definido';
+          const alt = filler.content.alt || 'Sem texto alternativo';
+
+          previewHtml = `
+            <div class="preview-container">
+              <img src="${url}" alt="${alt}" class="preview-image" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#999; padding:20px;\'>❌ Erro ao carregar imagem</p>';" />
+            </div>
+          `;
+
           contentHtml = `
-            <p><strong>URL:</strong> ${filler.content.url || 'Não definido'}</p>
-            <p><strong>Alt:</strong> ${filler.content.alt || 'Sem texto alternativo'}</p>
+            <p><strong>URL:</strong> <span class="url-text" title="${url}">${url}</span></p>
+            <p><strong>Alt:</strong> ${alt}</p>
           `;
         } else if (filler.type === 'video') {
-          contentHtml = `<p><strong>URL:</strong> ${filler.content.url || 'Não definido'}</p>`;
+          const url = filler.content.url || 'Não definido';
+
+          previewHtml = `
+            <div class="preview-container">
+              <video src="${url}" class="preview-video" controls muted onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#999; padding:20px;\'>❌ Erro ao carregar vídeo</p>';"></video>
+            </div>
+          `;
+
+          contentHtml = `<p><strong>URL:</strong> <span class="url-text" title="${url}">${url}</span></p>`;
         }
 
-        const [colSpan, rowSpan] = (filler.format || '1x1').split('x');
+        // Formata categorias
+        const categories = filler.categories || [];
+        const categoryEmojis = {
+          food: '🥐',
+          'hot beverage': '☕',
+          'cold beverage': '🥤',
+          dessert: '🍰',
+          alcoholic: '🍺',
+          beverage: '🍹',
+          other: '📦',
+        };
+        const categoriesHtml =
+          categories.length > 0
+            ? categories.map(cat => `${categoryEmojis[cat] || '📦'}`).join(' ')
+            : '⚠️ Sem categorias';
+
+        // Formata os formatos válidos para exibição
+        const formatsDisplay = (filler.formats || ['1x1']).join(', ');
 
         return `
           <div class="filler-card">
@@ -733,15 +1006,17 @@
               <span class="filler-id">#${filler._id.substring(0, 8)}</span>
             </div>
 
+            ${previewHtml}
+
             <div class="filler-content">
               ${contentHtml}
             </div>
 
             <div class="filler-meta">
-              <div><strong>Formato:</strong> ${filler.format || '1x1'}</div>
+              <div><strong>Formatos:</strong> ${formatsDisplay}</div>
               <div><strong>Status:</strong> ${filler.active ? '✅ Ativo' : '❌ Inativo'}</div>
               <div><strong>Posição:</strong> (${filler.gridPosition?.row || 0}, ${filler.gridPosition?.col || 0})</div>
-              <div><strong>Tamanho:</strong> ${rowSpan}×${colSpan}</div>
+              <div style="grid-column: 1 / -1;"><strong>Categorias:</strong> ${categoriesHtml}</div>
             </div>
 
             <div class="filler-actions">
@@ -755,7 +1030,6 @@
       function editFiller(filler) {
         document.getElementById('editFillerId').value = filler._id;
         document.getElementById('editType').value = filler.type;
-        document.getElementById('editFormat').value = filler.format || '1x1';
         document.getElementById('editActive').checked = filler.active;
 
         // Preenche campos específicos
@@ -768,7 +1042,42 @@
         document.getElementById('editImageAlt').value = filler.content.alt || '';
         document.getElementById('editVideoUrl').value = filler.content.url || '';
 
+        // Carrega formatos
+        const formats = filler.formats || ['1x1'];
+        const formatCheckboxes = document.querySelectorAll('.format-checkbox-edit');
+
+        formatCheckboxes.forEach(checkbox => {
+          checkbox.checked = formats.includes(checkbox.value);
+          if (checkbox.checked) {
+            checkbox.parentElement.classList.add('selected');
+          } else {
+            checkbox.parentElement.classList.remove('selected');
+          }
+        });
+
+        console.log('📐 Formatos carregados:', formats);
+
+        // Carrega categorias
+        const categories = filler.categories || [];
+        const editModal = document.getElementById('editModal');
+        const checkboxes = editModal.querySelectorAll(
+          '.categories-container input[type="checkbox"]'
+        );
+
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = categories.includes(checkbox.value);
+          if (checkbox.checked) {
+            checkbox.parentElement.classList.add('selected');
+          } else {
+            checkbox.parentElement.classList.remove('selected');
+          }
+        });
+
+        console.log('📋 Categorias carregadas:', categories);
+
         updateEditForm();
+        updateCategoryHint('edit');
+        updateFormatHint('edit');
         document.getElementById('editModal').classList.add('active');
       }
 
@@ -796,6 +1105,87 @@
         document.getElementById('createModal').classList.remove('active');
       }
 
+      function updateCategoryHint(mode) {
+        const modalPrefix = mode === 'edit' ? 'editModal' : 'createModal';
+        const hintId = mode === 'edit' ? 'editCategoryHint' : 'createCategoryHint';
+        const modal = document.getElementById(modalPrefix);
+        const checkboxes = modal.querySelectorAll('.categories-container input[type="checkbox"]');
+        const hint = document.getElementById(hintId);
+
+        let selectedCount = 0;
+        checkboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            selectedCount++;
+            checkbox.parentElement.classList.add('selected');
+          } else {
+            checkbox.parentElement.classList.remove('selected');
+          }
+        });
+
+        if (selectedCount === 0) {
+          hint.className = 'category-hint';
+          hint.textContent =
+            '⚠️ Selecione pelo menos uma categoria para que o item apareça no menu';
+        } else {
+          hint.className = 'category-hint success';
+          hint.textContent = `✅ Este item aparecerá em ${selectedCount} categoria(s)`;
+        }
+      }
+
+      function updateFormatHint(mode) {
+        const hintId = mode === 'edit' ? 'editFormatHint' : 'createFormatHint';
+        const className = mode === 'edit' ? '.format-checkbox-edit' : '.format-checkbox-create';
+        const checkboxes = document.querySelectorAll(className);
+        const hint = document.getElementById(hintId);
+
+        let selectedCount = 0;
+        checkboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            selectedCount++;
+            checkbox.parentElement.classList.add('selected');
+          } else {
+            checkbox.parentElement.classList.remove('selected');
+          }
+        });
+
+        if (selectedCount === 0) {
+          hint.className = 'category-hint';
+          hint.textContent = '⚠️ Selecione pelo menos um formato válido';
+        } else {
+          hint.className = 'category-hint success';
+          hint.textContent = `✅ ${selectedCount} formato(s) selecionado(s)`;
+        }
+      }
+
+      function getSelectedFormats(mode) {
+        const className = mode === 'edit' ? '.format-checkbox-edit' : '.format-checkbox-create';
+        const checkboxes = document.querySelectorAll(className);
+        const selected = [];
+
+        checkboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            selected.push(checkbox.value);
+          }
+        });
+
+        return selected;
+      }
+
+      function getSelectedCategories(mode) {
+        const modalPrefix = mode === 'edit' ? 'editModal' : 'createModal';
+        const modal = document.getElementById(modalPrefix);
+        const checkboxes = modal.querySelectorAll('.categories-container input[type="checkbox"]');
+        const selected = [];
+
+        checkboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            selected.push(checkbox.value);
+          }
+        });
+
+        return selected;
+      }
+
       function updateCreateForm() {
         const type = document.getElementById('createType').value;
 
@@ -811,11 +1201,25 @@
         event.preventDefault();
 
         const type = document.getElementById('createType').value;
-        const format = document.getElementById('createFormat').value;
         const active = document.getElementById('createActive').checked;
+        const categories = getSelectedCategories('create');
+        const formats = getSelectedFormats('create');
+
+        console.log('🔍 Categorias selecionadas:', categories);
+        console.log('📐 Formatos selecionados:', formats);
 
         if (!type) {
           alert('⚠️ Selecione um tipo de filler!');
+          return;
+        }
+
+        if (categories.length === 0) {
+          alert('⚠️ Selecione pelo menos uma categoria!');
+          return;
+        }
+
+        if (formats.length === 0) {
+          alert('⚠️ Selecione pelo menos um formato!');
           return;
         }
 
@@ -848,10 +1252,13 @@
         const newFiller = {
           type,
           content,
-          format,
+          categories,
+          formats,
           active,
           gridPosition: { row: 0, col: 0, rowSpan: 1, colSpan: 1 },
         };
+
+        console.log('📦 Criando filler com dados completos:', JSON.stringify(newFiller, null, 2));
 
         try {
           const response = await fetch(`${API_URL}/fillers`, {
@@ -862,19 +1269,20 @@
             body: JSON.stringify(newFiller),
           });
 
+          const responseData = await response.json();
+          console.log('📨 Resposta do servidor:', responseData);
+
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao criar filler');
+            throw new Error(responseData.message || 'Erro ao criar filler');
           }
 
-          const created = await response.json();
-          console.log('Filler criado:', created);
+          console.log('✅ Filler criado com sucesso:', responseData);
 
           alert('✅ Filler criado com sucesso!');
           closeCreateModal();
           loadFillers();
         } catch (error) {
-          console.error('Erro ao criar:', error);
+          console.error('❌ Erro ao criar:', error);
           alert('❌ Erro ao criar filler: ' + error.message);
         }
       }
@@ -884,8 +1292,22 @@
 
         const fillerId = document.getElementById('editFillerId').value;
         const type = document.getElementById('editType').value;
-        const format = document.getElementById('editFormat').value;
         const active = document.getElementById('editActive').checked;
+        const categories = getSelectedCategories('edit');
+        const formats = getSelectedFormats('edit');
+
+        console.log('🔍 Categorias selecionadas para edição:', categories);
+        console.log('📐 Formatos selecionados para edição:', formats);
+
+        if (categories.length === 0) {
+          alert('⚠️ Selecione pelo menos uma categoria!');
+          return;
+        }
+
+        if (formats.length === 0) {
+          alert('⚠️ Selecione pelo menos um formato!');
+          return;
+        }
 
         let content = {};
         if (type === 'text') {
@@ -901,9 +1323,15 @@
         const updateData = {
           type,
           content,
-          format,
+          categories,
+          formats,
           active,
         };
+
+        console.log(
+          '📝 Atualizando filler com dados completos:',
+          JSON.stringify(updateData, null, 2)
+        );
 
         try {
           const response = await fetch(`${API_URL}/fillers/${fillerId}`, {
@@ -914,15 +1342,20 @@
             body: JSON.stringify(updateData),
           });
 
+          const responseData = await response.json();
+          console.log('📨 Resposta do servidor:', responseData);
+
           if (!response.ok) {
-            throw new Error('Erro ao atualizar filler');
+            throw new Error(responseData.message || 'Erro ao atualizar filler');
           }
+
+          console.log('✅ Filler atualizado com sucesso:', responseData);
 
           alert('✅ Filler atualizado com sucesso!');
           closeEditModal();
           loadFillers();
         } catch (error) {
-          console.error('Erro ao salvar:', error);
+          console.error('❌ Erro ao salvar:', error);
           alert('❌ Erro ao atualizar filler: ' + error.message);
         }
       }

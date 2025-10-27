@@ -37,7 +37,7 @@
           <app-bento-box
             class="bento-box"
             [data]="getProductsByCategory(category)"
-            [fillers]="fillers || []"
+            [fillers]="getFillersByCategory(category)"
             [options]="options"
             [selectedId]="selectedItem ? selectedItem.id : null"
             (itemClick)="onItemClick($event)"

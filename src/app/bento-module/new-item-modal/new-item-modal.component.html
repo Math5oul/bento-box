@@ -66,18 +66,20 @@
       <div [formGroup]="componentForm">
         <h3>{{ editMode ? 'Editar' : 'Configurar' }} {{ selectedComponent.name }}</h3>
 
-        <!-- Dimensões em células -->
-        <div class="dimensions-form">
-          <label>
-            Altura (em células):
-            <input type="number" formControlName="rowSpan" min="1" max="10" />
-          </label>
+        <!-- Dimensões em células (apenas para produtos, não para fillers) -->
+        @if (!selectedComponent.name.includes('Filler')) {
+          <div class="dimensions-form">
+            <label>
+              Altura (em células):
+              <input type="number" formControlName="rowSpan" min="1" max="10" />
+            </label>
 
-          <label>
-            Largura (em células):
-            <input type="number" formControlName="colSpan" min="1" max="10" />
-          </label>
-        </div>
+            <label>
+              Largura (em células):
+              <input type="number" formControlName="colSpan" min="1" max="10" />
+            </label>
+          </div>
+        }
 
         <!-- Campos dinâmicos de inputs -->
         <div class="inputs-form" formGroupName="inputs">
@@ -199,7 +201,12 @@
                   </div>
                   @if (componentForm.get(['inputs', input.name])?.value?.length === 0) {
                     <p class="multi-select-hint">
-                      💡 Deixe vazio para exibir em todas as categorias
+                      ⚠️ Selecione pelo menos uma categoria para que o item apareça no menu
+                    </p>
+                  } @else {
+                    <p class="multi-select-hint">
+                      ✅ Este item aparecerá em
+                      {{ componentForm.get(['inputs', input.name])?.value?.length }} categoria(s)
                     </p>
                   }
                 </div>

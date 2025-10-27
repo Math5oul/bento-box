@@ -39,10 +39,19 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
  */
 router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log('📥 Recebendo requisição POST /api/fillers');
+    console.log('📦 Body da requisição:', JSON.stringify(req.body, null, 2));
+    console.log('🏷️ Categorias recebidas:', req.body.categories);
+
     const filler = new Filler(req.body);
+    console.log('📝 Filler antes de salvar:', JSON.stringify(filler.toObject(), null, 2));
+
     const savedFiller = await filler.save();
+    console.log('✅ Filler salvo com sucesso:', JSON.stringify(savedFiller.toObject(), null, 2));
+
     res.status(201).json(savedFiller);
   } catch (error: any) {
+    console.error('❌ Erro ao criar filler:', error);
     res.status(400).json({ message: 'Erro ao criar filler', error: error.message });
   }
 });
@@ -53,16 +62,24 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
  */
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log('📥 Recebendo requisição PUT /api/fillers/' + req.params['id']);
+    console.log('📦 Body da requisição:', JSON.stringify(req.body, null, 2));
+    console.log('🏷️ Categorias recebidas:', req.body.categories);
+
     const filler = await Filler.findByIdAndUpdate(req.params['id'], req.body, {
       new: true,
       runValidators: true,
     });
+
     if (!filler) {
       res.status(404).json({ message: 'Filler não encontrado' });
       return;
     }
+
+    console.log('✅ Filler atualizado:', JSON.stringify(filler.toObject(), null, 2));
     res.json(filler);
   } catch (error: any) {
+    console.error('❌ Erro ao atualizar filler:', error);
     res.status(400).json({ message: 'Erro ao atualizar filler', error: error.message });
   }
 });
