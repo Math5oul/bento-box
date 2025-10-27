@@ -12,6 +12,34 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableService } from '../../services/table-service/table.service';
 import { Table, TableStatus } from '../../interfaces/table.interface';
+import { AuthService } from '../../services/auth-service/auth.service';
+
+interface ReservationInfo {
+  clientName: string;
+  clientPhone: string;
+  dateTime: Date | string;
+  notes?: string;
+  createdAt?: Date;
+  createdBy?: string;
+}
+
+interface TableWithDetails extends Table {
+  clientsDetails?: Array<{
+    id: string;
+    name: string;
+    email?: string;
+    isAnonymous: boolean;
+  }>;
+  ordersDetails?: Array<{
+    id: string;
+    clientName: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+    total: number;
+    status: string;
+    createdAt: Date;
+  }>;
+  reservationInfo?: ReservationInfo;
+}
 
 @Component({
   selector: 'app-admin-panel',
@@ -26,19 +54,37 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   private renderer = inject(Renderer2);
   private elementRef = inject(ElementRef);
   tableService = inject(TableService);
+  authService = inject(AuthService);
 
-  tables: Table[] = [];
-  selectedTable: Table | null = null;
-  showCreateModal = false;
+  tables: TableWithDetails[] = [];
+  selectedTable: TableWithDetails | null = null;
+  showReserveModal = false;
   showQRCode = false;
+  showOrdersModal = false;
+  showClientsModal = false;
+  showDetailsModal = false;
+  showCreateModal = false;
   qrCodeImage = '';
 
+  newTableNumber = 1;
   newTable = {
     number: 1,
     capacity: 4,
   };
 
-  activeTab: 'tables' | 'orders' | 'stats' = 'tables';
+  reservation = {
+    tableId: '',
+    clientName: '',
+    clientPhone: '',
+    dateTime: '',
+    notes: '',
+  };
+
+  activeTab: 'tables' | 'orders' | 'stats' | 'reservations' = 'tables';
+
+  // Filtros
+  filterStatus: TableStatus | 'all' = 'all';
+  searchTerm = '';
 
   ngOnInit() {
     // Move o elemento para o body ao inicializar
@@ -56,19 +102,37 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   async loadTables() {
     await this.tableService.loadTables();
     this.tableService.tables$.subscribe(tables => {
-      this.tables = tables;
+      this.tables = tables as TableWithDetails[];
     });
   }
 
   async createTable() {
     try {
-      await this.tableService.createTable(this.newTable);
+      await this.tableService.createTable({
+        number: this.newTable.number,
+        capacity: this.newTable.capacity,
+      });
       this.showCreateModal = false;
-      this.newTable = { number: 1, capacity: 4 };
+      // Reset form
+      this.newTable = {
+        number: this.getNextTableNumber(),
+        capacity: 4,
+      };
     } catch (error) {
       console.error('Erro ao criar mesa:', error);
       alert('Erro ao criar mesa. Verifique se o número já existe.');
     }
+  }
+
+  getNextTableNumber(): number {
+    if (this.tables.length === 0) return 1;
+    const maxNumber = Math.max(...this.tables.map(t => t.number));
+    return maxNumber + 1;
+  }
+
+  viewTableDetails(table: TableWithDetails) {
+    this.selectedTable = table;
+    this.showDetailsModal = true;
   }
 
   async deleteTable(table: Table) {
@@ -85,8 +149,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   async openTable(table: Table) {
     try {
       await this.tableService.openTable(table.id);
+      await this.loadTables();
+      this.showDetailsModal = false;
+      alert('Mesa aberta com sucesso!');
     } catch (error) {
       console.error('Erro ao abrir mesa:', error);
+      alert('Erro ao abrir mesa.');
     }
   }
 
@@ -94,8 +162,28 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     if (confirm(`Deseja fechar a mesa ${table.number}?`)) {
       try {
         await this.tableService.closeTable(table.id);
+        await this.loadTables();
+        this.showDetailsModal = false;
+        alert(
+          'Mesa fechada com sucesso! Clique em "Liberar Mesa" quando estiver pronta para uso novamente.'
+        );
       } catch (error) {
         console.error('Erro ao fechar mesa:', error);
+        alert('Erro ao fechar mesa.');
+      }
+    }
+  }
+
+  async clearTable(table: Table) {
+    if (confirm(`Deseja liberar a mesa ${table.number}? Isso irá limpar todos os dados.`)) {
+      try {
+        await this.tableService.clearTable(table.id);
+        await this.loadTables();
+        this.showDetailsModal = false;
+        alert('Mesa liberada com sucesso!');
+      } catch (error) {
+        console.error('Erro ao liberar mesa:', error);
+        alert('Erro ao liberar mesa.');
       }
     }
   }
@@ -110,15 +198,160 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  async viewTableOrders(table: Table) {
+  async viewTableOrders(table: TableWithDetails) {
     try {
       const orders = await this.tableService.getTableOrders(table.id);
-      this.selectedTable = { ...table, currentOrders: orders.map(o => o._id) };
-      // TODO: Mostrar modal com pedidos
-      console.log('Pedidos da mesa:', orders);
+      this.selectedTable = {
+        ...table,
+        ordersDetails: orders.map((o: any) => ({
+          id: o._id,
+          clientName: o.clientName || 'Cliente Anônimo',
+          items: o.items || [],
+          total: o.total || 0,
+          status: o.status || 'pending',
+          createdAt: new Date(o.createdAt),
+        })),
+      };
+      this.showOrdersModal = true;
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
+      alert('Erro ao carregar pedidos da mesa');
     }
+  }
+
+  async viewTableClients(table: TableWithDetails) {
+    try {
+      // Buscar detalhes dos clientes da mesa
+      // Por enquanto, mostrar IDs dos clientes
+      this.selectedTable = {
+        ...table,
+        clientsDetails: [
+          ...table.clients.map(id => ({
+            id,
+            name: `Cliente ${id.substring(0, 6)}`,
+            isAnonymous: false,
+          })),
+          ...(table.anonymousClients || []).map(session => ({
+            id: session.sessionId,
+            name: 'Cliente Anônimo',
+            isAnonymous: true,
+          })),
+        ],
+      };
+      this.showClientsModal = true;
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+    }
+  }
+
+  async reserveTable() {
+    try {
+      if (
+        !this.reservation.tableId ||
+        !this.reservation.clientName ||
+        !this.reservation.clientPhone ||
+        !this.reservation.dateTime
+      ) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      await this.tableService.reserveTable(this.reservation.tableId, {
+        clientName: this.reservation.clientName,
+        clientPhone: this.reservation.clientPhone,
+        dateTime: this.reservation.dateTime,
+        notes: this.reservation.notes,
+      });
+
+      this.showReserveModal = false;
+      this.reservation = {
+        tableId: '',
+        clientName: '',
+        clientPhone: '',
+        dateTime: '',
+        notes: '',
+      };
+      alert('Reserva criada com sucesso!');
+      await this.loadTables();
+    } catch (error) {
+      console.error('Erro ao criar reserva:', error);
+      alert('Erro ao criar reserva.');
+    }
+  }
+
+  openReserveModal(table: TableWithDetails) {
+    this.reservation.tableId = table.id;
+    this.showReserveModal = true;
+  }
+
+  async cancelReservation(table: TableWithDetails) {
+    if (confirm(`Deseja cancelar a reserva da mesa ${table.number}?`)) {
+      try {
+        await this.tableService.clearTable(table.id);
+        await this.loadTables();
+        alert('Reserva cancelada com sucesso!');
+      } catch (error) {
+        console.error('Erro ao cancelar reserva:', error);
+        alert('Erro ao cancelar reserva.');
+      }
+    }
+  }
+
+  async confirmReservation(table: TableWithDetails) {
+    if (confirm(`Confirmar chegada do cliente da mesa ${table.number}?`)) {
+      try {
+        await this.tableService.openTable(table.id);
+        await this.loadTables();
+        alert('Mesa aberta com sucesso!');
+      } catch (error) {
+        console.error('Erro ao confirmar reserva:', error);
+        alert('Erro ao confirmar reserva.');
+      }
+    }
+  }
+
+  get filteredTables(): TableWithDetails[] {
+    let filtered = this.tables;
+
+    // Filtro por status
+    if (this.filterStatus !== 'all') {
+      filtered = filtered.filter(t => t.status === this.filterStatus);
+    }
+
+    // Filtro por busca
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        t =>
+          t.number.toString().includes(term) ||
+          t.status.toLowerCase().includes(term) ||
+          t.capacity.toString().includes(term)
+      );
+    }
+
+    return filtered;
+  }
+
+  get reservedTablesCount(): number {
+    return this.tables.filter(t => t.status === TableStatus.RESERVED).length;
+  }
+
+  get reservedTables(): TableWithDetails[] {
+    return this.tables.filter(t => t.status === TableStatus.RESERVED);
+  }
+
+  get availableTables(): TableWithDetails[] {
+    return this.tables.filter(t => t.status === TableStatus.AVAILABLE);
+  }
+
+  get totalRevenue(): number {
+    return this.tables.reduce((sum, table) => sum + (table.totalConsumption || 0), 0);
+  }
+
+  get averageConsumption(): number {
+    const occupied = this.tables.filter(t => t.totalConsumption && t.totalConsumption > 0);
+    if (occupied.length === 0) return 0;
+    return this.totalRevenue / occupied.length;
   }
 
   getStatusColor(status: TableStatus): string {
