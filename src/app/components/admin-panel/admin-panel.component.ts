@@ -7,6 +7,7 @@ import {
   inject,
   Renderer2,
   ElementRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -56,6 +57,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);
   tableService = inject(TableService);
   authService = inject(AuthService);
+  cdr = inject(ChangeDetectorRef);
 
   tables: TableWithDetails[] = [];
   selectedTable: TableWithDetails | null = null;
@@ -199,25 +201,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  async viewTableOrders(table: TableWithDetails) {
-    try {
-      const orders = await this.tableService.getTableOrders(table.id);
-      this.selectedTable = {
-        ...table,
-        ordersDetails: orders.map((o: any) => ({
-          id: o._id,
-          clientName: o.clientName || 'Cliente Anônimo',
-          items: o.items || [],
-          total: o.total || 0,
-          status: o.status || 'pending',
-          createdAt: new Date(o.createdAt),
-        })),
-      };
-      this.showOrdersModal = true;
-    } catch (error) {
-      console.error('Erro ao carregar pedidos:', error);
-      alert('Erro ao carregar pedidos da mesa');
-    }
+  viewTableOrders(table: TableWithDetails) {
+    this.activeTab = 'orders';
+    this.cdr.detectChanges();
   }
 
   async viewTableClients(table: TableWithDetails) {

@@ -78,10 +78,8 @@
                     <button class="btn-action btn-close" (click)="closeTable(table)">
                       🔒 Fechar
                     </button>
-                    <button class="btn-action btn-orders" (click)="viewTableOrders(table)">
-                      📋 Pedidos
-                    </button>
                   }
+
                   @if (table.status === 'reserved') {
                     <button class="btn-action btn-confirm" (click)="confirmReservation(table)">
                       ✅ Confirmar
@@ -92,6 +90,13 @@
                       🧹 Limpar
                     </button>
                   }
+                  <button
+                    class="btn-action btn-orders"
+                    (click)="viewTableOrders(table)"
+                    [disabled]="!table.ordersDetails || table.ordersDetails.length === 0"
+                  >
+                    📋 Pedidos
+                  </button>
                   <button class="btn-action btn-qr" (click)="showTableQRCode(table)">
                     📱 QR Code
                   </button>
