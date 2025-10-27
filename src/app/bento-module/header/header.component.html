@@ -5,29 +5,43 @@
       #searchInput
       type="text"
       class="search-bar"
-      placeholder="Procurrar..."
+      placeholder="Procurar..."
       (input)="onSearchInput(searchInput.value)"
     />
+
+    @if (isAuthenticated) {
+      <app-user-menu
+        (openProfile)="onOpenProfile()"
+        (openOrders)="onOpenOrders()"
+        (openPayments)="onOpenPayments()"
+        (openChangePassword)="onOpenChangePassword()"
+        (openAdminPanel)="onOpenAdminPanel()"
+      ></app-user-menu>
+    } @else {
+      <button class="login-button" (click)="toggleLogin()" title="Login">👤</button>
+    }
 
     <button class="cart-toggle" (click)="toggleCart()">
       🛒
       <span class="cart-badge">{{ _cartService.getCurrentItems().length }}</span>
     </button>
   </div>
-
-  <div
-    class="cart-overlay"
-    [class.visible]="isCartOpen"
-    [class.hidden]="!isCartOpen"
-    (click)="toggleCart()"
-  ></div>
-
-  @if (isCartOpen) {
-    <app-cart
-      class="cart-wrapper"
-      [class.open]="isCartOpen"
-      [class.closed]="!isCartOpen"
-      (closeCart)="toggleCart()"
-    ></app-cart>
-  }
 </section>
+@if (isCartOpen) {
+  <app-cart (closeCart)="toggleCart()"></app-cart>
+}
+
+@if (isLoginOpen) {
+  <app-login-modal
+    (close)="toggleLogin()"
+    (loginSuccess)="onLoginSuccess($event)"
+  ></app-login-modal>
+}
+
+@if (isAdminPanelOpen) {
+  <app-admin-panel (close)="onCloseAdminPanel()"></app-admin-panel>
+}
+
+@if (isChangePasswordOpen) {
+  <app-change-password-modal (close)="onCloseChangePassword()"></app-change-password-modal>
+}

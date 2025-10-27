@@ -1,3 +1,23 @@
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 1000;
+}
+
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  cursor: pointer;
+}
+
 .cart-container {
   display: flex;
   flex-direction: column;
@@ -5,10 +25,10 @@
   background: #ffffff;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  z-index: 1000;
   box-sizing: border-box;
   position: relative;
   min-width: 320px;
+  z-index: 1001;
 }
 
 .close-button {

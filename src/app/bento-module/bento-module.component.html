@@ -54,7 +54,7 @@
     </div>
   }
 
-  @if (toolbar) {
+  @if (toolbar && isAdmin) {
     <app-bento-toolbar
       [data]="data"
       [options]="options"
@@ -64,4 +64,6 @@
     >
     </app-bento-toolbar>
   }
+
+  <app-footer></app-footer>
 </section>

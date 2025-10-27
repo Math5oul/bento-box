@@ -1,0 +1,219 @@
+.user-menu-container {
+  display: inline-block;
+}
+
+.user-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f5f3f3;
+  border: 2px solid #ddd;
+  border-radius: 25px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+
+  &:hover {
+    background: #e8e6e6;
+    border-color: #ccc;
+    transform: translateY(-2px);
+  }
+
+  .user-icon {
+    font-size: 1.2rem;
+  }
+
+  .user-name {
+    font-weight: 600;
+    color: #333;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dropdown-arrow {
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.3s ease;
+  }
+}
+
+.menu-dropdown {
+  position: fixed;
+  top: 60px;
+  right: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.menu-header {
+  padding: 1rem;
+}
+
+.user-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+
+  .name {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .email {
+    color: #666;
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-badge {
+    display: inline-block;
+    background: #ffd700;
+    color: #333;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+}
+
+.menu-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0.5rem 0;
+}
+
+.menu-items {
+  padding: 0.5rem;
+}
+
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: #333;
+  font-size: 0.95rem;
+
+  .icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.admin-item {
+    color: #667eea;
+    font-weight: 600;
+
+    &:hover {
+      background: #f0f0ff;
+    }
+  }
+
+  &.logout-item {
+    color: #d32f2f;
+
+    &:hover {
+      background: #ffebee;
+    }
+  }
+}
+
+// Overlay global (renderizado no body via TypeScript)
+::ng-deep .user-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-button {
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+
+    .user-name,
+    .dropdown-arrow {
+      display: none;
+    }
+
+    .user-icon {
+      font-size: 1.3rem;
+    }
+  }
+
+  .menu-dropdown {
+    right: 0.5rem;
+    min-width: 260px;
+  }
+}

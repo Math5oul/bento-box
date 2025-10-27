@@ -1,0 +1,61 @@
+<div class="user-menu-container">
+  <button class="user-button" (click)="toggleMenu()" title="{{ user?.name }}">
+    <span class="user-icon">👤</span>
+    <span class="user-name">{{ user?.name }}</span>
+    <span class="dropdown-arrow">▼</span>
+  </button>
+
+  <div class="menu-dropdown">
+    <div class="menu-header">
+      <div class="user-info">
+        <div class="user-avatar">{{ userInitial }}</div>
+        <div class="user-details">
+          <div class="name">{{ user?.name }}</div>
+          <div class="email">{{ user?.email }}</div>
+          @if (isAdmin) {
+            <span class="admin-badge">Admin</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-divider"></div>
+
+    <div class="menu-items">
+      <button class="menu-item" (click)="onProfileClick()">
+        <span class="icon">👤</span>
+        <span>Meu Perfil</span>
+      </button>
+
+      <button class="menu-item" (click)="onOrdersClick()">
+        <span class="icon">📦</span>
+        <span>Histórico de Pedidos</span>
+      </button>
+
+      <button class="menu-item" (click)="onPaymentsClick()">
+        <span class="icon">💳</span>
+        <span>Métodos de Pagamento</span>
+      </button>
+
+      <button class="menu-item" (click)="onChangePasswordClick()">
+        <span class="icon">🔒</span>
+        <span>Alterar Senha</span>
+      </button>
+
+      @if (isAdmin) {
+        <div class="menu-divider"></div>
+        <button class="menu-item admin-item" (click)="onAdminPanelClick()">
+          <span class="icon">⚙️</span>
+          <span>Painel Administrativo</span>
+        </button>
+      }
+
+      <div class="menu-divider"></div>
+
+      <button class="menu-item logout-item" (click)="logout()">
+        <span class="icon">🚪</span>
+        <span>Sair</span>
+      </button>
+    </div>
+  </div>
+</div>

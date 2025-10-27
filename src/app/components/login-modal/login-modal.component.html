@@ -1,0 +1,70 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">×</button>
+
+    <h2>{{ isRegistering ? 'Criar Conta' : 'Login' }}</h2>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group" *ngIf="isRegistering">
+        <label for="name">Nome:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="formData.name"
+          placeholder="Seu nome"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="formData.email"
+          placeholder="seu@email.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="formData.password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="form-group" *ngIf="isRegistering">
+        <label for="confirmPassword">Confirmar Senha:</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          [(ngModel)]="formData.confirmPassword"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="message-container">
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="success-message" *ngIf="successMessage">{{ successMessage }}</div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        {{ isLoading ? '⏳ Aguarde...' : isRegistering ? 'Criar Conta' : 'Entrar' }}
+      </button>
+
+      <button type="button" class="toggle-mode-btn" (click)="toggleMode()">
+        {{ isRegistering ? 'Já tem conta? Faça login' : 'Não tem conta? Registre-se' }}
+      </button>
+    </form>
+  </div>
+</div>

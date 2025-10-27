@@ -33,7 +33,6 @@ export class BentoBoxComponent {
   @Input() fillers: GridItem[] = [];
   @Input() options!: BentoOptions;
   @Input() selectedId: number | null = null;
-
   @Output() itemClick = new EventEmitter<GridItem>();
   @Output() itemEdit = new EventEmitter<GridItem>();
   @Output() itemDelete = new EventEmitter<GridItem>();
