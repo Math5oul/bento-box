@@ -15,12 +15,9 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { CartService, CartItem } from '../../services/cart-service/cart.service';
-import {
-  OrderService,
-  OrderItem,
-  CreateOrderDTO,
-} from '../../services/order-service/order.service';
+import { OrderItem, CreateOrderDTO } from '../../interfaces/order.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { OrderService } from '../../services/order-service/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -36,8 +33,8 @@ export class CartComponent implements OnInit, OnDestroy {
   private renderer = inject(Renderer2);
   private elementRef = inject(ElementRef);
   public _cartService = inject(CartService);
-  private orderService = inject(OrderService);
   private authService = inject(AuthService);
+  private orderService = inject(OrderService);
 
   isPlacingOrder = false;
   orderSuccess = false;
@@ -112,9 +109,23 @@ export class CartComponent implements OnInit, OnDestroy {
         notes: item.observations,
       }));
 
+      // Recupera nome do cliente (usuário logado ou anônimo)
+      let clientName = '';
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          clientName = user.name || '';
+        } catch {}
+      }
+      if (!clientName) {
+        clientName = 'Cliente Anônimo';
+      }
+
       const orderData: CreateOrderDTO = {
         tableId,
         items: orderItems,
+        clientName,
       };
 
       const response = await this.orderService.createOrder(orderData).toPromise();

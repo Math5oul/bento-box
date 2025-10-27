@@ -419,10 +419,19 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       .populate('tableId', 'number')
       .populate('clientId', 'name email');
 
-    const ordersFormatted = orders.map(order => ({
-      ...order.toObject(),
-      id: (order._id as any).toString(),
-    }));
+    const ordersFormatted = orders.map(order => {
+      const obj = order.toObject();
+      // Se tableId está populado, pega o número
+      let tableNumber = undefined;
+      if (obj.tableId && typeof obj.tableId === 'object' && 'number' in obj.tableId) {
+        tableNumber = obj.tableId.number;
+      }
+      return {
+        ...obj,
+        id: (order._id as any).toString(),
+        tableNumber,
+      };
+    });
 
     res.json({
       success: true,

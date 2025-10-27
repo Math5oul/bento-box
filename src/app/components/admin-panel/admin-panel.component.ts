@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { TableService } from '../../services/table-service/table.service';
 import { Table, TableStatus } from '../../interfaces/table.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { AdminOrdersComponent } from '../admin/admin-orders.component';
 
 interface ReservationInfo {
   clientName: string;
@@ -44,7 +45,7 @@ interface TableWithDetails extends Table {
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminOrdersComponent],
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.scss'],
 })
@@ -425,7 +426,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
                 font-family: Arial, sans-serif;
               }
               h1 { margin-bottom: 2rem; }
-              img { max-width: 400px; }
             </style>
           </head>
           <body>
