@@ -1,8 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-/**
- * Interface do Produto
- */
 export interface IProduct extends Document {
   name: string;
   description: string;
@@ -29,9 +26,6 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
-/**
- * Schema do Produto
- */
 const ProductSchema: Schema = new Schema(
   {
     name: {
@@ -92,7 +86,6 @@ const ProductSchema: Schema = new Schema(
   }
 );
 
-// Índices para melhorar performance
 ProductSchema.index({ category: 1, available: 1 });
 ProductSchema.index({ name: 'text', description: 'text' });
 

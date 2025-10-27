@@ -11,14 +11,15 @@ import {
   ViewChild,
   ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms'; //
+import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service/grid.service';
 
 /**
- * Componente responsável por renderizar uma grade de itens.
+ * Componente responsável por renderizar e gerenciar uma grade dinâmica de itens
+ * com suporte a drag-and-drop, fillers automáticos e modo de edição
  */
 @Component({
   selector: 'app-bento-box',
@@ -28,138 +29,42 @@ import { GridService } from '../../services/grid-service/grid.service';
   styleUrls: ['./bento-box.component.scss'],
 })
 export class BentoBoxComponent {
-  /**
-   * Dados dos itens da grade.
-   * REPRESENTA O ARRAY DE COMPONENTES QUE VIRÁ COMO INPUT
-   */
   @Input() data!: GridItem[];
   @Input() fillers: GridItem[] = [];
   @Input() options!: BentoOptions;
+  @Input() selectedId: number | null = null;
 
   @Output() itemClick = new EventEmitter<GridItem>();
   @Output() itemEdit = new EventEmitter<GridItem>();
   @Output() itemDelete = new EventEmitter<GridItem>();
 
-  /**
-   * Grade de booleanos que representa a ocupação das células.
-   */
-  private grid!: boolean[][];
-
-  /**
-   * Lista de células vazias da grade.
-   */
-  private emptyCells: { row: number; col: number }[] = [];
-
-  /**
-   * Lista de itens de preenchimento da grade.
-   */
-  public fillersInGrid!: GridItem[];
-
-  /**
-   * Espaços vazios da grade, agrupados por tamanho.
-   */
-  emptySpaces!: { [key: string]: { row: number; col: number }[] };
-
-  /**
-   * Numéro atual de colunas
-   */
-  currentCols!: number;
-
-  /**
-   * ID do item selecionado no modo de edição
-   */
-  @Input() selectedId: number | null = null;
-
-  /**
-   * Item sendo arrastado (drag and drop)
-   */
-  draggedItem: GridItem | null = null;
-
-  /**
-   * Item sobre o qual está sendo arrastado
-   */
-  dragOverItem: GridItem | null = null;
-
-  /**
-   * Posição inicial do touch (para mobile)
-   */
-  private touchStartX: number = 0;
-  private touchStartY: number = 0;
-
-  /**
-   * Posição atual do touch
-   */
-  private touchCurrentX: number = 0;
-  private touchCurrentY: number = 0;
-
-  /**
-   * Elemento ghost para feedback visual no mobile
-   */
-  private ghostElement: HTMLElement | null = null;
-
-  /**
-   * Referência ao elemento do container da grade.
-   */
   @ViewChild('bento') bento!: ElementRef;
-
-  /**
-   * Referência ao elemento de item da grade.
-   */
   @ViewChild('bentoItem') bentoItem!: ElementRef;
 
-  /**
-   * Subject responsável por gerenciar o redimensionamento da janela.
-   */
+  private grid!: boolean[][];
+  private emptyCells: { row: number; col: number }[] = [];
+  public fillersInGrid!: GridItem[];
+  emptySpaces!: { [key: string]: { row: number; col: number }[] };
+  currentCols!: number;
+
+  draggedItem: GridItem | null = null;
+  dragOverItem: GridItem | null = null;
+
+  private touchStartX: number = 0;
+  private touchStartY: number = 0;
+  private touchCurrentX: number = 0;
+  private touchCurrentY: number = 0;
+  private ghostElement: HTMLElement | null = null;
+
   private resizeSubject = new Subject<void>();
-
-  /**
-   * Reinicia a grade, limpando os itens e espaços vazios.
-   * Isso é útil quando a grade precisa ser recalculada, por exemplo, após uma
-   * mudança de tamanho da janela ou atualização dos dados.
-   */
-  public restartGrid() {
-    this.grid = [];
-    this.emptyCells = [];
-    this.fillersInGrid = [];
-  }
-
-  /**
-   * Observável de quando a janela é redimensionada.
-   * @param event Evento de redimensionamento.
-   */
-  @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
-    this.restartGrid();
-
-    this.resizeSubject.next();
-  }
-  /**
-   * Largura da tela
-   */
   private windowWidth!: number;
 
-  /**
-   * Handler para a largura das células da grade.
-   */
   public _cellWidth: number = 0;
-
-  /**
-   * Handler para a altura das células da grade.
-   */
   public _cellHeight: number = 0;
-
-  /**
-   * Cópias locais das dimensões das células para não modificar o objeto options original
-   */
   public localCellWidth: number = 0;
   public localCellHeight: number = 0;
 
   rezizeObserver!: ResizeObserver;
-
-  /**
-   * Construtor do componente.
-   * @param cdr Referência ao ChangeDetectorRef.
-   */
   constructor(
     private gridService: GridService,
     private cdr: ChangeDetectorRef,
@@ -174,10 +79,8 @@ export class BentoBoxComponent {
 
     this.gridService.gridChanged$.subscribe(() => {
       if (isPlatformBrowser(this.platformId)) {
-        console.log('🔄 Grid change detected, recalculating...');
         this.calculateGridCols(this.windowWidth);
         this.cdr.detectChanges();
-        console.log('✅ Grid recalculated and change detection triggered');
       }
     });
   }
@@ -192,8 +95,19 @@ export class BentoBoxComponent {
     }
   }
 
+  public restartGrid() {
+    this.grid = [];
+    this.emptyCells = [];
+    this.fillersInGrid = [];
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.restartGrid();
+    this.resizeSubject.next();
+  }
+
   initCells() {
-    // Usa cópias locais para não modificar o objeto options original compartilhado
     this.localCellWidth = this.options.cellWidth + 2 * this.options.gridGap;
     this.localCellHeight =
       this.options.cellHeight !== 0
@@ -220,9 +134,6 @@ export class BentoBoxComponent {
       this.getMinWidth()
     );
 
-    //Calcula o número de colunas a serem exibidas,
-    //garantindo que seja entre o menor valor e o maior valor de colunas
-    //com base na largura do contêiner e no tamanho da célula.
     this.currentCols = columns;
     this.initializeGrid(1, columns);
     this.fillGrid(columns);
@@ -301,11 +212,10 @@ export class BentoBoxComponent {
    * @returns True / false se o item cabe
    */
   isItemFitting(item: GridItem, row: number, col: number): boolean {
-    // Check overflow
     if (row + item.rowSpan > this.grid.length || col + item.colSpan > this.grid[0].length) {
       return false;
     }
-    // Check cada celula
+
     for (let i = row; i < row + item.rowSpan; i++) {
       for (let j = col; j < col + item.colSpan; j++) {
         if (this.grid[i][j]) {
@@ -400,9 +310,7 @@ export class BentoBoxComponent {
         this.emptySpaces['1x2'].push(cell);
         occupiedCells[key] = true;
         occupiedCells[`${row},${col + 1}`] = true;
-      }
-      // Check for 1x1
-      else if (this.grid[row] && !this.grid[row][col]) {
+      } else if (this.grid[row] && !this.grid[row][col]) {
         this.emptySpaces['1x1'].push(cell);
         occupiedCells[key] = true;
       }
@@ -415,14 +323,9 @@ export class BentoBoxComponent {
    * primeiro que achar nos espaços disponiveis, priorizando o maior formato possível
    */
   putFillerItens(fillers: GridItem[]) {
-    console.log('🔍 putFillerItens - Fillers recebidos:', fillers.length);
-    console.log('🔍 Fillers:', fillers);
-    console.log('🔍 Espaços vazios:', this.emptySpaces);
-
     this.fillersInGrid = [];
     const fillerItens: GridItem[] = [];
 
-    // Cria uma cópia dos fillers para não modificar o original
     let availableFillers = [...fillers];
 
     // Shuffle the fillers array copy
@@ -431,69 +334,49 @@ export class BentoBoxComponent {
       [availableFillers[i], availableFillers[j]] = [availableFillers[j], availableFillers[i]];
     }
 
-    console.log('🔍 Fillers embaralhados:', availableFillers);
-
-    // Função auxiliar para calcular área do formato
     const getFormatArea = (format: string): number => {
       const [rows, cols] = format.split('x').map(Number);
       return rows * cols;
     };
 
-    // Ordena formatos por área (maior primeiro): 2x2 > 2x1 = 1x2 > 1x1
     const sortFormatsBySize = (formats: string[]): string[] => {
       return [...formats].sort((a, b) => getFormatArea(b) - getFormatArea(a));
     };
 
-    // Marca células como usadas para evitar sobreposição
     const usedCells = new Set<string>();
 
-    // Itera sobre todos os espaços vazios, começando pelos maiores
     const sortedSizes = Object.keys(this.emptySpaces).sort((a, b) => {
       return getFormatArea(b) - getFormatArea(a);
     });
 
     sortedSizes.forEach(size => {
       const [rowSpan, colSpan] = size.split('x').map(Number);
-      console.log(`🔍 Procurando fillers para tamanho ${size} (${rowSpan}x${colSpan})`);
-      console.log(`🔍 Quantidade de espaços desse tamanho:`, this.emptySpaces[size].length);
 
       this.emptySpaces[size].forEach(cell => {
         const cellKey = `${cell.row},${cell.col}`;
 
-        // Verifica se a célula já foi usada
         if (usedCells.has(cellKey)) {
-          console.log(`⏭️ Célula [${cell.row}, ${cell.col}] já está ocupada`);
           return;
         }
 
-        console.log(`🔍 Procurando filler para célula [${cell.row}, ${cell.col}]`);
-
-        // Procura um filler disponível que possa usar este espaço
         let fillerIndex = -1;
         let selectedFormat = '';
 
         for (let i = 0; i < availableFillers.length; i++) {
           const filler = availableFillers[i];
 
-          // Obtém os formatos válidos do filler (ou usa o formato padrão como fallback)
           const validFormats = filler.inputs?.formats || [
             filler.inputs?.format || `${filler.rowSpan}x${filler.colSpan}`,
           ];
 
-          console.log(`🔍 Filler ${i} - formatos válidos:`, validFormats);
-
-          // Ordena os formatos por tamanho (maior primeiro)
           const sortedFormats = sortFormatsBySize(validFormats);
 
-          // Tenta cada formato, começando pelo maior
           for (const format of sortedFormats) {
             const [fRowSpan, fColSpan] = format.split('x').map(Number);
 
-            // Verifica se este formato cabe no espaço disponível
             if (fRowSpan === rowSpan && fColSpan === colSpan) {
               fillerIndex = i;
               selectedFormat = format;
-              console.log(`✅ Formato ${format} cabe no espaço ${size}`);
               break;
             }
           }
@@ -504,7 +387,6 @@ export class BentoBoxComponent {
         if (fillerIndex !== -1) {
           const [selectedRowSpan, selectedColSpan] = selectedFormat.split('x').map(Number);
 
-          // Cria uma cópia do filler com a nova posição e tamanho selecionado
           const filler = {
             ...availableFillers[fillerIndex],
             row: cell.row,
@@ -513,22 +395,13 @@ export class BentoBoxComponent {
             colSpan: selectedColSpan,
           };
 
-          console.log(`✅ Usando filler com formato ${selectedFormat}:`, filler);
           fillerItens.push(filler);
 
-          // Marca a célula como usada
           usedCells.add(cellKey);
-
-          // Remove o filler usado da lista de disponíveis
           availableFillers.splice(fillerIndex, 1);
-        } else {
-          console.log(`❌ Nenhum filler disponível para ${size}`);
         }
       });
     });
-
-    console.log('✅ Total de fillers no grid:', fillerItens.length);
-    console.log('✅ Fillers no grid:', fillerItens);
 
     this.fillersInGrid = fillerItens;
   }
@@ -549,7 +422,6 @@ export class BentoBoxComponent {
    * @returns Os inputs modificados, se aplicável.
    */
   getComponentInputs(inputs: any): any {
-    // Adiciona o editMode independente do tipo de componente
     return {
       inputs: {
         ...inputs,
@@ -572,23 +444,20 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Inicia o drag de um item
+   * Inicia o drag de um item com feedback visual customizado
    */
   onDragStart(event: DragEvent, item: GridItem): void {
     if (this.options.mode !== 'edit') return;
 
     this.draggedItem = item;
 
-    // Define o efeito visual do drag
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/html', ''); // Necessário para Firefox
+      event.dataTransfer.setData('text/html', '');
 
-      // Cria uma imagem de drag customizada
       const dragElement = event.target as HTMLElement;
       const clone = dragElement.cloneNode(true) as HTMLElement;
 
-      // Estiliza o clone para torná-lo visível e bonito
       clone.style.position = 'absolute';
       clone.style.top = '-9999px';
       clone.style.left = '-9999px';
@@ -603,7 +472,6 @@ export class BentoBoxComponent {
       clone.style.background = 'rgba(255, 255, 255, 0.95)';
       clone.style.pointerEvents = 'none';
 
-      // Remove os botões de ação do clone
       const editActions = clone.querySelector('.edit-actions') as HTMLElement;
       if (editActions) {
         editActions.style.display = 'none';
@@ -611,14 +479,12 @@ export class BentoBoxComponent {
 
       document.body.appendChild(clone);
 
-      // Define a imagem de drag
       event.dataTransfer.setDragImage(
         clone,
         dragElement.offsetWidth / 2,
         dragElement.offsetHeight / 2
       );
 
-      // Remove o clone após um curto delay
       setTimeout(() => {
         if (clone.parentNode) {
           document.body.removeChild(clone);
@@ -626,10 +492,8 @@ export class BentoBoxComponent {
       }, 0);
     }
 
-    // Timeout de segurança: se após 5 segundos ainda estiver com draggedItem, limpa
     setTimeout(() => {
       if (this.draggedItem === item) {
-        console.warn('⚠️ Timeout de drag detectado, limpando estado...');
         this.draggedItem = null;
         this.dragOverItem = null;
         this.cdr.detectChanges();
@@ -643,7 +507,7 @@ export class BentoBoxComponent {
   onDragOver(event: DragEvent, item: GridItem): void {
     if (this.options.mode !== 'edit' || !this.draggedItem) return;
 
-    event.preventDefault(); // Necessário para permitir o drop
+    event.preventDefault();
 
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
@@ -653,44 +517,37 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Executa a troca de posições quando o item é solto
+   * Executa a troca de posições dos itens no grid
    */
   onDrop(event: DragEvent, targetItem: GridItem): void {
     event.preventDefault();
     event.stopPropagation();
 
     if (!this.draggedItem || this.draggedItem.id === targetItem.id) {
-      // Limpa o estado mesmo se não houver troca
       this.draggedItem = null;
       this.dragOverItem = null;
       return;
     }
 
-    // Encontra os índices dos itens
     const draggedIndex = this.data.findIndex(item => item.id === this.draggedItem!.id);
     const targetIndex = this.data.findIndex(item => item.id === targetItem.id);
 
     if (draggedIndex === -1 || targetIndex === -1) {
-      // Limpa o estado se os índices forem inválidos
       this.draggedItem = null;
       this.dragOverItem = null;
       return;
     }
 
-    // Troca as posições no array
     [this.data[draggedIndex], this.data[targetIndex]] = [
       this.data[targetIndex],
       this.data[draggedIndex],
     ];
 
-    // Notifica que houve mudanças
     this.gridService.emitGridChanged();
 
-    // Limpa o estado de drag imediatamente após a troca
     this.draggedItem = null;
     this.dragOverItem = null;
 
-    // Força atualização da view para remover classes CSS de drag
     this.cdr.detectChanges();
   }
 
@@ -698,40 +555,30 @@ export class BentoBoxComponent {
    * Limpa o estado quando o drag é removido de um item
    */
   onDragLeave(event: DragEvent): void {
-    // Só limpa dragOverItem, não draggedItem
     this.dragOverItem = null;
   }
 
   /**
    * Finaliza o drag
-   * Este evento é disparado quando o drag termina, independente de ter havido drop
    */
   onDragEnd(event: DragEvent): void {
-    // Força a limpeza do estado de drag
-    console.log('🏁 Drag finalizado, limpando estado...');
     this.draggedItem = null;
     this.dragOverItem = null;
-
-    // Força atualização da view para remover classes CSS
     this.cdr.detectChanges();
   }
 
   /**
-   * Handler de drop no container (fallback)
-   * Garante que o estado seja limpo mesmo se o drop ocorrer fora de um item
+   * Handler de drop no container
    */
   onContainerDrop(event: DragEvent): void {
     event.preventDefault();
-    console.log('📦 Drop no container, limpando estado...');
     this.draggedItem = null;
     this.dragOverItem = null;
-
-    // Força atualização da view
     this.cdr.detectChanges();
   }
 
   /**
-   * Inicia o touch drag (mobile)
+   * Touch drag handlers para suporte mobile
    */
   onTouchStart(event: TouchEvent, item: GridItem): void {
     if (this.options.mode !== 'edit') return;
@@ -741,7 +588,6 @@ export class BentoBoxComponent {
     this.touchStartY = touch.clientY;
     this.draggedItem = item;
 
-    // Cria elemento ghost para feedback visual
     this.createGhostElement(event.target as HTMLElement, touch.clientX, touch.clientY);
   }
 
@@ -751,19 +597,17 @@ export class BentoBoxComponent {
   onTouchMove(event: TouchEvent): void {
     if (!this.draggedItem || this.options.mode !== 'edit') return;
 
-    event.preventDefault(); // Previne scroll durante drag
+    event.preventDefault();
 
     const touch = event.touches[0];
     this.touchCurrentX = touch.clientX;
     this.touchCurrentY = touch.clientY;
 
-    // Atualiza posição do ghost
     if (this.ghostElement) {
       this.ghostElement.style.left = `${touch.clientX - 50}px`;
       this.ghostElement.style.top = `${touch.clientY - 50}px`;
     }
 
-    // Detecta sobre qual item está
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
     if (elementBelow) {
       const bentoItem = elementBelow.closest('.bento-item') as HTMLElement;
@@ -782,7 +626,6 @@ export class BentoBoxComponent {
   onTouchEnd(event: TouchEvent): void {
     if (!this.draggedItem) return;
 
-    // Se tiver um item alvo, executa a troca
     if (this.dragOverItem && this.draggedItem.id !== this.dragOverItem.id) {
       const draggedIndex = this.data.findIndex(item => item.id === this.draggedItem!.id);
       const targetIndex = this.data.findIndex(item => item.id === this.dragOverItem!.id);
@@ -797,7 +640,6 @@ export class BentoBoxComponent {
       }
     }
 
-    // Limpa estados
     this.removeGhostElement();
     this.draggedItem = null;
     this.dragOverItem = null;

@@ -2,9 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JWTPayload } from '../utils/jwt';
 import { User, UserRole } from '../models/User';
 
-/**
- * Estende Request do Express para incluir user
- */
 declare global {
   namespace Express {
     interface Request {
@@ -20,8 +17,8 @@ declare global {
 }
 
 /**
- * Middleware de Autenticação Dual (JWT ou SessionToken)
- * Aceita tanto usuários registrados quanto anônimos
+ * Middleware de autenticação dual: aceita JWT ou SessionToken
+ * Suporta tanto usuários registrados quanto anônimos
  */
 export const authenticate = async (
   req: Request,
@@ -29,7 +26,6 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Busca token do header
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -42,7 +38,6 @@ export const authenticate = async (
 
     const token = authHeader.replace('Bearer ', '');
 
-    // Tenta verificar como JWT primeiro
     try {
       const decoded = verifyToken(token);
       req.user = {
@@ -53,10 +48,9 @@ export const authenticate = async (
       };
       return next();
     } catch (jwtError) {
-      // Se não for JWT válido, verifica se é sessionToken
       const user = await User.findOne({
         sessionToken: token,
-        sessionExpiry: { $gt: new Date() }, // Não expirado
+        sessionExpiry: { $gt: new Date() },
       });
 
       if (!user) {
@@ -67,7 +61,6 @@ export const authenticate = async (
         return;
       }
 
-      // Usuário anônimo válido
       req.user = {
         userId: (user._id as any).toString(),
         role: user.role,
@@ -86,7 +79,8 @@ export const authenticate = async (
 };
 
 /**
- * Middleware de Autorização por Role
+ * Middleware de autorização por role
+ * @param allowedRoles - Roles permitidas para acessar a rota
  */
 export const authorize = (...allowedRoles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -110,19 +104,12 @@ export const authorize = (...allowedRoles: UserRole[]) => {
   };
 };
 
-/**
- * Middleware: Apenas Admins
- */
 export const adminOnly = authorize(UserRole.ADMIN);
-
-/**
- * Middleware: Apenas Clientes (registrados e anônimos)
- */
 export const clientOnly = authorize(UserRole.CLIENT);
 
 /**
- * Middleware: Autenticação Opcional
- * Não retorna erro se não tiver token, apenas popula req.user se tiver
+ * Middleware de autenticação opcional
+ * Não retorna erro se não houver token, apenas popula req.user quando disponível
  */
 export const optionalAuth = async (
   req: Request,
@@ -138,7 +125,6 @@ export const optionalAuth = async (
   try {
     const token = authHeader.replace('Bearer ', '');
 
-    // Tenta JWT
     try {
       const decoded = verifyToken(token);
       req.user = {
@@ -148,7 +134,6 @@ export const optionalAuth = async (
         isAnonymous: decoded.isAnonymous,
       };
     } catch {
-      // Tenta sessionToken
       const user = await User.findOne({
         sessionToken: token,
         sessionExpiry: { $gt: new Date() },
