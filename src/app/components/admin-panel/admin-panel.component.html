@@ -93,7 +93,26 @@
                   <button
                     class="btn-action btn-orders"
                     (click)="viewTableOrders(table)"
-                    [disabled]="!table.ordersDetails || table.ordersDetails.length === 0"
+                    [disabled]="
+                      !(table.currentOrders && table.currentOrders.length > 0) &&
+                      !(table.ordersDetails && table.ordersDetails.length > 0)
+                    "
+                    [class.is-disabled]="
+                      !(table.currentOrders && table.currentOrders.length > 0) &&
+                      !(table.ordersDetails && table.ordersDetails.length > 0)
+                    "
+                    [attr.title]="
+                      !(table.currentOrders && table.currentOrders.length > 0) &&
+                      !(table.ordersDetails && table.ordersDetails.length > 0)
+                        ? 'Sem pedidos nesta mesa'
+                        : null
+                    "
+                    [attr.aria-disabled]="
+                      !(table.currentOrders && table.currentOrders.length > 0) &&
+                      !(table.ordersDetails && table.ordersDetails.length > 0)
+                        ? 'true'
+                        : null
+                    "
                   >
                     📋 Pedidos
                   </button>
@@ -194,7 +213,7 @@
       @if (activeTab === 'orders') {
         <div class="orders-section">
           <h3>Todos os Pedidos</h3>
-          <app-admin-orders></app-admin-orders>
+          <app-admin-orders [scrollToTableNumber]="pendingScrollTableNumber"></app-admin-orders>
         </div>
       }
 
