@@ -10,6 +10,9 @@ export interface IFiller extends Document {
     backgroundColor?: string; // Cor de fundo para tipo texto
     url?: string; // Para imagem ou vídeo
     alt?: string; // Texto alternativo para imagem
+    autoplay?: boolean; // Autoplay para vídeo
+    controls?: boolean; // Mostrar controles para vídeo
+    loop?: boolean; // Loop para vídeo
   };
   categories?: string[]; // Categorias do filler
   formats?: ('1x1' | '1x2' | '2x1' | '2x2')[]; // Formatos válidos para o filler
@@ -53,6 +56,18 @@ const FillerSchema: Schema = new Schema(
         type: String,
         trim: true,
         maxlength: [200, 'Texto alternativo não pode ter mais de 200 caracteres'],
+      },
+      autoplay: {
+        type: Boolean,
+        default: false,
+      },
+      controls: {
+        type: Boolean,
+        default: true,
+      },
+      loop: {
+        type: Boolean,
+        default: false,
       },
     },
     categories: {

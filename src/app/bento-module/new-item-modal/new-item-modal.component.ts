@@ -255,6 +255,19 @@ export class NewItemModalComponent implements OnInit {
   }
 
   /**
+   * Retorna o nome descritivo de um formato
+   */
+  getFormatDisplayName(format: string): string {
+    const formatNames: { [key: string]: string } = {
+      '1x1': '📐 1x1 - Quadrado (1 célula)',
+      '1x2': '📏 1x2 - Retângulo Vertical (2 células de altura)',
+      '2x1': '📏 2x1 - Retângulo Horizontal (2 células de largura)',
+      '2x2': '📦 2x2 - Grande (4 células)',
+    };
+    return formatNames[format] || format;
+  }
+
+  /**
    * Cria um novo item com base nos valores do formulário e emite o evento `itemCreated`.
    * Se houver o campo format ele preenche utilizando o valor de rowSpan e colSpan.
    * Em seguida, fecha o modal.
@@ -295,13 +308,23 @@ export class NewItemModalComponent implements OnInit {
   private finalizeItemCreation() {
     const formValue = this.componentForm.value;
 
-    // Formato correto: colSpan x rowSpan (largura x altura)
-    const calculatedFormat = `${formValue.colSpan}x${formValue.rowSpan}`;
+    // Para produtos, usa o formato selecionado
+    let rowSpan = formValue.rowSpan || 1;
+    let colSpan = formValue.colSpan || 1;
+    let format = formValue.inputs?.format || '1x1';
+
+    // Se o produto tem campo 'format' selecionado, converte para rowSpan e colSpan
+    if (formValue.inputs?.format && !this.selectedComponent.name.includes('Filler')) {
+      const [cols, rows] = formValue.inputs.format.split('x').map(Number);
+      colSpan = cols;
+      rowSpan = rows;
+      format = formValue.inputs.format;
+    }
 
     // Prepara os inputs baseado no tipo de componente
     const inputs = {
       ...formValue.inputs,
-      format: calculatedFormat,
+      format: format,
     };
 
     // Se há imagens enviadas via upload, usa elas
@@ -318,8 +341,8 @@ export class NewItemModalComponent implements OnInit {
 
     const newItem = {
       component: this.selectedComponent.component,
-      rowSpan: formValue.rowSpan,
-      colSpan: formValue.colSpan,
+      rowSpan: rowSpan,
+      colSpan: colSpan,
       inputs: inputs,
       tempId: this.uploadedImagePaths.length > 0 ? this.currentTempId : null, // Adiciona o ID temporário se houver upload
     };

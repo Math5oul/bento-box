@@ -22,6 +22,8 @@ export class BentoToolbarComponent {
   @Input() selectedItem: GridItem | null = null;
 
   @Output() gridChanged = new EventEmitter<void>();
+  @Output() dataModified = new EventEmitter<void>(); // Evento quando dados são editados/adicionados/removidos
+  @Output() editCancelled = new EventEmitter<void>(); // Evento quando edição é cancelada
 
   public showNewItemModal = false;
   public showEditItemModal = false;
@@ -46,12 +48,18 @@ export class BentoToolbarComponent {
 
   switchMode() {
     if (this.options.mode === 'autoFill') {
-      // Entrando no modo de edição - fazer backup dos dados
-      // Usar spread para criar cópia mantendo as referências dos componentes
+      // Entrando no modo de edição - fazer backup profundo dos dados
       this.originalData = this.data.map(item => ({
-        ...item,
+        id: item.id,
+        component: item.component,
         inputs: { ...item.inputs },
+        rowSpan: item.rowSpan,
+        colSpan: item.colSpan,
+        row: item.row,
+        col: item.col,
       }));
+
+      console.log('📋 Backup criado com', this.originalData.length, 'itens');
       this.hasUnsavedChanges = false;
       this.options.mode = 'edit';
     } else {
@@ -172,8 +180,8 @@ export class BentoToolbarComponent {
       }
     }
 
+    // Restaurar dados originais se existir backup
     if (this.originalData.length > 0) {
-      // Restaurar os dados originais
       this.data.length = 0;
       this.data.push(...this.originalData);
       this.originalData = [];
@@ -181,6 +189,10 @@ export class BentoToolbarComponent {
 
     this.hasUnsavedChanges = false;
     this.options.mode = 'autoFill';
+
+    // Emite evento para recarregar os dados do servidor
+    this.editCancelled.emit();
+
     this.onGridChange();
   }
 
@@ -481,6 +493,7 @@ export class BentoToolbarComponent {
     this.data.push(newItem);
     this.markAsChanged();
     this.onGridChange();
+    this.dataModified.emit(); // Notifica que os dados foram modificados
     this.closeNewItemModal();
     console.log('✅ Item adicionado ao grid');
   }
@@ -577,6 +590,7 @@ export class BentoToolbarComponent {
             console.log('✅ Filler atualizado com sucesso');
             this.markAsChanged();
             this.onGridChange();
+            this.dataModified.emit(); // Notifica que os dados foram modificados
             this.closeEditItemModal();
           },
           error: error => {
@@ -617,6 +631,7 @@ export class BentoToolbarComponent {
             console.log('✅ Produto atualizado com sucesso');
             this.markAsChanged();
             this.onGridChange();
+            this.dataModified.emit(); // Notifica que os dados foram modificados
             this.closeEditItemModal();
           },
           error: error => {
@@ -657,6 +672,7 @@ export class BentoToolbarComponent {
                 this.data.splice(index, 1);
                 this.markAsChanged();
                 this.onGridChange();
+                this.dataModified.emit(); // Notifica que os dados foram modificados
               },
               error: error => {
                 console.error('❌ Erro ao deletar Filler:', error);
@@ -675,6 +691,7 @@ export class BentoToolbarComponent {
                 this.data.splice(index, 1);
                 this.markAsChanged();
                 this.onGridChange();
+                this.dataModified.emit(); // Notifica que os dados foram modificados
 
                 // Deletar pasta de imagens
                 this.storageService.deleteProductWithImages(itemId).subscribe({

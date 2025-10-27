@@ -15,8 +15,8 @@ export class SimpleVideoComponent {
     loop: boolean;
   } = {
     videoUrl: '',
-    autoplay: false,
-    controls: true,
+    autoplay: true,
+    controls: false,
     loop: false,
   };
 }

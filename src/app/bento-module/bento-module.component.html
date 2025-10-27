@@ -25,8 +25,13 @@
   <!-- Iterar sobre cada categoria quando não há pesquisa -->
   @if (!isSearchActive) {
     <div class="categories-container">
-      @for (category of orderedCategories; track category) {
+      @for (category of orderedCategories; track category; let isFirst = $first) {
         <div class="category-section">
+          <!-- Divisor (exceto antes da primeira seção) -->
+          @if (!isFirst) {
+            <div class="category-divider"></div>
+          }
+
           <!-- Cabeçalho da categoria -->
           <div class="category-header">
             <span class="category-icon">{{ getCategoryIcon(category) }}</span>
@@ -50,7 +55,13 @@
   }
 
   @if (toolbar) {
-    <app-bento-toolbar [data]="data" [options]="options" [selectedItem]="selectedItem">
+    <app-bento-toolbar
+      [data]="data"
+      [options]="options"
+      [selectedItem]="selectedItem"
+      (dataModified)="refreshProductGroups()"
+      (editCancelled)="reloadAllData()"
+    >
     </app-bento-toolbar>
   }
 </section>

@@ -65,6 +65,14 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           defaultValue: [''],
         },
         {
+          name: 'format',
+          label: 'Formato do Produto',
+          type: 'select',
+          options: ['1x1', '1x2', '2x1', '2x2'],
+          defaultValue: '1x1',
+          required: true,
+        },
+        {
           name: 'category',
           label: 'Categoria',
           type: 'select',
