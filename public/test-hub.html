@@ -299,6 +299,9 @@
           <div class="status-value">
             <span class="status-indicator" id="mongoStatus"></span>
             <span id="mongoText">Verificando...</span>
+            <div style="font-size: 0.85em; color: #666; margin-top: 6px">
+              Host: <span id="mongoHost">—</span>
+            </div>
           </div>
         </div>
         <div class="status-item">
@@ -440,7 +443,7 @@
           </div>
           <div class="info-item">
             <strong>MongoDB URL</strong>
-            <code>mongodb://localhost:27017</code>
+            <code id="infoMongoUrl">—</code>
           </div>
           <div class="info-item">
             <strong>Database</strong>
@@ -473,7 +476,7 @@
       // Check backend status
       async function checkBackendStatus() {
         try {
-          const response = await fetch('http://localhost:3001/api/health');
+          const response = await fetch('/api/health');
           const data = await response.json();
 
           const backendStatus = document.getElementById('backendStatus');
@@ -486,6 +489,13 @@
             backendText.textContent = 'Online';
             mongoStatus.className = 'status-indicator online';
             mongoText.textContent = 'Conectado';
+            // Fill host info when available
+            const host = data?.db?.host || data?.db?.name || '—';
+            // Show Atlas template if localhost, else show actual host
+            const mongoUrl =
+              host === 'localhost' ? 'mongodb+srv://<user>:<password>@cluster.mongodb.net' : host;
+            document.getElementById('mongoHost').textContent = host;
+            document.getElementById('infoMongoUrl').textContent = mongoUrl;
           } else {
             throw new Error('Backend offline');
           }
@@ -505,7 +515,7 @@
       // Check products count
       async function checkProductsCount() {
         try {
-          const response = await fetch('http://localhost:3001/api/products');
+          const response = await fetch('/api/products');
           const data = await response.json();
 
           if (data.success) {
@@ -550,7 +560,10 @@
 
       // Copy MongoDB URL
       function copyMongoURL() {
-        const url = 'mongodb://localhost:27017/bento-box';
+        // Use the value from the infoMongoUrl span if available
+        const url =
+          document.getElementById('infoMongoUrl')?.textContent ||
+          'mongodb+srv://<user>:<password>@cluster.mongodb.net';
         navigator.clipboard
           .writeText(url)
           .then(() => {
