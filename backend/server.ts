@@ -1,4 +1,5 @@
 import express, { Express } from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -30,10 +31,18 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/assets/images', express.static(path.join(__dirname, '..', 'src', 'assets', 'images')));
 
 app.get('/api/health', (req, res) => {
+  const dbInfo = {
+    name: mongoose.connection?.name || null,
+    host: mongoose.connection?.host || null,
+    readyState: mongoose.connection?.readyState ?? null,
+  };
+
   res.json({
     success: true,
     message: 'Backend Bento Box OK',
     timestamp: new Date().toISOString(),
+    db: dbInfo,
+    frontendUrl: process.env['FRONTEND_URL'] || null,
   });
 });
 

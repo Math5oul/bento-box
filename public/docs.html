@@ -287,7 +287,7 @@
           <h3>Para Administradores</h3>
           <p><strong>1. Acessar o Sistema:</strong></p>
           <ul>
-            <li>Acesse <span class="highlight">http://localhost:4200</span></li>
+            <li>Acesse <span class="highlight" id="docsFrontend">http://localhost:4200</span></li>
             <li>Faça login com suas credenciais de administrador</li>
           </ul>
 
@@ -325,7 +325,8 @@
           <ul>
             <li>Escaneie o QR Code da mesa com seu smartphone</li>
             <li>
-              Ou acesse diretamente: <span class="highlight">http://localhost:4200/table/[id]</span>
+              Ou acesse diretamente:
+              <span class="highlight" id="docsTableUrl">http://localhost:4200/table/[id]</span>
             </li>
           </ul>
 
@@ -671,9 +672,14 @@
 
           <p>
             <strong>URLs:</strong><br />
-            Frontend: <span class="highlight">http://localhost:4200</span><br />
-            Backend API: <span class="highlight">http://localhost:3001</span><br />
-            Central de Testes: <span class="highlight">http://localhost:3001/test-hub.html</span>
+            Frontend: <span class="highlight" id="docsFrontendUrl">http://localhost:4200</span
+            ><br />
+            Backend API: <span class="highlight" id="docsBackendUrl">http://localhost:3001</span
+            ><br />
+            Central de Testes:
+            <span class="highlight" id="docsTestHub">http://localhost:3001/test-hub.html</span
+            ><br />
+            MongoDB Host: <span class="highlight" id="docsMongoHost">—</span>
           </p>
         </div>
 
@@ -802,5 +808,34 @@
         <a href="http://localhost:4200" class="back-button">← Voltar para a Aplicação</a>
       </div>
     </div>
+    <script>
+      // populate dynamic URLs using /api/health
+      (async function () {
+        try {
+          const res = await fetch('/api/health');
+          const info = await res.json();
+          const frontend = info.frontendUrl || 'http://localhost:4200';
+          const backend = window.location.origin || 'http://localhost:3001';
+          const mongoHost = info?.db?.host || '—';
+          // Show Atlas template if localhost, else show actual host
+          const mongoUrl =
+            mongoHost === 'localhost'
+              ? 'mongodb+srv://<user>:<password>@cluster.mongodb.net'
+              : mongoHost;
+          document.getElementById('docsFrontend').textContent = frontend;
+          document.getElementById('docsFrontendUrl').textContent = frontend;
+          document.getElementById('docsBackendUrl').textContent = backend;
+          document.getElementById('docsTestHub').textContent = `${backend}/test-hub.html`;
+          document.getElementById('docsTableUrl').textContent = `${frontend}/table/[id]`;
+          document.getElementById('docsMongoHost').textContent = mongoHost;
+          // If you want to show the full connection string somewhere else, add:
+          if (document.getElementById('docsMongoUrl')) {
+            document.getElementById('docsMongoUrl').textContent = mongoUrl;
+          }
+        } catch (e) {
+          // ignore - keep defaults
+        }
+      })();
+    </script>
   </body>
 </html>

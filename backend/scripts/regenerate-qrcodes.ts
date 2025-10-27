@@ -1,17 +1,16 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
+import { connectDB } from '../config/database';
 import { Table } from '../models/Table';
 
-// Carrega variáveis de ambiente
+// Carrega variáveis de ambiente do projeto
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 async function regenerateQRCodes() {
   try {
-    // Conecta ao MongoDB
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/bento-box';
-    await mongoose.connect(mongoUri);
-    console.log('✅ Conectado ao MongoDB');
+    // Conecta ao MongoDB usando a configuração central (usa MONGODB_URI do .env)
+    await connectDB();
+    console.log('✅ Conectado ao MongoDB (via connectDB)');
 
     // Busca todas as mesas
     const tables = await Table.find();
