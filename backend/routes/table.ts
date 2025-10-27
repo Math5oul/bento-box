@@ -11,9 +11,9 @@ const router = Router();
 
 /**
  * GET /api/tables
- * Lista todas as mesas (Admin)
+ * Lista todas as mesas (Admin e público)
  */
-router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const tables = await Table.find().sort({ number: 1 });
 
@@ -400,10 +400,9 @@ router.get(
         return;
       }
 
-      // Gera URL completa para o QR Code
-      const protocol = req.protocol;
-      const host = req.get('host');
-      const url = `${protocol}://${host}/table/${tableId}/join`;
+      // Gera URL completa para o QR Code (aponta para o frontend)
+      const baseUrl = process.env.QR_CODE_BASE_URL || 'http://localhost:4200';
+      const url = `${baseUrl}/table/${tableId}/join`;
 
       // Gera QR Code em base64
       const qrCodeImage = await QRCode.toDataURL(url, {
