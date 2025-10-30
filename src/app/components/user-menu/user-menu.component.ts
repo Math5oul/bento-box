@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { CartService } from '../../services/cart-service/cart.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -27,6 +28,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   @Output() openAdminPanel = new EventEmitter<void>();
 
   authService = inject(AuthService);
+  cartService = inject(CartService);
   private router = inject(Router);
   private renderer = inject(Renderer2);
   private elementRef = inject(ElementRef);
@@ -152,6 +154,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
+    this.cartService.clearCart();
     this.closeMenu();
   }
 }

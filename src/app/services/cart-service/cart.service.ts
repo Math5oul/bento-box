@@ -11,7 +11,8 @@ export interface CartItem {
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
+  private storageKey = 'bento_cart_items';
+  private cartItemsSubject = new BehaviorSubject<CartItem[]>(this.loadCartFromStorage());
   cartItems$: Observable<CartItem[]> = this.cartItemsSubject.asObservable();
 
   /**
@@ -34,6 +35,7 @@ export class CartService {
     }
 
     this.cartItemsSubject.next(newItems);
+    this.saveCartToStorage(newItems);
     console.log('CARRINHO:', newItems);
   }
 
@@ -58,6 +60,7 @@ export class CartService {
     } else {
       currentItems[index] = updatedItem;
       this.cartItemsSubject.next(currentItems);
+      this.saveCartToStorage(currentItems);
     }
   }
 
@@ -78,6 +81,7 @@ export class CartService {
     };
 
     this.cartItemsSubject.next(newItems);
+    this.saveCartToStorage(newItems);
   }
 
   /**
@@ -87,6 +91,7 @@ export class CartService {
   removeItem(productName: string): void {
     const newItems = this.cartItemsSubject.value.filter(item => item.productName !== productName);
     this.cartItemsSubject.next(newItems);
+    this.saveCartToStorage(newItems);
   }
 
   /**
@@ -117,5 +122,32 @@ export class CartService {
    */
   clearCart(): void {
     this.cartItemsSubject.next([]);
+    this.saveCartToStorage([]);
+  }
+
+  /**
+   * Salva o carrinho no localStorage
+   */
+  private saveCartToStorage(items: CartItem[]): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.storageKey, JSON.stringify(items));
+    }
+  }
+
+  /**
+   * Carrega o carrinho do localStorage
+   */
+  private loadCartFromStorage(): CartItem[] {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const data = localStorage.getItem(this.storageKey);
+      if (data) {
+        try {
+          return JSON.parse(data);
+        } catch {
+          return [];
+        }
+      }
+    }
+    return [];
   }
 }
