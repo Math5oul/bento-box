@@ -67,9 +67,18 @@ export class OrderService {
         const grouped: Record<string, { tableNumber: number; tableId: string; orders: Order[] }> =
           {};
         for (const order of orders) {
-          const tableId = order.tableId;
-          // Se não vier tableNumber, coloca 0 (ou buscar depois)
-          const tableNumber = (order as any).tableNumber || 0;
+          // tableId pode ser string ou objeto populado
+          let tableId: string = '';
+          let tableNumber: number = 0;
+          if (order.tableId && typeof order.tableId === 'object' && order.tableId !== null) {
+            // Mongoose populated object: {_id, number}
+            const t: any = order.tableId;
+            tableId = t._id || t.id || '';
+            tableNumber = (order as any).tableNumber || t.number || 0;
+          } else if (typeof order.tableId === 'string') {
+            tableId = order.tableId;
+            tableNumber = (order as any).tableNumber || 0;
+          }
           if (!grouped[tableId]) {
             grouped[tableId] = { tableNumber, tableId, orders: [] };
           }
