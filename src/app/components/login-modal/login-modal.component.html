@@ -5,32 +5,36 @@
     <h2>{{ isRegistering ? 'Criar Conta' : 'Login' }}</h2>
 
     <!-- Aviso de sessão anônima -->
-    <div class="anonymous-session-notice" *ngIf="hasAnonymousSession">
-      <span class="icon">🍱</span>
-      <div class="text">
-        <strong>Você está na Mesa {{ anonymousTableNumber }}</strong>
-        <p>
-          {{
-            isRegistering
-              ? 'Sua conta será vinculada a esta mesa'
-              : 'Sua conta será vinculada a esta mesa'
-          }}
-        </p>
+    @if (hasAnonymousSession) {
+      <div class="anonymous-session-notice">
+        <span class="icon">🍱</span>
+        <div class="text">
+          <strong>Você está na Mesa {{ anonymousTableNumber }}</strong>
+          <p>
+            {{
+              isRegistering
+                ? 'Sua conta será vinculada a esta mesa'
+                : 'Sua conta será vinculada a esta mesa'
+            }}
+          </p>
+        </div>
       </div>
-    </div>
+    }
 
     <form (ngSubmit)="onSubmit()">
-      <div class="form-group" *ngIf="isRegistering">
-        <label for="name">Nome:</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          [(ngModel)]="formData.name"
-          placeholder="Seu nome"
-          required
-        />
-      </div>
+      @if (isRegistering) {
+        <div class="form-group">
+          <label for="name">Nome:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="formData.name"
+            placeholder="Seu nome"
+            required
+          />
+        </div>
+      }
 
       <div class="form-group">
         <label for="email">Email:</label>
@@ -56,21 +60,27 @@
         />
       </div>
 
-      <div class="form-group" *ngIf="isRegistering">
-        <label for="confirmPassword">Confirmar Senha:</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          [(ngModel)]="formData.confirmPassword"
-          placeholder="••••••••"
-          required
-        />
-      </div>
+      @if (isRegistering) {
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Senha:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            [(ngModel)]="formData.confirmPassword"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+      }
 
       <div class="message-container">
-        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
-        <div class="success-message" *ngIf="successMessage">{{ successMessage }}</div>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
+        @if (successMessage) {
+          <div class="success-message">{{ successMessage }}</div>
+        }
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="isLoading">

@@ -7,6 +7,7 @@ import { LoginModalComponent } from '../../components/login-modal/login-modal.co
 import { UserMenuComponent } from '../../components/user-menu/user-menu.component';
 import { AdminPanelComponent } from '../../components/admin-panel/admin-panel.component';
 import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
+import { OrderHistoryComponent } from '../../components/order-history';
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,7 @@ import { ChangePasswordModalComponent } from '../../components/change-password-m
     UserMenuComponent,
     AdminPanelComponent,
     ChangePasswordModalComponent,
+    OrderHistoryComponent,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
@@ -27,6 +29,7 @@ export class HeaderComponent {
   isLoginOpen = false;
   isAdminPanelOpen = false;
   isChangePasswordOpen = false;
+  isOrderHistoryOpen = false;
 
   @Output() search = new EventEmitter<string>();
 
@@ -57,14 +60,17 @@ export class HeaderComponent {
     // TODO: Implementar tela de perfil
   }
 
-  onOpenOrders() {
-    console.log('Abrir histórico de pedidos');
-    // TODO: Implementar tela de pedidos
-  }
-
   onOpenPayments() {
     console.log('Abrir métodos de pagamento');
     // TODO: Implementar tela de pagamentos
+  }
+
+  onOpenOrders() {
+    this.isOrderHistoryOpen = true;
+  }
+
+  onCloseOrderHistory() {
+    this.isOrderHistoryOpen = false;
   }
 
   onOpenChangePassword() {
