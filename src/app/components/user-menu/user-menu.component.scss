@@ -3,13 +3,20 @@
 }
 
 .user-button {
+  justify-content: center;
+  align-items: center;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   background: #f5f3f3;
-  border: 2px solid #ddd;
-  border-radius: 25px;
-  padding: 0.5rem 1rem;
+  border: 2px solid #667eea;
+  border-radius: 50%;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.95rem;
@@ -21,7 +28,13 @@
   }
 
   .user-icon {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
 
   .user-name {
@@ -31,12 +44,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .dropdown-arrow {
-    font-size: 0.7rem;
-    color: #666;
-    transition: transform 0.3s ease;
   }
 }
 
@@ -172,7 +179,7 @@
   }
 }
 
-// Overlay global (renderizado no body via TypeScript)
+// Overlay global
 ::ng-deep .user-menu-overlay {
   position: fixed;
   top: 0;
@@ -201,6 +208,7 @@
     width: 40px;
     height: 40px;
     justify-content: center;
+    border: 2px solid #667eea;
 
     .user-name,
     .dropdown-arrow {

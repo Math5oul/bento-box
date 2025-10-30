@@ -27,14 +27,22 @@
   }
 
   .login-button {
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      font-size: 1.3rem;
+    }
     background: #f5f3f3;
     border: 2px solid #ddd;
     cursor: pointer;
-    font-size: 1.5rem;
-    padding: 0.6rem;
+    font-size: 1.3rem;
+    padding: 0.2rem;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -48,7 +56,7 @@
     }
 
     &:active {
-      transform: scale(0.95);
+      border-bottom: aqua;
     }
   }
 
