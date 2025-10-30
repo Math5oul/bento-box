@@ -1,0 +1,49 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content order-history-modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">×</button>
+    <div class="order-history">
+      <div class="header-row">
+        <h2><span class="icon">📦</span> Histórico de Pedidos</h2>
+      </div>
+
+      @if (loading) {
+        <div class="loading">Carregando...</div>
+      }
+
+      @if (error) {
+        <div class="error">{{ error }}</div>
+      }
+
+      @if (!loading && orders.length === 0) {
+        <div class="empty">Nenhum pedido encontrado.</div>
+      }
+
+      @if (!loading && orders.length > 0) {
+        <ul class="orders-list">
+          @for (order of orders; track order.id) {
+            <li class="order-card">
+              <div class="order-header">
+                <span class="order-id">#{{ order.id }}</span>
+                <div class="order-meta">
+                  <span class="order-date">{{ order.createdAt | date: 'short' }}</span>
+                </div>
+              </div>
+
+              <div class="order-items">
+                <strong>Itens:</strong>
+                <ul>
+                  @for (item of order.items; track item.productName) {
+                    <li>
+                      {{ item.productName }} <span class="qty">x{{ item.quantity }}</span>
+                    </li>
+                  }
+                </ul>
+                <span class="order-status status-{{ order.status }}">{{ order.status }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+</div>

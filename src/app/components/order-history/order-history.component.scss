@@ -1,0 +1,148 @@
+// Modal overlay e centralização
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content.order-history-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem 1.5rem 2.5rem 1.5rem;
+  max-width: 600px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.3s;
+}
+.close-btn:hover {
+  color: #1976d2;
+}
+
+.order-history-modal .header-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  transition: background 0.2s;
+  padding: 0 0 1rem 0;
+}
+.back-btn:hover {
+  background: #f0f4fa;
+}
+h2 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+.loading,
+.error,
+.empty {
+  text-align: center;
+  margin: 2rem 0;
+  color: #888;
+}
+.orders-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.order-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.5rem;
+  padding: 1.2rem 1rem;
+  border-left: 4px solid #1976d2;
+}
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7rem;
+}
+.order-id {
+  font-weight: bold;
+  color: #1976d2;
+}
+.order-date {
+  color: #888;
+  font-size: 0.95em;
+}
+.order-status {
+  font-size: 0.95em;
+  padding: 0.2em 0.7em;
+  border-radius: 12px;
+  background: #e3eafc;
+  color: #1976d2;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.order-status.status-cancelled {
+  background: #fdeaea;
+  color: #d32f2f;
+}
+.order-status.status-delivered {
+  background: #eafaf1;
+  color: #388e3c;
+}
+.order-items {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+.qty {
+  color: #1976d2;
+  font-weight: bold;
+  margin-left: 0.2em;
+}
+.order-meta {
+  text-align: right;
+}

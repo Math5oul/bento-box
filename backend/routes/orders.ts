@@ -112,6 +112,11 @@ router.post(
 
       await order.save();
 
+      // Se usuário autenticado, adiciona o pedido ao orderHistory
+      if (clientId) {
+        await User.updateOne({ _id: clientId }, { $push: { orderHistory: order._id } });
+      }
+
       // Atualiza status da mesa se estava disponível
       if (table.status === TableStatus.AVAILABLE) {
         table.status = TableStatus.OCCUPIED;
@@ -146,14 +151,34 @@ router.post(
 router.get('/my-orders', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const sessionToken = req.query['sessionToken'] as string;
-    let query: any = {};
 
     if (req.user && !req.user.isAnonymous) {
-      // Usuário autenticado
-      query.clientId = req.user.userId;
+      // Usuário autenticado: busca pelo orderHistory
+      const user = await User.findById(req.user.userId).select('orderHistory');
+      if (!user) {
+        res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+        return;
+      }
+      const orders = await Order.find({ _id: { $in: user.orderHistory } })
+        .sort({ createdAt: -1 })
+        .populate('tableId', 'number');
+      const ordersFormatted = orders.map(order => ({
+        ...order.toObject(),
+        id: (order._id as any).toString(),
+      }));
+      res.json({ success: true, orders: ordersFormatted });
+      return;
     } else if (sessionToken) {
       // Sessão anônima
-      query.sessionToken = sessionToken;
+      const orders = await Order.find({ sessionToken })
+        .sort({ createdAt: -1 })
+        .populate('tableId', 'number');
+      const ordersFormatted = orders.map(order => ({
+        ...order.toObject(),
+        id: (order._id as any).toString(),
+      }));
+      res.json({ success: true, orders: ordersFormatted });
+      return;
     } else {
       res.status(401).json({
         success: false,
@@ -161,18 +186,6 @@ router.get('/my-orders', optionalAuth, async (req: Request, res: Response): Prom
       });
       return;
     }
-
-    const orders = await Order.find(query).sort({ createdAt: -1 }).populate('tableId', 'number');
-
-    const ordersFormatted = orders.map(order => ({
-      ...order.toObject(),
-      id: (order._id as any).toString(),
-    }));
-
-    res.json({
-      success: true,
-      orders: ordersFormatted,
-    });
   } catch (error) {
     console.error('Erro ao listar pedidos:', error);
     res.status(500).json({

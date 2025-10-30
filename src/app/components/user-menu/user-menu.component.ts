@@ -153,6 +153,5 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.closeMenu();
-    // Opcional: redirecionar para home
   }
 }

@@ -32,6 +32,16 @@ export class OrderService {
   }
 
   /**
+   * Busca pedidos do usuário autenticado ou anônimo (por sessionToken)
+   */
+  getUserOrders(): Observable<Order[]> {
+    const headers = this.getHeaders();
+    return this.http
+      .get<{ orders: Order[] }>('/api/orders/my-orders', { headers })
+      .pipe(map((res: any) => res.orders || []));
+  }
+
+  /**
    * Cria um novo pedido
    */
   createOrder(orderData: CreateOrderDTO): Observable<any> {

@@ -45,3 +45,7 @@
 @if (isChangePasswordOpen) {
   <app-change-password-modal (close)="onCloseChangePassword()"></app-change-password-modal>
 }
+
+@if (isOrderHistoryOpen) {
+  <app-order-history-modal (close)="onCloseOrderHistory()"></app-order-history-modal>
+}
