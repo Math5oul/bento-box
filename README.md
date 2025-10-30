@@ -2,11 +2,8 @@
 
 Sistema inovador de gerenciamento de cardápios com grid personalizável, desenvolvido com Angular 20.
 
-🐳 **Agora com Docker!** Instale e rode em qualquer máquina com 3 comandos. [Ver guia rápido →](./QUICK-START.md)
-
 ## 📋 Índice
 
-- [Instalação Rápida (Docker)](#-instalação-rápida-docker)
 - [Visão Geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
 - [Elementos Filler](#elementos-filler)
@@ -14,28 +11,6 @@ Sistema inovador de gerenciamento de cardápios com grid personalizável, desenv
 - [Scripts Disponíveis](#scripts-disponíveis)
 - [Acesso Mobile](#acesso-mobile)
 - [Estrutura do Projeto](#estrutura-do-projeto)
-
----
-
-## 🚀 Instalação Rápida (Docker)
-
-```bash
-# 1. Clone o projeto
-git clone https://github.com/Math5oul/bento-box.git
-cd bento-box
-
-# 2. Inicie (escolha seu sistema)
-./docker.sh start    # Linux/Mac
-docker.bat start     # Windows
-
-# 3. Acesse
-# Frontend: http://localhost
-# Manutenção: http://localhost/maintenance-hub.html
-```
-
-📚 **Documentação completa**: [QUICK-START.md](./QUICK-START.md) | [DOCKER.md](./DOCKER.md)
-
----
 
 ## 🎯 Visão Geral
 
@@ -213,40 +188,6 @@ Reforce a identidade visual da marca:
 
 ## 🚀 Instalação
 
-### 🐳 Opção 1: Docker (Recomendado)
-
-A maneira mais fácil e rápida de rodar o projeto!
-
-**Pré-requisitos:**
-
-- Docker e Docker Compose instalados
-
-**Início Rápido:**
-
-```bash
-# Clone o repositório
-git clone https://github.com/Math5oul/bento-box.git
-cd bento-box
-
-# Inicie com Docker (Linux/Mac)
-./docker.sh start
-
-# Ou no Windows
-docker.bat start
-```
-
-Pronto! Acesse:
-
-- **Frontend**: http://localhost
-- **Backend API**: http://localhost:3001
-- **Manutenção**: http://localhost/maintenance-hub.html
-
-📚 **Documentação completa**: [DOCKER.md](./DOCKER.md)
-
----
-
-### 💻 Opção 2: Instalação Manual
-
 **Pré-requisitos:**
 
 - Node.js 18+
@@ -318,15 +259,6 @@ Para acessar o projeto no celular, consulte o guia completo em [MOBILE-ACCESS.md
 3. Execute: `npm run dev:mobile`
 4. Acesse no celular: `http://SEU_IP:4200`
 
-### Funcionalidades Mobile
-
-- ✅ Drag & Drop com touch
-- ✅ Interface responsiva
-- ✅ Feedback visual otimizado
-- ✅ Elemento ghost durante arrastar
-
----
-
 ## 📁 Estrutura do Projeto
 
 ```
@@ -352,17 +284,6 @@ bento-box/
 │   └── test-*.html     # Páginas de teste
 └── uploads/            # Imagens dos produtos
 ```
-
----
-
-## 🎨 Guias Adicionais
-
-- [� FILLERS-GUIDE.md](./FILLERS-GUIDE.md) - **Guia completo sobre elementos Filler**
-- [�📸 IMAGES-GUIDE.md](./IMAGES-GUIDE.md) - Como gerenciar imagens
-- [📱 MOBILE-ACCESS.md](./MOBILE-ACCESS.md) - Acesso em dispositivos móveis
-- [📤 UPLOAD-IMPLEMENTATION.md](./UPLOAD-IMPLEMENTATION.md) - Sistema de upload
-
----
 
 ## 🤝 Contribuindo
 
