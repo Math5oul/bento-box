@@ -49,7 +49,7 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   // Mapa de produtos organizados por categoria
   productsByCategory = new Map<string, GridItem[]>();
 
-  // Mapa de fillers organizados por categoria (cache)
+  // Mapa de fillers organizados por categoria
   fillersByCategory = new Map<string, GridItem[]>();
 
   // Set de IDs de fillers que já foram usados em alguma categoria
@@ -428,7 +428,7 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Importante para cookies de sessão
+        credentials: 'include',
       });
 
       const data = await response.json();

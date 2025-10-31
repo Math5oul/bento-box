@@ -66,7 +66,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     success: false,
     message: err.message || 'Erro interno do servidor',
     error:
-      process.env.NODE_ENV === 'development'
+      process.env['NODE_ENV'] === 'development'
         ? {
             stack: err.stack,
             ...err,

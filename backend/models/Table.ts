@@ -131,14 +131,18 @@ TableSchema.index({ status: 1 });
 /**
  * Método: Gerar QR Code
  */
-TableSchema.methods.generateQRCode = async function (): Promise<void> {
+/**
+ * Método: Gerar QR Code
+ */
+TableSchema.methods['generateQRCode'] = async function (): Promise<void> {
   const QRCode = await import('qrcode');
-  const baseUrl = process.env.QR_CODE_BASE_URL || 'http://localhost:4200';
-  const url = `${baseUrl}/table/${this._id}/join`;
+  const baseUrl = process.env['QR_CODE_BASE_URL'] || 'http://localhost:4200';
+  const url = `${baseUrl}/table/${this['_id']}/join`;
 
-  this.qrCode = url;
+  this['qrCode'] = url;
   // Gera imagem em base64
-  this.qrCodeImage = await QRCode.default.toDataURL(url, {
+  // Gera imagem em base64
+  this['qrCodeImage'] = await QRCode.default.toDataURL(url, {
     width: 300,
     margin: 2,
     color: {

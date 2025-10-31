@@ -327,7 +327,7 @@ export class BentoBoxComponent {
 
     let availableFillers = [...fillers];
 
-    // Shuffle the fillers array copy
+    // Embaralha o array de fillers
     for (let i = availableFillers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [availableFillers[i], availableFillers[j]] = [availableFillers[j], availableFillers[i]];
