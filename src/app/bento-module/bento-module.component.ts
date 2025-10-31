@@ -7,6 +7,8 @@ import {
   OnDestroy,
   OnInit,
   ChangeDetectorRef,
+  Inject,
+  PLATFORM_ID,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GridItem } from '../interfaces/bento-box.interface';
@@ -14,7 +16,7 @@ import { BentoOptions } from '../interfaces/bento-options.interface';
 import { BentoBoxComponent } from './bento-box/bento-box.component';
 import { BentoToolbarComponent } from './bento-toolbar/bento-toolbar.component';
 import { CartService } from '../services/cart-service/cart.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { StorageService } from '../services/storage-service/storage.service';
 import { FillerService } from '../services/filler-service/filler.service';
@@ -129,7 +131,8 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     private tableService: TableService,
     private route: ActivatedRoute,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: any
   ) {}
 
   get isAdmin(): boolean {
@@ -138,16 +141,19 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     // Verifica se está acessando via QR Code (rota /table/:tableId/join)
-    this.route.params.subscribe(params => {
-      const tableId = params['tableId'];
-      if (tableId) {
-        this.joinTable(tableId);
-      }
-    });
+    // Chamamos joinTable apenas no browser (evita SSR e chamadas duplicadas)
+    if (isPlatformBrowser(this.platformId)) {
+      this.route.params.subscribe(params => {
+        const tableId = params['tableId'];
+        if (tableId) {
+          this.joinTable(tableId);
+        }
+      });
+    }
 
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
-      fillers: this.fillerService.getFillers(),
+      fillers: this.fillerService.getFillers().pipe(take(1)),
     }).subscribe(({ products, fillers }) => {
       const fillerGridItems = this.convertFillersToGridItems(fillers);
 
@@ -158,6 +164,22 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       this.allProducts = [...products];
 
       this.groupProductsByCategory(products);
+      // Se chegamos aqui e a navegação trouxe ?joined=true, recarrega os dados
+      // no componente recém-criado (resolve caso o reload fosse chamado no
+      // componente antigo que foi destruído pela navegação)
+      if (
+        isPlatformBrowser(this.platformId) &&
+        this.route.snapshot.queryParams['joined'] === 'true'
+      ) {
+        // pequena defasagem para garantir que o componente esteja totalmente inicializado
+        setTimeout(() => {
+          try {
+            this.reloadAllData();
+          } catch (e) {
+            console.warn('Falha ao recarregar dados após join:', e);
+          }
+        }, 0);
+      }
     });
 
     this.searchSub = this.searchSubject
@@ -414,23 +436,51 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       if (data.success) {
         console.log('✅ Conectado à mesa com sucesso:', data);
 
-        // Se retornou sessionToken, salva no localStorage
-        if (data.sessionToken) {
-          localStorage.setItem('sessionToken', data.sessionToken);
-          localStorage.setItem('tableId', tableId);
-          localStorage.setItem('tableNumber', data.table.number);
+        // Se retornou sessionToken, salva no localStorage (apenas no browser)
+        if (isPlatformBrowser(this.platformId) && data.sessionToken) {
+          try {
+            localStorage.setItem('sessionToken', data.sessionToken);
+            localStorage.setItem('tableId', tableId);
+            localStorage.setItem('tableNumber', data.table.number);
+          } catch (e) {
+            console.warn('Não foi possível acessar localStorage:', e);
+          }
         }
 
         // Redireciona para a página principal (sem o /join na URL)
-        this.router.navigate(['/'], {
-          queryParams: {
-            table: data.table.number,
-            joined: 'true',
-          },
-        });
+        // Após navegar, recarrega todos os dados (produtos e fillers)
+        this.router
+          .navigate(['/'], {
+            queryParams: {
+              table: data.table.number,
+              joined: 'true',
+            },
+          })
+          .then(() => {
+            // As ações abaixo devem rodar apenas no browser
+            if (isPlatformBrowser(this.platformId)) {
+              // Mostra mensagem de boas-vindas
+              try {
+                alert(`\ud83c\udf89 Bem-vindo \u00e0 Mesa ${data.table.number}!`);
+              } catch (e) {
+                console.warn('alert indisponível:', e);
+              }
 
-        // Mostra mensagem de boas-vindas
-        alert(`🎉 Bem-vindo à Mesa ${data.table.number}!`);
+              // Recarrega produtos e fillers para garantir que os fillers
+              // carreguem sem a necessidade de refresh manual da página
+              try {
+                this.reloadAllData();
+              } catch (err) {
+                // fallback: força recarregamento da página se algo inesperado ocorrer
+                console.error('Erro ao recarregar dados depois do join:', err);
+                try {
+                  window.location.reload();
+                } catch (e) {
+                  console.warn('window.location.reload indisponível:', e);
+                }
+              }
+            }
+          });
       } else {
         console.error('❌ Erro ao conectar à mesa:', data.message);
         alert(`Erro: ${data.message}`);
