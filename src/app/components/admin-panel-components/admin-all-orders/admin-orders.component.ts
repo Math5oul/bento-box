@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { OrderService } from '../../services/order-service/order.service';
-import { Order, OrderStatus } from '../../interfaces/order.interface';
+import { Order, OrderStatus } from '../../../interfaces';
+import { OrderService } from '../../../services/order-service/order.service';
 
 interface OrdersByTable {
   tableNumber: number;
@@ -31,12 +30,10 @@ export class AdminOrdersComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['scrollToTableNumber'] && this.scrollToTableNumber != null) {
-      // Wait a tick for DOM to render
       setTimeout(() => this.scrollToTable(this.scrollToTableNumber as number), 50);
     }
   }
 
-  // Public method so parent can call directly via ViewChild
   public scrollToTable(tableNumber: number) {
     try {
       const selector = `[data-table-number='${tableNumber}']`;
