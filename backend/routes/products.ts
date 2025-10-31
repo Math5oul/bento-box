@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Product from '../models/Product';
 import { optionalAuth } from '../middleware/auth';
-
 const router = Router();
 
 /**
