@@ -401,7 +401,7 @@ router.get(
       }
 
       // Gera URL completa para o QR Code (aponta para o frontend)
-      const baseUrl = process.env.QR_CODE_BASE_URL || 'http://localhost:4200';
+      const baseUrl = process.env['QR_CODE_BASE_URL'] || 'http://localhost:4200';
       const url = `${baseUrl}/table/${tableId}/join`;
 
       // Gera QR Code em base64

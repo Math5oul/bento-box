@@ -136,21 +136,29 @@ UserSchema.pre('save', async function (next) {
 /**
  * Método: Comparar senha
  */
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  if (!this.password) return false;
+/**
+ * Método: Comparar senha
+ */
+UserSchema.methods['comparePassword'] = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  if (!this['password']) return false;
   const bcrypt = await import('bcrypt');
-  return bcrypt.default.compare(candidatePassword, this.password);
+  return bcrypt.default.compare(candidatePassword, this['password']);
 };
 
 /**
  * Método: Gerar session token
  */
-UserSchema.methods.generateSessionToken = function (): string {
+/**
+ * Método: Gerar session token
+ */
+UserSchema.methods['generateSessionToken'] = function (): string {
   const { v4: uuidv4 } = require('uuid');
-  this.sessionToken = uuidv4();
-  const expiryHours = parseInt(process.env.SESSION_EXPIRY_HOURS || '24');
-  this.sessionExpiry = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
-  return this.sessionToken;
+  this['sessionToken'] = uuidv4();
+  const expiryHours = parseInt(process.env['SESSION_EXPIRY_HOURS'] || '24');
+  this['sessionExpiry'] = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
+  return this['sessionToken'];
 };
 
 /**

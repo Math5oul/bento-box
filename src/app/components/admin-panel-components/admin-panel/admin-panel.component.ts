@@ -12,11 +12,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { AdminOrdersComponent } from '../admin-all-orders/admin-orders.component';
 import { ViewChild } from '@angular/core';
 import { Table, TableStatus } from '../../../interfaces';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { TableService } from '../../../services/table-service/table.service';
+import { AdminOrdersComponent } from '../admin-all-orders/admin-orders.component';
 
 interface ReservationInfo {
   clientName: string;
