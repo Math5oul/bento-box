@@ -310,35 +310,6 @@ Copyright (c) 2024-2025 Math5oul. Todos os direitos reservados.
 
 Este software é proprietário e está protegido por leis de direitos autorais. O uso deste software está sujeito aos termos da licença proprietária incluída no arquivo [LICENSE](./LICENSE).
 
-### ⚠️ Restrições Importantes
-
-- ❌ **Proibido uso comercial** sem licença comercial
-- ❌ **Proibida redistribuição** ou sublicenciamento
-- ❌ **Proibida engenharia reversa**
-- ❌ **Proibido criar produtos derivados** sem autorização
-- ✅ **Permitido uso para avaliação e portfólio**
-
-### 💼 Licenças Comerciais Disponíveis
-
-Este projeto está disponível para licenciamento comercial. Se você deseja:
-
-- ✅ Usar em produção comercial
-- ✅ Revender ou integrar em seu produto
-- ✅ Customizar para seu negócio
-- ✅ Suporte e atualizações
-
-**Entre em contato para discutir opções de licenciamento:**
-
-- GitHub: [@Math5oul](https://github.com/Math5oul)
-- Consulte o arquivo [LICENSE](./LICENSE) para detalhes completos
-
-### 📋 Tipos de Licença
-
-1. **Licença de Uso Único** (Single Site License) - Para um estabelecimento
-2. **Licença Empresarial** (Enterprise License) - Múltiplos estabelecimentos
-3. **Licença de Revenda** (Reseller License) - Para revendedores
-4. **Licença OEM** - Para fabricantes de equipamentos
-
 ---
 
 ## 👨‍💻 Autor
@@ -346,15 +317,3 @@ Este projeto está disponível para licenciamento comercial. Se você deseja:
 **Math5oul**
 
 - GitHub: [@Math5oul](https://github.com/Math5oul)
-
----
-
-## 🙏 Agradecimentos
-
-- Angular Team
-- MongoDB
-- Comunidade de Desenvolvedores
-
----
-
-**Última atualização**: Outubro 2025
