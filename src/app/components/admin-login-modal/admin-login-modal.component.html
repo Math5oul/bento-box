@@ -1,0 +1,41 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">×</button>
+    <h2>Login Administrador</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="formData.email"
+          placeholder="admin@email.com"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">Senha:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="formData.password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+      <div class="message-container">
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
+        @if (successMessage) {
+          <div class="success-message">{{ successMessage }}</div>
+        }
+      </div>
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        {{ isLoading ? '⏳ Aguarde...' : 'Entrar como Admin' }}
+      </button>
+    </form>
+  </div>
+</div>
