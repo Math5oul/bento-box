@@ -144,20 +144,24 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    let joinedByQRCode = false;
     // Verifica se está acessando via QR Code (rota /table/:tableId/join)
     this.route.params.subscribe(params => {
       const tableId = params['tableId'];
       if (tableId) {
         this.joinTable(tableId);
+        joinedByQRCode = true;
       }
     });
 
-    // Se não há sessão anônima, força login de admin
-    if (!this.authService.hasAnonymousSession()) {
-      this.showAdminLogin = true;
-    } else {
-      // Se há sessão anônima, permite login de cliente
-      this.showClientLogin = true;
+    // Se entrou por QRCode, não mostra nenhum modal de login
+    if (!joinedByQRCode) {
+      if (!this.authService.hasAnonymousSession() && !this.authService.isAdmin()) {
+        this.showAdminLogin = true;
+      } else if (this.authService.hasAnonymousSession()) {
+        // Se há sessão anônima, permite login de cliente
+        this.showClientLogin = true;
+      }
     }
 
     this.productsSub = forkJoin({

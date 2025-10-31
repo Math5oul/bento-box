@@ -1,6 +1,6 @@
 <section class="bento-module">
   <!-- Modal de login admin -->
-  @if (showAdminLogin) {
+  @if (showAdminLogin && !isAdmin) {
     <app-admin-login-modal
       (loginSuccess)="onAdminLoginSuccess($event)"
       (close)="showAdminLogin = false"

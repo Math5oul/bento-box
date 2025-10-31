@@ -6,8 +6,24 @@ import { Order } from '../models/Order';
 import { generateToken } from '../utils/jwt';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { validate, runValidations } from '../middleware/validate';
+import rateLimit from 'express-rate-limit';
+
+// Inicializa CSRF, mas só ativa em rotas protegidas
+// ...existing code...
 
 const router = Router();
+
+// Rate limiter para login: 5 tentativas por 15 minutos por IP
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // 5 tentativas
+  message: {
+    success: false,
+    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /**
  * POST /api/auth/register
@@ -81,6 +97,7 @@ router.post(
  */
 router.post(
   '/login',
+  loginLimiter,
   runValidations([
     body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
     body('password').notEmpty().withMessage('Senha é obrigatória'),
@@ -150,9 +167,11 @@ router.post('/logout', authenticate, async (req: Request, res: Response): Promis
  * POST /api/auth/change-password
  * Altera senha do usuário autenticado
  */
+// Protege apenas a rota de troca de senha com CSRF
 router.post(
   '/change-password',
   authenticate,
+  // csrfProtection será aplicado via server.ts
   runValidations([
     body('currentPassword').notEmpty().withMessage('Senha atual é obrigatória'),
     body('newPassword')
