@@ -5,9 +5,9 @@ import { CartComponent } from '../../components/cart/cart.component';
 import { CommonModule } from '@angular/common';
 import { LoginModalComponent } from '../../components/login-modal/login-modal.component';
 import { UserMenuComponent } from '../../components/user-menu/user-menu.component';
-import { AdminPanelComponent } from '../../components/admin-panel/admin-panel.component';
 import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 import { OrderHistoryComponent } from '../../components/order-history';
+import { AdminPanelComponent } from '../../components/admin-panel-components/admin-panel/admin-panel.component';
 
 @Component({
   selector: 'app-header',
