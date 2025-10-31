@@ -1,4 +1,18 @@
 <section class="bento-module">
+  <!-- Modal de login admin -->
+  @if (showAdminLogin) {
+    <app-admin-login-modal
+      (loginSuccess)="onAdminLoginSuccess($event)"
+      (close)="showAdminLogin = false"
+    ></app-admin-login-modal>
+  }
+  <!-- Modal de login cliente -->
+  @if (showClientLogin) {
+    <app-login-modal
+      (loginSuccess)="onClientLoginSuccess($event)"
+      (close)="showClientLogin = false"
+    ></app-login-modal>
+  }
   <app-header class="header" (search)="onSearch($event)"></app-header>
 
   <!-- Grid único quando há pesquisa ativa -->

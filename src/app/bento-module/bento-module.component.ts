@@ -16,6 +16,8 @@ import { BentoToolbarComponent } from './bento-toolbar/bento-toolbar.component';
 import { CartService } from '../services/cart-service/cart.service';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
+import { AdminLoginModalComponent } from '../components/admin-login-modal/admin-login-modal.component';
+import { LoginModalComponent } from '../components/login-modal/login-modal.component';
 import { StorageService } from '../services/storage-service/storage.service';
 import { FillerService } from '../services/filler-service/filler.service';
 import { AuthService } from '../services/auth-service/auth.service';
@@ -36,11 +38,16 @@ import { FooterComponent } from '../components/footer/footer.component';
     HeaderComponent,
     FooterComponent,
     CommonModule,
+    AdminLoginModalComponent,
+    LoginModalComponent,
   ],
   templateUrl: './bento-module.component.html',
   styleUrl: './bento-module.component.scss',
 })
 export class BentoModuleComponent implements OnDestroy, OnInit {
+  showAdminLogin = false;
+  showClientLogin = false;
+
   data: GridItem[] = [];
   fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
 
@@ -145,6 +152,14 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       }
     });
 
+    // Se não há sessão anônima, força login de admin
+    if (!this.authService.hasAnonymousSession()) {
+      this.showAdminLogin = true;
+    } else {
+      // Se há sessão anônima, permite login de cliente
+      this.showClientLogin = true;
+    }
+
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers(),
@@ -169,6 +184,16 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     if (this.fillers?.length === 0) {
       this.options.createFillers = false;
     }
+  }
+
+  onAdminLoginSuccess(data: { token: string; user: any }) {
+    this.authService.login(data.token, data.user);
+    this.showAdminLogin = false;
+  }
+
+  onClientLoginSuccess(data: { token: string; user: any }) {
+    this.authService.login(data.token, data.user);
+    this.showClientLogin = false;
   }
 
   /**

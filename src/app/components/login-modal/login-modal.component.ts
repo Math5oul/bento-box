@@ -114,12 +114,24 @@ export class LoginModalComponent implements OnInit, OnDestroy {
             this.formData.email,
             this.formData.password
           );
+          // Bloqueia registro de admin via mesa
+          if (response.user?.role === 'admin') {
+            this.errorMessage = 'Não é permitido registrar conta admin por este acesso.';
+            this.isLoading = false;
+            return;
+          }
           this.successMessage = `✅ Conta criada e vinculada à Mesa ${this.anonymousTableNumber}!`;
         } else {
           response = await this.authService.convertAnonymousWithLogin(
             this.formData.email,
             this.formData.password
           );
+          // Bloqueia login de admin via mesa
+          if (response.user?.role === 'admin') {
+            this.errorMessage = 'Não é permitido login de admin por este acesso.';
+            this.isLoading = false;
+            return;
+          }
           this.successMessage = `✅ Login realizado e conta vinculada à Mesa ${this.anonymousTableNumber}!`;
         }
       } else {
