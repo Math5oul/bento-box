@@ -37,7 +37,16 @@ export class DocsComponent implements OnInit {
     this.http.get<HealthInfo>(`${environment.apiUrl}/health`).subscribe({
       next: info => {
         this.frontendUrl = info.frontendUrl || this.frontendUrl;
-        this.backendUrl = window.location.origin || this.backendUrl;
+
+        // Backend URL: pega do environment ou infere do frontend
+        if (environment.apiUrl.startsWith('http')) {
+          this.backendUrl = environment.apiUrl.replace('/api', '');
+        } else {
+          // Se for relativo (/api), usa window.location mas troca a porta
+          const currentUrl = new URL(window.location.href);
+          this.backendUrl = `${currentUrl.protocol}//${currentUrl.hostname}:3001`;
+        }
+
         this.mongoHost = info?.db?.host || this.mongoHost;
         this.tableUrl = `${this.frontendUrl}/table/[id]`;
         this.testHubUrl = `${this.backendUrl}/test-hub.html`;
