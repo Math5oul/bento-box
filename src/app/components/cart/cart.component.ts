@@ -16,19 +16,22 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { CartService, CartItem } from '../../services/cart-service/cart.service';
-import { OrderItem, CreateOrderDTO, Order } from '../../interfaces/order.interface';
+import { FormsModule } from '@angular/forms';
+import { ProductService } from './../../services/product-service/product.service';
+import { StorageService } from '../../services/storage-service/storage.service';
+import { Order, OrderItem, CreateOrderDTO } from '../../interfaces/order.interface';
 import { User } from '../../interfaces/user.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { OrderService } from '../../services/order-service/order.service';
-import { interval, Subscription } from 'rxjs';
+import { CartService, CartItem, CartItemSize } from './../../services/cart-service/cart.service';
+import { interval, Subscription, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   templateUrl: './cart.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent implements OnInit, OnDestroy, OnChanges {
@@ -40,6 +43,8 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   public _cartService = inject(CartService);
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
+  private productService = inject(ProductService);
+  private storageService = inject(StorageService);
 
   isPlacingOrder = false;
   orderSuccess = false;
@@ -52,6 +57,12 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   placedOrders: Order[] = [];
   private pollingSubscription?: Subscription;
   private authSubscription?: Subscription;
+
+  // Modal de edição
+  showEditModal = false;
+  editingItem: CartItem | null = null;
+  editingItemOriginal: CartItem | null = null; // Para restaurar se cancelar
+  editingItemSizes: CartItemSize[] = [];
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
@@ -263,5 +274,96 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays === 1) return 'Há 1 dia';
     return `Há ${diffDays} dias`;
+  }
+
+  /**
+   * Verifica se deve mostrar o tamanho do item
+   * Oculta se o produto só tinha 1 tamanho
+   */
+  shouldShowSize(item: CartItem): boolean {
+    // Mostra o tamanho se ele existir e se o produto tiver mais de um tamanho disponível
+    return !!item.selectedSize && !!item.totalSizes && item.totalSizes > 1;
+  }
+
+  /**
+   * Verifica se deve mostrar o tamanho no histórico de pedidos
+   * Sempre mostra se existir (para compatibilidade com pedidos antigos)
+   */
+  shouldShowSizeInHistory(item: OrderItem): boolean {
+    return item.selectedSize !== undefined;
+  }
+
+  /**
+   * Abre modal de edição do item
+   */
+  openEditModal(item: CartItem): void {
+    // Clonando os objetos para evitar two-way data binding direto na lista
+    this.editingItemOriginal = item;
+    this.editingItem = { ...item };
+    this.showEditModal = true;
+
+    // Buscar os tamanhos disponíveis para este produto
+    this.productService.getAllProducts({ search: item.productName }).subscribe({
+      next: response => {
+        if (response.success && response.data.length > 0) {
+          const product = response.data[0];
+          if (product && product.sizes) {
+            this.editingItemSizes = product.sizes;
+          } else {
+            this.editingItemSizes = [];
+          }
+        } else {
+          this.editingItemSizes = [];
+        }
+      },
+      error: () => {
+        this.editingItemSizes = [];
+      },
+    });
+  }
+
+  /**
+   * Fecha modal de edição
+   */
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editingItem = null;
+    this.editingItemOriginal = null;
+    this.editingItemSizes = [];
+  }
+
+  /**
+   * Seleciona um tamanho durante a edição
+   */
+  selectSizeForEdit(size: CartItemSize): void {
+    if (this.editingItem) {
+      this.editingItem.selectedSize = size;
+      this.editingItem.price = size.price; // Atualiza o preço do item
+    }
+  }
+
+  /**
+   * Salva as edições do item
+   */
+  saveEditedItem(): void {
+    if (this.editingItem && this.editingItemOriginal) {
+      // Lógica para salvar
+      // 1. Remover o item original do carrinho
+      this._cartService.removeSpecificItem(this.editingItemOriginal);
+      // 2. Adicionar o item modificado
+      this._cartService.addItem(this.editingItem);
+      // 3. Fechar o modal
+      this.closeEditModal();
+    }
+  }
+
+  get isTableLinked(): boolean {
+    return !!localStorage.getItem('tableId');
+  }
+
+  get tableLinkMessage(): string {
+    return this.isTableLinked
+      ? ''
+      : 'Você precisa estar em uma mesa para fazer pedidos. Escaneie o QR Code da mesa.';
   }
 }

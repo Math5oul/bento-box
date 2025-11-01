@@ -56,6 +56,7 @@ export class SimpleProductComponent {
       observations: order.observations || '',
       image: this.inputs.images[0],
       selectedSize: order.selectedSize,
+      totalSizes: this.inputs.sizes?.length || 0,
     });
   }
 }

@@ -4,18 +4,11 @@ import { SimpleProductComponent } from '../simpleComponents/simple-product/simpl
 import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
 import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
 
-/**
- * Lista de categorias disponíveis para produtos e fillers
- */
-export const PRODUCT_CATEGORIES = [
-  'food',
-  'hot beverage',
-  'cold beverage',
-  'dessert',
-  'alcoholic',
-  'beverage',
-  'other',
-] as const;
+export interface ProductSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
 
 export interface InputConfig {
   name: string;
@@ -28,7 +21,8 @@ export interface InputConfig {
     | 'select'
     | 'checkbox'
     | 'multiple-text'
-    | 'multi-select';
+    | 'multi-select'
+    | 'product-sizes';
   required?: boolean;
   defaultValue?: any;
   placeholder?: string;
@@ -73,8 +67,8 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'category',
           label: 'Categoria',
           type: 'select',
-          options: PRODUCT_CATEGORIES,
-          defaultValue: 'food',
+          options: [], // Será preenchido dinamicamente com as categorias do banco
+          defaultValue: '',
           required: true,
         },
         {
@@ -97,9 +91,15 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
         },
         {
           name: 'price',
-          label: 'Preço',
+          label: 'Preço Base',
           type: 'number',
           step: 0.01,
+        },
+        {
+          name: 'sizes',
+          label: 'Tamanhos Disponíveis',
+          type: 'product-sizes',
+          defaultValue: [],
         },
       ],
     },
@@ -126,7 +126,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: PRODUCT_CATEGORIES,
+          options: [], // Será preenchido dinamicamente com as categorias do banco
           defaultValue: [],
         },
         {
@@ -156,7 +156,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: PRODUCT_CATEGORIES,
+          options: [], // Será preenchido dinamicamente com as categorias do banco
           defaultValue: [],
         },
         {
@@ -203,7 +203,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'categories',
           label: 'Categorias onde pode ser exibido',
           type: 'multi-select',
-          options: PRODUCT_CATEGORIES,
+          options: [], // Será preenchido dinamicamente com as categorias do banco
           defaultValue: [],
         },
         {

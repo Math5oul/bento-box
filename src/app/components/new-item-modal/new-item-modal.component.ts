@@ -7,9 +7,11 @@ import {
   FormGroup,
   FormArray,
 } from '@angular/forms';
-import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
+import { COMPONENT_INPUTS_MAP, ProductSize } from './Components_Inputs_map';
 import { ImageUploadService } from '../../services/image-upload/image-upload.service';
+import { CategoryService } from '../../services/category-service/category.service';
 import { GridItem } from '../../interfaces/bento-box.interface';
+import { Category } from '../../interfaces/category.interface';
 
 @Component({
   selector: 'app-new-item-modal',
@@ -42,9 +44,18 @@ export class NewItemModalComponent implements OnInit {
   isUploading = false;
   currentTempId: string | null = null;
 
+  // Gerenciamento de tamanhos de produtos
+  editingSizeIndex: number | null = null;
+  tempSize: ProductSize = { name: '', abbreviation: '', price: 0 };
+
+  // Categorias dinâmicas
+  categories: Category[] = [];
+  categoryOptions: string[] = [];
+
   constructor(
     private fb: FormBuilder,
-    private imageUploadService: ImageUploadService
+    private imageUploadService: ImageUploadService,
+    private categoryService: CategoryService
   ) {
     this.componentForm = this.fb.group({
       rowSpan: [1],
@@ -54,9 +65,56 @@ export class NewItemModalComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Carregar categorias do banco
+    this.loadCategories();
+
+    // Aguardar um momento para as categorias carregarem antes de editar
     if (this.editMode && this.itemToEdit) {
-      this.loadItemForEditing();
+      // Se já temos categorias em cache, carregar imediatamente
+      const cachedCategories = this.categoryService.getCurrentCategories();
+      if (cachedCategories && cachedCategories.length > 0) {
+        this.categories = cachedCategories;
+        this.categoryOptions = cachedCategories.map(cat => cat.slug);
+        this.updateCategoryOptions();
+        this.loadItemForEditing();
+      } else {
+        // Caso contrário, aguardar o carregamento
+        setTimeout(() => this.loadItemForEditing(), 200);
+      }
     }
+  }
+
+  /**
+   * Carrega as categorias do banco de dados
+   */
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: response => {
+        if (response.success) {
+          this.categories = response.data;
+          this.categoryOptions = response.data.map(cat => cat.slug);
+
+          // Atualizar as opções de categoria em todos os componentes
+          this.updateCategoryOptions();
+        }
+      },
+      error: error => {
+        console.error('Erro ao carregar categorias:', error);
+      },
+    });
+  }
+
+  /**
+   * Atualiza as opções de categoria nos componentes disponíveis
+   */
+  updateCategoryOptions() {
+    this.availableComponents.forEach(comp => {
+      comp.inputsConfig.forEach(input => {
+        if (input.name === 'category' || input.name === 'categories') {
+          input.options = this.categoryOptions;
+        }
+      });
+    });
   }
 
   /**
@@ -81,19 +139,42 @@ export class NewItemModalComponent implements OnInit {
 
       this.initInputsForm(config.inputs);
 
+      // Primeiro, definimos rowSpan e colSpan
       this.componentForm.patchValue({
         rowSpan: this.itemToEdit.rowSpan,
         colSpan: this.itemToEdit.colSpan,
-        inputs: this.itemToEdit.inputs,
       });
 
-      if (this.itemToEdit.inputs.categories && Array.isArray(this.itemToEdit.inputs.categories)) {
-        const categoriesControl = this.componentForm.get(['inputs', 'categories']);
-        if (categoriesControl) {
-          categoriesControl.setValue([...this.itemToEdit.inputs.categories]);
-        }
+      // Depois carregamos os inputs um por um para garantir que sejam aplicados corretamente
+      const inputsFormGroup = this.componentForm.get('inputs') as FormGroup;
+
+      if (this.itemToEdit && this.itemToEdit.inputs) {
+        Object.keys(this.itemToEdit.inputs).forEach(key => {
+          const control = inputsFormGroup.get(key);
+          const value = this.itemToEdit!.inputs[key];
+
+          if (control) {
+            // Para arrays (como images, categories, formats, sizes), precisamos tratar diferente
+            if (Array.isArray(value)) {
+              // Se for um FormArray (como images)
+              if (control instanceof FormArray) {
+                control.clear();
+                value.forEach((item: any) => {
+                  control.push(this.fb.control(item));
+                });
+              } else {
+                // Se for um control normal que aceita array (como categories, formats, sizes)
+                control.setValue(value);
+              }
+            } else {
+              // Para valores simples
+              control.setValue(value);
+            }
+          }
+        });
       }
 
+      // Carregar imagens
       if (this.itemToEdit.inputs.images && Array.isArray(this.itemToEdit.inputs.images)) {
         this.uploadedImagePaths = [...this.itemToEdit.inputs.images];
       } else if (this.itemToEdit.inputs.url) {
@@ -107,9 +188,11 @@ export class NewItemModalComponent implements OnInit {
    * @param component O componente selecionado, contendo informações como nome e configuração de inputs.
    */
   selectComponent(component: any) {
+    console.log('Componente selecionado:', component);
     this.selectedComponent = component;
     this.showDimensionsForm = true;
     this.initInputsForm(component.inputsConfig);
+    console.log('Formulário inicializado:', this.componentForm.value);
   }
 
   /**
@@ -126,6 +209,8 @@ export class NewItemModalComponent implements OnInit {
         );
         inputsGroup.addControl(input.name, this.fb.array(arrayControls));
       } else if (input.type === 'multi-select') {
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || []));
+      } else if (input.type === 'product-sizes') {
         inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || []));
       } else {
         inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || ''));
@@ -199,19 +284,15 @@ export class NewItemModalComponent implements OnInit {
   }
 
   /**
-   * Retorna o nome traduzido de uma categoria
+   * Retorna o nome formatado de uma categoria (emoji + nome)
    */
-  getCategoryDisplayName(category: string): string {
-    const categoryNames: { [key: string]: string } = {
-      food: '🥐 Pratos',
-      'hot beverage': '☕ Bebidas Quentes',
-      'cold beverage': '🥤 Bebidas Frias',
-      dessert: '🍰 Sobremesas',
-      alcoholic: '🍺 Bebidas Alcoólicas',
-      beverage: '🍹 Bebidas',
-      other: '📦 Outros',
-    };
-    return categoryNames[category] || category;
+  getCategoryDisplayName(categorySlug: string): string {
+    const category = this.categories.find(cat => cat.slug === categorySlug);
+    if (category) {
+      return `${category.emoji} ${category.name}`;
+    }
+    // Fallback se não encontrar a categoria
+    return categorySlug;
   }
 
   /**
@@ -381,6 +462,88 @@ export class NewItemModalComponent implements OnInit {
     return `temp-${Date.now()}`;
   }
 
+  // ===== Gerenciamento de Tamanhos de Produtos =====
+
+  /**
+   * Retorna o array de tamanhos do produto
+   */
+  getProductSizes(): ProductSize[] {
+    const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+    return sizesControl?.value || [];
+  }
+
+  /**
+   * Adiciona um novo tamanho ao produto
+   */
+  addProductSize() {
+    if (!this.tempSize.name || !this.tempSize.abbreviation || this.tempSize.price <= 0) {
+      alert('Preencha todos os campos do tamanho');
+      return;
+    }
+
+    const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+    if (!sizesControl) return;
+
+    const currentSizes: ProductSize[] = sizesControl.value || [];
+    currentSizes.push({ ...this.tempSize });
+    sizesControl.setValue(currentSizes);
+
+    // Reseta o formulário temporário
+    this.tempSize = { name: '', abbreviation: '', price: 0 };
+  }
+
+  /**
+   * Inicia a edição de um tamanho
+   */
+  startEditSize(index: number) {
+    const sizes = this.getProductSizes();
+    this.editingSizeIndex = index;
+    this.tempSize = { ...sizes[index] };
+  }
+
+  /**
+   * Salva as alterações de um tamanho editado
+   */
+  saveEditSize() {
+    if (this.editingSizeIndex === null) return;
+
+    if (!this.tempSize.name || !this.tempSize.abbreviation || this.tempSize.price <= 0) {
+      alert('Preencha todos os campos do tamanho');
+      return;
+    }
+
+    const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+    if (!sizesControl) return;
+
+    const currentSizes: ProductSize[] = [...(sizesControl.value || [])];
+    currentSizes[this.editingSizeIndex] = { ...this.tempSize };
+    sizesControl.setValue(currentSizes);
+
+    this.cancelEditSize();
+  }
+
+  /**
+   * Cancela a edição de um tamanho
+   */
+  cancelEditSize() {
+    this.editingSizeIndex = null;
+    this.tempSize = { name: '', abbreviation: '', price: 0 };
+  }
+
+  /**
+   * Remove um tamanho da lista
+   */
+  removeProductSize(index: number) {
+    if (!confirm('Deseja remover este tamanho?')) return;
+
+    const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+    if (!sizesControl) return;
+
+    const currentSizes: ProductSize[] = [...(sizesControl.value || [])];
+    currentSizes.splice(index, 1);
+    sizesControl.setValue(currentSizes);
+  }
+
   closeModal() {
     this.modalClosed.emit();
     this.resetForm();
@@ -396,6 +559,8 @@ export class NewItemModalComponent implements OnInit {
     this.uploadedImagePaths = [];
     this.isUploading = false;
     this.currentTempId = null;
+    this.editingSizeIndex = null;
+    this.tempSize = { name: '', abbreviation: '', price: 0 };
     this.componentForm.reset({
       rowSpan: 1,
       colSpan: 1,

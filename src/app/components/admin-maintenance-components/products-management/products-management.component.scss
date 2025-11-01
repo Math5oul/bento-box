@@ -664,6 +664,199 @@
   }
 }
 
+// Seção de Tamanhos
+.sizes-section {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border: 1px solid #e9ecef;
+
+  label {
+    font-size: 1.1em;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+  }
+
+  .sizes-info {
+    margin-bottom: 1rem;
+
+    .hint {
+      font-size: 0.9em;
+      color: #6c757d;
+      margin: 0;
+    }
+  }
+
+  .size-form {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+
+    .size-inputs {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+
+      input {
+        padding: 0.5rem 0.6rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        background: white;
+        color: #2c3e50;
+        font-size: 0.9em;
+        min-width: 0;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: #6c757d;
+          font-size: 0.85em;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          background: #f8f9fa;
+        }
+      }
+
+      .size-name-input {
+        grid-column: 1;
+      }
+
+      .size-abbr-input {
+        grid-column: 2;
+        text-transform: uppercase;
+      }
+
+      .size-price-input {
+        grid-column: 3;
+      }
+    }
+
+    .size-actions {
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.95em;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .add-size-btn {
+        background: #28a745;
+        color: white;
+        flex: 1;
+
+        &:hover {
+          background: #218838;
+          transform: translateY(-1px);
+        }
+      }
+
+      .cancel-size-btn {
+        background: #6c757d;
+        color: white;
+
+        &:hover {
+          background: #5a6268;
+        }
+      }
+    }
+  }
+
+  .sizes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .size-item {
+      background: white;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+        transform: translateX(3px);
+      }
+
+      .size-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+
+        .size-abbr {
+          background: #667eea;
+          color: white;
+          padding: 0.3rem 0.6rem;
+          border-radius: 4px;
+          font-weight: bold;
+          font-size: 0.9em;
+          min-width: 40px;
+          text-align: center;
+        }
+
+        .size-name {
+          color: #2c3e50;
+          font-weight: 500;
+          flex: 1;
+        }
+
+        .size-price {
+          color: #28a745;
+          font-weight: bold;
+          font-size: 1.05em;
+        }
+      }
+
+      .size-item-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          padding: 0.4rem 0.7rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 1em;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+
+          &.edit-size-btn:hover {
+            background: #ffc107;
+            border-color: #ffc107;
+          }
+
+          &.remove-size-btn:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Responsividade
 @media (max-width: 768px) {
   .products-management-container {
@@ -689,5 +882,59 @@
 
   .modal-content {
     max-height: 95vh;
+  }
+
+  // Ajustes para seção de tamanhos em mobile
+  .sizes-section {
+    .size-form {
+      padding: 0.75rem;
+
+      .size-inputs {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+
+        .size-name-input,
+        .size-abbr-input,
+        .size-price-input {
+          grid-column: 1;
+        }
+      }
+
+      .size-actions {
+        flex-direction: column;
+      }
+    }
+
+    .sizes-list {
+      .size-item {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.6rem;
+
+        .size-info {
+          width: 100%;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .size-item-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}
+
+// Tablets e telas médias
+@media (max-width: 992px) and (min-width: 769px) {
+  .sizes-section {
+    .size-form {
+      .size-inputs {
+        grid-template-columns: 3fr 1.5fr 2fr;
+        gap: 0.6rem;
+      }
+    }
   }
 }

@@ -188,6 +188,79 @@
             />
           </div>
 
+          <!-- Tamanhos Disponíveis -->
+          <div class="form-group sizes-section">
+            <label>Tamanhos Disponíveis (Opcional)</label>
+            <div class="sizes-info">
+              <p class="hint">Adicione tamanhos com preços específicos (ex: P, M, G)</p>
+            </div>
+
+            <!-- Formulário para adicionar/editar tamanho -->
+            <div class="size-form">
+              <div class="size-inputs">
+                <input
+                  type="text"
+                  [(ngModel)]="newSize.name"
+                  placeholder="Nome (ex: Pequeno)"
+                  maxlength="50"
+                  class="size-name-input"
+                />
+                <input
+                  type="text"
+                  [(ngModel)]="newSize.abbreviation"
+                  placeholder="Abrev. (ex: P)"
+                  maxlength="5"
+                  class="size-abbr-input"
+                />
+                <input
+                  type="number"
+                  [(ngModel)]="newSize.price"
+                  placeholder="Preço (R$)"
+                  min="0"
+                  step="0.01"
+                  class="size-price-input"
+                />
+              </div>
+              <div class="size-actions">
+                <button type="button" class="add-size-btn" (click)="addSizeToNew()">
+                  @if (editingSizeIndex !== null) {
+                    <span>✅ Salvar</span>
+                  } @else {
+                    <span>➕ Adicionar</span>
+                  }
+                </button>
+                @if (editingSizeIndex !== null) {
+                  <button type="button" class="cancel-size-btn" (click)="cancelSizeEdit()">
+                    Cancelar
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Lista de tamanhos adicionados -->
+            @if (newProduct.sizes && newProduct.sizes.length > 0) {
+              <div class="sizes-list">
+                @for (size of newProduct.sizes; let i = $index; track i) {
+                  <div class="size-item">
+                    <div class="size-info">
+                      <span class="size-abbr">{{ size.abbreviation }}</span>
+                      <span class="size-name">{{ size.name }}</span>
+                      <span class="size-price">{{ formatPrice(size.price) }}</span>
+                    </div>
+                    <div class="size-item-actions">
+                      <button type="button" class="edit-size-btn" (click)="editSizeInNew(i)">
+                        ✏️
+                      </button>
+                      <button type="button" class="remove-size-btn" (click)="removeSizeFromNew(i)">
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
           <!-- Categoria -->
           <div class="form-group">
             <label>Categoria *</label>
@@ -329,6 +402,79 @@
               min="0"
               step="0.01"
             />
+          </div>
+
+          <!-- Tamanhos Disponíveis -->
+          <div class="form-group sizes-section">
+            <label>Tamanhos Disponíveis (Opcional)</label>
+            <div class="sizes-info">
+              <p class="hint">Adicione tamanhos com preços específicos (ex: P, M, G)</p>
+            </div>
+
+            <!-- Formulário para adicionar/editar tamanho -->
+            <div class="size-form">
+              <div class="size-inputs">
+                <input
+                  type="text"
+                  [(ngModel)]="newSize.name"
+                  placeholder="Nome (ex: Pequeno)"
+                  maxlength="50"
+                  class="size-name-input"
+                />
+                <input
+                  type="text"
+                  [(ngModel)]="newSize.abbreviation"
+                  placeholder="Abrev. (ex: P)"
+                  maxlength="5"
+                  class="size-abbr-input"
+                />
+                <input
+                  type="number"
+                  [(ngModel)]="newSize.price"
+                  placeholder="Preço (R$)"
+                  min="0"
+                  step="0.01"
+                  class="size-price-input"
+                />
+              </div>
+              <div class="size-actions">
+                <button type="button" class="add-size-btn" (click)="addSizeToEdit()">
+                  @if (editingSizeIndex !== null) {
+                    <span>✅ Salvar</span>
+                  } @else {
+                    <span>➕ Adicionar</span>
+                  }
+                </button>
+                @if (editingSizeIndex !== null) {
+                  <button type="button" class="cancel-size-btn" (click)="cancelSizeEdit()">
+                    Cancelar
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Lista de tamanhos adicionados -->
+            @if (editingProduct.sizes && editingProduct.sizes.length > 0) {
+              <div class="sizes-list">
+                @for (size of editingProduct.sizes; let i = $index; track i) {
+                  <div class="size-item">
+                    <div class="size-info">
+                      <span class="size-abbr">{{ size.abbreviation }}</span>
+                      <span class="size-name">{{ size.name }}</span>
+                      <span class="size-price">{{ formatPrice(size.price) }}</span>
+                    </div>
+                    <div class="size-item-actions">
+                      <button type="button" class="edit-size-btn" (click)="editSizeInEdit(i)">
+                        ✏️
+                      </button>
+                      <button type="button" class="remove-size-btn" (click)="removeSizeFromEdit(i)">
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
 
           <!-- Categoria -->

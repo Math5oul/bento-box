@@ -9,7 +9,7 @@
   <!-- Abas de navegação -->
   <div class="cart-tabs">
     <button class="tab-button" [class.active]="activeTab === 'new'" (click)="activeTab = 'new'">
-      🍱 Novo Pedido
+      Novo
       @if (carrinho.length > 0) {
         <span class="badge">{{ carrinho.length }}</span>
       }
@@ -19,7 +19,7 @@
       [class.active]="activeTab === 'history'"
       (click)="activeTab = 'history'"
     >
-      📋 Pedidos Feitos
+      Histórico
       @if (placedOrders.length > 0) {
         <span class="badge">{{ placedOrders.length }}</span>
       }
@@ -41,19 +41,29 @@
 
         @for (item of carrinho; track item.productName) {
           <div class="cart-item">
-            <div class="item-info">
-              <span class="product-image">
-                <img [src]="item.image" alt="{{ item.productName }}" />
-              </span>
-              <div class="product-details">
-                <span class="product-name">{{ item.productName }}</span>
-                @if (item.selectedSize) {
-                  <span class="product-size"
-                    >{{ item.selectedSize.abbreviation }} - {{ item.selectedSize.name }}</span
-                  >
-                }
+            <div class="item-header">
+              <div class="item-main-info">
+                <span class="product-image">
+                  <img [src]="item.image" alt="{{ item.productName }}" />
+                </span>
+                <div class="product-details">
+                  <span class="product-name">{{ item.productName }}</span>
+                  @if (shouldShowSize(item)) {
+                    <span class="product-size"
+                      >{{ item.selectedSize!.abbreviation }} - {{ item.selectedSize!.name }}</span
+                    >
+                  }
+                  @if (item.observations) {
+                    <span class="product-observations">📝 {{ item.observations }}</span>
+                  }
+                </div>
               </div>
-              <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
+              <div class="item-actions-row">
+                <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
+                <button class="edit-item-btn" (click)="openEditModal(item)" title="Editar item">
+                  ✏️
+                </button>
+              </div>
             </div>
 
             <div class="item-controls">
@@ -102,10 +112,14 @@
           <span class="total-price">{{ total | currency: 'BRL' }}</span>
         </div>
 
+        <div *ngIf="!isTableLinked" class="table-link-message">
+          {{ tableLinkMessage }}
+        </div>
+
         <button
           class="checkout-button"
           (click)="finalizarPedido()"
-          [disabled]="isPlacingOrder || carrinho.length === 0"
+          [disabled]="isPlacingOrder || carrinho.length === 0 || !isTableLinked"
         >
           @if (isPlacingOrder) {
             <span>⏳ Enviando...</span>
@@ -143,10 +157,10 @@
                       <span class="item-qty">{{ item.quantity }}x</span>
                       <div class="item-details">
                         <span class="item-name">{{ item.productName }}</span>
-                        @if (item.selectedSize) {
+                        @if (shouldShowSizeInHistory(item)) {
                           <small class="item-size"
-                            >{{ item.selectedSize.abbreviation }} -
-                            {{ item.selectedSize.name }}</small
+                            >{{ item.selectedSize!.abbreviation }} -
+                            {{ item.selectedSize!.name }}</small
                           >
                         }
                       </div>
@@ -172,4 +186,63 @@
       </div>
     }
   </div>
+
+  <!-- Modal de Edição de Item -->
+  @if (showEditModal && editingItem) {
+    <div class="edit-modal-overlay" (click)="closeEditModal()">
+      <div class="edit-modal-content" (click)="$event.stopPropagation()">
+        <div class="edit-modal-header">
+          <h3>Editar Item</h3>
+          <button class="close-modal-btn" (click)="closeEditModal()">×</button>
+        </div>
+
+        <div class="edit-modal-body">
+          <div class="edit-product-info">
+            <img [src]="editingItem.image" alt="{{ editingItem.productName }}" />
+            <div>
+              <strong>{{ editingItem.productName }}</strong>
+              <p>{{ editingItem.price | currency: 'BRL' }}</p>
+            </div>
+          </div>
+
+          <!-- Seleção de Tamanho (se houver mais de 1) -->
+          @if (editingItemSizes && editingItemSizes.length > 1) {
+            <div class="edit-size-section">
+              <label>Tamanho:</label>
+              <div class="size-options">
+                @for (size of editingItemSizes; track size.abbreviation) {
+                  <button
+                    type="button"
+                    class="size-option-btn"
+                    [class.selected]="editingItem.selectedSize?.abbreviation === size.abbreviation"
+                    (click)="selectSizeForEdit(size)"
+                  >
+                    <span class="size-abbr">{{ size.abbreviation }}</span>
+                    <span class="size-name">{{ size.name }}</span>
+                    <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Observações -->
+          <div class="edit-observations-section">
+            <label>Observações:</label>
+            <textarea
+              class="observations-textarea"
+              [(ngModel)]="editingItem.observations"
+              placeholder="Ex: Sem cebola, bem passado..."
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="edit-modal-footer">
+          <button class="cancel-edit-btn" (click)="closeEditModal()">Cancelar</button>
+          <button class="save-edit-btn" (click)="saveEditedItem()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

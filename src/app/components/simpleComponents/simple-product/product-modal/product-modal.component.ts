@@ -36,6 +36,10 @@ export class ProductModalComponent {
    */
   open() {
     this.isOpen = true;
+    // Se houver apenas um tamanho, seleciona automaticamente
+    if (this.sizes && this.sizes.length === 1) {
+      this.selectedSize = { ...this.sizes[0] };
+    }
   }
 
   /**
@@ -88,6 +92,13 @@ export class ProductModalComponent {
    */
   getCurrentPrice(): number {
     return this.selectedSize ? this.selectedSize.price : this.price;
+  }
+
+  /**
+   * Verifica se deve mostrar a seção de seleção de tamanhos
+   */
+  shouldShowSizeSelection(): boolean {
+    return this.sizes && this.sizes.length > 1;
   }
 
   /**
