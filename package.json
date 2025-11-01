@@ -19,6 +19,8 @@
     "serve:ssr:bento-box": "node dist/bento-box/server/server.mjs",
     "backend": "ts-node-dev --project tsconfig.backend.json backend/server.ts",
     "regenerate:qrcodes": "ts-node --project tsconfig.backend.json backend/scripts/regenerate-qrcodes.ts",
+    "seed:export": "ts-node --project tsconfig.backend.json backend/scripts/export-database.ts",
+    "seed:restore": "ts-node --project tsconfig.backend.json backend/scripts/restore-database.ts",
     "dev": "concurrently \"npm run backend\" \"ng serve\"",
     "dev:mobile": "concurrently \"npm run backend\" \"ng serve --host 0.0.0.0\"",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{js,json}\"",

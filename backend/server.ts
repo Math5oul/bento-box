@@ -52,7 +52,6 @@ app.get('/api/health', (req, res) => {
     try {
       const url = new URL(referer);
       frontendUrl = `${url.protocol}//${url.host}`;
-      console.log('✅ Frontend URL detectada do referer:', frontendUrl);
     } catch (err) {
       console.warn('⚠️ Erro ao parsear referer:', referer, err);
     }
