@@ -11,6 +11,9 @@ export * from './table.interface';
 // Order
 export * from './order.interface';
 
+// Category
+export * from './category.interface';
+
 // API
 export * from './api-response.interface';
 

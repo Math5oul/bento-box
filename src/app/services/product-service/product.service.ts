@@ -3,11 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export interface ProductSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
+
 export interface Product {
   _id: string;
   name: string;
   description: string;
   price: number;
+  sizes?: ProductSize[];
   images: string[];
   category:
     | 'food'

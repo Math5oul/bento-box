@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, ViewChild } from '@angular/core';
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { ProductModalComponent } from './product-modal/product-modal.component';
-import { CartService } from '../../../services/cart-service/cart.service';
+import { CartService, CartItemSize } from '../../../services/cart-service/cart.service';
 
 @Component({
   selector: 'app-simple-product',
@@ -19,6 +19,7 @@ export class SimpleProductComponent {
     productName: string;
     description: string;
     price: number;
+    sizes?: Array<{ name: string; abbreviation: string; price: number }>;
     editMode: boolean;
   } = {
     format: '1x1',
@@ -27,6 +28,7 @@ export class SimpleProductComponent {
     productName: '',
     description: '',
     price: 0,
+    sizes: [],
     editMode: false,
   };
 
@@ -41,13 +43,19 @@ export class SimpleProductComponent {
 
   constructor(private cartService: CartService) {}
 
-  handleOrder(order: { quantity: number; productName?: string; observations?: string }) {
+  handleOrder(order: {
+    quantity: number;
+    productName?: string;
+    observations?: string;
+    selectedSize?: CartItemSize;
+  }) {
     this.cartService.addItem({
       productName: this.inputs.productName,
-      price: this.inputs.price,
+      price: order.selectedSize ? order.selectedSize.price : this.inputs.price,
       quantity: order.quantity,
       observations: order.observations || '',
       image: this.inputs.images[0],
+      selectedSize: order.selectedSize,
     });
   }
 }

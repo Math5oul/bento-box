@@ -328,10 +328,22 @@
     border-radius: 6px;
   }
 
+  .item-name-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+  }
+
   .item-name {
     font-weight: 500;
     color: #2c3e50;
-    flex: 1;
+  }
+
+  .item-size {
+    color: #00b894;
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 
   .item-details {

@@ -52,15 +52,13 @@ export class AuthService {
 
   login(token: string, user: User): void {
     if (this.isBrowser) {
-      // Preserva tableId se existir (usuário estava em uma mesa)
+      // Preserva tableId e sessionToken antes de fazer login
       const existingTableId = localStorage.getItem('tableId');
       const existingTableNumber = localStorage.getItem('tableNumber');
+      const existingSessionToken = localStorage.getItem('sessionToken');
 
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user', JSON.stringify(user));
-
-      // Remove apenas sessionToken (token anônimo), mas mantém tableId
-      localStorage.removeItem('sessionToken');
 
       // Restaura tableId se existia (usuário estava em uma mesa antes do login)
       if (existingTableId) {
@@ -69,9 +67,43 @@ export class AuthService {
       if (existingTableNumber) {
         localStorage.setItem('tableNumber', existingTableNumber);
       }
+
+      // Transfere pedidos anônimos se existia sessionToken
+      if (existingTableId && existingSessionToken) {
+        this.transferAnonymousOrders(existingTableId, existingSessionToken);
+      }
+
+      // Remove sessionToken após transferência
+      localStorage.removeItem('sessionToken');
     }
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
+  }
+
+  /**
+   * Transfere pedidos anônimos para o usuário autenticado
+   */
+  private transferAnonymousOrders(tableId: string, sessionToken: string): void {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    });
+
+    this.http
+      .patch<{
+        success: boolean;
+        message: string;
+        count: number;
+      }>('/api/orders/transfer-anonymous', { tableId, sessionToken }, { headers })
+      .subscribe({
+        next: response => {
+          if (response.count > 0) {
+            console.log(`✅ ${response.count} pedido(s) transferido(s)`);
+          }
+        },
+        error: err => {
+          console.error('Erro ao transferir pedidos:', err);
+        },
+      });
   }
 
   logout(): void {

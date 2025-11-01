@@ -13,6 +13,15 @@ export enum OrderStatus {
 }
 
 /**
+ * Interface do Tamanho do Item
+ */
+export interface IOrderItemSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
+
+/**
  * Interface do Item do Pedido
  */
 export interface IOrderItem {
@@ -23,6 +32,7 @@ export interface IOrderItem {
   unitPrice: number;
   totalPrice: number;
   notes?: string;
+  selectedSize?: IOrderItemSize;
 }
 
 /**
@@ -54,6 +64,14 @@ const OrderItemSchema = new Schema<IOrderItem>({
   unitPrice: { type: Number, required: true, min: 0 },
   totalPrice: { type: Number, required: true, min: 0 },
   notes: String,
+  selectedSize: {
+    type: {
+      name: { type: String, required: true },
+      abbreviation: { type: String, required: true },
+      price: { type: Number, required: true, min: 0 },
+    },
+    required: false,
+  },
 });
 
 /**

@@ -1,3 +1,10 @@
+/**
+ * Script para regenerar QR codes de todas as mesas
+ *
+ * Como executar:
+ * npm exec tsx backend/scripts/regenerate-qrcodes.ts
+ */
+
 import dotenv from 'dotenv';
 import path from 'path';
 import { connectDB } from '../config/database';

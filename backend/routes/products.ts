@@ -65,6 +65,7 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
         productName: product.name,
         description: product.description,
         price: product.price,
+        sizes: product.sizes, // ADICIONADO: Incluir tamanhos
         category: product.category,
       },
       colSpan: product.gridPosition?.colSpan || 1,
@@ -156,8 +157,16 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
   try {
     const productData = req.body;
 
+    console.log('📦 Recebendo produto:', JSON.stringify(productData, null, 2));
+    console.log('📏 Tamanhos recebidos:', productData.sizes);
+
     const newProduct = new Product(productData);
+
+    console.log('💾 Produto antes de salvar:', JSON.stringify(newProduct.toObject(), null, 2));
+
     await newProduct.save();
+
+    console.log('✅ Produto salvo:', JSON.stringify(newProduct.toObject(), null, 2));
 
     res.status(201).json({
       success: true,
@@ -165,6 +174,7 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
       message: 'Produto criado com sucesso',
     });
   } catch (error: any) {
+    console.error('❌ Erro ao criar produto:', error);
     res.status(400).json({
       success: false,
       message: 'Erro ao criar produto',

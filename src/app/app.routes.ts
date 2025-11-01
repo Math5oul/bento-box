@@ -57,4 +57,12 @@ export const routes: Routes = [
       ).then(m => m.ProductsManagementComponent),
     canActivate: [adminGuard],
   },
+  {
+    path: 'maintenance/categories',
+    loadComponent: () =>
+      import(
+        './components/admin-maintenance-components/categories-management/categories-management.component'
+      ).then(m => m.CategoriesManagementComponent),
+    canActivate: [adminGuard],
+  },
 ];

@@ -54,12 +54,6 @@ export class HeaderComponent {
     this.isLoginOpen = false;
   }
 
-  // Handlers para os itens do menu do usuário
-  onOpenProfile() {
-    console.log('Abrir perfil');
-    // TODO: Implementar tela de perfil
-  }
-
   onOpenPayments() {
     console.log('Abrir métodos de pagamento');
     // TODO: Implementar tela de pagamentos

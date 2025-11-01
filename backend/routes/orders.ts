@@ -69,7 +69,8 @@ router.post(
 
         if (anonymousUser) {
           clientName = anonymousUser.name || `Cliente Anônimo`;
-          clientId = undefined; // Sessão anônima não tem clientId
+          clientId = String(anonymousUser._id); // Salva o ID do usuário anônimo
+          orderSessionToken = sessionToken; // Mantém sessionToken para facilitar transferência
         } else {
           res.status(401).json({
             success: false,
@@ -226,6 +227,179 @@ router.get(
       res.status(500).json({
         success: false,
         message: 'Erro ao carregar pedidos',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/orders/current-table/:tableId
+ * Lista pedidos da mesa atual do cliente (autenticado ou anônimo)
+ */
+router.get(
+  '/current-table/:tableId',
+  optionalAuth,
+  runValidations([param('tableId').isMongoId().withMessage('ID da mesa inválido')]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tableId } = req.params;
+      const sessionToken = req.query['sessionToken'] as string;
+
+      let query: any = { tableId };
+
+      // Se usuário autenticado
+      if (req.user && !req.user.isAnonymous) {
+        query.clientId = req.user.userId;
+      } else if (sessionToken) {
+        // Cliente anônimo
+        query.sessionToken = sessionToken;
+      } else {
+        res.status(401).json({
+          success: false,
+          message: 'Autenticação necessária ou sessão anônima inválida',
+        });
+        return;
+      }
+
+      const orders = await Order.find(query).sort({ createdAt: -1 }).populate('tableId', 'number');
+
+      const ordersFormatted = orders.map(order => ({
+        ...order.toObject(),
+        id: (order._id as any).toString(),
+      }));
+
+      res.json({
+        success: true,
+        orders: ordersFormatted,
+      });
+    } catch (error) {
+      console.error('Erro ao buscar pedidos da mesa:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao buscar pedidos',
+      });
+    }
+  }
+);
+
+/**
+ * PATCH /api/orders/transfer-anonymous
+ * Transfere pedidos anônimos para usuário autenticado
+ */
+router.patch(
+  '/transfer-anonymous',
+  authenticate,
+  runValidations([
+    body('tableId').isMongoId().withMessage('ID da mesa inválido'),
+    body('sessionToken').notEmpty().withMessage('Token de sessão é obrigatório'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tableId, sessionToken } = req.body;
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado',
+        });
+        return;
+      }
+
+      // Busca o usuário para pegar o nome
+      const user = await User.findById(userId);
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: 'Usuário não encontrado',
+        });
+        return;
+      }
+
+      let totalTransferred = 0;
+
+      // CENÁRIO 1: Busca pedidos com sessionToken direto
+      const ordersBySessionToken = await Order.find({
+        tableId,
+        sessionToken,
+      });
+
+      if (ordersBySessionToken.length > 0) {
+        const result1 = await Order.updateMany(
+          { tableId, sessionToken },
+          {
+            $set: {
+              clientId: userId,
+              clientName: user.name,
+            },
+            $unset: { sessionToken: '' },
+          }
+        );
+        totalTransferred += result1.modifiedCount;
+      }
+
+      // CENÁRIO 2: Busca pedidos via usuário anônimo
+      const anonymousUser = await User.findOne({
+        sessionToken,
+        isAnonymous: true,
+      });
+
+      if (anonymousUser) {
+        const ordersByClientId = await Order.find({
+          tableId,
+          clientId: anonymousUser._id,
+        });
+
+        if (ordersByClientId.length > 0) {
+          const result2 = await Order.updateMany(
+            { tableId, clientId: anonymousUser._id },
+            {
+              $set: {
+                clientId: userId,
+                clientName: user.name,
+              },
+            }
+          );
+          totalTransferred += result2.modifiedCount;
+        }
+      }
+
+      if (totalTransferred === 0) {
+        res.json({
+          success: true,
+          message: 'Nenhum pedido para transferir',
+          count: 0,
+        });
+        return;
+      }
+
+      // Adiciona os pedidos transferidos ao orderHistory do usuário
+      const allUserOrders = await Order.find({
+        tableId,
+        clientId: userId,
+      }).select('_id');
+
+      if (allUserOrders.length > 0) {
+        await User.updateOne(
+          { _id: userId },
+          { $addToSet: { orderHistory: { $each: allUserOrders.map(o => o._id) } } }
+        );
+      }
+
+      console.log(`✅ ${totalTransferred} pedido(s) transferido(s) para ${user.name}`);
+
+      res.json({
+        success: true,
+        message: `${totalTransferred} pedidos transferidos com sucesso`,
+        count: totalTransferred,
+      });
+    } catch (error) {
+      console.error('❌ Erro ao transferir pedidos:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao transferir pedidos',
       });
     }
   }

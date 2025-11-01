@@ -22,6 +22,8 @@ import { StorageService } from '../services/storage-service/storage.service';
 import { FillerService } from '../services/filler-service/filler.service';
 import { AuthService } from '../services/auth-service/auth.service';
 import { TableService } from '../services/table-service/table.service';
+import { CategoryService } from '../services/category-service/category.service';
+import { Category } from '../interfaces/category.interface';
 import { Subject, Subscription, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { SimpleTextComponent } from '../components/simpleComponents/simple-text/simple-text.component';
@@ -46,53 +48,20 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   data: GridItem[] = [];
   fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
 
+  // Categorias dinâmicas do CategoryService
+  categories: Category[] = [];
+
   // Mapa de produtos organizados por categoria
   productsByCategory = new Map<string, GridItem[]>();
 
   // Mapa de fillers organizados por categoria
   fillersByCategory = new Map<string, GridItem[]>();
 
-  // Set de IDs de fillers que já foram usados em alguma categoria
-  private usedFillerIds = new Set<string>();
-
   // Produtos filtrados pela pesquisa (quando houver pesquisa ativa)
   filteredProducts: GridItem[] = [];
 
   // Flag para indicar se há uma pesquisa ativa
   isSearchActive: boolean = false;
-
-  // Ordem de exibição das categorias
-  categoryOrder: string[] = [
-    'food',
-    'hot beverage',
-    'cold beverage',
-    'dessert',
-    'alcoholic',
-    'beverage',
-    'other',
-  ];
-
-  // Mapa de nomes traduzidos das categorias
-  categoryNames: { [key: string]: string } = {
-    food: 'Pratos',
-    'hot beverage': 'Bebidas Quentes',
-    'cold beverage': 'Bebidas Frias',
-    dessert: 'Sobremesas',
-    alcoholic: 'Bebidas Alcoólicas',
-    beverage: 'Bebidas',
-    other: 'Outros',
-  };
-
-  // Ícones para cada categoria
-  categoryIcons: { [key: string]: string } = {
-    food: '🥐',
-    'hot beverage': '☕',
-    'cold beverage': '🥤',
-    dessert: '🍰',
-    alcoholic: '🍺',
-    beverage: '🍹',
-    other: '📦',
-  };
 
   @Input() toolbar: boolean = true;
   @Input() options: BentoOptions = {
@@ -129,6 +98,7 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     private fillerService: FillerService,
     private authService: AuthService,
     private tableService: TableService,
+    private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
@@ -151,10 +121,12 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       });
     }
 
+    // Carrega produtos, fillers E categorias em paralelo
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers().pipe(take(1)),
-    }).subscribe(({ products, fillers }) => {
+      categories: this.categoryService.getCategories().pipe(take(1)),
+    }).subscribe(({ products, fillers, categories }) => {
       const fillerGridItems = this.convertFillersToGridItems(fillers);
 
       this.resetFillerCache();
@@ -163,7 +135,14 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       this.fillers = fillerGridItems;
       this.allProducts = [...products];
 
+      // Define categorias primeiro
+      if (categories.success) {
+        this.categories = categories.data;
+      }
+
+      // Depois agrupa produtos e fillers por categoria
       this.groupProductsByCategory(products);
+
       // Se chegamos aqui e a navegação trouxe ?joined=true, recarrega os dados
       // no componente recém-criado (resolve caso o reload fosse chamado no
       // componente antigo que foi destruído pela navegação)
@@ -215,27 +194,16 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   }
 
   /**
-   * Distribui fillers entre categorias em ordem, garantindo que não se repitam
+   * Distribui fillers entre categorias - fillers podem aparecer em múltiplas categorias
    */
   private distributeFillersByCategory(): void {
-    this.usedFillerIds.clear();
+    this.fillersByCategory.clear();
 
     // Processa categorias na ordem definida
     this.orderedCategories.forEach(category => {
       const categoryFillers = this.fillers.filter(filler => {
         const categories = filler.inputs?.categories || [];
-        const fillerId = filler.id?.toString() || '';
-
-        const belongsToCategory = categories.includes(category);
-        const notUsedYet = !this.usedFillerIds.has(fillerId);
-
-        // Se o filler pertence a esta categoria e ainda não foi usado, marca como usado
-        if (belongsToCategory && notUsedYet) {
-          this.usedFillerIds.add(fillerId);
-          return true;
-        }
-
-        return false;
+        return categories.includes(category);
       });
 
       this.fillersByCategory.set(category, categoryFillers);
@@ -244,7 +212,9 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
 
   get orderedCategories(): string[] {
     const availableCategories = Array.from(this.productsByCategory.keys());
-    return this.categoryOrder.filter(cat => availableCategories.includes(cat));
+    // Ordena pelas categorias cadastradas no CategoryService
+    const categoryOrder = this.categories.map(c => c.slug);
+    return categoryOrder.filter(cat => availableCategories.includes(cat));
   }
 
   getProductsByCategory(category: string): GridItem[] {
@@ -260,15 +230,16 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
 
   private resetFillerCache(): void {
     this.fillersByCategory.clear();
-    this.usedFillerIds.clear();
   }
 
   getCategoryName(category: string): string {
-    return this.categoryNames[category] || category;
+    const cat = this.categories.find(c => c.slug === category);
+    return cat ? cat.name : category;
   }
 
   getCategoryIcon(category: string): string {
-    return this.categoryIcons[category] || '📦';
+    const cat = this.categories.find(c => c.slug === category);
+    return cat ? cat.emoji : '📦';
   }
 
   /**

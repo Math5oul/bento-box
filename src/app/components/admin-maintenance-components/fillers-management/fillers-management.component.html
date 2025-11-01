@@ -44,8 +44,8 @@
         <label>📂 Categoria:</label>
         <select [(ngModel)]="filterCategory" class="filter-select">
           <option value="">Todas as categorias</option>
-          @for (cat of availableCategories; track cat.value) {
-            <option [value]="cat.value">{{ cat.label }}</option>
+          @for (cat of categories; track cat._id) {
+            <option [value]="cat.slug">{{ cat.emoji }} {{ cat.name }}</option>
           }
         </select>
       </div>
@@ -333,17 +333,17 @@
         <div class="form-group">
           <label>Categorias *</label>
           <div class="categories-container">
-            @for (cat of availableCategories; track cat.value) {
+            @for (cat of categories; track cat._id) {
               <label
                 class="category-option"
-                [class.selected]="isCategorySelected(cat.value, 'create')"
+                [class.selected]="isCategorySelected(cat.slug, 'create')"
               >
                 <input
                   type="checkbox"
-                  [checked]="isCategorySelected(cat.value, 'create')"
-                  (change)="toggleCategory(cat.value, 'create')"
+                  [checked]="isCategorySelected(cat.slug, 'create')"
+                  (change)="toggleCategory(cat.slug, 'create')"
                 />
-                <span>{{ cat.label }}</span>
+                <span>{{ cat.emoji }} {{ cat.name }}</span>
               </label>
             }
           </div>
@@ -486,17 +486,17 @@
         <div class="form-group">
           <label>Categorias</label>
           <div class="categories-container">
-            @for (cat of availableCategories; track cat.value) {
+            @for (cat of categories; track cat._id) {
               <label
                 class="category-option"
-                [class.selected]="isCategorySelected(cat.value, 'edit')"
+                [class.selected]="isCategorySelected(cat.slug, 'edit')"
               >
                 <input
                   type="checkbox"
-                  [checked]="isCategorySelected(cat.value, 'edit')"
-                  (change)="toggleCategory(cat.value, 'edit')"
+                  [checked]="isCategorySelected(cat.slug, 'edit')"
+                  (change)="toggleCategory(cat.slug, 'edit')"
                 />
-                <span>{{ cat.label }}</span>
+                <span>{{ cat.emoji }} {{ cat.name }}</span>
               </label>
             }
           </div>

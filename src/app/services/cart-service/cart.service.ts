@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+export interface CartItemSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
+
 export interface CartItem {
   productName: string;
   price: number;
   quantity: number;
   observations?: string;
   image?: string;
+  selectedSize?: CartItemSize;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +28,12 @@ export class CartService {
    */
   addItem(item: CartItem): void {
     const currentItems = this.cartItemsSubject.value;
-    const existingIndex = currentItems.findIndex(i => i.productName === item.productName);
+
+    // Encontra item existente com mesmo produto E mesmo tamanho
+    const existingIndex = currentItems.findIndex(
+      i =>
+        i.productName === item.productName && this.areSizesEqual(i.selectedSize, item.selectedSize)
+    );
 
     const newItems = [...currentItems];
 
@@ -37,6 +49,15 @@ export class CartService {
     this.cartItemsSubject.next(newItems);
     this.saveCartToStorage(newItems);
     console.log('CARRINHO:', newItems);
+  }
+
+  /**
+   * Verifica se dois tamanhos são iguais
+   */
+  private areSizesEqual(size1?: CartItemSize, size2?: CartItemSize): boolean {
+    if (!size1 && !size2) return true;
+    if (!size1 || !size2) return false;
+    return size1.name === size2.name && size1.abbreviation === size2.abbreviation;
   }
 
   /**

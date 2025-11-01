@@ -11,8 +11,29 @@
           <div class="product-info">
             <div class="product-text">
               <h2 class="product-name">{{ productName }}</h2>
-              <p class="product-price">{{ price | currency: 'BRL' }}</p>
+              <p class="product-price">{{ getCurrentPrice() | currency: 'BRL' }}</p>
               <p class="product-description">{{ description }}</p>
+
+              <!-- Seleção de Tamanhos -->
+              @if (sizes && sizes.length > 0) {
+                <div class="sizes-selection">
+                  <label class="sizes-label">Tamanho:</label>
+                  <div class="sizes-buttons">
+                    @for (size of sizes; track size.abbreviation) {
+                      <button
+                        type="button"
+                        class="size-btn"
+                        [class.selected]="selectedSize?.abbreviation === size.abbreviation"
+                        (click)="selectSize(size)"
+                      >
+                        <span class="size-abbr">{{ size.abbreviation }}</span>
+                        <span class="size-name">{{ size.name }}</span>
+                        <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
 
               <div class="quantity-adjuster">
                 <button

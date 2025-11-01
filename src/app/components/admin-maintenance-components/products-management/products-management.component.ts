@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { ImageUploadService } from '../../../services/image-upload/image-upload.service';
 import { StorageService } from '../../../services/storage-service/storage.service';
+import { CategoryService } from '../../../services/category-service/category.service';
+import { Category } from '../../../interfaces/category.interface';
 
 interface Product {
   _id: string;
@@ -13,14 +15,7 @@ interface Product {
   description: string;
   price: number;
   images: string[];
-  category:
-    | 'food'
-    | 'hot beverage'
-    | 'cold beverage'
-    | 'dessert'
-    | 'alcoholic'
-    | 'beverage'
-    | 'other';
+  category: string; // Agora usa slug da categoria
   format?: '1x1' | '1x2' | '2x1' | '2x2';
   colorMode?: 'light' | 'dark';
   available: boolean;
@@ -44,8 +39,10 @@ export class ProductsManagementComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private imageUploadService = inject(ImageUploadService);
   private storageService = inject(StorageService);
+  private categoryService = inject(CategoryService);
 
   products: Product[] = [];
+  categories: Category[] = [];
   loading = true;
   searchTerm = ''; // Filtro de pesquisa
 
@@ -65,7 +62,7 @@ export class ProductsManagementComponent implements OnInit {
     description: '',
     price: 0,
     images: [],
-    category: 'food',
+    category: 'pratos', // Usa slug padrão
     format: '1x1',
     colorMode: 'light',
     available: true,
@@ -73,25 +70,6 @@ export class ProductsManagementComponent implements OnInit {
 
   // Opções disponíveis
   availableFormats: Array<'1x1' | '1x2' | '2x1' | '2x2'> = ['1x1', '1x2', '2x1', '2x2'];
-  availableCategories = [
-    { value: 'food', label: '🥐 Pratos' },
-    { value: 'hot beverage', label: '☕ Bebidas Quentes' },
-    { value: 'cold beverage', label: '🥤 Bebidas Frias' },
-    { value: 'dessert', label: '🍰 Sobremesas' },
-    { value: 'alcoholic', label: '🍺 Bebidas Alcoólicas' },
-    { value: 'beverage', label: '🍹 Bebidas' },
-    { value: 'other', label: '📦 Outros' },
-  ];
-
-  categoryEmojis: { [key: string]: string } = {
-    food: '🥐',
-    'hot beverage': '☕',
-    'cold beverage': '🥤',
-    dessert: '🍰',
-    alcoholic: '🍺',
-    beverage: '🍹',
-    other: '📦',
-  };
 
   colorModes: Array<{ value: 'light' | 'dark'; label: string }> = [
     { value: 'light', label: '☀️ Claro' },
@@ -105,8 +83,41 @@ export class ProductsManagementComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.loadCategories();
       this.loadProducts();
     }
+  }
+
+  /**
+   * Carrega categorias do CategoryService
+   */
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: response => {
+        if (response.success) {
+          this.categories = response.data;
+        }
+      },
+      error: error => {
+        console.error('Erro ao carregar categorias:', error);
+      },
+    });
+  }
+
+  /**
+   * Retorna emoji da categoria pelo slug
+   */
+  getCategoryEmoji(slug: string): string {
+    const category = this.categories.find(c => c.slug === slug);
+    return category ? category.emoji : '📦';
+  }
+
+  /**
+   * Retorna label completo da categoria (emoji + nome)
+   */
+  getCategoryLabel(slug: string): string {
+    const category = this.categories.find(c => c.slug === slug);
+    return category ? `${category.emoji} ${category.name}` : slug;
   }
 
   /**
@@ -430,13 +441,6 @@ export class ProductsManagementComponent implements OnInit {
     if (this.selectedEditFiles[index]) {
       this.selectedEditFiles.splice(index, 1);
     }
-  }
-
-  /**
-   * Retorna o emoji da categoria
-   */
-  getCategoryEmoji(category: string): string {
-    return this.categoryEmojis[category] || '📦';
   }
 
   /**

@@ -6,6 +6,8 @@ import {
   EventEmitter,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   Renderer2,
   ElementRef,
   inject,
@@ -15,9 +17,12 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { CartService, CartItem } from '../../services/cart-service/cart.service';
-import { OrderItem, CreateOrderDTO } from '../../interfaces/order.interface';
+import { OrderItem, CreateOrderDTO, Order } from '../../interfaces/order.interface';
+import { User } from '../../interfaces/user.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { OrderService } from '../../services/order-service/order.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
@@ -26,7 +31,7 @@ import { OrderService } from '../../services/order-service/order.service';
   imports: [CommonModule],
   styleUrls: ['./cart.component.scss'],
 })
-export class CartComponent implements OnInit, OnDestroy {
+export class CartComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isOpen = false;
   @Output() closeCart = new EventEmitter<void>();
 
@@ -40,11 +45,44 @@ export class CartComponent implements OnInit, OnDestroy {
   orderSuccess = false;
   orderError = '';
 
+  // Controle de abas
+  activeTab: 'new' | 'history' = 'new';
+
+  // Histórico de pedidos
+  placedOrders: Order[] = [];
+  private pollingSubscription?: Subscription;
+  private authSubscription?: Subscription;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Quando o carrinho abrir e tiver itens, volta para aba "Novo Pedido"
+    if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
+      if (this.carrinho.length > 0) {
+        this.activeTab = 'new';
+      }
+    }
+  }
 
   ngOnInit() {
     // Move o elemento para o body ao inicializar
     this.renderer.appendChild(document.body, this.elementRef.nativeElement);
+
+    // Carrega histórico inicial
+    this.loadOrderHistory();
+
+    // Polling a cada 30 segundos para atualizar status
+    this.pollingSubscription = interval(30000)
+      .pipe(switchMap(() => this.loadOrderHistoryObservable()))
+      .subscribe();
+
+    // Recarrega histórico quando usuário faz login (pedidos transferidos)
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user && isPlatformBrowser(this.platformId)) {
+        // Recarrega histórico para mostrar pedidos transferidos
+        this.loadOrderHistory();
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -52,6 +90,10 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.elementRef.nativeElement.parentNode === document.body) {
       this.renderer.removeChild(document.body, this.elementRef.nativeElement);
     }
+
+    // Cancela subscriptions
+    this.pollingSubscription?.unsubscribe();
+    this.authSubscription?.unsubscribe();
   }
 
   get carrinho() {
@@ -107,6 +149,7 @@ export class CartComponent implements OnInit, OnDestroy {
         unitPrice: item.price,
         totalPrice: item.price * item.quantity,
         notes: item.observations,
+        selectedSize: item.selectedSize, // Inclui tamanho selecionado
       }));
 
       // Recupera nome do cliente (usuário logado ou anônimo)
@@ -134,11 +177,14 @@ export class CartComponent implements OnInit, OnDestroy {
         this.orderSuccess = true;
         this._cartService.clearCart();
 
-        // Fecha o carrinho após 2 segundos
+        // Recarrega histórico de pedidos
+        this.loadOrderHistory();
+
+        // Muda para aba de histórico
         setTimeout(() => {
-          this.closeCart.emit();
+          this.activeTab = 'history';
           this.orderSuccess = false;
-        }, 2000);
+        }, 1500);
       }
     } catch (error: any) {
       console.error('Erro ao finalizar pedido:', error);
@@ -146,5 +192,76 @@ export class CartComponent implements OnInit, OnDestroy {
     } finally {
       this.isPlacingOrder = false;
     }
+  }
+
+  /**
+   * Carrega histórico de pedidos da mesa atual
+   */
+  private loadOrderHistory(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const tableId = localStorage.getItem('tableId');
+    if (!tableId) {
+      this.placedOrders = [];
+      return;
+    }
+
+    this.orderService.getOrdersForCurrentTable(tableId).subscribe({
+      next: orders => {
+        this.placedOrders = orders;
+      },
+      error: err => {
+        console.error('Erro ao carregar histórico de pedidos:', err);
+      },
+    });
+  }
+
+  /**
+   * Versão Observable para o polling
+   */
+  private loadOrderHistoryObservable() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return new Promise(resolve => resolve([]));
+    }
+
+    const tableId = localStorage.getItem('tableId');
+    if (!tableId) {
+      return new Promise(resolve => resolve([]));
+    }
+
+    return this.orderService.getOrdersForCurrentTable(tableId);
+  }
+
+  /**
+   * Retorna label de status em português
+   */
+  getStatusLabel(status: string): string {
+    return this.orderService.getStatusLabel(status as any);
+  }
+
+  /**
+   * Formata tempo relativo do pedido
+   */
+  getOrderTime(order: Order): string {
+    if (!order.createdAt) return '';
+
+    const now = new Date();
+    const created = new Date(order.createdAt);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'Agora mesmo';
+    if (diffMins === 1) return 'Há 1 min';
+    if (diffMins < 60) return `Há ${diffMins} min`;
+
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours === 1) return 'Há 1h';
+    if (diffHours < 24) return `Há ${diffHours}h`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return 'Há 1 dia';
+    return `Há ${diffDays} dias`;
   }
 }

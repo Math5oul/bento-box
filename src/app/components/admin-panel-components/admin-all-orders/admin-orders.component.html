@@ -79,7 +79,15 @@
                   <ul class="items-list">
                     @for (item of order.items; track item.productName) {
                       <li class="item-row">
-                        <span class="item-name">{{ item.productName }}</span>
+                        <div class="item-name-container">
+                          <span class="item-name">{{ item.productName }}</span>
+                          @if (item.selectedSize) {
+                            <small class="item-size"
+                              >{{ item.selectedSize.abbreviation }} -
+                              {{ item.selectedSize.name }}</small
+                            >
+                          }
+                        </div>
                         <div class="item-details">
                           @if (item.quantity) {
                             <span class="item-qty">x{{ item.quantity }}</span>

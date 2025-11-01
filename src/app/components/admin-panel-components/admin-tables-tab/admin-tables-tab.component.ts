@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableStatus } from '../../../interfaces';
 import { TableService } from '../../../services/table-service/table.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 interface ReservationInfo {
   clientName: string;
@@ -38,7 +40,7 @@ interface TableWithDetails extends Table {
   templateUrl: './admin-tables-tab.component.html',
   styleUrl: './admin-tables-tab.component.scss',
 })
-export class AdminTablesTabComponent implements OnInit {
+export class AdminTablesTabComponent implements OnInit, OnDestroy {
   @Output() viewOrders = new EventEmitter<number>();
 
   tableService = inject(TableService);
@@ -50,6 +52,10 @@ export class AdminTablesTabComponent implements OnInit {
   showQRCode = false;
   qrCodeImage = '';
 
+  // Polling para atualização em tempo real
+  private pollingSubscription?: Subscription;
+  private readonly POLLING_INTERVAL = 10000; // 10 segundos
+
   newTable = {
     number: 1,
     capacity: 4,
@@ -57,6 +63,36 @@ export class AdminTablesTabComponent implements OnInit {
 
   ngOnInit() {
     this.loadTables();
+    this.startPolling();
+  }
+
+  ngOnDestroy() {
+    this.stopPolling();
+  }
+
+  /**
+   * Inicia polling automático para atualizar mesas a cada 10 segundos
+   */
+  private startPolling(): void {
+    this.pollingSubscription = interval(this.POLLING_INTERVAL)
+      .pipe(
+        switchMap(() => {
+          // Recarrega as mesas silenciosamente
+          return new Promise<void>(resolve => {
+            this.loadTables().then(() => resolve());
+          });
+        })
+      )
+      .subscribe();
+  }
+
+  /**
+   * Para o polling quando o componente for destruído
+   */
+  private stopPolling(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
   }
 
   async loadTables() {
@@ -165,6 +201,20 @@ export class AdminTablesTabComponent implements OnInit {
   viewTableOrders(table: TableWithDetails) {
     // Emite evento para o componente pai abrir a aba de pedidos
     this.viewOrders.emit(table.number);
+  }
+
+  /**
+   * Retorna a quantidade de clientes (usuários + anônimos) na mesa
+   */
+  getClientCount(table: TableWithDetails): number {
+    // Conta clientes registrados
+    const registeredClients = table.clients?.length || 0;
+
+    // Conta clientes anônimos
+    const anonymousClients = table.anonymousClients?.length || 0;
+
+    // Retorna o total
+    return registeredClients + anonymousClients;
   }
 
   getStatusColor(status: TableStatus): string {

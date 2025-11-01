@@ -327,7 +327,10 @@ router.post(
       await Order.updateMany(
         { sessionToken },
         {
-          $set: { clientId: targetUser._id },
+          $set: {
+            clientId: targetUser._id,
+            clientName: targetUser.name,
+          },
           $unset: { sessionToken: 1 },
         }
       );
