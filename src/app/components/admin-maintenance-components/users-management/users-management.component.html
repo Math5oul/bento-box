@@ -47,8 +47,8 @@
               <p><strong>Email:</strong> {{ loginResult.user.email }}</p>
               <p>
                 <strong>Role:</strong>
-                <span class="role-badge" [class.admin]="loginResult.user.role === 'admin'">
-                  {{ loginResult.user.role }}
+                <span class="role-badge" [ngClass]="'role-' + loginResult.user.role">
+                  {{ getRoleLabel(loginResult.user.role) }}
                 </span>
               </p>
               <p>
@@ -115,8 +115,8 @@
                 <h3>{{ user.name }}</h3>
                 <p class="user-email">{{ user.email }}</p>
               </div>
-              <span class="role-badge" [class.admin]="user.role === 'admin'">
-                {{ user.role }}
+              <span class="role-badge" [ngClass]="'role-' + user.role">
+                {{ getRoleLabel(user.role) }}
               </span>
             </div>
 
@@ -130,7 +130,7 @@
             <div class="user-actions">
               <button class="btn-edit" (click)="openEditModal(user)">✏️ Editar Role</button>
               <button class="btn-reset" (click)="sendPasswordReset(user.email, user.name)">
-                🔑 Recuperar Senha
+                🔑 Recuperar Senha -- a fazer
               </button>
               <button class="btn-delete" (click)="deleteUser(user._id, user.name)">
                 🗑️ Deletar
@@ -189,8 +189,9 @@
           <div class="form-group">
             <label>Tipo de Conta</label>
             <select [(ngModel)]="newUser.role" name="role">
-              <option value="user">👤 Usuário</option>
-              <option value="admin">👑 Administrador</option>
+              <option *ngFor="let role of availableRoles" [value]="role.value">
+                {{ role.label }}
+              </option>
             </select>
           </div>
 
@@ -222,14 +223,15 @@
           <div class="form-group">
             <label>Role</label>
             <select [(ngModel)]="editingUser.role">
-              <option value="user">👤 Usuário</option>
-              <option value="admin">👑 Administrador</option>
+              <option *ngFor="let role of availableRoles" [value]="role.value">
+                {{ role.label }}
+              </option>
             </select>
           </div>
 
           <div class="info-box">
             <p>
-              ⚠️ <strong>Atenção:</strong> Promover um usuário para admin dá acesso total ao
+              ⚠️ <strong>Atenção:</strong> Alterar o role de um usuário modifica suas permissões no
               sistema.
             </p>
           </div>

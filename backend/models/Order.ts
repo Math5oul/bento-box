@@ -5,7 +5,6 @@ import mongoose, { Schema, Document } from 'mongoose';
  */
 export enum OrderStatus {
   PENDING = 'pending',
-  CONFIRMED = 'confirmed',
   PREPARING = 'preparing',
   READY = 'ready',
   DELIVERED = 'delivered',

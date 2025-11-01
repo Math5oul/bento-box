@@ -7,7 +7,7 @@ export interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'cozinha';
 }
 
 @Injectable({
@@ -126,6 +126,11 @@ export class AuthService {
   isAdmin(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'admin';
+  }
+
+  isKitchen(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'cozinha';
   }
 
   getToken(): string | null {

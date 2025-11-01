@@ -109,6 +109,11 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     return this.authService.isAdmin();
   }
 
+  get userRole(): string | undefined {
+    const user = this.authService.getCurrentUser();
+    return user?.role;
+  }
+
   ngOnInit(): void {
     // Verifica se está acessando via QR Code (rota /table/:tableId/join)
     // Chamamos joinTable apenas no browser (evita SSR e chamadas duplicadas)

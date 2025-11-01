@@ -20,6 +20,7 @@ export class BentoToolbarComponent {
   @Input() data!: GridItem[];
   @Input() options!: BentoOptions;
   @Input() selectedItem: GridItem | null = null;
+  @Input() hideToolbar: boolean = false; // Se true, não renderiza toolbar (ex: role cozinha)
 
   @Output() gridChanged = new EventEmitter<void>();
   @Output() dataModified = new EventEmitter<void>();

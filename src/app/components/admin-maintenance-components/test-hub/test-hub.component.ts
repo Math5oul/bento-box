@@ -46,6 +46,16 @@ export class TestHubComponent implements OnInit {
     }
   }
 
+  get userRole(): string | null {
+    const stored = localStorage.getItem('user');
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored).role || null;
+    } catch {
+      return null;
+    }
+  }
+
   async checkBackendStatus(): Promise<void> {
     try {
       const res: any = await this.http.get('/api/health').toPromise();

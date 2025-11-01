@@ -7,6 +7,8 @@ export enum UserRole {
   ADMIN = 'admin',
   CLIENT = 'client',
   TABLE = 'table',
+  KITCHEN = 'cozinha',
+  WAITER = 'garcom',
 }
 
 /**

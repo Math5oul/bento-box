@@ -41,75 +41,99 @@
 
   <!-- Test Cards -->
   <div class="cards-grid">
+    <!-- Card Cozinha (visível para role cozinha ou admin) -->
+    @if (userRole === 'cozinha' || userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">🍽️</div>
+        <h3 class="card-title">Painel da Cozinha</h3>
+        <p class="card-description">Acompanhe pedidos em tempo real e atualize status</p>
+        <ul class="card-features">
+          <li>Listagem de Pedidos</li>
+          <li>Atualização de Status</li>
+          <li>Polling Automático</li>
+        </ul>
+        <a routerLink="/maintenance/kitchen" class="card-button">Abrir Painel</a>
+      </div>
+    }
     <!-- Card 1: Gerenciamento de Contas -->
-    <div class="test-card">
-      <div class="card-icon">👥</div>
-      <h3 class="card-title">Gerenciamento de Contas</h3>
-      <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
-      <ul class="card-features">
-        <li>Listar usuários</li>
-        <li>Criar/Editar contas</li>
-        <li>Promover para admin</li>
-        <li>Testar credenciais</li>
-      </ul>
-      <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">👥</div>
+        <h3 class="card-title">Gerenciamento de Contas</h3>
+        <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
+        <ul class="card-features">
+          <li>Listar usuários</li>
+          <li>Criar/Editar contas</li>
+          <li>Promover para admin</li>
+          <li>Testar credenciais</li>
+        </ul>
+        <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
+      </div>
+    }
 
     <!-- Card 3: Gerenciar Produtos -->
-    <div class="test-card">
-      <div class="card-icon">🍱</div>
-      <h3 class="card-title">Gerenciar Produtos</h3>
-      <p class="card-description">Interface CRUD para gerenciar produtos do cardápio</p>
-      <ul class="card-features">
-        <li>Criar/editar produtos</li>
-        <li>Gerenciar preços e tamanhos</li>
-        <li>Categorias e formatos</li>
-        <li>Controle de disponibilidade</li>
-      </ul>
-      <button class="card-button" routerLink="/maintenance/products">Acessar Central</button>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">🍱</div>
+        <h3 class="card-title">Gerenciar Produtos</h3>
+        <p class="card-description">Interface CRUD para gerenciar produtos do cardápio</p>
+        <ul class="card-features">
+          <li>Criar/editar produtos</li>
+          <li>Gerenciar preços e tamanhos</li>
+          <li>Categorias e formatos</li>
+          <li>Controle de disponibilidade</li>
+        </ul>
+        <button class="card-button" routerLink="/maintenance/products">Acessar Central</button>
+      </div>
+    }
 
     <!-- Card: Gerenciar Categorias -->
-    <div class="test-card">
-      <div class="card-icon">📂</div>
-      <h3 class="card-title">Gerenciar Categorias</h3>
-      <p class="card-description">Central de gerenciamento de categorias de produtos</p>
-      <ul class="card-features">
-        <li>Criar/editar categorias</li>
-        <li>Seletor de emoji visual</li>
-        <li>Renomear (atualiza produtos)</li>
-        <li>Deletar com validação</li>
-      </ul>
-      <button class="card-button" routerLink="/maintenance/categories">Acessar Central</button>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">📂</div>
+        <h3 class="card-title">Gerenciar Categorias</h3>
+        <p class="card-description">Central de gerenciamento de categorias de produtos</p>
+        <ul class="card-features">
+          <li>Criar/editar categorias</li>
+          <li>Seletor de emoji visual</li>
+          <li>Renomear (atualiza produtos)</li>
+          <li>Deletar com validação</li>
+        </ul>
+        <button class="card-button" routerLink="/maintenance/categories">Acessar Central</button>
+      </div>
+    }
 
     <!-- Card 4: Filler Management -->
-    <div class="test-card">
-      <div class="card-icon">🛸</div>
-      <h3 class="card-title">Gerenciar Fillers</h3>
-      <p class="card-description">Central de manutenção dos elementos Filler</p>
-      <ul class="card-features">
-        <li>Criar Fillers</li>
-        <li>Editar Conteúdo</li>
-        <li>Categorizar</li>
-        <li>Preview em Tempo Real</li>
-      </ul>
-      <a routerLink="/maintenance/fillers" class="card-button">Acessar Central</a>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">🛸</div>
+        <h3 class="card-title">Gerenciar Fillers</h3>
+        <p class="card-description">Central de manutenção dos elementos Filler</p>
+        <ul class="card-features">
+          <li>Criar Fillers</li>
+          <li>Editar Conteúdo</li>
+          <li>Categorizar</li>
+          <li>Preview em Tempo Real</li>
+        </ul>
+        <a routerLink="/maintenance/fillers" class="card-button">Acessar Central</a>
+      </div>
+    }
 
     <!-- Card 2: Upload Tests -->
-    <div class="test-card">
-      <div class="card-icon">📤</div>
-      <h3 class="card-title">Teste de Upload</h3>
-      <p class="card-description">Sistema de upload e gerenciamento de imagens</p>
-      <ul class="card-features">
-        <li>Upload de Imagens</li>
-        <li>Preview em Tempo Real</li>
-        <li>Validação de Formatos</li>
-        <li>Gestão de Assets</li>
-      </ul>
-      <a routerLink="/maintenance/test-upload" class="card-button">Testar Upload</a>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">📤</div>
+        <h3 class="card-title">Teste de Upload</h3>
+        <p class="card-description">Sistema de upload e gerenciamento de imagens</p>
+        <ul class="card-features">
+          <li>Upload de Imagens</li>
+          <li>Preview em Tempo Real</li>
+          <li>Validação de Formatos</li>
+          <li>Gestão de Assets</li>
+        </ul>
+        <a routerLink="/maintenance/test-upload" class="card-button">Testar Upload</a>
+      </div>
+    }
 
     <!-- Card 5: Frontend App -->
     <div class="test-card">
@@ -126,32 +150,36 @@
     </div>
 
     <!-- Card 6: MongoDB Compass -->
-    <div class="test-card">
-      <div class="card-icon">🗄️</div>
-      <h3 class="card-title">MongoDB Compass</h3>
-      <p class="card-description">Conectar ao banco de dados via Compass</p>
-      <ul class="card-features">
-        <li>Visualizar Collections</li>
-        <li>Editar Documentos</li>
-        <li>Queries Avançadas</li>
-        <li>Backup e Restore</li>
-      </ul>
-      <button class="card-button" (click)="copyMongoURL()">Copiar URL</button>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">🗄️</div>
+        <h3 class="card-title">MongoDB Compass</h3>
+        <p class="card-description">Conectar ao banco de dados via Compass</p>
+        <ul class="card-features">
+          <li>Visualizar Collections</li>
+          <li>Editar Documentos</li>
+          <li>Queries Avançadas</li>
+          <li>Backup e Restore</li>
+        </ul>
+        <button class="card-button" (click)="copyMongoURL()">Copiar URL</button>
+      </div>
+    }
 
     <!-- Card 7: Documentation -->
-    <div class="test-card">
-      <div class="card-icon">📚</div>
-      <h3 class="card-title">Documentação</h3>
-      <p class="card-description">Guia completo do sistema</p>
-      <ul class="card-features">
-        <li>Como Usar</li>
-        <li>Arquitetura</li>
-        <li>API Reference</li>
-        <li>Exemplos</li>
-      </ul>
-      <a routerLink="/maintenance/docs" class="card-button">Ver Docs</a>
-    </div>
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">📚</div>
+        <h3 class="card-title">Documentação</h3>
+        <p class="card-description">Guia completo do sistema</p>
+        <ul class="card-features">
+          <li>Como Usar</li>
+          <li>Arquitetura</li>
+          <li>API Reference</li>
+          <li>Exemplos</li>
+        </ul>
+        <a routerLink="/maintenance/docs" class="card-button">Ver Docs</a>
+      </div>
+    }
   </div>
 
   <!-- Info Section -->
