@@ -61,11 +61,47 @@
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   h2 {
     margin: 0;
     font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: -0.5px;
+  }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.9;
+    font-weight: 500;
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.8);
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(0.8);
+    }
   }
 
   .close-btn {

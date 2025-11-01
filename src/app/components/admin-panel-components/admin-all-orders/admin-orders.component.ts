@@ -1,7 +1,9 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Order, OrderStatus } from '../../../interfaces';
 import { OrderService } from '../../../services/order-service/order.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 interface OrdersByTable {
   tableNumber: number;
@@ -16,16 +18,25 @@ interface OrdersByTable {
   templateUrl: './admin-orders.component.html',
   styleUrls: ['./admin-orders.component.scss'],
 })
-export class AdminOrdersComponent implements OnInit {
+export class AdminOrdersComponent implements OnInit, OnDestroy {
   @Input() scrollToTableNumber: number | null = null;
   ordersByTable: OrdersByTable[] = [];
   isLoading = false;
   error: string | null = null;
 
+  // Polling para atualização em tempo real
+  private pollingSubscription?: Subscription;
+  private readonly POLLING_INTERVAL = 5000; // 5 segundos (mais rápido para pedidos)
+
   constructor(private orderService: OrderService) {}
 
   ngOnInit() {
     this.loadOrders();
+    this.startPolling();
+  }
+
+  ngOnDestroy() {
+    this.stopPolling();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -50,6 +61,31 @@ export class AdminOrdersComponent implements OnInit {
       }
     } catch (err) {
       console.error('Erro ao rolar para a mesa:', err);
+    }
+  }
+
+  /**
+   * Inicia polling automático para atualizar pedidos a cada 5 segundos
+   */
+  private startPolling(): void {
+    this.pollingSubscription = interval(this.POLLING_INTERVAL)
+      .pipe(switchMap(() => this.orderService.getAllOrdersGroupedByTable()))
+      .subscribe({
+        next: data => {
+          this.ordersByTable = data;
+        },
+        error: err => {
+          console.error('Erro ao atualizar pedidos:', err);
+        },
+      });
+  }
+
+  /**
+   * Para o polling quando o componente for destruído
+   */
+  private stopPolling(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
     }
   }
 

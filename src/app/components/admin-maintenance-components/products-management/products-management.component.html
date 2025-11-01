@@ -192,8 +192,8 @@
           <div class="form-group">
             <label>Categoria *</label>
             <select [(ngModel)]="newProduct.category">
-              @for (cat of availableCategories; track cat.value) {
-                <option [value]="cat.value">{{ cat.label }}</option>
+              @for (cat of categories; track cat._id) {
+                <option [value]="cat.slug">{{ cat.emoji }} {{ cat.name }}</option>
               }
             </select>
           </div>
@@ -335,8 +335,8 @@
           <div class="form-group">
             <label>Categoria *</label>
             <select [(ngModel)]="editingProduct.category">
-              @for (cat of availableCategories; track cat.value) {
-                <option [value]="cat.value">{{ cat.label }}</option>
+              @for (cat of categories; track cat._id) {
+                <option [value]="cat.slug">{{ cat.emoji }} {{ cat.name }}</option>
               }
             </select>
           </div>

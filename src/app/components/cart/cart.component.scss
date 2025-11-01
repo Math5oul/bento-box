@@ -44,11 +44,71 @@
 }
 
 .cart-title {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
   color: #2d3436;
   font-size: 1.5rem;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 1rem;
+}
+
+// Abas de navegação
+.cart-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #636e72;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+
+  &:hover {
+    color: #2d3436;
+    background: #f8f9fa;
+  }
+
+  &.active {
+    color: #0984e3;
+    border-bottom-color: #0984e3;
+    background: #f0f7ff;
+  }
+
+  .badge {
+    background: #0984e3;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  &.active .badge {
+    background: white;
+    color: #0984e3;
+  }
+}
+
+// Conteúdo das abas
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .cart-items-container {
@@ -56,13 +116,37 @@
   overflow-y: auto;
   margin-bottom: 1rem;
   -webkit-overflow-scrolling: touch;
+  padding-right: 0.25rem;
 }
 
 .empty-cart {
   text-align: center;
   color: #636e72;
-  font-style: italic;
-  padding: 1rem;
+  padding: 3rem 1rem;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  small {
+    color: #b2bec3;
+  }
+}
+
+// Container do histórico de pedidos
+.order-history-container {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 0.25rem;
 }
 
 .cart-item {
@@ -102,10 +186,27 @@
   }
 }
 
+.product-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+}
+
 .product-name {
   font-weight: 600;
   color: #2d3436;
   text-align: center;
+}
+
+.product-size {
+  font-size: 0.75rem;
+  color: #00b894;
+  font-weight: 500;
+  text-align: center;
+  background: #d1fae5;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
 }
 
 .product-price {
@@ -185,6 +286,193 @@
 .cart-footer {
   border-top: 2px solid #f0f0f0;
   padding-top: 1.5rem;
+}
+
+// Histórico de Pedidos (removido do footer, agora na aba)
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.order-card {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #dfe6e9;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  // Status colors via data-attribute
+  &[data-status='pending'] {
+    border-left-color: #fdcb6e;
+    .order-status-badge {
+      background: #fff3cd;
+      color: #856404;
+    }
+  }
+
+  &[data-status='confirmed'] {
+    border-left-color: #74b9ff;
+    .order-status-badge {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+  }
+
+  &[data-status='preparing'] {
+    border-left-color: #a29bfe;
+    .order-status-badge {
+      background: #cfe2ff;
+      color: #084298;
+    }
+  }
+
+  &[data-status='ready'] {
+    border-left-color: #55efc4;
+    .order-status-badge {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+  }
+
+  &[data-status='delivered'] {
+    border-left-color: #b2bec3;
+    .order-status-badge {
+      background: #e2e3e5;
+      color: #41464b;
+    }
+  }
+
+  &[data-status='cancelled'] {
+    border-left-color: #ff7675;
+    opacity: 0.7;
+    .order-status-badge {
+      background: #f8d7da;
+      color: #842029;
+    }
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .order-id {
+    font-weight: 600;
+    color: #2d3436;
+    font-size: 0.9rem;
+  }
+
+  .order-time {
+    font-size: 0.75rem;
+    color: #636e72;
+  }
+
+  .order-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .order-items {
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .item-qty {
+      font-weight: 600;
+      color: #00b894;
+      min-width: 30px;
+    }
+
+    .item-details {
+      flex: 1;
+      margin: 0 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .item-name {
+      color: #2d3436;
+    }
+
+    .item-size {
+      color: #00b894;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    .item-price {
+      font-weight: 600;
+      color: #636e72;
+    }
+  }
+
+  .order-notes {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: #fff3cd;
+    border-radius: 4px;
+    border-left: 3px solid #ffc107;
+
+    small {
+      color: #856404;
+      font-size: 0.8rem;
+    }
+  }
+
+  .order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid #e9ecef;
+    font-size: 0.9rem;
+
+    strong {
+      color: #2d3436;
+    }
+
+    .total-value {
+      color: #00b894;
+      font-size: 1rem;
+    }
+  }
 }
 
 .success-message {
@@ -268,7 +556,28 @@
     padding-bottom: 2rem;
   }
 
-  .cart-items-container {
+  .cart-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cart-tabs {
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tab-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+    }
+  }
+
+  .cart-items-container,
+  .order-history-container {
     flex: 1;
     padding-bottom: 1rem;
   }
@@ -297,5 +606,17 @@
     width: 26px;
     height: 26px;
     font-size: 0.9rem;
+  }
+
+  .empty-cart {
+    padding: 2rem 1rem;
+
+    .empty-icon {
+      font-size: 3rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
   }
 }

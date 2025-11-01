@@ -1,18 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IProductSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
+
 export interface IProduct extends Document {
   name: string;
   description: string;
   price: number;
+  sizes?: IProductSize[];
   images: string[];
-  category:
-    | 'food'
-    | 'hot beverage'
-    | 'cold beverage'
-    | 'dessert'
-    | 'alcoholic'
-    | 'beverage'
-    | 'other';
+  category: string; // Agora é string livre (slug da categoria)
   format?: '1x1' | '1x2' | '2x1' | '2x2';
   colorMode?: 'light' | 'dark';
   available: boolean;
@@ -45,6 +45,31 @@ const ProductSchema: Schema = new Schema(
       required: [true, 'Preço é obrigatório'],
       min: [0, 'Preço não pode ser negativo'],
     },
+    sizes: {
+      type: [
+        {
+          name: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: [50, 'Nome do tamanho não pode ter mais de 50 caracteres'],
+          },
+          abbreviation: {
+            type: String,
+            required: true,
+            trim: true,
+            uppercase: true,
+            maxlength: [5, 'Abreviação não pode ter mais de 5 caracteres'],
+          },
+          price: {
+            type: Number,
+            required: true,
+            min: [0, 'Preço não pode ser negativo'],
+          },
+        },
+      ],
+      default: [],
+    },
     images: {
       type: [String],
       default: [],
@@ -57,8 +82,10 @@ const ProductSchema: Schema = new Schema(
     },
     category: {
       type: String,
-      enum: ['food', 'hot beverage', 'cold beverage', 'dessert', 'alcoholic', 'beverage', 'other'],
-      default: 'other',
+      required: [true, 'Categoria é obrigatória'],
+      trim: true,
+      lowercase: true,
+      default: 'outros',
     },
     format: {
       type: String,

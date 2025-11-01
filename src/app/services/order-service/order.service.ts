@@ -56,6 +56,41 @@ export class OrderService {
   }
 
   /**
+   * Busca pedidos da mesa atual do cliente (autenticado ou anônimo)
+   */
+  getOrdersForCurrentTable(tableId: string): Observable<Order[]> {
+    const headers = this.getHeaders();
+    const sessionToken = this.getSessionToken();
+
+    let params = new HttpParams();
+    if (sessionToken) {
+      params = params.set('sessionToken', sessionToken);
+    }
+
+    return this.http
+      .get<{ success: boolean; orders: Order[] }>(`/api/orders/current-table/${tableId}`, {
+        headers,
+        params,
+      })
+      .pipe(map(res => res.orders || []));
+  }
+
+  /**
+   * Transfere pedidos anônimos para o usuário autenticado
+   */
+  transferAnonymousOrders(
+    tableId: string,
+    sessionToken: string
+  ): Observable<{ success: boolean; message: string; count: number }> {
+    const headers = this.getHeaders();
+    return this.http.patch<{ success: boolean; message: string; count: number }>(
+      '/api/orders/transfer-anonymous',
+      { tableId, sessionToken },
+      { headers }
+    );
+  }
+
+  /**
    * Busca todos os pedidos e agrupa por mesa (Admin)
    */
   getAllOrdersGroupedByTable(): Observable<

@@ -1,3 +1,10 @@
+/**
+ * Script para popular o banco de dados com produtos do backup
+ *
+ * Como executar:
+ * npm exec tsx backend/scripts/seed-products.ts
+ */
+
 import dotenv from 'dotenv';
 import { connectDB } from '../config/database';
 import Product from '../models/Product';

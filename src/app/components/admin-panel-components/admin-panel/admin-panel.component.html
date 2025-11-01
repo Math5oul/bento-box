@@ -1,7 +1,13 @@
 <div class="admin-panel-overlay" (click)="closePanel()">
   <div class="admin-panel-container" (click)="$event.stopPropagation()">
     <div class="panel-header">
-      <h2>⚙️ Painel Administrativo</h2>
+      <div>
+        <h2>⚙️ Painel Administrativo</h2>
+        <span class="live-indicator">
+          <span class="pulse"></span>
+          Atualização automática
+        </span>
+      </div>
       <button class="close-btn" (click)="closePanel()">×</button>
     </div>
 

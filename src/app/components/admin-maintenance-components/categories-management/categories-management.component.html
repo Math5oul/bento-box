@@ -1,0 +1,281 @@
+<div class="categories-management-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <img src="/imgs/bento-logo-mini.png" alt="Bento Box" class="logo" />
+      Gerenciamento de Categorias
+    </h1>
+    <p class="subtitle">Gerencie as categorias de produtos do sistema</p>
+    <a routerLink="/maintenance/test-hub" class="back-button">← Voltar para Hub</a>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon">📂</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ categories.length }}</div>
+        <div class="stat-label">Total de Categorias</div>
+      </div>
+    </div>
+
+    <div class="stat-card info">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ getTotalProducts() }}</div>
+        <div class="stat-label">Produtos Categorizados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão de criar categoria -->
+  <div class="actions-container">
+    <button class="create-button" (click)="openCreateModal()">➕ Criar Nova Categoria</button>
+  </div>
+
+  <!-- Barra de Pesquisa -->
+  <div class="search-section">
+    <div class="search-bar">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="🔍 Pesquisar categorias por nome ou slug..."
+        class="search-input"
+      />
+      @if (searchTerm) {
+        <button class="clear-search" (click)="searchTerm = ''">&times;</button>
+      }
+    </div>
+    <p class="search-results">
+      Exibindo {{ filteredCategories.length }} de {{ categories.length }} categorias
+    </p>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Carregando categorias...</p>
+    </div>
+  }
+
+  <!-- Grid de categorias -->
+  @if (!loading) {
+    <div class="categories-grid">
+      @if (filteredCategories.length === 0 && categories.length > 0) {
+        <div class="empty-state">
+          <p>Nenhuma categoria encontrada com "{{ searchTerm }}"</p>
+        </div>
+      }
+
+      @for (category of filteredCategories; track category._id) {
+        <div class="category-card">
+          <div class="category-emoji">{{ category.emoji }}</div>
+
+          <div class="category-info">
+            <h3>{{ category.name }}</h3>
+            <p class="category-slug">{{ category.slug }}</p>
+
+            @if (category.productCount !== undefined) {
+              <div class="product-count">
+                <span class="count-badge" [class.has-products]="category.productCount > 0">
+                  {{ category.productCount }} produto{{ category.productCount !== 1 ? 's' : '' }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="category-actions">
+            <button class="edit-btn" (click)="openEditModal(category)" title="Editar categoria">
+              ✏️ Editar
+            </button>
+            <button
+              class="delete-btn"
+              (click)="deleteCategory(category)"
+              [disabled]="(category.productCount || 0) > 0"
+              [title]="
+                (category.productCount || 0) > 0
+                  ? 'Não pode deletar categoria com produtos'
+                  : 'Deletar categoria'
+              "
+            >
+              🗑️ Deletar
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (categories.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📂</div>
+          <h3>Nenhuma categoria cadastrada</h3>
+          <p>Clique em "Criar Nova Categoria" para adicionar a primeira categoria</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Criação -->
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>➕ Criar Nova Categoria</h2>
+          <button class="close-btn" (click)="closeCreateModal()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Nome -->
+          <div class="form-group">
+            <label>Nome da Categoria *</label>
+            <input
+              type="text"
+              [(ngModel)]="newCategory.name"
+              (ngModelChange)="onNameChange()"
+              placeholder="Ex: Bebidas Quentes"
+              maxlength="50"
+              autofocus
+            />
+          </div>
+
+          <!-- Emoji -->
+          <div class="form-group">
+            <label>Emoji *</label>
+            <div class="emoji-selector">
+              <div class="selected-emoji" title="Emoji selecionado">
+                {{ newCategory.emoji }}
+              </div>
+              <div class="emoji-grid">
+                @for (emoji of commonEmojis; track emoji) {
+                  <button
+                    type="button"
+                    class="emoji-btn"
+                    [class.selected]="newCategory.emoji === emoji"
+                    (click)="newCategory.emoji = emoji"
+                    title="Selecionar {{ emoji }}"
+                  >
+                    {{ emoji }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Slug (gerado automaticamente) -->
+          <div class="form-group">
+            <label>Slug (gerado automaticamente)</label>
+            <input
+              type="text"
+              [(ngModel)]="newCategory.slug"
+              placeholder="sera-gerado-automaticamente"
+              maxlength="50"
+              readonly
+              class="readonly-input"
+            />
+            <small class="field-hint">
+              O slug é usado internamente para identificar a categoria
+            </small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeCreateModal()">Cancelar</button>
+          <button class="save-btn" (click)="createCategory()">✅ Criar Categoria</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Edição -->
+  @if (showEditModal) {
+    <div class="modal-overlay" (click)="closeEditModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>✏️ Editar Categoria</h2>
+          <button class="close-btn" (click)="closeEditModal()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Aviso sobre renomeação -->
+          <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <div class="warning-text">
+              <strong>Atenção!</strong>
+              <p>
+                Ao renomear esta categoria, todos os produtos vinculados serão atualizados
+                automaticamente.
+              </p>
+            </div>
+          </div>
+
+          <!-- Nome -->
+          <div class="form-group">
+            <label>Nome da Categoria *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingCategory.name"
+              (ngModelChange)="onEditNameChange()"
+              placeholder="Ex: Bebidas Quentes"
+              maxlength="50"
+            />
+          </div>
+
+          <!-- Emoji -->
+          <div class="form-group">
+            <label>Emoji *</label>
+            <div class="emoji-selector">
+              <div class="selected-emoji" title="Emoji selecionado">
+                {{ editingCategory.emoji }}
+              </div>
+              <div class="emoji-grid">
+                @for (emoji of commonEmojis; track emoji) {
+                  <button
+                    type="button"
+                    class="emoji-btn"
+                    [class.selected]="editingCategory.emoji === emoji"
+                    (click)="editingCategory.emoji = emoji"
+                    title="Selecionar {{ emoji }}"
+                  >
+                    {{ emoji }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Slug -->
+          <div class="form-group">
+            <label>Slug *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingCategory.slug"
+              placeholder="slug-da-categoria"
+              maxlength="50"
+            />
+            <small class="field-hint">
+              ⚠️ Alterar o slug também atualiza todos os produtos desta categoria
+            </small>
+          </div>
+
+          <!-- Produtos vinculados -->
+          @if (editingCategory.productCount !== undefined) {
+            <div class="info-box">
+              <span class="info-icon">ℹ️</span>
+              <span class="info-text">
+                Esta categoria possui <strong>{{ editingCategory.productCount }}</strong> produto{{
+                  editingCategory.productCount !== 1 ? 's' : ''
+                }}
+                vinculado{{ editingCategory.productCount !== 1 ? 's' : '' }}.
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeEditModal()">Cancelar</button>
+          <button class="save-btn" (click)="updateCategory()">✅ Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

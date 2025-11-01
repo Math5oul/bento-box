@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CarrosselComponent } from '../../../carrossel/carrossel.component';
+import { CartItemSize } from '../../../../services/cart-service/cart.service';
 
 @Component({
   selector: 'app-product-modal',
@@ -16,16 +17,19 @@ export class ProductModalComponent {
   @Input() productName: string = '';
   @Input() description: string = '';
   @Input() price: number = 0;
+  @Input() sizes: Array<{ name: string; abbreviation: string; price: number }> = [];
 
   @Output() orderSubmitted = new EventEmitter<{
     productName: string;
     quantity: number;
     observations: string;
+    selectedSize?: CartItemSize;
   }>();
 
   isOpen: boolean = false;
   quantity: number = 1;
   observations: string = '';
+  selectedSize: CartItemSize | null = null;
 
   /**
    * Abre o modal de produto
@@ -67,8 +71,23 @@ export class ProductModalComponent {
       productName: this.productName,
       quantity: this.quantity,
       observations: this.observations,
+      selectedSize: this.selectedSize || undefined,
     });
     this.close();
+  }
+
+  /**
+   * Seleciona um tamanho
+   */
+  selectSize(size: { name: string; abbreviation: string; price: number }) {
+    this.selectedSize = { ...size };
+  }
+
+  /**
+   * Retorna o preço atual (do tamanho selecionado ou preço base)
+   */
+  getCurrentPrice(): number {
+    return this.selectedSize ? this.selectedSize.price : this.price;
   }
 
   /**
@@ -78,5 +97,6 @@ export class ProductModalComponent {
   private resetForm() {
     this.quantity = 1;
     this.observations = '';
+    this.selectedSize = null;
   }
 }

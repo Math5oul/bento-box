@@ -6,77 +6,170 @@
   <button class="close-button" (click)="closeCart.emit()">×</button>
   <h2 class="cart-title">🛒 Seu Carrinho</h2>
 
-  <div class="cart-items-container">
-    @if (carrinho.length === 0) {
-      <div class="empty-cart">Seu carrinho está vazio</div>
-    }
-
-    @for (item of carrinho; track item.productName) {
-      <div class="cart-item">
-        <div class="item-info">
-          <span class="product-image">
-            <img [src]="item.image" alt="{{ item.productName }}"
-          /></span>
-          <span class="product-name">{{ item.productName }}</span>
-          <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
-        </div>
-
-        <div class="item-controls">
-          <div class="quantity-adjuster">
-            <button
-              class="quantity-button decrease"
-              (click)="decreaseQuantity(item)"
-              [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'"
-            >
-              @if (item.quantity === 1) {
-                <span class="trash-icon">🗑️</span>
-              } @else {
-                <span>-</span>
-              }
-            </button>
-
-            <span class="quantity">{{ item.quantity }}</span>
-
-            <button
-              class="quantity-button increase"
-              (click)="increaseQuantity(item)"
-              title="Aumentar quantidade"
-            >
-              <span>+</span>
-            </button>
-          </div>
-
-          <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
-        </div>
-      </div>
-    }
-  </div>
-
-  <div class="cart-footer">
-    <!-- Mensagens de sucesso/erro -->
-    @if (orderSuccess) {
-      <div class="success-message">✅ Pedido enviado com sucesso!</div>
-    }
-
-    @if (orderError) {
-      <div class="error-message">❌ {{ orderError }}</div>
-    }
-
-    <div class="total-container">
-      <span>Total:</span>
-      <span class="total-price">{{ total | currency: 'BRL' }}</span>
-    </div>
-
-    <button
-      class="checkout-button"
-      (click)="finalizarPedido()"
-      [disabled]="isPlacingOrder || carrinho.length === 0"
-    >
-      @if (isPlacingOrder) {
-        <span>⏳ Enviando...</span>
-      } @else {
-        <span>🍱 Enviar Pedido</span>
+  <!-- Abas de navegação -->
+  <div class="cart-tabs">
+    <button class="tab-button" [class.active]="activeTab === 'new'" (click)="activeTab = 'new'">
+      🍱 Novo Pedido
+      @if (carrinho.length > 0) {
+        <span class="badge">{{ carrinho.length }}</span>
       }
     </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'history'"
+      (click)="activeTab = 'history'"
+    >
+      📋 Pedidos Feitos
+      @if (placedOrders.length > 0) {
+        <span class="badge">{{ placedOrders.length }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- Conteúdo das Abas -->
+  <div class="tab-content">
+    <!-- Aba: Novo Pedido -->
+    @if (activeTab === 'new') {
+      <div class="cart-items-container">
+        @if (carrinho.length === 0) {
+          <div class="empty-cart">
+            <div class="empty-icon">🛒</div>
+            <p>Seu carrinho está vazio</p>
+            <small>Adicione itens do cardápio para começar</small>
+          </div>
+        }
+
+        @for (item of carrinho; track item.productName) {
+          <div class="cart-item">
+            <div class="item-info">
+              <span class="product-image">
+                <img [src]="item.image" alt="{{ item.productName }}" />
+              </span>
+              <div class="product-details">
+                <span class="product-name">{{ item.productName }}</span>
+                @if (item.selectedSize) {
+                  <span class="product-size"
+                    >{{ item.selectedSize.abbreviation }} - {{ item.selectedSize.name }}</span
+                  >
+                }
+              </div>
+              <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
+            </div>
+
+            <div class="item-controls">
+              <div class="quantity-adjuster">
+                <button
+                  class="quantity-button decrease"
+                  (click)="decreaseQuantity(item)"
+                  [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'"
+                >
+                  @if (item.quantity === 1) {
+                    <span class="trash-icon">🗑️</span>
+                  } @else {
+                    <span>-</span>
+                  }
+                </button>
+
+                <span class="quantity">{{ item.quantity }}</span>
+
+                <button
+                  class="quantity-button increase"
+                  (click)="increaseQuantity(item)"
+                  title="Aumentar quantidade"
+                >
+                  <span>+</span>
+                </button>
+              </div>
+
+              <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Rodapé com total e botão (só na aba "Novo Pedido") -->
+      <div class="cart-footer">
+        @if (orderSuccess) {
+          <div class="success-message">✅ Pedido enviado com sucesso!</div>
+        }
+
+        @if (orderError) {
+          <div class="error-message">❌ {{ orderError }}</div>
+        }
+
+        <div class="total-container">
+          <span>Total:</span>
+          <span class="total-price">{{ total | currency: 'BRL' }}</span>
+        </div>
+
+        <button
+          class="checkout-button"
+          (click)="finalizarPedido()"
+          [disabled]="isPlacingOrder || carrinho.length === 0"
+        >
+          @if (isPlacingOrder) {
+            <span>⏳ Enviando...</span>
+          } @else {
+            <span>🍱 Enviar Pedido</span>
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Aba: Histórico de Pedidos -->
+    @if (activeTab === 'history') {
+      <div class="order-history-container">
+        @if (placedOrders.length === 0) {
+          <div class="empty-cart">
+            <div class="empty-icon">📋</div>
+            <p>Nenhum pedido feito ainda</p>
+            <small>Seus pedidos aparecerão aqui após serem enviados</small>
+          </div>
+        } @else {
+          <div class="orders-list">
+            @for (order of placedOrders; track order.id) {
+              <div class="order-card" [attr.data-status]="order.status">
+                <div class="order-header">
+                  <div class="order-info">
+                    <span class="order-id">Pedido #{{ order.id.slice(-6) }}</span>
+                    <span class="order-time">{{ getOrderTime(order) }}</span>
+                  </div>
+                  <span class="order-status-badge">{{ getStatusLabel(order.status) }}</span>
+                </div>
+
+                <div class="order-items">
+                  @for (item of order.items; track $index) {
+                    <div class="order-item">
+                      <span class="item-qty">{{ item.quantity }}x</span>
+                      <div class="item-details">
+                        <span class="item-name">{{ item.productName }}</span>
+                        @if (item.selectedSize) {
+                          <small class="item-size"
+                            >{{ item.selectedSize.abbreviation }} -
+                            {{ item.selectedSize.name }}</small
+                          >
+                        }
+                      </div>
+                      <span class="item-price">{{ item.totalPrice | currency: 'BRL' }}</span>
+                    </div>
+                  }
+                </div>
+
+                @if (order.notes) {
+                  <div class="order-notes">
+                    <small>📝 {{ order.notes }}</small>
+                  </div>
+                }
+
+                <div class="order-total">
+                  <strong>Total:</strong>
+                  <strong class="total-value">{{ order.totalAmount | currency: 'BRL' }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
 </div>

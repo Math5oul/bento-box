@@ -15,6 +15,7 @@ import uploadRoutes from './routes/upload';
 import fillerRoutes from './routes/fillers';
 import orderRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
+import categoryRoutes from './routes/categories';
 
 const app: Express = express();
 const PORT = process.env['PORT'] || 3001;
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/table', tableRoutes);
 app.use('/api/tables', tableRoutes); // Alias para compatibilidade
 app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/fillers', fillerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);

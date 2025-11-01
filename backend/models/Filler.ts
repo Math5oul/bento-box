@@ -66,7 +66,6 @@ const FillerSchema: Schema = new Schema(
     },
     categories: {
       type: [String],
-      enum: ['food', 'hot beverage', 'cold beverage', 'dessert', 'alcoholic', 'beverage', 'other'],
       default: [],
     },
     formats: {

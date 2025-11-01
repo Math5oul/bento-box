@@ -7,6 +7,8 @@ import { environment } from '../../../../environments/environment';
 import { ImageUploadService } from '../../../services/image-upload/image-upload.service';
 import { StorageService } from '../../../services/storage-service/storage.service';
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
+import { CategoryService } from '../../../services/category-service/category.service';
+import { Category } from '../../../interfaces/category.interface';
 
 interface FillerContent {
   text?: string;
@@ -45,8 +47,10 @@ interface Filler {
 export class FillersManagementComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private categoryService = inject(CategoryService);
 
   fillers: Filler[] = [];
+  categories: Category[] = [];
   loading = true;
 
   // Filtros
@@ -78,30 +82,44 @@ export class FillersManagementComponent implements OnInit {
 
   // Opções disponíveis
   availableFormats = ['1x1', '1x2', '2x1', '2x2'];
-  availableCategories = [
-    { value: 'food', label: '🥐 Pratos' },
-    { value: 'hot beverage', label: '☕ Bebidas Quentes' },
-    { value: 'cold beverage', label: '🥤 Bebidas Frias' },
-    { value: 'dessert', label: '🍰 Sobremesas' },
-    { value: 'alcoholic', label: '🍺 Bebidas Alcoólicas' },
-    { value: 'beverage', label: '🍹 Bebidas' },
-    { value: 'other', label: '📦 Outros' },
-  ];
-
-  categoryEmojis: { [key: string]: string } = {
-    food: '🥐',
-    'hot beverage': '☕',
-    'cold beverage': '🥤',
-    dessert: '🍰',
-    alcoholic: '🍺',
-    beverage: '🍹',
-    other: '📦',
-  };
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.loadCategories();
       this.loadFillers();
     }
+  }
+
+  /**
+   * Carrega categorias do CategoryService
+   */
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: response => {
+        if (response.success) {
+          this.categories = response.data;
+        }
+      },
+      error: error => {
+        console.error('Erro ao carregar categorias:', error);
+      },
+    });
+  }
+
+  /**
+   * Retorna emoji da categoria pelo slug
+   */
+  getCategoryEmoji(slug: string): string {
+    const category = this.categories.find(c => c.slug === slug);
+    return category ? category.emoji : '📦';
+  }
+
+  /**
+   * Retorna label completo da categoria (emoji + nome)
+   */
+  getCategoryLabel(slug: string): string {
+    const category = this.categories.find(c => c.slug === slug);
+    return category ? `${category.emoji} ${category.name}` : slug;
   }
 
   /**
@@ -379,11 +397,11 @@ export class FillersManagementComponent implements OnInit {
   }
 
   /**
-   * Retorna o emoji da categoria
+   * Retorna os emojis das categorias
    */
   getCategoryEmojis(categories: string[]): string {
     if (!categories || categories.length === 0) return '⚠️ Sem categorias';
-    return categories.map(cat => this.categoryEmojis[cat] || '📦').join(' ');
+    return categories.map(slug => this.getCategoryEmoji(slug)).join(' ');
   }
 
   /**

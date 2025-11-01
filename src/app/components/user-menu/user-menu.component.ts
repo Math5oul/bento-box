@@ -21,7 +21,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-menu.component.scss'],
 })
 export class UserMenuComponent implements OnInit, OnDestroy {
-  @Output() openProfile = new EventEmitter<void>();
   @Output() openOrders = new EventEmitter<void>();
   @Output() openPayments = new EventEmitter<void>();
   @Output() openChangePassword = new EventEmitter<void>();
@@ -125,11 +124,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
       this.dropdownElement = null;
     }
-  }
-
-  onProfileClick() {
-    this.openProfile.emit();
-    this.closeMenu();
   }
 
   onOrdersClick() {

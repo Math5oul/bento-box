@@ -17,12 +17,18 @@
         <div class="table-info">
           <div class="info-item">
             <span class="icon">👥</span>
-            <span>{{ table.capacity }} pessoas</span>
+            <span
+              >{{ getClientCount(table) }}
+              {{ getClientCount(table) === 1 ? 'pessoa' : 'pessoas' }}</span
+            >
           </div>
           @if (table.currentOrders && table.currentOrders.length > 0) {
             <div class="info-item">
               <span class="icon">📋</span>
-              <span>{{ table.currentOrders.length }} pedidos</span>
+              <span
+                >{{ table.currentOrders.length }}
+                {{ table.currentOrders.length === 1 ? 'pedido' : 'pedidos' }}</span
+              >
             </div>
           }
           @if (table.totalConsumption && table.totalConsumption > 0) {
