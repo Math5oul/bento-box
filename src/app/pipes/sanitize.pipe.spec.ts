@@ -50,4 +50,17 @@ describe('SanitizePipe', () => {
     const res = pipe.transform(bad, 'resourceUrl');
     expect(res).toBeNull();
   });
+
+  it('deve permitir HTML confiável com trustedHtml', () => {
+    const richText = '<p><strong>Texto em negrito</strong> e <em>itálico</em></p>';
+    const res = pipe.transform(richText, 'trustedHtml');
+    // trustedHtml retorna SafeHtml, não string, então verificamos que não é null
+    expect(res).toBeTruthy();
+  });
+
+  it('deve manter formatação rich text com trustedHtml', () => {
+    const richText = '<h1>Título</h1><p>Parágrafo com <b>negrito</b></p><ul><li>Item 1</li></ul>';
+    const res = pipe.transform(richText, 'trustedHtml');
+    expect(res).toBeTruthy();
+  });
 });

@@ -75,4 +75,34 @@ export class AdminOrdersComponent implements OnInit {
   getStatusColor(status: OrderStatus) {
     return this.orderService.getStatusColor(status);
   }
+
+  getTotalOrders(): number {
+    return this.ordersByTable.reduce((total, mesa) => total + mesa.orders.length, 0);
+  }
+
+  getMesaTotal(mesa: OrdersByTable): number {
+    return mesa.orders.reduce((total, order) => total + (order.totalAmount || 0), 0);
+  }
+
+  isHighlighted(order: Order): boolean {
+    // Destacar pedidos pendentes ou em preparo
+    return order.status === OrderStatus.PENDING || order.status === OrderStatus.PREPARING;
+  }
+
+  getOrderTime(order: Order): string {
+    if (!order.createdAt) return 'Recente';
+
+    const now = new Date();
+    const orderDate = new Date(order.createdAt);
+    const diff = now.getTime() - orderDate.getTime();
+    const minutes = Math.floor(diff / 60000);
+
+    if (minutes < 1) return 'Agora mesmo';
+    if (minutes < 60) return `Há ${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `Há ${hours}h`;
+
+    return orderDate.toLocaleDateString('pt-BR');
+  }
 }

@@ -1,0 +1,132 @@
+<div class="reservations-section">
+  <div class="section-header">
+    <h3>Gerenciamento de Reservas</h3>
+    <button class="btn-primary" (click)="showReserveModal = true">➕ Nova Reserva</button>
+  </div>
+
+  @if (reservedTables.length > 0) {
+    <div class="reservations-list">
+      @for (table of reservedTables; track table.id) {
+        <div class="reservation-card">
+          <div class="reservation-header">
+            <span class="table-badge">Mesa {{ table.number }}</span>
+            <button class="cancel-btn" (click)="cancelReservation(table)" title="Cancelar reserva">
+              ❌
+            </button>
+          </div>
+
+          @if (table.reservationInfo) {
+            <div class="reservation-details">
+              <div class="detail-row-main">
+                <div class="detail-col">
+                  <span class="icon">👤</span>
+                  <div>
+                    <strong>{{ table.reservationInfo.clientName }}</strong>
+                    <div class="detail-subtitle">{{ table.reservationInfo.clientPhone }}</div>
+                  </div>
+                </div>
+
+                <div class="detail-col">
+                  <span class="icon">📅</span>
+                  <div>
+                    <strong>{{ table.reservationInfo.dateTime | date: 'dd/MM/yyyy HH:mm' }}</strong>
+                    <div class="detail-subtitle">Data e horário</div>
+                  </div>
+                </div>
+              </div>
+
+              @if (table.reservationInfo.notes) {
+                <div class="notes">📝 {{ table.reservationInfo.notes }}</div>
+              }
+            </div>
+
+            <div class="reservation-actions">
+              <button class="btn-action btn-confirm" (click)="confirmReservation(table)">
+                ✅ Confirmar Chegada
+              </button>
+              <button class="btn-action btn-manage" (click)="viewTableDetails(table)">
+                ⚙️ Gerenciar
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>📅 Nenhuma reserva ativa</p>
+      <button class="btn-primary" (click)="showReserveModal = true">Criar primeira reserva</button>
+    </div>
+  }
+</div>
+
+<!-- Modal: Reservar Mesa -->
+@if (showReserveModal) {
+  <div class="modal-overlay" (click)="showReserveModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>📅 Nova Reserva</h3>
+      <form (ngSubmit)="reserveTable()">
+        <div class="form-group">
+          <label>Mesa:</label>
+          <select [(ngModel)]="reservation.tableId" name="tableId" required>
+            <option value="">Selecione uma mesa</option>
+            @for (table of availableTables; track table.id) {
+              <option [value]="table.id">
+                Mesa {{ table.number }} ({{ table.capacity }} pessoas)
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Nome do Cliente:</label>
+          <input
+            type="text"
+            [(ngModel)]="reservation.clientName"
+            name="clientName"
+            placeholder="Nome completo"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Telefone:</label>
+          <input
+            type="tel"
+            [(ngModel)]="reservation.clientPhone"
+            name="clientPhone"
+            placeholder="(00) 00000-0000"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Data e Hora:</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="reservation.dateTime"
+            name="dateTime"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Observações (opcional):</label>
+          <textarea
+            [(ngModel)]="reservation.notes"
+            name="notes"
+            rows="3"
+            placeholder="Alguma observação sobre a reserva?"
+          ></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="showReserveModal = false">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary">Confirmar Reserva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

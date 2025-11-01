@@ -1,0 +1,129 @@
+<div class="tables-section">
+  <div class="section-header">
+    <h3>Gerenciamento de Mesas</h3>
+    <button class="btn-primary" (click)="showCreateModal = true">➕ Nova Mesa</button>
+  </div>
+
+  <div class="tables-grid">
+    @for (table of tables; track table.id) {
+      <div class="table-card" [style.border-color]="getStatusColor(table.status)">
+        <div class="table-header">
+          <div class="table-number">Mesa {{ table.number }}</div>
+          <div class="table-status" [style.background]="getStatusColor(table.status)">
+            {{ getStatusLabel(table.status) }}
+          </div>
+        </div>
+
+        <div class="table-info">
+          <div class="info-item">
+            <span class="icon">👥</span>
+            <span>{{ table.capacity }} pessoas</span>
+          </div>
+          @if (table.currentOrders && table.currentOrders.length > 0) {
+            <div class="info-item">
+              <span class="icon">📋</span>
+              <span>{{ table.currentOrders.length }} pedidos</span>
+            </div>
+          }
+          @if (table.totalConsumption && table.totalConsumption > 0) {
+            <div class="info-item">
+              <span class="icon">💰</span>
+              <span>R$ {{ table.totalConsumption.toFixed(2) }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="table-actions">
+          @if (table.status === 'available') {
+            <button class="btn-action btn-open" (click)="openTable(table)">🔓 Abrir</button>
+          }
+          @if (table.status === 'occupied') {
+            <button class="btn-action btn-close" (click)="closeTable(table)">🔒 Fechar</button>
+          }
+          @if (table.status === 'reserved') {
+            <button class="btn-action btn-confirm" (click)="confirmReservation(table)">
+              ✅ Confirmar
+            </button>
+          }
+          @if (table.status === 'closed') {
+            <button class="btn-action btn-clear" (click)="clearTable(table)">🧹 Limpar</button>
+          }
+          <button
+            class="btn-action btn-orders"
+            (click)="viewTableOrders(table)"
+            [disabled]="
+              !(table.currentOrders && table.currentOrders.length > 0) &&
+              !(table.ordersDetails && table.ordersDetails.length > 0)
+            "
+            [class.is-disabled]="
+              !(table.currentOrders && table.currentOrders.length > 0) &&
+              !(table.ordersDetails && table.ordersDetails.length > 0)
+            "
+          >
+            📋 Pedidos
+          </button>
+          <button class="btn-action btn-qr" (click)="showTableQRCode(table)">📱 QR Code</button>
+          <button class="btn-action btn-delete" (click)="deleteTable(table)">🗑️</button>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>Nenhuma mesa cadastrada</p>
+        <button class="btn-primary" (click)="showCreateModal = true">Criar primeira mesa</button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal: Criar Mesa -->
+@if (showCreateModal) {
+  <div class="modal-overlay" (click)="showCreateModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Nova Mesa</h3>
+      <form (ngSubmit)="createTable()">
+        <div class="form-group">
+          <label>Número da Mesa:</label>
+          <input type="number" [(ngModel)]="newTable.number" name="number" min="1" required />
+        </div>
+        <div class="form-group">
+          <label>Capacidade (pessoas):</label>
+          <input
+            type="number"
+            [(ngModel)]="newTable.capacity"
+            name="capacity"
+            min="1"
+            max="20"
+            required
+          />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="showCreateModal = false">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary">Criar Mesa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal: QR Code -->
+@if (showQRCode && selectedTable) {
+  <div class="modal-overlay" (click)="showQRCode = false">
+    <div class="modal-content qr-modal" (click)="$event.stopPropagation()">
+      <h3>QR Code - Mesa {{ selectedTable.number }}</h3>
+      @if (qrCodeImage) {
+        <div class="qr-container">
+          <img [src]="qrCodeImage" alt="QR Code da mesa" />
+        </div>
+        <p class="qr-info">Clientes podem escanear este QR Code para acessar a mesa</p>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="downloadQRCode()">💾 Baixar</button>
+          <button class="btn-primary" (click)="printQRCode()">🖨️ Imprimir</button>
+        </div>
+      } @else {
+        <p>Gerando QR Code...</p>
+      }
+    </div>
+  </div>
+}

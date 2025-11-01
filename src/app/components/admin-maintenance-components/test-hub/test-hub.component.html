@@ -1,0 +1,181 @@
+<div class="container">
+  <!-- Header -->
+  <header>
+    <img src="/imgs/bento-logo.png" alt="Bento Box" class="logo" />
+    <p class="subtitle">Central de Testes e Desenvolvimento</p>
+  </header>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-label">Backend</div>
+      <div class="status-value">
+        <span
+          class="status-indicator"
+          [class.online]="backendStatus === 'online'"
+          [class.offline]="backendStatus === 'offline'"
+        ></span>
+        {{ backendStatus }}
+      </div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Database</div>
+      <div class="status-value">
+        <span
+          class="status-indicator"
+          [class.online]="dbStatus === 'connected'"
+          [class.offline]="dbStatus !== 'connected'"
+        ></span>
+        {{ dbStatus }}
+      </div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Produtos</div>
+      <div class="status-value">{{ productsCount }}</div>
+    </div>
+    <div class="status-item">
+      <div class="status-label">Frontend</div>
+      <div class="status-value">{{ frontendUrl }}</div>
+    </div>
+  </div>
+
+  <!-- Test Cards -->
+  <div class="cards-grid">
+    <!-- Card 1: Gerenciamento de Contas -->
+    <div class="test-card">
+      <div class="card-icon">👥</div>
+      <h3 class="card-title">Gerenciamento de Contas</h3>
+      <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
+      <ul class="card-features">
+        <li>Listar usuários</li>
+        <li>Criar/Editar contas</li>
+        <li>Promover para admin</li>
+        <li>Testar credenciais</li>
+      </ul>
+      <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
+    </div>
+
+    <!-- Card 3: Gerenciar Produtos -->
+    <div class="test-card">
+      <div class="card-icon">🍱</div>
+      <h3 class="card-title">Gerenciar Produtos</h3>
+      <p class="card-description">Interface CRUD para gerenciar produtos do cardápio</p>
+      <ul class="card-features">
+        <li>Criar/editar produtos</li>
+        <li>Gerenciar preços e imagens</li>
+        <li>Categorias e formatos</li>
+        <li>Controle de disponibilidade</li>
+      </ul>
+      <button class="card-button" routerLink="/maintenance/products">Acessar Central</button>
+    </div>
+
+    <!-- Card 4: Filler Management -->
+    <div class="test-card">
+      <div class="card-icon">🛸</div>
+      <h3 class="card-title">Gerenciar Fillers</h3>
+      <p class="card-description">Central de manutenção dos elementos Filler</p>
+      <ul class="card-features">
+        <li>Criar Fillers</li>
+        <li>Editar Conteúdo</li>
+        <li>Categorizar</li>
+        <li>Preview em Tempo Real</li>
+      </ul>
+      <a routerLink="/maintenance/fillers" class="card-button">Acessar Central</a>
+    </div>
+
+    <!-- Card 2: Upload Tests -->
+    <div class="test-card">
+      <div class="card-icon">📤</div>
+      <h3 class="card-title">Teste de Upload</h3>
+      <p class="card-description">Sistema de upload e gerenciamento de imagens</p>
+      <ul class="card-features">
+        <li>Upload de Imagens</li>
+        <li>Preview em Tempo Real</li>
+        <li>Validação de Formatos</li>
+        <li>Gestão de Assets</li>
+      </ul>
+      <a routerLink="/maintenance/test-upload" class="card-button">Testar Upload</a>
+    </div>
+
+    <!-- Card 5: Frontend App -->
+    <div class="test-card">
+      <div class="card-icon">🎨</div>
+      <h3 class="card-title">Aplicação Frontend</h3>
+      <p class="card-description">Interface principal do sistema Bento Box</p>
+      <ul class="card-features">
+        <li>Grid Dinâmico</li>
+        <li>Carrinho de Pedidos</li>
+        <li>Modo Admin</li>
+        <li>QR Code Mesa</li>
+      </ul>
+      <a [href]="frontendUrl" class="card-button">Abrir App</a>
+    </div>
+
+    <!-- Card 6: MongoDB Compass -->
+    <div class="test-card">
+      <div class="card-icon">🗄️</div>
+      <h3 class="card-title">MongoDB Compass</h3>
+      <p class="card-description">Conectar ao banco de dados via Compass</p>
+      <ul class="card-features">
+        <li>Visualizar Collections</li>
+        <li>Editar Documentos</li>
+        <li>Queries Avançadas</li>
+        <li>Backup e Restore</li>
+      </ul>
+      <button class="card-button" (click)="copyMongoURL()">Copiar URL</button>
+    </div>
+
+    <!-- Card 7: Documentation -->
+    <div class="test-card">
+      <div class="card-icon">📚</div>
+      <h3 class="card-title">Documentação</h3>
+      <p class="card-description">Guia completo do sistema</p>
+      <ul class="card-features">
+        <li>Como Usar</li>
+        <li>Arquitetura</li>
+        <li>API Reference</li>
+        <li>Exemplos</li>
+      </ul>
+      <a routerLink="/maintenance/docs" class="card-button">Ver Docs</a>
+    </div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <h2>🔧 Informações do Sistema</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Backend URL</strong>
+        <code>http://localhost:3001</code>
+      </div>
+      <div class="info-item">
+        <strong>Frontend URL</strong>
+        <code>{{ frontendUrl }}</code>
+      </div>
+      <div class="info-item">
+        <strong>MongoDB</strong>
+        <code>mongodb://localhost:27017/bento-box</code>
+      </div>
+      <div class="info-item">
+        <strong>API Base</strong>
+        <code>/api</code>
+      </div>
+      <div class="info-item">
+        <strong>Versão Angular</strong>
+        <code>20.0.0</code>
+      </div>
+      <div class="info-item">
+        <strong>Versão Node</strong>
+        <code>v20+</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <strong>Bento Box</strong> - Sistema de Gestão de Cardápio Digital<br />
+      Desenvolvido com ❤️ usando Angular 20 + Node.js + MongoDB
+    </p>
+  </footer>
+</div>
