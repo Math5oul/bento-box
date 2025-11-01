@@ -12,6 +12,43 @@ import { ImageUploadService } from '../../services/image-upload/image-upload.ser
 import { CategoryService } from '../../services/category-service/category.service';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { Category } from '../../interfaces/category.interface';
+import { SimpleProductComponent } from '../simpleComponents/simple-product/simple-product.component';
+import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
+import { SimpleImageComponent } from '../simpleComponents/simple-image/simple-image.component';
+import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
+
+// Interfaces locais para Product e Filler (compatível com os gerenciadores)
+interface Product {
+  _id?: string;
+  name: string;
+  description: string;
+  price: number;
+  sizes?: ProductSize[];
+  images: string[];
+  category: string;
+  format?: '1x1' | '1x2' | '2x1' | '2x2';
+  colorMode?: 'light' | 'dark';
+  available?: boolean;
+}
+
+interface FillerContent {
+  text?: string;
+  backgroundColor?: string;
+  url?: string;
+  videoUrl?: string;
+  autoplay?: boolean;
+  controls?: boolean;
+  loop?: boolean;
+}
+
+interface Filler {
+  _id?: string;
+  type: 'text' | 'image' | 'video';
+  content: FillerContent;
+  categories: string[];
+  formats: string[];
+  active?: boolean;
+}
 
 @Component({
   selector: 'app-new-item-modal',
@@ -23,6 +60,7 @@ import { Category } from '../../interfaces/category.interface';
 export class NewItemModalComponent implements OnInit {
   @Input() editMode = false;
   @Input() itemToEdit: GridItem | null = null;
+  @Input() mode: 'product' | 'filler' | 'grid' = 'grid'; // Controla quais componentes são exibidos
 
   @Output() itemCreated = new EventEmitter<any>();
   @Output() modalClosed = new EventEmitter<void>();
@@ -34,6 +72,20 @@ export class NewItemModalComponent implements OnInit {
       inputsConfig: config.inputs,
     })
   );
+
+  // Componentes filtrados pelo modo
+  get filteredComponents() {
+    if (this.mode === 'product') {
+      // Mostra apenas SimpleProductComponent
+      return this.availableComponents.filter(comp => comp.name === 'Produto');
+    } else if (this.mode === 'filler') {
+      // Mostra apenas Text, Image e Video (fillers)
+      return this.availableComponents.filter(comp => comp.name.includes('Filler'));
+    } else {
+      // Modo 'grid': mostra todos
+      return this.availableComponents;
+    }
+  }
 
   selectedComponent: any = null;
   showDimensionsForm = false;
@@ -542,6 +594,141 @@ export class NewItemModalComponent implements OnInit {
     const currentSizes: ProductSize[] = [...(sizesControl.value || [])];
     currentSizes.splice(index, 1);
     sizesControl.setValue(currentSizes);
+  }
+
+  /**
+   * Converte um Product para GridItem
+   */
+  productToGridItem(product: Product): GridItem {
+    return {
+      id: Date.now(), // ID temporário
+      row: 0,
+      col: 0,
+      component: SimpleProductComponent,
+      rowSpan: this.getRowSpanFromFormat(product.format || '1x1'),
+      colSpan: this.getColSpanFromFormat(product.format || '1x1'),
+      inputs: {
+        productName: product.name,
+        description: product.description,
+        price: product.price,
+        sizes: product.sizes || [],
+        images: product.images,
+        category: product.category,
+        format: product.format || '1x1',
+        colorMode: product.colorMode || 'light',
+      },
+    };
+  }
+
+  /**
+   * Converte um GridItem para Product
+   */
+  gridItemToProduct(item: GridItem): Product {
+    return {
+      name: item.inputs.productName,
+      description: item.inputs.description,
+      price: item.inputs.price,
+      sizes: item.inputs.sizes,
+      images: item.inputs.images,
+      category: item.inputs.category,
+      format: item.inputs.format,
+      colorMode: item.inputs.colorMode,
+      available: true,
+    };
+  }
+
+  /**
+   * Converte um Filler para GridItem
+   */
+  fillerToGridItem(filler: Filler): GridItem {
+    let component;
+    let inputs: any = {
+      categories: filler.categories,
+      formats: filler.formats,
+    };
+
+    switch (filler.type) {
+      case 'text':
+        component = SimpleTextComponent;
+        inputs.text = filler.content.text || '';
+        inputs.background = filler.content.backgroundColor || '#FFFFFF';
+        break;
+      case 'image':
+        component = SimpleImageComponent;
+        inputs.url = filler.content.url || '';
+        break;
+      case 'video':
+        component = SimpleVideoComponent;
+        inputs.videoUrl = filler.content.videoUrl || '';
+        inputs.autoplay = filler.content.autoplay || false;
+        inputs.controls = filler.content.controls !== false;
+        inputs.loop = filler.content.loop || false;
+        break;
+      default:
+        component = SimpleTextComponent;
+    }
+
+    // Usa o primeiro formato como padrão para rowSpan/colSpan
+    const defaultFormat = filler.formats[0] || '1x1';
+
+    return {
+      id: Date.now(), // ID temporário
+      row: 0,
+      col: 0,
+      component,
+      rowSpan: this.getRowSpanFromFormat(defaultFormat),
+      colSpan: this.getColSpanFromFormat(defaultFormat),
+      inputs,
+    };
+  }
+
+  /**
+   * Converte um GridItem para Filler
+   */
+  gridItemToFiller(item: GridItem): Filler {
+    let type: 'text' | 'image' | 'video';
+    let content: FillerContent = {};
+
+    if (item.component === SimpleTextComponent) {
+      type = 'text';
+      content.text = item.inputs.text;
+      content.backgroundColor = item.inputs.background;
+    } else if (item.component === SimpleImageComponent) {
+      type = 'image';
+      content.url = item.inputs.url;
+    } else if (item.component === SimpleVideoComponent) {
+      type = 'video';
+      content.videoUrl = item.inputs.videoUrl;
+      content.autoplay = item.inputs.autoplay;
+      content.controls = item.inputs.controls;
+      content.loop = item.inputs.loop;
+    } else {
+      type = 'text';
+    }
+
+    return {
+      type,
+      content,
+      categories: item.inputs.categories || [],
+      formats: item.inputs.formats || ['1x1'],
+      active: true,
+    };
+  }
+
+  /**
+   * Obtém rowSpan a partir do formato
+   */
+  private getRowSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[2]) : 1;
+  }
+
+  /**
+   * Obtém colSpan a partir do formato
+   */
+  private getColSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[1]) : 1;
   }
 
   closeModal() {

@@ -9,11 +9,17 @@ import { StorageService } from '../../../services/storage-service/storage.servic
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
+import { NewItemModalComponent } from '../../new-item-modal/new-item-modal.component';
+import { GridItem } from '../../../interfaces/bento-box.interface';
+import { SimpleTextComponent } from '../../simpleComponents/simple-text/simple-text.component';
+import { SimpleImageComponent } from '../../simpleComponents/simple-image/simple-image.component';
+import { SimpleVideoComponent } from '../../simpleComponents/simple-video/simple-video.component';
 
 interface FillerContent {
   text?: string;
   backgroundColor?: string;
   url?: string;
+  videoUrl?: string;
   alt?: string;
   autoplay?: boolean;
   controls?: boolean;
@@ -40,7 +46,7 @@ interface Filler {
 @Component({
   selector: 'app-fillers-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SanitizePipe],
+  imports: [CommonModule, FormsModule, RouterModule, SanitizePipe, NewItemModalComponent],
   templateUrl: './fillers-management.component.html',
   styleUrl: './fillers-management.component.scss',
 })
@@ -63,22 +69,11 @@ export class FillersManagementComponent implements OnInit {
   imageFillers = 0;
   videoFillers = 0;
 
-  // Modal de edição
-  showEditModal = false;
-  editingFiller: Partial<Filler> = {};
-  editFormats: string[] = [];
-  editCategories: string[] = [];
-
-  // Modal de criação
-  showCreateModal = false;
-  newFiller: Partial<Filler> = {
-    type: 'text',
-    active: true,
-    categories: [],
-    formats: ['1x1'],
-  };
-  createFormats: string[] = ['1x1'];
-  createCategories: string[] = [];
+  // Modal unificado (new-item-modal)
+  showModal = false;
+  modalEditMode = false;
+  modalItemToEdit: GridItem | null = null;
+  currentFillerId: string | null = null; // Armazena o ID do filler sendo editado
 
   // Opções disponíveis
   availableFormats = ['1x1', '1x2', '2x1', '2x2'];
@@ -167,142 +162,153 @@ export class FillersManagementComponent implements OnInit {
    * Abre o modal de criação
    */
   openCreateModal(): void {
-    this.newFiller = {
-      type: 'text',
-      active: true,
-      categories: [],
-      formats: ['1x1'],
-      content: { backgroundColor: '#ffffff' },
-    };
-    this.createFormats = ['1x1'];
-    this.createCategories = [];
-    this.showCreateModal = true;
-  }
-
-  /**
-   * Fecha o modal de criação
-   */
-  closeCreateModal(): void {
-    this.showCreateModal = false;
+    this.modalEditMode = false;
+    this.modalItemToEdit = null;
+    this.currentFillerId = null;
+    this.showModal = true;
   }
 
   /**
    * Abre o modal de edição
    */
   openEditModal(filler: Filler): void {
-    this.editingFiller = { ...filler, content: { ...filler.content } };
-    this.editFormats = [...(filler.formats || ['1x1'])];
-    this.editCategories = [...(filler.categories || [])];
-    this.showEditModal = true;
+    // Converte o Filler para GridItem para usar no modal
+    const gridItem = this.fillerToGridItem(filler);
+    this.modalItemToEdit = gridItem;
+    this.modalEditMode = true;
+    this.currentFillerId = filler._id;
+    this.showModal = true;
   }
 
   /**
-   * Fecha o modal de edição
+   * Fecha o modal
    */
-  closeEditModal(): void {
-    this.showEditModal = false;
+  closeModal(): void {
+    this.showModal = false;
+    this.modalEditMode = false;
+    this.modalItemToEdit = null;
+    this.currentFillerId = null;
   }
 
   /**
-   * Cria um novo filler
+   * Handler para quando um item é criado/editado no modal
    */
-  async createFiller(): Promise<void> {
-    if (!this.newFiller.type) {
-      alert('⚠️ Selecione um tipo de filler!');
-      return;
-    }
-
-    if (this.createCategories.length === 0) {
-      alert('⚠️ Selecione pelo menos uma categoria!');
-      return;
-    }
-
-    if (this.createFormats.length === 0) {
-      alert('⚠️ Selecione pelo menos um formato!');
-      return;
-    }
-
-    // Valida campos obrigatórios por tipo
-    if (this.newFiller.type === 'text' && !this.newFiller.content?.text) {
-      alert('⚠️ O campo de texto é obrigatório!');
-      return;
-    }
-
-    if (this.newFiller.type === 'image' && !this.newFiller.content?.url) {
-      alert('⚠️ A URL da imagem é obrigatória!');
-      return;
-    }
-
-    if (this.newFiller.type === 'video' && !this.newFiller.content?.url) {
-      alert('⚠️ A URL do vídeo é obrigatória!');
-      return;
-    }
-
-    // Processa texto para centralização
-    if (this.newFiller.type === 'text' && this.newFiller.content?.text) {
-      this.newFiller.content.text = this.ensureCenteredText(this.newFiller.content.text);
-    }
-
-    const fillerData: Partial<Filler> = {
-      type: this.newFiller.type,
-      content: this.newFiller.content,
-      categories: this.createCategories,
-      formats: this.createFormats,
-      active: this.newFiller.active || true,
-      gridPosition: { row: 0, col: 0, rowSpan: 1, colSpan: 1 },
-    };
+  async onItemCreated(gridItem: GridItem): Promise<void> {
+    // Converte GridItem para Filler
+    const filler = this.gridItemToFiller(gridItem);
 
     try {
-      await this.http.post(`${environment.apiUrl}/fillers`, fillerData).toPromise();
-      alert('✅ Filler criado com sucesso!');
-      this.closeCreateModal();
+      if (this.modalEditMode && this.currentFillerId) {
+        // Atualizar filler existente
+        await this.http
+          .put(`${environment.apiUrl}/fillers/${this.currentFillerId}`, filler)
+          .toPromise();
+        alert('✅ Filler atualizado com sucesso!');
+      } else {
+        // Criar novo filler
+        await this.http.post(`${environment.apiUrl}/fillers`, filler).toPromise();
+        alert('✅ Filler criado com sucesso!');
+      }
+
+      this.closeModal();
       this.loadFillers();
     } catch (error: any) {
-      console.error('Erro ao criar filler:', error);
-      alert('❌ Erro ao criar filler: ' + (error.error?.message || error.message));
+      console.error('Erro ao salvar filler:', error);
+      alert('❌ Erro ao salvar filler: ' + (error.error?.message || error.message));
     }
   }
 
   /**
-   * Atualiza um filler existente
+   * Converte um Filler para GridItem
    */
-  async updateFiller(): Promise<void> {
-    if (!this.editingFiller._id) return;
-
-    if (this.editCategories.length === 0) {
-      alert('⚠️ Selecione pelo menos uma categoria!');
-      return;
-    }
-
-    if (this.editFormats.length === 0) {
-      alert('⚠️ Selecione pelo menos um formato!');
-      return;
-    }
-
-    // Processa texto para centralização
-    if (this.editingFiller.type === 'text' && this.editingFiller.content?.text) {
-      this.editingFiller.content.text = this.ensureCenteredText(this.editingFiller.content.text);
-    }
-
-    const updateData: Partial<Filler> = {
-      type: this.editingFiller.type,
-      content: this.editingFiller.content,
-      categories: this.editCategories,
-      formats: this.editFormats,
-      active: this.editingFiller.active,
+  fillerToGridItem(filler: Filler): GridItem {
+    let component;
+    let inputs: any = {
+      categories: filler.categories,
+      formats: filler.formats,
     };
 
-    try {
-      await this.http
-        .put(`${environment.apiUrl}/fillers/${this.editingFiller._id}`, updateData)
-        .toPromise();
-      alert('✅ Filler atualizado com sucesso!');
-      this.closeEditModal();
-      this.loadFillers();
-    } catch (error: any) {
-      console.error('Erro ao atualizar filler:', error);
-      alert('❌ Erro ao atualizar filler: ' + (error.error?.message || error.message));
+    switch (filler.type) {
+      case 'text':
+        component = SimpleTextComponent;
+        inputs.text = filler.content.text || '';
+        inputs.background = filler.content.backgroundColor || '#FFFFFF';
+        break;
+      case 'image':
+        component = SimpleImageComponent;
+        inputs.url = filler.content.url || '';
+        break;
+      case 'video':
+        component = SimpleVideoComponent;
+        inputs.videoUrl = filler.content.videoUrl || '';
+        inputs.autoplay = filler.content.autoplay || false;
+        inputs.controls = filler.content.controls !== false;
+        inputs.loop = filler.content.loop || false;
+        break;
+      default:
+        component = SimpleTextComponent;
     }
+
+    const defaultFormat = filler.formats[0] || '1x1';
+
+    return {
+      id: Date.now(),
+      row: 0,
+      col: 0,
+      component,
+      rowSpan: this.getRowSpanFromFormat(defaultFormat),
+      colSpan: this.getColSpanFromFormat(defaultFormat),
+      inputs,
+    };
+  }
+
+  /**
+   * Converte um GridItem para Filler
+   */
+  gridItemToFiller(item: GridItem): Partial<Filler> {
+    let type: 'text' | 'image' | 'video';
+    let content: FillerContent = {};
+
+    if (item.component === SimpleTextComponent) {
+      type = 'text';
+      content.text = item.inputs.text;
+      content.backgroundColor = item.inputs.background;
+    } else if (item.component === SimpleImageComponent) {
+      type = 'image';
+      content.url = item.inputs.url;
+    } else if (item.component === SimpleVideoComponent) {
+      type = 'video';
+      content.videoUrl = item.inputs.videoUrl;
+      content.autoplay = item.inputs.autoplay;
+      content.controls = item.inputs.controls;
+      content.loop = item.inputs.loop;
+    } else {
+      type = 'text';
+    }
+
+    return {
+      type,
+      content,
+      categories: item.inputs.categories || [],
+      formats: item.inputs.formats || ['1x1'],
+      active: true,
+    };
+  }
+
+  /**
+   * Obtém rowSpan a partir do formato
+   */
+  private getRowSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[2]) : 1;
+  }
+
+  /**
+   * Obtém colSpan a partir do formato
+   */
+  private getColSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[1]) : 1;
   }
 
   /**
@@ -351,51 +357,6 @@ export class FillersManagementComponent implements OnInit {
 
     return processedText;
   }
-
-  /**
-   * Toggle de seleção de formato
-   */
-  toggleFormat(format: string, mode: 'create' | 'edit'): void {
-    const formats = mode === 'create' ? this.createFormats : this.editFormats;
-    const index = formats.indexOf(format);
-
-    if (index > -1) {
-      formats.splice(index, 1);
-    } else {
-      formats.push(format);
-    }
-  }
-
-  /**
-   * Verifica se um formato está selecionado
-   */
-  isFormatSelected(format: string, mode: 'create' | 'edit'): boolean {
-    const formats = mode === 'create' ? this.createFormats : this.editFormats;
-    return formats.includes(format);
-  }
-
-  /**
-   * Toggle de seleção de categoria
-   */
-  toggleCategory(category: string, mode: 'create' | 'edit'): void {
-    const categories = mode === 'create' ? this.createCategories : this.editCategories;
-    const index = categories.indexOf(category);
-
-    if (index > -1) {
-      categories.splice(index, 1);
-    } else {
-      categories.push(category);
-    }
-  }
-
-  /**
-   * Verifica se uma categoria está selecionada
-   */
-  isCategorySelected(category: string, mode: 'create' | 'edit'): boolean {
-    const categories = mode === 'create' ? this.createCategories : this.editCategories;
-    return categories.includes(category);
-  }
-
   /**
    * Retorna os emojis das categorias
    */
@@ -422,20 +383,6 @@ export class FillersManagementComponent implements OnInit {
   truncateText(text: string, maxLength: number = 100): string {
     if (!text) return '';
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  }
-
-  /**
-   * Handler para mudança de cor
-   */
-  onColorChange(event: Event, mode: 'create' | 'edit'): void {
-    const input = event.target as HTMLInputElement;
-    const color = input.value;
-
-    if (mode === 'create' && this.newFiller.content) {
-      this.newFiller.content.backgroundColor = color;
-    } else if (mode === 'edit' && this.editingFiller.content) {
-      this.editingFiller.content.backgroundColor = color;
-    }
   }
 
   /**
