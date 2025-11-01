@@ -152,6 +152,11 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.closeMenu();
   }
 
+  onMaintenanceClick() {
+    this.router.navigate(['/maintenance/test-hub']);
+    this.closeMenu();
+  }
+
   logout() {
     this.authService.logout();
     this.cartService.clearCart();

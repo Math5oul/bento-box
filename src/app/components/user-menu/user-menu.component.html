@@ -26,14 +26,14 @@
         <span>Meu Perfil (A fazer)</span>
       </button>
 
-      <button class="menu-item" (click)="onOrdersClick()">
-        <span class="icon">📦</span>
-        <span>Histórico de Pedidos</span>
-      </button>
-
       <button class="menu-item" (click)="onPaymentsClick()">
         <span class="icon">💳</span>
         <span>Métodos de Pagamento (A fazer)</span>
+      </button>
+
+      <button class="menu-item" (click)="onOrdersClick()">
+        <span class="icon">📦</span>
+        <span>Histórico de Pedidos</span>
       </button>
 
       <button class="menu-item" (click)="onChangePasswordClick()">
@@ -44,8 +44,12 @@
       @if (isAdmin) {
         <div class="menu-divider"></div>
         <button class="menu-item admin-item" (click)="onAdminPanelClick()">
+          <span class="icon">👥</span>
+          <span>Status</span>
+        </button>
+        <button class="menu-item admin-item" (click)="onMaintenanceClick()">
           <span class="icon">⚙️</span>
-          <span>Painel Administrativo</span>
+          <span>Configurações</span>
         </button>
       }
 

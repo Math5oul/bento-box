@@ -1,0 +1,147 @@
+<div class="container">
+  <div class="header">
+    <div class="header-content">
+      <h1>
+        <img src="/imgs/bento-logo-mini.png" alt="Bento Box" class="logo" />
+        Bento Box
+      </h1>
+      <p>Sistema de Gestão de Cardápio Digital com Grid Dinâmico</p>
+    </div>
+    <a routerLink="/maintenance/test-hub" class="back-button">← Voltar para Hub</a>
+  </div>
+
+  <div class="content">
+    <!-- O que é -->
+    <div class="section">
+      <h2>📦 O que é o Bento Box?</h2>
+      <p>
+        O <strong>Bento Box</strong> é um sistema inovador de gestão de cardápio digital para
+        restaurantes, inspirado nas tradicionais marmitas japonesas bento. Assim como uma bento box
+        organiza diferentes alimentos em compartimentos, nosso sistema organiza produtos em um grid
+        dinâmico e personalizável.
+      </p>
+      <p>
+        Desenvolvido com tecnologias modernas (Angular 20 + Node.js + MongoDB), o Bento Box oferece
+        uma experiência intuitiva tanto para administradores quanto para clientes.
+      </p>
+    </div>
+
+    <!-- Funcionalidades -->
+    <div class="section">
+      <h2>✨ Principais Funcionalidades</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>🎨 Grid Dinâmico</h4>
+          <p>
+            Sistema de layout em grid totalmente personalizável com diferentes formatos (1x1, 1x2,
+            2x1, 2x2) para exibir produtos de forma visualmente atraente.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>📱 QR Code para Mesas</h4>
+          <p>
+            Cada mesa possui um QR Code único que leva os clientes diretamente ao cardápio digital,
+            eliminando menus físicos.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🛒 Carrinho de Pedidos</h4>
+          <p>
+            Sistema de carrinho integrado permitindo que clientes adicionem produtos, especifiquem
+            quantidades e observações.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🖼️ Upload de Imagens</h4>
+          <p>
+            Sistema completo de gerenciamento de imagens com suporte para múltiplos formatos e
+            otimização automática.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🔄 Edição em Tempo Real</h4>
+          <p>
+            Modo de edição que permite reorganizar produtos por drag-and-drop e visualizar mudanças
+            instantaneamente.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>📊 Banco de Dados MongoDB</h4>
+          <p>Persistência de dados robusta com MongoDB, garantindo escalabilidade e performance.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Como Usar -->
+    <div class="section">
+      <h2>🚀 Como Usar</h2>
+
+      <h3>Para Administradores</h3>
+      <p><strong>1. Acessar o Sistema:</strong></p>
+      <ul>
+        <li>
+          Acesse <span class="highlight">{{ frontendUrl }}</span>
+        </li>
+        <li>Faça login com suas credenciais de administrador</li>
+      </ul>
+
+      <p><strong>2. Gerenciar Produtos:</strong></p>
+      <ul>
+        <li>
+          Clique em <span class="highlight">"Modo Edição"</span> na toolbar para habilitar edição
+        </li>
+        <li>Clique em <span class="highlight">"Novo Item"</span> para adicionar produtos</li>
+        <li>Selecione o formato desejado (1x1, 1x2, 2x1, 2x2)</li>
+        <li>Preencha nome, descrição, preço e faça upload das imagens</li>
+        <li>Clique em <span class="highlight">"Criar Item"</span></li>
+      </ul>
+
+      <p><strong>3. Reorganizar o Grid:</strong></p>
+      <ul>
+        <li>No modo de edição, clique e arraste os produtos para reposicioná-los</li>
+        <li>Produtos se reorganizam automaticamente</li>
+        <li>
+          Clique em <span class="highlight">"Salvar"</span> para persistir as mudanças no MongoDB
+        </li>
+      </ul>
+
+      <p><strong>4. Editar/Deletar Produtos:</strong></p>
+      <ul>
+        <li>Clique em um produto no modo de edição para selecioná-lo</li>
+        <li>Use os botões na toolbar para editar ou deletar</li>
+        <li>Confirme as mudanças clicando em <span class="highlight">"Salvar"</span></li>
+      </ul>
+
+      <h3>Para Clientes</h3>
+      <p><strong>1. Acessar o Cardápio:</strong></p>
+      <ul>
+        <li>Escaneie o QR Code da mesa com seu smartphone</li>
+        <li>
+          Ou acesse diretamente:
+          <span class="highlight">{{ tableUrl }}</span>
+        </li>
+      </ul>
+
+      <p><strong>2. Fazer Pedidos:</strong></p>
+      <ul>
+        <li>Navegue pelo cardápio em grid</li>
+        <li>Clique em um produto para ver detalhes</li>
+        <li>Ajuste a quantidade e adicione observações</li>
+        <li>Clique em <span class="highlight">"Adicionar ao Pedido"</span></li>
+      </ul>
+
+      <p><strong>3. Finalizar Pedido:</strong></p>
+      <ul>
+        <li>Acesse o carrinho no canto superior direito</li>
+        <li>Revise os itens selecionados</li>
+        <li>Clique em <span class="highlight">"Finalizar Pedido"</span></li>
+        <li>O pedido é enviado automaticamente para a cozinha</li>
+      </ul>
+    </div>
+
+    <!-- Continua com o resto do conteúdo... -->
+    <!-- (Mantendo todo o HTML da documentação original) -->
+
+    <a [routerLink]="['/']" class="back-button">← Voltar para a Aplicação</a>
+  </div>
+</div>

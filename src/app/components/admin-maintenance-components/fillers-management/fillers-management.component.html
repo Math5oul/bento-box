@@ -1,0 +1,524 @@
+<div class="container">
+  <div class="header">
+    <h1>
+      <img src="/imgs/bento-logo-mini.png" alt="Bento Box" class="logo" />
+      Gerenciamento de Fillers
+    </h1>
+    <p class="subtitle">Gerencie os Fillers do sistema</p>
+    <a routerLink="/maintenance/test-hub" class="back-button">← Voltar para Hub</a>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value">{{ totalFillers }}</div>
+      <div class="stat-label">Total de Fillers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ textFillers }}</div>
+      <div class="stat-label">Fillers de Texto</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ imageFillers }}</div>
+      <div class="stat-label">Fillers de Imagem</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ videoFillers }}</div>
+      <div class="stat-label">Fillers de Vídeo</div>
+    </div>
+  </div>
+
+  <!-- Seção de Fillers -->
+  <div class="section">
+    <div class="section-header">
+      <h2>📦 Fillers Cadastrados</h2>
+      <div class="action-buttons">
+        <button class="btn-primary" (click)="openCreateModal()">➕ Novo Filler</button>
+        <button class="btn-primary" (click)="loadFillers()">🔄 Recarregar</button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <label>📂 Categoria:</label>
+        <select [(ngModel)]="filterCategory" class="filter-select">
+          <option value="">Todas as categorias</option>
+          @for (cat of availableCategories; track cat.value) {
+            <option [value]="cat.value">{{ cat.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>🎨 Tipo:</label>
+        <select [(ngModel)]="filterType" class="filter-select">
+          <option value="">Todos os tipos</option>
+          <option value="text">📝 Texto</option>
+          <option value="image">🖼️ Imagem</option>
+          <option value="video">🎥 Vídeo</option>
+        </select>
+      </div>
+
+      <div class="filter-results">
+        Exibindo {{ filteredFillers.length }} de {{ fillers.length }} fillers
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="loading">Carregando fillers...</div>
+    }
+
+    <!-- Empty State -->
+    @if (!loading && fillers.length === 0) {
+      <div class="empty-state">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+          />
+        </svg>
+        <h3>Nenhum Filler encontrado</h3>
+        <p>Crie fillers através do botão "Novo Filler"</p>
+      </div>
+    }
+
+    <!-- Filtro vazio -->
+    @if (!loading && fillers.length > 0 && filteredFillers.length === 0) {
+      <div class="empty-state">
+        <h3>Nenhum filler encontrado com os filtros selecionados</h3>
+        <p>Tente ajustar os filtros de categoria ou tipo</p>
+      </div>
+    }
+
+    <!-- Fillers Grid -->
+    @if (!loading && filteredFillers.length > 0) {
+      <div class="fillers-grid">
+        @for (filler of filteredFillers; track filler._id) {
+          <div class="filler-card">
+            <!-- Header -->
+            <div class="filler-header">
+              <span class="filler-type type-{{ filler.type }}">
+                {{ getTypeEmoji(filler.type) }} {{ filler.type }}
+              </span>
+              <span class="filler-id">#{{ filler._id.substring(0, 8) }}</span>
+            </div>
+
+            <!-- Preview -->
+            <div class="preview-container">
+              @if (filler.type === 'text') {
+                <div
+                  class="preview-text"
+                  [style.background-color]="filler.content.backgroundColor || '#ffffff'"
+                  [innerHTML]="
+                    truncateText(filler.content.text || '', 150) | sanitize: 'trustedHtml'
+                  "
+                ></div>
+              }
+              @if (filler.type === 'image') {
+                <img
+                  [src]="filler.content.url"
+                  [alt]="filler.content.alt || 'Imagem'"
+                  class="preview-image"
+                  (error)="onImageError($event)"
+                />
+              }
+              @if (filler.type === 'video') {
+                <video
+                  [src]="filler.content.url"
+                  class="preview-video"
+                  controls
+                  muted
+                  (error)="onVideoError($event)"
+                ></video>
+              }
+            </div>
+
+            <!-- Content Info -->
+            <div class="filler-content">
+              @if (filler.type === 'text') {
+                <p><strong>Texto:</strong> {{ truncateText(filler.content.text || '', 100) }}</p>
+                <p>
+                  <strong>Cor de Fundo:</strong>
+                  <span
+                    class="color-box"
+                    [style.background]="filler.content.backgroundColor"
+                  ></span>
+                  {{ filler.content.backgroundColor }}
+                </p>
+              }
+
+              @if (filler.type === 'image') {
+                <p>
+                  <strong>URL:</strong>
+                  <span class="url-text" [title]="filler.content.url">
+                    {{ filler.content.url }}
+                  </span>
+                </p>
+                <p><strong>Alt:</strong> {{ filler.content.alt || 'Sem texto alternativo' }}</p>
+              }
+
+              @if (filler.type === 'video') {
+                <p>
+                  <strong>URL:</strong>
+                  <span class="url-text" [title]="filler.content.url">
+                    {{ filler.content.url }}
+                  </span>
+                </p>
+              }
+            </div>
+
+            <!-- Meta Info -->
+            <div class="filler-meta">
+              <div><strong>Formatos:</strong> {{ (filler.formats || ['1x1']).join(', ') }}</div>
+              <div><strong>Status:</strong> {{ filler.active ? '✅ Ativo' : '❌ Inativo' }}</div>
+              <div>
+                <strong>Posição:</strong> ({{ filler.gridPosition?.row || 0 }},
+                {{ filler.gridPosition?.col || 0 }})
+              </div>
+              <div style="grid-column: 1 / -1">
+                <strong>Categorias:</strong> {{ getCategoryEmojis(filler.categories) }}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="filler-actions">
+              <button class="btn btn-edit" (click)="openEditModal(filler)">✏️ Editar</button>
+              <button class="btn btn-delete" (click)="deleteFiller(filler._id)">🗑️ Deletar</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de Criação -->
+@if (showCreateModal) {
+  <div class="modal active">
+    <div class="modal-overlay" (click)="closeCreateModal()"></div>
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>➕ Criar Novo Filler</h3>
+        <button class="close-btn" (click)="closeCreateModal()">&times;</button>
+      </div>
+
+      <form (submit)="createFiller(); $event.preventDefault()">
+        <!-- Tipo -->
+        <div class="form-group">
+          <label>Tipo *</label>
+          <select [(ngModel)]="newFiller.type" name="createType" required>
+            <option value="">Selecione um tipo</option>
+            <option value="text">📝 Texto</option>
+            <option value="image">🖼️ Imagem</option>
+            <option value="video">🎥 Vídeo</option>
+          </select>
+        </div>
+
+        @if (newFiller.type === 'text') {
+          <div class="form-group">
+            <label>Texto (HTML permitido) *</label>
+            <textarea
+              [(ngModel)]="newFiller.content!.text"
+              name="createText"
+              rows="4"
+              placeholder="Digite o texto do filler..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Cor de Fundo *</label>
+            <div class="color-input-group">
+              <input
+                type="color"
+                [(ngModel)]="newFiller.content!.backgroundColor"
+                name="createBgColor"
+                (change)="onColorChange($event, 'create')"
+              />
+              <input
+                type="text"
+                [value]="newFiller.content?.backgroundColor || '#ffffff'"
+                readonly
+              />
+              <div
+                class="color-preview"
+                [style.background]="newFiller.content?.backgroundColor"
+              ></div>
+            </div>
+          </div>
+        }
+
+        @if (newFiller.type === 'image') {
+          <div class="form-group">
+            <label>URL da Imagem *</label>
+            <input
+              type="text"
+              [(ngModel)]="newFiller.content!.url"
+              name="createImageUrl"
+              placeholder="https://exemplo.com/imagem.jpg"
+            />
+          </div>
+          <div class="form-group">
+            <label>Texto Alternativo</label>
+            <input
+              type="text"
+              [(ngModel)]="newFiller.content!.alt"
+              name="createImageAlt"
+              placeholder="Descrição da imagem"
+            />
+          </div>
+        }
+
+        @if (newFiller.type === 'video') {
+          <div class="form-group">
+            <label>URL do Vídeo *</label>
+            <input
+              type="text"
+              [(ngModel)]="newFiller.content!.url"
+              name="createVideoUrl"
+              placeholder="https://exemplo.com/video.mp4"
+            />
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="newFiller.content!.autoplay"
+                name="createAutoplay"
+              />
+              <span>▶️ Autoplay</span>
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="newFiller.content!.controls"
+                name="createControls"
+              />
+              <span>🎮 Mostrar Controles</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="newFiller.content!.loop" name="createLoop" />
+              <span>🔁 Loop</span>
+            </label>
+          </div>
+        }
+
+        <!-- Formatos -->
+        <div class="form-group">
+          <label>Formatos Válidos *</label>
+          <div class="formats-container">
+            @for (format of availableFormats; track format) {
+              <label class="category-option" [class.selected]="isFormatSelected(format, 'create')">
+                <input
+                  type="checkbox"
+                  [checked]="isFormatSelected(format, 'create')"
+                  (change)="toggleFormat(format, 'create')"
+                />
+                <span>📐 {{ format }}</span>
+              </label>
+            }
+          </div>
+          <div class="category-hint" [class.success]="createFormats.length > 0">
+            {{
+              createFormats.length > 0
+                ? '✅ ' + createFormats.length + ' formato(s) selecionado(s)'
+                : '⚠️ Selecione pelo menos um formato'
+            }}
+          </div>
+        </div>
+
+        <!-- Categorias -->
+        <div class="form-group">
+          <label>Categorias *</label>
+          <div class="categories-container">
+            @for (cat of availableCategories; track cat.value) {
+              <label
+                class="category-option"
+                [class.selected]="isCategorySelected(cat.value, 'create')"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isCategorySelected(cat.value, 'create')"
+                  (change)="toggleCategory(cat.value, 'create')"
+                />
+                <span>{{ cat.label }}</span>
+              </label>
+            }
+          </div>
+          <div class="category-hint" [class.success]="createCategories.length > 0">
+            {{
+              createCategories.length > 0
+                ? '✅ Este item aparecerá em ' + createCategories.length + ' categoria(s)'
+                : '⚠️ Selecione pelo menos uma categoria'
+            }}
+          </div>
+        </div>
+
+        <!-- Ativo -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="newFiller.active" name="createActive" />
+            <span>Ativo</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary btn-full">✨ Criar Filler</button>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal de Edição -->
+@if (showEditModal) {
+  <div class="modal active">
+    <div class="modal-overlay" (click)="closeEditModal()"></div>
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✏️ Editar Filler</h3>
+        <button class="close-btn" (click)="closeEditModal()">&times;</button>
+      </div>
+
+      <form (submit)="updateFiller(); $event.preventDefault()">
+        <!-- Tipo -->
+        <div class="form-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="editingFiller.type" name="editType" required>
+            <option value="text">📝 Texto</option>
+            <option value="image">🖼️ Imagem</option>
+            <option value="video">🎥 Vídeo</option>
+          </select>
+        </div>
+
+        @if (editingFiller.type === 'text') {
+          <div class="form-group">
+            <label>Texto (HTML permitido)</label>
+            <textarea [(ngModel)]="editingFiller.content!.text" name="editText" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Cor de Fundo</label>
+            <div class="color-input-group">
+              <input
+                type="color"
+                [(ngModel)]="editingFiller.content!.backgroundColor"
+                name="editBgColor"
+                (change)="onColorChange($event, 'edit')"
+              />
+              <input
+                type="text"
+                [value]="editingFiller.content?.backgroundColor || '#ffffff'"
+                readonly
+              />
+              <div
+                class="color-preview"
+                [style.background]="editingFiller.content?.backgroundColor"
+              ></div>
+            </div>
+          </div>
+        }
+
+        @if (editingFiller.type === 'image') {
+          <div class="form-group">
+            <label>URL da Imagem</label>
+            <input type="text" [(ngModel)]="editingFiller.content!.url" name="editImageUrl" />
+          </div>
+          <div class="form-group">
+            <label>Texto Alternativo</label>
+            <input type="text" [(ngModel)]="editingFiller.content!.alt" name="editImageAlt" />
+          </div>
+        }
+
+        @if (editingFiller.type === 'video') {
+          <div class="form-group">
+            <label>URL do Vídeo</label>
+            <input type="text" [(ngModel)]="editingFiller.content!.url" name="editVideoUrl" />
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="editingFiller.content!.autoplay"
+                name="editAutoplay"
+              />
+              <span>▶️ Autoplay</span>
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="editingFiller.content!.controls"
+                name="editControls"
+              />
+              <span>🎮 Mostrar Controles</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="editingFiller.content!.loop" name="editLoop" />
+              <span>🔁 Loop</span>
+            </label>
+          </div>
+        }
+
+        <!-- Formatos -->
+        <div class="form-group">
+          <label>Formatos Válidos</label>
+          <div class="formats-container">
+            @for (format of availableFormats; track format) {
+              <label class="category-option" [class.selected]="isFormatSelected(format, 'edit')">
+                <input
+                  type="checkbox"
+                  [checked]="isFormatSelected(format, 'edit')"
+                  (change)="toggleFormat(format, 'edit')"
+                />
+                <span>📐 {{ format }}</span>
+              </label>
+            }
+          </div>
+          <div class="category-hint" [class.success]="editFormats.length > 0">
+            {{
+              editFormats.length > 0
+                ? '✅ ' + editFormats.length + ' formato(s) selecionado(s)'
+                : '⚠️ Selecione pelo menos um formato'
+            }}
+          </div>
+        </div>
+
+        <!-- Categorias -->
+        <div class="form-group">
+          <label>Categorias</label>
+          <div class="categories-container">
+            @for (cat of availableCategories; track cat.value) {
+              <label
+                class="category-option"
+                [class.selected]="isCategorySelected(cat.value, 'edit')"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isCategorySelected(cat.value, 'edit')"
+                  (change)="toggleCategory(cat.value, 'edit')"
+                />
+                <span>{{ cat.label }}</span>
+              </label>
+            }
+          </div>
+          <div class="category-hint" [class.success]="editCategories.length > 0">
+            {{
+              editCategories.length > 0
+                ? '✅ Este item aparecerá em ' + editCategories.length + ' categoria(s)'
+                : '⚠️ Selecione pelo menos uma categoria'
+            }}
+          </div>
+        </div>
+
+        <!-- Ativo -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingFiller.active" name="editActive" />
+            <span>Ativo</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary btn-full">💾 Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+}

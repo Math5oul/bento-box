@@ -1,70 +1,127 @@
 <div class="admin-orders">
   <div class="orders-header">
     <h2>📦 Pedidos por Mesa</h2>
+    @if (!isLoading && !error) {
+      <div class="summary-badge">
+        <span class="badge-label">Total:</span>
+        <span class="badge-value">{{ getTotalOrders() }} pedidos</span>
+      </div>
+    }
   </div>
 
   @if (isLoading) {
-    <div class="loading">Carregando pedidos...</div>
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Carregando pedidos...</p>
+    </div>
   }
 
   @if (error) {
-    <div class="error">{{ error }}</div>
+    <div class="error">
+      <span class="error-icon">⚠️</span>
+      <p>{{ error }}</p>
+    </div>
   }
 
   @if (!isLoading && !error) {
     @for (mesa of ordersByTable; track mesa.tableNumber) {
       <div class="mesa-block" [attr.data-table-number]="mesa.tableNumber">
-        <div class="mesa-title-row">
-          <div class="mesa-icon">🪑</div>
-          <h3>Mesa {{ mesa.tableNumber }}</h3>
+        <div class="mesa-header">
+          <div class="mesa-info">
+            <div class="mesa-icon">🪑</div>
+            <h3>Mesa {{ mesa.tableNumber }}</h3>
+          </div>
           @if (mesa.orders.length > 0) {
-            <span class="mesa-total">
-              {{ mesa.orders.length }} pedido{{ mesa.orders.length > 1 ? 's' : '' }}
-            </span>
+            <div class="mesa-stats">
+              <span class="stat-badge stat-orders">
+                <span class="stat-icon">📋</span>
+                {{ mesa.orders.length }} pedido{{ mesa.orders.length > 1 ? 's' : '' }}
+              </span>
+              <span class="stat-badge stat-revenue">
+                <span class="stat-icon">💰</span>
+                R$ {{ getMesaTotal(mesa).toFixed(2) }}
+              </span>
+            </div>
           }
         </div>
 
         @if (mesa.orders.length === 0) {
-          <div class="no-orders">Nenhum pedido nesta mesa.</div>
+          <div class="no-orders">
+            <span class="no-orders-icon">📭</span>
+            <p>Nenhum pedido nesta mesa</p>
+          </div>
         }
 
-        <div class="orders-list">
+        <div class="orders-grid">
           @for (order of mesa.orders; track order.id) {
-            <div class="order-card">
+            <div class="order-card" [class.order-highlight]="isHighlighted(order)">
               <div class="order-header">
-                <div class="order-avatar">{{ order.clientName.charAt(0) }}</div>
-                <div class="order-id-status">
-                  <span class="order-id">#{{ order.id }}</span>
-                  <span class="order-status" [style.background]="getStatusColor(order.status)">
+                <div class="order-left">
+                  <div class="order-avatar">{{ order.clientName.charAt(0).toUpperCase() }}</div>
+                  <div class="order-info">
+                    <div class="order-id">#{{ order.id.substring(0, 8) }}</div>
+                    <div class="order-client">{{ order.clientName }}</div>
+                  </div>
+                </div>
+                <div class="order-right">
+                  <span class="order-status" [attr.data-status]="order.status">
                     {{ getStatusLabel(order.status) }}
                   </span>
                 </div>
-                <div class="order-total">R$ {{ order.totalAmount.toFixed(2) || '0.00' }}</div>
               </div>
 
-              <div class="order-details">
-                <div class="order-client"><b>Cliente:</b> {{ order.clientName }}</div>
+              <div class="order-body">
                 <div class="order-items">
-                  <b>Itens:</b>
-                  <ul>
+                  <div class="items-header">
+                    <span class="items-icon">🍽️</span>
+                    <span class="items-title">Itens do Pedido</span>
+                  </div>
+                  <ul class="items-list">
                     @for (item of order.items; track item.productName) {
-                      <li>
+                      <li class="item-row">
                         <span class="item-name">{{ item.productName }}</span>
-                        @if (item.quantity) {
-                          <span class="item-qty">x{{ item.quantity }}</span>
-                        }
+                        <div class="item-details">
+                          @if (item.quantity) {
+                            <span class="item-qty">x{{ item.quantity }}</span>
+                          }
+                          @if (item.unitPrice) {
+                            <span class="item-price"
+                              >R$ {{ (item.unitPrice * (item.quantity || 1)).toFixed(2) }}</span
+                            >
+                          }
+                        </div>
                       </li>
                     }
                   </ul>
                 </div>
 
                 @if (order.notes) {
-                  <div class="order-notes">📝 {{ order.notes }}</div>
+                  <div class="order-notes">
+                    <span class="notes-icon">📝</span>
+                    <span class="notes-text">{{ order.notes }}</span>
+                  </div>
                 }
+              </div>
+
+              <div class="order-footer">
+                <div class="order-time">
+                  <span class="time-icon">🕒</span>
+                  <span>{{ getOrderTime(order) }}</span>
+                </div>
+                <div class="order-total">
+                  <span class="total-label">Total:</span>
+                  <span class="total-value">R$ {{ order.totalAmount.toFixed(2) }}</span>
+                </div>
               </div>
             </div>
           }
         </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <h3>Nenhum pedido encontrado</h3>
+        <p>Quando houver pedidos ativos, eles aparecerão aqui.</p>
       </div>
     }
   }

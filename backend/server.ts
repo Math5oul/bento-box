@@ -14,6 +14,7 @@ import productRoutes from './routes/products';
 import uploadRoutes from './routes/upload';
 import fillerRoutes from './routes/fillers';
 import orderRoutes from './routes/orders';
+import adminRoutes from './routes/admin';
 
 const app: Express = express();
 const PORT = process.env['PORT'] || 3001;
@@ -37,11 +38,16 @@ app.get('/api/health', (req, res) => {
     readyState: mongoose.connection?.readyState ?? null,
   };
 
+  // URI do MongoDB (para copiar no Compass)
+  // Retorna a URI completa para facilitar conexão via Compass
+  const mongoUri = process.env['MONGODB_URI'] || 'mongodb://localhost:27017/bento-box';
+
   res.json({
     success: true,
     message: 'Backend Bento Box OK',
     timestamp: new Date().toISOString(),
     db: dbInfo,
+    mongoUri: mongoUri, // URI completa para Compass
     frontendUrl: process.env['FRONTEND_URL'] || null,
   });
 });
@@ -53,6 +59,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/fillers', fillerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
