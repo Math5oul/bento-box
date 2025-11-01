@@ -14,6 +14,7 @@ export interface CartItem {
   observations?: string;
   image?: string;
   selectedSize?: CartItemSize;
+  totalSizes?: number; // Número total de tamanhos disponíveis no produto
 }
 
 @Injectable({ providedIn: 'root' })
@@ -113,6 +114,43 @@ export class CartService {
     const newItems = this.cartItemsSubject.value.filter(item => item.productName !== productName);
     this.cartItemsSubject.next(newItems);
     this.saveCartToStorage(newItems);
+  }
+
+  /**
+   * Remove um item específico do carrinho (considerando produto e tamanho)
+   * @param item Item a ser removido
+   */
+  removeSpecificItem(item: CartItem): void {
+    const newItems = this.cartItemsSubject.value.filter(
+      i =>
+        !(
+          i.productName === item.productName &&
+          this.areSizesEqual(i.selectedSize, item.selectedSize)
+        )
+    );
+    this.cartItemsSubject.next(newItems);
+    this.saveCartToStorage(newItems);
+  }
+
+  /**
+   * Atualiza um item existente no carrinho
+   * @param oldItem Item antigo a ser substituído
+   * @param newItem Novo item com as alterações
+   */
+  updateItem(oldItem: CartItem, newItem: CartItem): void {
+    const currentItems = this.cartItemsSubject.value;
+    const index = currentItems.findIndex(
+      i =>
+        i.productName === oldItem.productName &&
+        this.areSizesEqual(i.selectedSize, oldItem.selectedSize)
+    );
+
+    if (index > -1) {
+      const newItems = [...currentItems];
+      newItems[index] = { ...newItem };
+      this.cartItemsSubject.next(newItems);
+      this.saveCartToStorage(newItems);
+    }
   }
 
   /**

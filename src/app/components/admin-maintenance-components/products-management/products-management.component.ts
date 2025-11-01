@@ -9,11 +9,18 @@ import { StorageService } from '../../../services/storage-service/storage.servic
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
 
+interface ProductSize {
+  name: string;
+  abbreviation: string;
+  price: number;
+}
+
 interface Product {
   _id: string;
   name: string;
   description: string;
   price: number;
+  sizes?: ProductSize[];
   images: string[];
   category: string; // Agora usa slug da categoria
   format?: '1x1' | '1x2' | '2x1' | '2x2';
@@ -61,12 +68,17 @@ export class ProductsManagementComponent implements OnInit {
     name: '',
     description: '',
     price: 0,
+    sizes: [],
     images: [],
     category: 'pratos', // Usa slug padrão
     format: '1x1',
     colorMode: 'light',
     available: true,
   };
+
+  // Tamanho sendo adicionado/editado
+  newSize: ProductSize = { name: '', abbreviation: '', price: 0 };
+  editingSizeIndex: number | null = null;
 
   // Opções disponíveis
   availableFormats: Array<'1x1' | '1x2' | '2x1' | '2x2'> = ['1x1', '1x2', '2x1', '2x2'];
@@ -441,6 +453,102 @@ export class ProductsManagementComponent implements OnInit {
     if (this.selectedEditFiles[index]) {
       this.selectedEditFiles.splice(index, 1);
     }
+  }
+
+  /**
+   * Adiciona um tamanho ao produto (modal de criação)
+   */
+  addSizeToNew(): void {
+    if (!this.newSize.name || !this.newSize.abbreviation || this.newSize.price < 0) {
+      alert('⚠️ Preencha todos os campos do tamanho corretamente!');
+      return;
+    }
+
+    if (!this.newProduct.sizes) this.newProduct.sizes = [];
+
+    if (this.editingSizeIndex !== null) {
+      // Editando tamanho existente
+      this.newProduct.sizes[this.editingSizeIndex] = { ...this.newSize };
+      this.editingSizeIndex = null;
+    } else {
+      // Adicionando novo tamanho
+      this.newProduct.sizes.push({ ...this.newSize });
+    }
+
+    // Reseta o formulário de tamanho
+    this.newSize = { name: '', abbreviation: '', price: 0 };
+  }
+
+  /**
+   * Edita um tamanho existente (modal de criação)
+   */
+  editSizeInNew(index: number): void {
+    if (!this.newProduct.sizes) return;
+    this.newSize = { ...this.newProduct.sizes[index] };
+    this.editingSizeIndex = index;
+  }
+
+  /**
+   * Remove um tamanho do produto (modal de criação)
+   */
+  removeSizeFromNew(index: number): void {
+    this.newProduct.sizes?.splice(index, 1);
+    if (this.editingSizeIndex === index) {
+      this.newSize = { name: '', abbreviation: '', price: 0 };
+      this.editingSizeIndex = null;
+    }
+  }
+
+  /**
+   * Adiciona um tamanho ao produto (modal de edição)
+   */
+  addSizeToEdit(): void {
+    if (!this.newSize.name || !this.newSize.abbreviation || this.newSize.price < 0) {
+      alert('⚠️ Preencha todos os campos do tamanho corretamente!');
+      return;
+    }
+
+    if (!this.editingProduct.sizes) this.editingProduct.sizes = [];
+
+    if (this.editingSizeIndex !== null) {
+      // Editando tamanho existente
+      this.editingProduct.sizes[this.editingSizeIndex] = { ...this.newSize };
+      this.editingSizeIndex = null;
+    } else {
+      // Adicionando novo tamanho
+      this.editingProduct.sizes.push({ ...this.newSize });
+    }
+
+    // Reseta o formulário de tamanho
+    this.newSize = { name: '', abbreviation: '', price: 0 };
+  }
+
+  /**
+   * Edita um tamanho existente (modal de edição)
+   */
+  editSizeInEdit(index: number): void {
+    if (!this.editingProduct.sizes) return;
+    this.newSize = { ...this.editingProduct.sizes[index] };
+    this.editingSizeIndex = index;
+  }
+
+  /**
+   * Remove um tamanho do produto (modal de edição)
+   */
+  removeSizeFromEdit(index: number): void {
+    this.editingProduct.sizes?.splice(index, 1);
+    if (this.editingSizeIndex === index) {
+      this.newSize = { name: '', abbreviation: '', price: 0 };
+      this.editingSizeIndex = null;
+    }
+  }
+
+  /**
+   * Cancela a edição de tamanho
+   */
+  cancelSizeEdit(): void {
+    this.newSize = { name: '', abbreviation: '', price: 0 };
+    this.editingSizeIndex = null;
   }
 
   /**

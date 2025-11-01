@@ -242,6 +242,111 @@
                     </div>
                   </div>
                 }
+
+                <!-- Product Sizes -->
+                @if (input.type === 'product-sizes') {
+                  <div class="product-sizes-section">
+                    <label class="sizes-label">{{ input.label }}:</label>
+                    <p class="sizes-description">
+                      💡 Defina os tamanhos disponíveis para este produto. Se nenhum tamanho for
+                      adicionado, o "Preço Base" será usado como preço único do produto.
+                    </p>
+
+                    <!-- Lista de tamanhos existentes -->
+                    @if (getProductSizes().length > 0) {
+                      <div class="sizes-list">
+                        @for (size of getProductSizes(); track $index) {
+                          <div class="size-item">
+                            <div class="size-info">
+                              <span class="size-abbr">{{ size.abbreviation }}</span>
+                              <span class="size-name">{{ size.name }}</span>
+                              <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                            </div>
+                            <div class="size-actions">
+                              <button
+                                type="button"
+                                class="btn-edit-size"
+                                (click)="startEditSize($index)"
+                                title="Editar tamanho"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                type="button"
+                                class="btn-remove-size"
+                                (click)="removeProductSize($index)"
+                                title="Remover tamanho"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <!-- Formulário para adicionar/editar tamanho -->
+                    <div class="size-form">
+                      <h4 class="size-form-title">
+                        {{
+                          editingSizeIndex !== null ? '✏️ Editar Tamanho' : '➕ Adicionar Tamanho'
+                        }}
+                      </h4>
+                      <div class="size-form-inputs">
+                        <div class="size-input-group">
+                          <label for="size-name">Nome</label>
+                          <input
+                            class="size-name-input"
+                            type="text"
+                            id="size-name"
+                            [(ngModel)]="tempSize.name"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Ex: Pequeno, Médio, Grande"
+                          />
+                        </div>
+                        <div class="size-input-group" id="size-abbr-group">
+                          <label for="size-abbr">Sigla</label>
+                          <input
+                            class="size-abbr-input"
+                            type="text"
+                            id="size-abbr"
+                            [(ngModel)]="tempSize.abbreviation"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="P"
+                            maxlength="3"
+                          />
+                        </div>
+                        <div class="size-input-group">
+                          <label for="size-price">Preço</label>
+                          <input
+                            class="size-price-input"
+                            type="number"
+                            id="size-price"
+                            [(ngModel)]="tempSize.price"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                      <div class="size-form-actions">
+                        @if (editingSizeIndex !== null) {
+                          <button type="button" class="btn-cancel-size" (click)="cancelEditSize()">
+                            Cancelar
+                          </button>
+                          <button type="button" class="btn-save-size" (click)="saveEditSize()">
+                            Salvar Alterações
+                          </button>
+                        } @else {
+                          <button type="button" class="btn-add-size" (click)="addProductSize()">
+                            Adicionar Tamanho
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
