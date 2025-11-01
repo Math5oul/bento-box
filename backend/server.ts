@@ -43,13 +43,47 @@ app.get('/api/health', (req, res) => {
   // Retorna a URI completa para facilitar conexão via Compass
   const mongoUri = process.env['MONGODB_URI'] || 'mongodb://localhost:27017/bento-box';
 
+  // Detecta automaticamente a URL do frontend baseado no request
+  const referer = req.get('referer') || req.get('origin'); // URL completa de onde veio a requisição
+
+  // PRIORIDADE 1: Se veio de um referer (navegador), extrai o origin dele
+  let frontendUrl: string | undefined = undefined;
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      frontendUrl = `${url.protocol}//${url.host}`;
+      console.log('✅ Frontend URL detectada do referer:', frontendUrl);
+    } catch (err) {
+      console.warn('⚠️ Erro ao parsear referer:', referer, err);
+    }
+  }
+
+  // PRIORIDADE 2: Variável de ambiente (para produção)
+  if (!frontendUrl && process.env['FRONTEND_URL']) {
+    frontendUrl = process.env['FRONTEND_URL'];
+    console.log('✅ Frontend URL da env:', frontendUrl);
+  }
+
+  // PRIORIDADE 3 (Fallback): Tenta inferir do host do backend
+  if (!frontendUrl) {
+    const protocol = req.protocol; // 'http' ou 'https'
+    const host = req.get('host'); // ex: 'localhost:3001' ou '192.168.1.159:3001'
+
+    if (host) {
+      // Se backend está em 3001, frontend provavelmente está em 4200
+      const frontendHost = host.replace(':3001', ':4200');
+      frontendUrl = `${protocol}://${frontendHost}`;
+      console.log('⚠️ Frontend URL inferida do host (fallback):', frontendUrl);
+    }
+  }
+
   res.json({
     success: true,
     message: 'Backend Bento Box OK',
     timestamp: new Date().toISOString(),
     db: dbInfo,
     mongoUri: mongoUri, // URI completa para Compass
-    frontendUrl: process.env['FRONTEND_URL'] || null,
+    frontendUrl: frontendUrl,
   });
 });
 
