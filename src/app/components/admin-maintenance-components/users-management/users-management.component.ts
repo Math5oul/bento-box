@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { UserRole } from '../../../interfaces/user.interface';
 
 interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: string;
   createdAt: string;
 }
 
@@ -28,13 +29,21 @@ export class UsersManagementComponent implements OnInit {
   loading = true;
   searchTerm = ''; // Filtro de pesquisa
 
+  // Array de roles disponíveis
+  availableRoles = [
+    { value: UserRole.CLIENT, label: 'Cliente' },
+    { value: UserRole.ADMIN, label: 'Administrador' },
+    { value: UserRole.KITCHEN, label: 'Cozinha' },
+    { value: UserRole.WAITER, label: 'Garçom' },
+  ];
+
   // Modal de criação
   showCreateModal = false;
   newUser = {
     name: '',
     email: '',
     password: '',
-    role: 'user' as 'user' | 'admin',
+    role: UserRole.CLIENT,
   };
 
   // Modal de edição
@@ -104,7 +113,7 @@ export class UsersManagementComponent implements OnInit {
       name: '',
       email: '',
       password: '',
-      role: 'user',
+      role: UserRole.CLIENT,
     };
     this.showCreateModal = true;
   }
@@ -250,6 +259,14 @@ export class UsersManagementComponent implements OnInit {
     this.loginEmail = '';
     this.loginPassword = '';
     this.loginResult = null;
+  }
+
+  /**
+   * Retorna o label do role
+   */
+  getRoleLabel(role: string): string {
+    const found = this.availableRoles.find(r => r.value === role);
+    return found ? found.label : role;
   }
 
   /**

@@ -486,7 +486,14 @@ router.put(
         return;
       }
 
-      // Atualiza status
+      // Verifica permissão: admin ou cozinha
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'cozinha') {
+        res.status(403).json({ success: false, message: 'Permissão negada' });
+        return;
+      }
+
+      // Regras simples de transição (opcional: poderia validar sequência)
       order.status = status;
 
       // Define timestamps especiais

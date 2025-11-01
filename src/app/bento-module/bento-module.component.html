@@ -54,7 +54,7 @@
     </div>
   }
 
-  @if (toolbar && isAdmin) {
+  @if (toolbar && isAdmin && userRole !== 'cozinha') {
     <app-bento-toolbar
       [data]="data"
       [options]="options"

@@ -29,6 +29,8 @@ export enum UserRole {
   ADMIN = 'admin',
   CLIENT = 'client',
   TABLE = 'table', // Nível mais baixo (não usado diretamente)
+  KITCHEN = 'cozinha', // Perfil para dashboard da cozinha
+  WAITER = 'garcom', // Perfil para garçons
 }
 
 /**

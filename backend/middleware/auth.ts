@@ -106,6 +106,8 @@ export const authorize = (...allowedRoles: UserRole[]) => {
 
 export const adminOnly = authorize(UserRole.ADMIN);
 export const clientOnly = authorize(UserRole.CLIENT);
+export const kitchenOnly = authorize(UserRole.KITCHEN);
+export const kitchenOrAdmin = authorize(UserRole.ADMIN, UserRole.KITCHEN);
 
 /**
  * Middleware de autenticação opcional
