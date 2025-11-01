@@ -516,7 +516,7 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Executa a troca de posições dos itens no grid
+   * Executa a inserção do item arrastado na posição do target, empurrando os outros para frente
    */
   onDrop(event: DragEvent, targetItem: GridItem): void {
     event.preventDefault();
@@ -537,10 +537,11 @@ export class BentoBoxComponent {
       return;
     }
 
-    [this.data[draggedIndex], this.data[targetIndex]] = [
-      this.data[targetIndex],
-      this.data[draggedIndex],
-    ];
+    // Remove o item da posição atual
+    const [draggedItem] = this.data.splice(draggedIndex, 1);
+
+    // Insere o item na nova posição (antes do target)
+    this.data.splice(targetIndex, 0, draggedItem);
 
     this.gridService.emitGridChanged();
 
@@ -620,7 +621,7 @@ export class BentoBoxComponent {
   }
 
   /**
-   * Finaliza o touch drag e executa a troca
+   * Finaliza o touch drag e executa a inserção na nova posição
    */
   onTouchEnd(event: TouchEvent): void {
     if (!this.draggedItem) return;
@@ -630,10 +631,11 @@ export class BentoBoxComponent {
       const targetIndex = this.data.findIndex(item => item.id === this.dragOverItem!.id);
 
       if (draggedIndex !== -1 && targetIndex !== -1) {
-        [this.data[draggedIndex], this.data[targetIndex]] = [
-          this.data[targetIndex],
-          this.data[draggedIndex],
-        ];
+        // Remove o item da posição atual
+        const [draggedItem] = this.data.splice(draggedIndex, 1);
+
+        // Insere o item na nova posição (antes do target)
+        this.data.splice(targetIndex, 0, draggedItem);
 
         this.gridService.emitGridChanged();
       }
