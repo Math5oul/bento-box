@@ -8,6 +8,9 @@ import { ImageUploadService } from '../../../services/image-upload/image-upload.
 import { StorageService } from '../../../services/storage-service/storage.service';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
+import { NewItemModalComponent } from '../../new-item-modal/new-item-modal.component';
+import { GridItem } from '../../../interfaces/bento-box.interface';
+import { SimpleProductComponent } from '../../simpleComponents/simple-product/simple-product.component';
 
 interface ProductSize {
   name: string;
@@ -37,7 +40,7 @@ interface Product {
 @Component({
   selector: 'app-products-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NewItemModalComponent],
   templateUrl: './products-management.component.html',
   styleUrl: './products-management.component.scss',
 })
@@ -58,40 +61,11 @@ export class ProductsManagementComponent implements OnInit {
   availableProducts = 0;
   unavailableProducts = 0;
 
-  // Modal de edição
-  showEditModal = false;
-  editingProduct: Partial<Product> = {};
-
-  // Modal de criação
-  showCreateModal = false;
-  newProduct: Partial<Product> = {
-    name: '',
-    description: '',
-    price: 0,
-    sizes: [],
-    images: [],
-    category: 'pratos', // Usa slug padrão
-    format: '1x1',
-    colorMode: 'light',
-    available: true,
-  };
-
-  // Tamanho sendo adicionado/editado
-  newSize: ProductSize = { name: '', abbreviation: '', price: 0 };
-  editingSizeIndex: number | null = null;
-
-  // Opções disponíveis
-  availableFormats: Array<'1x1' | '1x2' | '2x1' | '2x2'> = ['1x1', '1x2', '2x1', '2x2'];
-
-  colorModes: Array<{ value: 'light' | 'dark'; label: string }> = [
-    { value: 'light', label: '☀️ Claro' },
-    { value: 'dark', label: '🌙 Escuro' },
-  ];
-
-  // Gerenciamento de imagens via upload
-  selectedNewFiles: File[] = [];
-  selectedEditFiles: File[] = [];
-  uploadingImages = false;
+  // Modal unificado (new-item-modal)
+  showModal = false;
+  modalEditMode = false;
+  modalItemToEdit: GridItem | null = null;
+  currentProductId: string | null = null; // Armazena o ID do produto sendo editado
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -174,159 +148,104 @@ export class ProductsManagementComponent implements OnInit {
    * Abre o modal de criação
    */
   openCreateModal(): void {
-    this.newProduct = {
-      name: '',
-      description: '',
-      price: 0,
-      images: [],
-      category: 'food',
-      format: '1x1',
-      colorMode: 'light',
-      available: true,
-    };
-    this.selectedNewFiles = [];
-    this.showCreateModal = true;
-  }
-
-  /**
-   * Fecha o modal de criação
-   */
-  closeCreateModal(): void {
-    this.showCreateModal = false;
-    this.selectedNewFiles = [];
+    this.modalEditMode = false;
+    this.modalItemToEdit = null;
+    this.currentProductId = null;
+    this.showModal = true;
   }
 
   /**
    * Abre o modal de edição
    */
   openEditModal(product: Product): void {
-    this.editingProduct = { ...product, images: [...(product.images || [])] };
-    this.selectedEditFiles = [];
-    this.showEditModal = true;
+    // Converte o Product para GridItem para usar no modal
+    const gridItem: GridItem = {
+      id: Date.now(),
+      row: 0,
+      col: 0,
+      component: SimpleProductComponent, // ✅ Componente correto
+      rowSpan: this.getRowSpanFromFormat(product.format || '1x1'),
+      colSpan: this.getColSpanFromFormat(product.format || '1x1'),
+      inputs: {
+        productName: product.name,
+        description: product.description,
+        price: product.price,
+        sizes: product.sizes || [],
+        images: product.images,
+        category: product.category,
+        format: product.format || '1x1',
+        colorMode: product.colorMode || 'light',
+      },
+    };
+
+    this.modalItemToEdit = gridItem;
+    this.modalEditMode = true;
+    this.currentProductId = product._id;
+    this.showModal = true;
   }
 
   /**
-   * Fecha o modal de edição
+   * Fecha o modal
    */
-  closeEditModal(): void {
-    this.showEditModal = false;
-    this.selectedEditFiles = [];
+  closeModal(): void {
+    this.showModal = false;
+    this.modalEditMode = false;
+    this.modalItemToEdit = null;
+    this.currentProductId = null;
   }
 
   /**
-   * Cria um novo produto
+   * Handler para quando um item é criado/editado no modal
    */
-  async createProduct(): Promise<void> {
-    if (!this.newProduct.name || !this.newProduct.description || !this.newProduct.price) {
-      alert('⚠️ Preencha todos os campos obrigatórios!');
-      return;
-    }
-
-    if (this.newProduct.price! < 0) {
-      alert('⚠️ O preço não pode ser negativo!');
-      return;
-    }
-
-    this.uploadingImages = true;
+  async onItemCreated(gridItem: GridItem): Promise<void> {
+    // Converte GridItem para Product
+    const product: Partial<Product> = {
+      name: gridItem.inputs.productName,
+      description: gridItem.inputs.description,
+      price: gridItem.inputs.price,
+      sizes: gridItem.inputs.sizes,
+      images: gridItem.inputs.images,
+      category: gridItem.inputs.category,
+      format: gridItem.inputs.format,
+      colorMode: gridItem.inputs.colorMode,
+      available: true,
+    };
 
     try {
-      // 1. Criar o produto sem imagens
-      const productData = {
-        ...this.newProduct,
-        images: [], // Inicialmente vazio
-        gridPosition: { row: 0, col: 0, rowSpan: 1, colSpan: 1 },
-      };
-
-      const response: any = await this.http
-        .post(`${environment.apiUrl}/products`, productData)
-        .toPromise();
-      const productId = response.data._id;
-
-      // 2. Se houver arquivos, fazer upload
-      if (this.selectedNewFiles.length > 0) {
-        const uploadResponse: any = await this.storageService
-          .uploadProductImages(productId, this.selectedNewFiles)
+      if (this.modalEditMode && this.currentProductId) {
+        // Atualizar produto existente
+        await this.http
+          .put(`${environment.apiUrl}/products/${this.currentProductId}`, product)
           .toPromise();
-
-        // 3. Atualizar produto com URLs das imagens
-        if (uploadResponse.files && uploadResponse.files.length > 0) {
-          await this.http
-            .put(`${environment.apiUrl}/products/${productId}`, {
-              images: uploadResponse.files,
-            })
-            .toPromise();
-        }
-      }
-
-      alert('✅ Produto criado com sucesso!');
-      this.closeCreateModal();
-      this.loadProducts();
-    } catch (error: any) {
-      console.error('Erro ao criar produto:', error);
-      alert('❌ Erro ao criar produto: ' + (error.error?.message || error.message));
-    } finally {
-      this.uploadingImages = false;
-    }
-  }
-
-  /**
-   * Atualiza um produto existente
-   */
-  async updateProduct(): Promise<void> {
-    if (!this.editingProduct._id) return;
-
-    if (
-      !this.editingProduct.name ||
-      !this.editingProduct.description ||
-      this.editingProduct.price === undefined
-    ) {
-      alert('⚠️ Preencha todos os campos obrigatórios!');
-      return;
-    }
-
-    if (this.editingProduct.price! < 0) {
-      alert('⚠️ O preço não pode ser negativo!');
-      return;
-    }
-
-    this.uploadingImages = true;
-
-    try {
-      const productId = this.editingProduct._id;
-
-      // 1. Se houver novos arquivos, fazer upload
-      if (this.selectedEditFiles.length > 0) {
-        const uploadResponse: any = await this.storageService
-          .uploadProductImages(productId, this.selectedEditFiles)
-          .toPromise();
-
-        // Adiciona as novas URLs às imagens existentes (filtrando base64)
-        if (uploadResponse.files && uploadResponse.files.length > 0) {
-          const existingImages = (this.editingProduct.images || []).filter(
-            img => !img.startsWith('data:')
-          );
-          this.editingProduct.images = [...existingImages, ...uploadResponse.files];
-        }
+        alert('✅ Produto atualizado com sucesso!');
       } else {
-        // Remove imagens base64 (previews) das que não foram enviadas
-        this.editingProduct.images = (this.editingProduct.images || []).filter(
-          img => !img.startsWith('data:')
-        );
+        // Criar novo produto
+        await this.http.post(`${environment.apiUrl}/products`, product).toPromise();
+        alert('✅ Produto criado com sucesso!');
       }
 
-      // 2. Atualiza o produto
-      const { _id, ...updateData } = this.editingProduct;
-      await this.http.put(`${environment.apiUrl}/products/${_id}`, updateData).toPromise();
-
-      alert('✅ Produto atualizado com sucesso!');
-      this.closeEditModal();
+      this.closeModal();
       this.loadProducts();
     } catch (error: any) {
-      console.error('Erro ao atualizar produto:', error);
-      alert('❌ Erro ao atualizar produto: ' + (error.error?.message || error.message));
-    } finally {
-      this.uploadingImages = false;
+      console.error('Erro ao salvar produto:', error);
+      alert('❌ Erro ao salvar produto: ' + (error.error?.message || error.message));
     }
+  }
+
+  /**
+   * Obtém rowSpan a partir do formato
+   */
+  private getRowSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[2]) : 1;
+  }
+
+  /**
+   * Obtém colSpan a partir do formato
+   */
+  private getColSpanFromFormat(format: string): number {
+    const match = format.match(/(\d+)x(\d+)/);
+    return match ? parseInt(match[1]) : 1;
   }
 
   /**
@@ -371,184 +290,6 @@ export class ProductsManagementComponent implements OnInit {
       console.error('Erro ao alterar disponibilidade:', error);
       alert('❌ Erro ao alterar disponibilidade: ' + (error.error?.message || error.message));
     }
-  }
-
-  /**
-   * Seleciona arquivos de imagem para upload (modo criação)
-   */
-  onNewFilesSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const files = Array.from(input.files);
-    const validFiles = this.imageUploadService.validateFiles(files);
-
-    if (!this.newProduct.images) this.newProduct.images = [];
-
-    if (this.newProduct.images.length + validFiles.length > 5) {
-      alert('⚠️ Máximo de 5 imagens por produto!');
-      return;
-    }
-
-    this.selectedNewFiles = [...this.selectedNewFiles, ...validFiles];
-
-    // Cria preview das imagens
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.newProduct.images!.push(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    input.value = '';
-  }
-
-  /**
-   * Remove uma imagem do produto (modo criação)
-   */
-  removeImageFromNew(index: number): void {
-    this.newProduct.images?.splice(index, 1);
-    if (this.selectedNewFiles[index]) {
-      this.selectedNewFiles.splice(index, 1);
-    }
-  }
-
-  /**
-   * Seleciona arquivos de imagem para upload (modo edição)
-   */
-  onEditFilesSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const files = Array.from(input.files);
-    const validFiles = this.imageUploadService.validateFiles(files);
-
-    if (!this.editingProduct.images) this.editingProduct.images = [];
-
-    if (this.editingProduct.images.length + validFiles.length > 5) {
-      alert('⚠️ Máximo de 5 imagens por produto!');
-      return;
-    }
-
-    this.selectedEditFiles = [...this.selectedEditFiles, ...validFiles];
-
-    // Cria preview das imagens
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.editingProduct.images!.push(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    input.value = '';
-  }
-
-  /**
-   * Remove uma imagem do produto (modo edição)
-   */
-  removeImageFromEdit(index: number): void {
-    this.editingProduct.images?.splice(index, 1);
-    if (this.selectedEditFiles[index]) {
-      this.selectedEditFiles.splice(index, 1);
-    }
-  }
-
-  /**
-   * Adiciona um tamanho ao produto (modal de criação)
-   */
-  addSizeToNew(): void {
-    if (!this.newSize.name || !this.newSize.abbreviation || this.newSize.price < 0) {
-      alert('⚠️ Preencha todos os campos do tamanho corretamente!');
-      return;
-    }
-
-    if (!this.newProduct.sizes) this.newProduct.sizes = [];
-
-    if (this.editingSizeIndex !== null) {
-      // Editando tamanho existente
-      this.newProduct.sizes[this.editingSizeIndex] = { ...this.newSize };
-      this.editingSizeIndex = null;
-    } else {
-      // Adicionando novo tamanho
-      this.newProduct.sizes.push({ ...this.newSize });
-    }
-
-    // Reseta o formulário de tamanho
-    this.newSize = { name: '', abbreviation: '', price: 0 };
-  }
-
-  /**
-   * Edita um tamanho existente (modal de criação)
-   */
-  editSizeInNew(index: number): void {
-    if (!this.newProduct.sizes) return;
-    this.newSize = { ...this.newProduct.sizes[index] };
-    this.editingSizeIndex = index;
-  }
-
-  /**
-   * Remove um tamanho do produto (modal de criação)
-   */
-  removeSizeFromNew(index: number): void {
-    this.newProduct.sizes?.splice(index, 1);
-    if (this.editingSizeIndex === index) {
-      this.newSize = { name: '', abbreviation: '', price: 0 };
-      this.editingSizeIndex = null;
-    }
-  }
-
-  /**
-   * Adiciona um tamanho ao produto (modal de edição)
-   */
-  addSizeToEdit(): void {
-    if (!this.newSize.name || !this.newSize.abbreviation || this.newSize.price < 0) {
-      alert('⚠️ Preencha todos os campos do tamanho corretamente!');
-      return;
-    }
-
-    if (!this.editingProduct.sizes) this.editingProduct.sizes = [];
-
-    if (this.editingSizeIndex !== null) {
-      // Editando tamanho existente
-      this.editingProduct.sizes[this.editingSizeIndex] = { ...this.newSize };
-      this.editingSizeIndex = null;
-    } else {
-      // Adicionando novo tamanho
-      this.editingProduct.sizes.push({ ...this.newSize });
-    }
-
-    // Reseta o formulário de tamanho
-    this.newSize = { name: '', abbreviation: '', price: 0 };
-  }
-
-  /**
-   * Edita um tamanho existente (modal de edição)
-   */
-  editSizeInEdit(index: number): void {
-    if (!this.editingProduct.sizes) return;
-    this.newSize = { ...this.editingProduct.sizes[index] };
-    this.editingSizeIndex = index;
-  }
-
-  /**
-   * Remove um tamanho do produto (modal de edição)
-   */
-  removeSizeFromEdit(index: number): void {
-    this.editingProduct.sizes?.splice(index, 1);
-    if (this.editingSizeIndex === index) {
-      this.newSize = { name: '', abbreviation: '', price: 0 };
-      this.editingSizeIndex = null;
-    }
-  }
-
-  /**
-   * Cancela a edição de tamanho
-   */
-  cancelSizeEdit(): void {
-    this.newSize = { name: '', abbreviation: '', price: 0 };
-    this.editingSizeIndex = null;
   }
 
   /**
