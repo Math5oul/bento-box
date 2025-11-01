@@ -81,8 +81,10 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   private _selectedItem: GridItem | null = null;
   private productsSub?: Subscription;
   private searchSub?: Subscription;
+  private routeSub?: Subscription;
   private allProducts: GridItem[] = [];
   private searchSubject = new Subject<string>();
+  private isJoining = false; // Flag para evitar carregamento duplicado
 
   get selectedItem(): GridItem | null {
     return this._selectedItem;
@@ -118,15 +120,40 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     // Verifica se está acessando via QR Code (rota /table/:tableId/join)
     // Chamamos joinTable apenas no browser (evita SSR e chamadas duplicadas)
     if (isPlatformBrowser(this.platformId)) {
-      this.route.params.subscribe(params => {
+      this.routeSub = this.route.params.subscribe(params => {
         const tableId = params['tableId'];
-        if (tableId) {
+
+        if (tableId && !this.isJoining) {
+          // Está acessando via /table/:tableId/join
+          this.isJoining = true;
           this.joinTable(tableId);
+        } else if (!tableId && this.isJoining) {
+          // Navegou de volta para / após o join - recarrega dados
+          this.isJoining = false;
+          setTimeout(() => {
+            this.loadInitialData();
+          }, 100);
+        } else if (!tableId && !this.isJoining) {
+          // Acesso normal à home
+          this.loadInitialData();
         }
       });
+    } else {
+      // SSR - carrega dados normalmente
+      this.loadInitialData();
     }
 
-    // Carrega produtos, fillers E categorias em paralelo
+    this.searchSub = this.searchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(searchTerm => {
+        this.filterProducts(searchTerm);
+      });
+  }
+
+  /**
+   * Carrega dados iniciais (produtos, fillers, categorias)
+   */
+  private loadInitialData(): void {
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
       fillers: this.fillerService.getFillers().pipe(take(1)),
@@ -148,33 +175,8 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       // Depois agrupa produtos e fillers por categoria
       this.groupProductsByCategory(products);
 
-      // Se chegamos aqui e a navegação trouxe ?joined=true, recarrega os dados
-      // no componente recém-criado (resolve caso o reload fosse chamado no
-      // componente antigo que foi destruído pela navegação)
-      if (
-        isPlatformBrowser(this.platformId) &&
-        this.route.snapshot.queryParams['joined'] === 'true'
-      ) {
-        // pequena defasagem para garantir que o componente esteja totalmente inicializado
-        setTimeout(() => {
-          try {
-            this.reloadAllData();
-          } catch (e) {
-            console.warn('Falha ao recarregar dados após join:', e);
-          }
-        }, 0);
-      }
+      this.cdr.detectChanges();
     });
-
-    this.searchSub = this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(searchTerm => {
-        this.filterProducts(searchTerm);
-      });
-
-    if (this.fillers?.length === 0) {
-      this.options.createFillers = false;
-    }
   }
 
   /**
@@ -211,7 +213,8 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
         return categories.includes(category);
       });
 
-      this.fillersByCategory.set(category, categoryFillers);
+      // IMPORTANTE: Cria uma NOVA referência do array para disparar ngOnChanges
+      this.fillersByCategory.set(category, [...categoryFillers]);
     });
   }
 
@@ -296,6 +299,9 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     if (this.searchSub) {
       this.searchSub.unsubscribe();
     }
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
     this.searchSubject.complete();
   }
 
@@ -338,8 +344,9 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
 
     this.productsSub = forkJoin({
       products: this.storageService.getProducts().pipe(take(1)),
-      fillers: this.fillerService.getFillers(),
-    }).subscribe(({ products, fillers }) => {
+      fillers: this.fillerService.getFillers().pipe(take(1)),
+      categories: this.categoryService.getCategories().pipe(take(1)),
+    }).subscribe(({ products, fillers, categories }) => {
       const fillerGridItems = this.convertFillersToGridItems(fillers);
 
       this.resetFillerCache();
@@ -348,7 +355,19 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       this.fillers = fillerGridItems;
       this.allProducts = [...products];
 
+      // Atualiza categorias
+      if (categories.success) {
+        this.categories = categories.data;
+      }
+
+      // Reagrupa produtos e fillers por categoria
       this.groupProductsByCategory(products);
+
+      console.log('✅ Dados recarregados:', {
+        produtos: products.length,
+        fillers: fillerGridItems.length,
+        categorias: this.categories.length,
+      });
 
       this.cdr.detectChanges();
     });
@@ -383,12 +402,6 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     }
 
     this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.bentoBoxComponents?.forEach(box => {
-        box.recalculateGrid();
-      });
-    }, 0);
   }
 
   /**
@@ -423,40 +436,29 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
           }
         }
 
-        // Redireciona para a página principal (sem o /join na URL)
-        // Após navegar, recarrega todos os dados (produtos e fillers)
-        this.router
-          .navigate(['/'], {
-            queryParams: {
-              table: data.table.number,
-              joined: 'true',
-            },
-          })
-          .then(() => {
-            // As ações abaixo devem rodar apenas no browser
-            if (isPlatformBrowser(this.platformId)) {
-              // Mostra mensagem de boas-vindas
-              try {
-                alert(`\ud83c\udf89 Bem-vindo \u00e0 Mesa ${data.table.number}!`);
-              } catch (e) {
-                console.warn('alert indisponível:', e);
-              }
+        // Mostra mensagem de boas-vindas antes de navegar
+        if (isPlatformBrowser(this.platformId)) {
+          try {
+            alert(`🎉 Bem-vindo à Mesa ${data.table.number}!`);
+          } catch (e) {
+            console.warn('alert indisponível:', e);
+          }
+        }
 
-              // Recarrega produtos e fillers para garantir que os fillers
-              // carreguem sem a necessidade de refresh manual da página
-              try {
-                this.reloadAllData();
-              } catch (err) {
-                // fallback: força recarregamento da página se algo inesperado ocorrer
-                console.error('Erro ao recarregar dados depois do join:', err);
-                try {
-                  window.location.reload();
-                } catch (e) {
-                  console.warn('window.location.reload indisponível:', e);
-                }
-              }
-            }
-          });
+        // Redireciona para a página principal
+        const navigationSuccess = await this.router.navigate(['/'], {
+          queryParams: {
+            table: data.table.number,
+          },
+        });
+
+        // Após navegação, o subscription de route.params vai detectar
+        // que não há mais tableId e vai chamar loadInitialData() automaticamente
+        if (navigationSuccess) {
+          console.log(
+            '✅ Navegação concluída. Os dados serão carregados pelo route.params subscription.'
+          );
+        }
       } else {
         console.error('❌ Erro ao conectar à mesa:', data.message);
         alert(`Erro: ${data.message}`);

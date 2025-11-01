@@ -45,6 +45,13 @@ export class FillerService {
   }
 
   /**
+   * Força o recarregamento dos fillers do servidor
+   */
+  refreshFillers(): void {
+    this.loadFromServer();
+  }
+
+  /**
    * Busca um filler específico por ID
    */
   getFiller(id: string): Observable<Filler> {
