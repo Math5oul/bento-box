@@ -139,9 +139,400 @@
       </ul>
     </div>
 
-    <!-- Continua com o resto do conteúdo... -->
-    <!-- (Mantendo todo o HTML da documentação original) -->
+    <!-- Arquitetura -->
+    <div class="section">
+      <h2>🏗️ Arquitetura do Sistema</h2>
 
-    <a [routerLink]="['/']" class="back-button">← Voltar para a Aplicação</a>
+      <h3>Frontend (Angular 20)</h3>
+      <ul>
+        <li><strong>Framework:</strong> Angular 20 com Standalone Components</li>
+        <li><strong>Linguagem:</strong> TypeScript 5.8</li>
+        <li><strong>Estilos:</strong> SCSS com design system customizado</li>
+        <li><strong>Build:</strong> Angular CLI com Vite</li>
+        <li><strong>SSR:</strong> Suporte a Server-Side Rendering</li>
+      </ul>
+
+      <h3>Backend (Node.js + Express)</h3>
+      <ul>
+        <li><strong>Runtime:</strong> Node.js 18+</li>
+        <li><strong>Framework:</strong> Express 4</li>
+        <li><strong>Linguagem:</strong> TypeScript</li>
+        <li><strong>Autenticação:</strong> JWT (JSON Web Tokens)</li>
+        <li><strong>Upload:</strong> Multer para gerenciamento de arquivos</li>
+        <li><strong>CORS:</strong> Configurado para desenvolvimento e produção</li>
+      </ul>
+
+      <h3>Banco de Dados (MongoDB)</h3>
+      <ul>
+        <li><strong>Versão:</strong> MongoDB 8+</li>
+        <li><strong>ODM:</strong> Mongoose 8</li>
+        <li>
+          <strong>Host atual:</strong> <span class="highlight">{{ mongoHost }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Elementos Filler -->
+    <div class="section">
+      <h2>📦 Elementos Filler - Design Visual Inteligente</h2>
+      <p>
+        <strong>Fillers</strong> são elementos decorativos que preenchem automaticamente espaços
+        vazios no grid, transformando lacunas em oportunidades de design.
+      </p>
+
+      <h3>Por que usar Fillers?</h3>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>🎨 Harmonia Visual</h4>
+          <p>
+            Grids com espaços vazios podem parecer incompletos. Fillers criam uma composição visual
+            harmoniosa e profissional.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>📖 Storytelling</h4>
+          <p>
+            Imagens e vídeos contam histórias: mostre o chef, o ambiente, ingredientes frescos ou
+            depoimentos.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>👁️ Direcionamento</h4>
+          <p>
+            Fillers estratégicos guiam o olhar: textos coloridos para promoções, imagens para pontos
+            focais.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🎯 Branding</h4>
+          <p>Reforce a identidade: logo, cores corporativas, slogans e elementos temáticos.</p>
+        </div>
+      </div>
+
+      <h3>Tipos de Fillers Disponíveis</h3>
+      <p><strong>📝 Texto (Filler):</strong></p>
+      <ul>
+        <li>Títulos de seções ("🔥 Mais Vendidos", "Novidades da Semana")</li>
+        <li>Descrições e informações ("Horário: 11h às 23h")</li>
+        <li>Promoções e ofertas especiais</li>
+      </ul>
+
+      <p><strong>🖼️ Imagem (Filler):</strong></p>
+      <ul>
+        <li>Fotos do ambiente e decoração</li>
+        <li>Logos e elementos de branding</li>
+        <li>Banners promocionais</li>
+      </ul>
+
+      <p><strong>🎥 Vídeo (Filler):</strong></p>
+      <ul>
+        <li>Preparação de pratos (5-15 segundos)</li>
+        <li>Tour virtual do estabelecimento</li>
+        <li>Depoimentos de clientes</li>
+      </ul>
+
+      <div class="alert-info">
+        <strong>💡 Importante:</strong> Fillers NUNCA ofuscam os produtos principais. Eles são
+        adicionados automaticamente apenas nos espaços disponíveis do grid que sobram após a
+        disposição de todos os produtos. Seus produtos sempre têm prioridade!
+      </div>
+    </div>
+
+    <!-- Tecnologias -->
+    <div class="section">
+      <h2>🛠️ Tecnologias Utilizadas</h2>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <h4>Angular 20</h4>
+          <p>Framework frontend moderno com Standalone Components e Signals</p>
+        </div>
+        <div class="tech-item">
+          <h4>TypeScript 5.8</h4>
+          <p>Superset JavaScript com tipagem estática</p>
+        </div>
+        <div class="tech-item">
+          <h4>Node.js + Express</h4>
+          <p>Backend robusto para API RESTful</p>
+        </div>
+        <div class="tech-item">
+          <h4>MongoDB 8</h4>
+          <p>Banco NoSQL escalável e performático</p>
+        </div>
+        <div class="tech-item">
+          <h4>Mongoose</h4>
+          <p>ODM para modelagem de dados MongoDB</p>
+        </div>
+        <div class="tech-item">
+          <h4>JWT</h4>
+          <p>Autenticação segura baseada em tokens</p>
+        </div>
+        <div class="tech-item">
+          <h4>Multer</h4>
+          <p>Upload e gerenciamento de imagens</p>
+        </div>
+        <div class="tech-item">
+          <h4>QRCode</h4>
+          <p>Geração de QR Codes para mesas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <div class="section">
+      <h2>📜 Scripts Disponíveis</h2>
+      <table class="scripts-table">
+        <thead>
+          <tr>
+            <th>Script</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm start</code></td>
+            <td>Inicia apenas o Angular (porta 4200)</td>
+          </tr>
+          <tr>
+            <td><code>npm run backend</code></td>
+            <td>Inicia apenas o backend (porta 3001)</td>
+          </tr>
+          <tr>
+            <td><code>npm run dev</code></td>
+            <td>Inicia Angular + Backend simultaneamente</td>
+          </tr>
+          <tr>
+            <td><code>npm run dev:mobile</code></td>
+            <td>Dev server com acesso externo para mobile</td>
+          </tr>
+          <tr>
+            <td><code>npm run build</code></td>
+            <td>Build de produção do frontend</td>
+          </tr>
+          <tr>
+            <td><code>npm run build:backend</code></td>
+            <td>Build do backend TypeScript</td>
+          </tr>
+          <tr>
+            <td><code>npm test</code></td>
+            <td>Executa testes unitários com Karma</td>
+          </tr>
+          <tr>
+            <td><code>npm run regenerate:qrcodes</code></td>
+            <td>Regenera QR Codes de todas as mesas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Estrutura -->
+    <div class="section">
+      <h2>📁 Estrutura do Projeto</h2>
+      <pre class="code-block">
+bento-box/
+├── backend/                  # API Node.js + Express
+│   ├── server.ts            # Servidor principal
+│   ├── config/
+│   │   └── database.ts      # Configuração MongoDB
+│   ├── middleware/
+│   │   ├── auth.ts          # Autenticação JWT
+│   │   ├── errorHandler.ts # Tratamento de erros
+│   │   └── validate.ts      # Validação de dados
+│   ├── models/              # Modelos Mongoose
+│   │   ├── Category.ts
+│   │   ├── Filler.ts
+│   │   ├── Order.ts
+│   │   ├── Product.ts
+│   │   ├── Table.ts
+│   │   └── User.ts
+│   ├── routes/              # Rotas da API
+│   │   ├── admin.ts         # Rotas administrativas
+│   │   ├── auth.ts          # Autenticação
+│   │   ├── categories.ts    # Categorias
+│   │   ├── fillers.ts       # Fillers
+│   │   ├── orders.ts        # Pedidos
+│   │   ├── products.ts      # Produtos
+│   │   ├── table.ts         # Mesas
+│   │   └── upload.ts        # Upload de imagens
+│   ├── scripts/             # Scripts de manutenção
+│   │   ├── regenerate-qrcodes.ts
+│   │   └── seed-*.ts        # Scripts de seed
+│   └── utils/
+│       └── jwt.ts           # Utilitários JWT
+├── src/
+│   ├── app/
+│   │   ├── bento-module/         # Módulo principal
+│   │   │   ├── bento-box/        # Grid dinâmico
+│   │   │   ├── bento-toolbar/    # Toolbar
+│   │   │   ├── cart/             # Carrinho
+│   │   │   └── header/           # Header
+│   │   ├── components/           # Componentes
+│   │   │   ├── admin-panel-components/
+│   │   │   ├── admin-maintenance-components/
+│   │   │   └── simpleComponents/
+│   │   ├── guards/               # Route Guards
+│   │   ├── interfaces/           # TypeScript Interfaces
+│   │   ├── services/             # Serviços Angular
+│   │   │   ├── auth-service/
+│   │   │   ├── cart-service/
+│   │   │   ├── category-service/
+│   │   │   ├── filler-service/
+│   │   │   └── grid-service/
+│   │   └── pipes/                # Pipes customizados
+│   └── assets/                   # Assets estáticos
+│       ├── images/
+│       └── sounds/
+├── public/                  # Arquivos públicos
+│   ├── maintenance.html    # Página de manutenção
+│   └── imgs/               # Logos
+└── uploads/                # Uploads de usuários
+      </pre>
+    </div>
+
+    <!-- Links Úteis -->
+    <div class="section">
+      <h2>🔗 Links Úteis</h2>
+      <ul class="links-list">
+        <li>
+          <strong>Frontend:</strong>
+          <a [href]="frontendUrl" target="_blank">{{ frontendUrl }}</a>
+        </li>
+        <li>
+          <strong>Backend API:</strong>
+          <a [href]="backendUrl + '/api/health'" target="_blank">{{ backendUrl }}/api/health</a>
+        </li>
+        <li>
+          <strong>Exemplo de Mesa:</strong>
+          <a [href]="frontendUrl + '/table/1'" target="_blank">{{ frontendUrl }}/table/1</a>
+        </li>
+        <li>
+          <strong>Painel Admin:</strong>
+          <a [href]="frontendUrl + '/admin'" target="_blank">{{ frontendUrl }}/admin</a>
+        </li>
+        <li>
+          <strong>Test Hub:</strong>
+          <a routerLink="/maintenance/test-hub">Test Hub Central</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="section">
+      <h2>🔧 Solução de Problemas Comuns</h2>
+
+      <h3>❌ Erro: "ECONNREFUSED" no proxy</h3>
+      <p><strong>Problema:</strong> Frontend não consegue conectar com o backend.</p>
+      <p><strong>Solução:</strong></p>
+      <ul>
+        <li>Verifique se o backend está rodando: <code>npm run backend</code></li>
+        <li>Confirme que a porta 3001 está livre</li>
+        <li>Use <code>npm run dev</code> para iniciar frontend e backend simultaneamente</li>
+      </ul>
+
+      <h3>❌ Erro: MongoDB Connection Failed</h3>
+      <p><strong>Problema:</strong> Não consegue conectar ao MongoDB.</p>
+      <p><strong>Solução:</strong></p>
+      <ul>
+        <li>Verifique se o MongoDB está rodando localmente</li>
+        <li>Confirme a string de conexão no arquivo <code>.env</code></li>
+        <li>Teste a conexão: <code>mongosh</code> no terminal</li>
+      </ul>
+
+      <h3>❌ Imagens não aparecem</h3>
+      <p><strong>Problema:</strong> Produtos sem imagem ou imagens quebradas.</p>
+      <p><strong>Solução:</strong></p>
+      <ul>
+        <li>Verifique se a pasta <code>uploads/</code> existe</li>
+        <li>Confirme que o backend tem permissão de leitura/escrita</li>
+        <li>Verifique o proxy de <code>/assets/images</code> em <code>proxy.conf.json</code></li>
+      </ul>
+
+      <h3>❌ Modo de edição não salva</h3>
+      <p><strong>Problema:</strong> Mudanças no grid não são persistidas.</p>
+      <p><strong>Solução:</strong></p>
+      <ul>
+        <li>Certifique-se de clicar em "Salvar" após reorganizar</li>
+        <li>Verifique o console do navegador para erros de API</li>
+        <li>Confirme que você está autenticado como admin</li>
+      </ul>
+    </div>
+
+    <!-- Acesso Mobile -->
+    <div class="section">
+      <h2>📱 Acesso via Mobile</h2>
+      <p>Para acessar o sistema pelo celular na mesma rede Wi-Fi:</p>
+
+      <p><strong>1. Configure o servidor para acesso externo:</strong></p>
+      <pre class="code-block">npm run dev:mobile</pre>
+
+      <p><strong>2. Descubra o IP do seu PC:</strong></p>
+      <pre class="code-block">
+ipconfig    # Windows
+ip addr     # Linux
+ifconfig    # Mac</pre
+      >
+
+      <p><strong>3. Libere as portas no firewall:</strong></p>
+      <ul>
+        <li>Porta <strong>4200</strong> (Angular)</li>
+        <li>Porta <strong>3001</strong> (Backend)</li>
+      </ul>
+
+      <p><strong>4. Acesse no celular:</strong></p>
+      <pre class="code-block">http://SEU_IP:4200</pre>
+
+      <div class="alert-info">
+        <strong>💡 Dica:</strong> Certifique-se de que PC e celular estão na mesma rede Wi-Fi!
+      </div>
+    </div>
+
+    <!-- Contribuindo -->
+    <div class="section">
+      <h2>🤝 Contribuindo</h2>
+      <p>
+        <strong>Nota:</strong> Este é um projeto proprietário. Contribuições são aceitas mas estão
+        sujeitas aos termos da licença proprietária.
+      </p>
+
+      <p>Para contribuir:</p>
+      <ol>
+        <li>Entre em contato com o autor para discutir a contribuição</li>
+        <li>Fork o projeto (apenas para desenvolvimento)</li>
+        <li>Crie uma branch: <code>git checkout -b feature/MinhaFeature</code></li>
+        <li>Commit suas mudanças: <code>git commit -m 'Adiciona MinhaFeature'</code></li>
+        <li>Push para a branch: <code>git push origin feature/MinhaFeature</code></li>
+        <li>Abra um Pull Request</li>
+      </ol>
+
+      <div class="alert-warning">
+        <strong>⚠️ Importante:</strong> Ao contribuir, você concorda em transferir os direitos
+        autorais das contribuições para o proprietário do projeto.
+      </div>
+    </div>
+
+    <!-- Licença e Autor -->
+    <div class="section">
+      <h2>📄 Licença</h2>
+      <p><strong>Licença Proprietária - Todos os Direitos Reservados</strong></p>
+      <p>Copyright &copy; 2024-2025 Math5oul. Todos os direitos reservados.</p>
+      <p>
+        Este software é proprietário e está protegido por leis de direitos autorais. O uso deste
+        software está sujeito aos termos da licença proprietária.
+      </p>
+    </div>
+
+    <div class="section author-section">
+      <h2>👨‍💻 Autor</h2>
+      <p>
+        <strong>Math5oul</strong><br />
+        GitHub: <a href="https://github.com/Math5oul" target="_blank">&#64;Math5oul</a><br />
+        Repository:
+        <a href="https://github.com/Math5oul/bento-box" target="_blank">Math5oul/bento-box</a>
+      </p>
+    </div>
+
+    <div class="footer-navigation">
+      <a routerLink="/maintenance/test-hub" class="back-button">← Voltar para Test Hub</a>
+      <a routerLink="/" class="back-button">← Voltar para Aplicação</a>
+    </div>
   </div>
 </div>
