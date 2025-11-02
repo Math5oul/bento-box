@@ -624,12 +624,10 @@ router.patch(
       // Verifica permissão: admin ou garçom
       const role = req.user?.role;
       if (role !== 'admin' && role !== 'garcom') {
-        res
-          .status(403)
-          .json({
-            success: false,
-            message: 'Permissão negada. Apenas admin ou garçom podem editar pedidos.',
-          });
+        res.status(403).json({
+          success: false,
+          message: 'Permissão negada. Apenas admin ou garçom podem editar pedidos.',
+        });
         return;
       }
 
@@ -776,7 +774,8 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     const orders = await Order.find(query)
       .sort({ createdAt: -1 })
       .populate('tableId', 'number')
-      .populate('clientId', 'name email');
+      // popula isAnonymous para identificar clientes anônimos
+      .populate('clientId', 'name email isAnonymous');
 
     const ordersFormatted = orders.map(order => {
       const obj = order.toObject();
@@ -785,10 +784,16 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       if (obj.tableId && typeof obj.tableId === 'object' && 'number' in obj.tableId) {
         tableNumber = obj.tableId.number;
       }
+      // Detecta se o cliente do pedido é anônimo: clientId populado com isAnonymous ou existe sessionToken
+      const clientObj: any = obj.clientId;
+      const isClientAnonymous =
+        (clientObj && typeof clientObj === 'object' && clientObj.isAnonymous === true) ||
+        !!obj.sessionToken;
       return {
         ...obj,
         id: (order._id as any).toString(),
         tableNumber,
+        isClientAnonymous,
       };
     });
 
@@ -804,5 +809,80 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     });
   }
 });
+
+/**
+ * PATCH /api/orders/:orderId/rename-client
+ * Permite que garçom/admin renomeie o cliente associado a um pedido (apenas cliente anônimo)
+ */
+router.patch(
+  '/:orderId/rename-client',
+  authenticate,
+  runValidations([
+    param('orderId').isMongoId().withMessage('ID do pedido inválido'),
+    body('name').trim().notEmpty().withMessage('Nome é obrigatório'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { orderId } = req.params;
+      const { name } = req.body;
+
+      const order = await Order.findById(orderId);
+      if (!order) {
+        res.status(404).json({ success: false, message: 'Pedido não encontrado' });
+        return;
+      }
+
+      // Permissão: admin ou garçom ou cozinha
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'garcom' && role !== 'cozinha') {
+        res.status(403).json({ success: false, message: 'Permissão negada' });
+        return;
+      }
+
+      const newName = String(name).trim();
+
+      // Só permite renomear se o cliente for anônimo (clientId anônimo ou sessionToken presente)
+      const isAnonByClientId =
+        !!order.clientId && (await User.exists({ _id: order.clientId, isAnonymous: true }));
+      const isAnonBySession =
+        !!order.sessionToken &&
+        (await User.exists({ sessionToken: order.sessionToken, isAnonymous: true }));
+
+      if (!isAnonByClientId && !isAnonBySession) {
+        res
+          .status(400)
+          .json({ success: false, message: 'Apenas clientes anônimos podem ser renomeados' });
+        return;
+      }
+
+      const oldName = order.clientName || '';
+
+      // Atualiza User anônimo quando aplicável
+      if (isAnonByClientId) {
+        const user = await User.findById(order.clientId);
+        if (user) {
+          user.name = newName;
+          await user.save();
+        }
+      }
+      if (isAnonBySession) {
+        const anon = await User.findOne({ sessionToken: order.sessionToken, isAnonymous: true });
+        if (anon) {
+          anon.name = newName;
+          await anon.save();
+        }
+      }
+
+      // Atualiza todos os pedidos que possuam exatamente o mesmo clientName antigo
+      await Order.updateMany({ clientName: oldName }, { $set: { clientName: newName } });
+
+      res.json({ success: true, message: 'Nome do cliente atualizado com sucesso' });
+    } catch (error) {
+      console.error('Erro ao renomear cliente do pedido:', error);
+      res.status(500).json({ success: false, message: 'Erro ao renomear cliente' });
+    }
+  }
+);
 
 export default router;

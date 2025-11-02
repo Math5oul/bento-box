@@ -12,6 +12,7 @@ interface WaiterOrder {
   id: string;
   tableNumber: string;
   clientName: string;
+  isClientAnonymous?: boolean;
   status: string;
   items: {
     productId?: number;
@@ -45,6 +46,9 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   // Modal de edição
   showEditModal = false;
   editingOrder: WaiterOrder | null = null;
+  // Edição inline do nome do cliente
+  editingNameOrderId: string | null = null;
+  editingNameValue = '';
   editingItems: {
     productId?: number;
     productName: string;
@@ -164,14 +168,37 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(o => o.tableNumber === this.filterTable);
     }
 
-    // Busca por texto (cliente ou mesa)
+    // Busca por texto (cliente ou mesa) — multi-token AND: cada token deve casar com algum campo
     if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        o =>
-          o.clientName.toLowerCase().includes(term) ||
-          String(o.tableNumber).toLowerCase().includes(term)
-      );
+      const raw = this.searchTerm.trim();
+      // separa por espaços, ignora tokens vazios
+      const tokens = raw
+        .split(/\s+/)
+        .map(t => t.toLowerCase())
+        .filter(Boolean);
+
+      filtered = filtered.filter(o => {
+        // valores normalizados para comparação
+        const name = (o.clientName || '').toLowerCase();
+        const table = String(o.tableNumber || '').toLowerCase();
+
+        // para cada token, verifica se casa com name ou table
+        return tokens.every(token => {
+          // se token for 'mesa' seguido de número como 'mesa 3' ou 'm3' (tratado pelo tokenização),
+          // permitimos que 'mesa' combine com o campo table quando seguido por número no próximo token.
+          if (/^mesa$/.test(token)) {
+            return true; // 'mesa' por si só não filtra, apenas permite composição como 'mesa 3'
+          }
+
+          // se token contém apenas dígitos, compara igualdade numérica com table
+          if (/^\d+$/.test(token)) {
+            return table === token;
+          }
+
+          // match textual (inclui casos como 'mesa3' ou 'm3' se enviados juntos)
+          return name.includes(token) || table.includes(token) || table === token.replace(/^m/, '');
+        });
+      });
     }
 
     this.filteredOrders = filtered;
@@ -387,6 +414,63 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
           alert(err.error?.message || 'Erro ao atualizar pedido');
         },
       });
+  }
+
+  /**
+   * Renomeia cliente anônimo associado ao pedido (prompt + chamada ao backend)
+   */
+  async renameAnonymousClient(order: WaiterOrder) {
+    // mantém compatibilidade com botão existente (prompt)
+    const currentName = order.clientName || 'Cliente';
+    const newName = prompt(`Novo nome para o cliente (atual: ${currentName}):`, currentName);
+    if (newName === null) return; // cancelado
+    const trimmed = String(newName).trim();
+    if (!trimmed) {
+      alert('Nome inválido');
+      return;
+    }
+
+    await this.doRename(order.id, trimmed);
+  }
+
+  // inicia edição inline (clicar no ícone)
+  startEditName(order: WaiterOrder) {
+    if (!this.canEdit(order)) return;
+    this.editingNameOrderId = order.id;
+    this.editingNameValue = order.clientName || '';
+  }
+
+  cancelEditName() {
+    this.editingNameOrderId = null;
+    this.editingNameValue = '';
+  }
+
+  async saveEditName(order: WaiterOrder) {
+    const trimmed = String(this.editingNameValue || '').trim();
+    if (!trimmed) {
+      alert('Nome inválido');
+      return;
+    }
+    await this.doRename(order.id, trimmed);
+    this.cancelEditName();
+  }
+
+  // método reutilizável para renomear via API
+  private async doRename(orderId: string, newName: string) {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+    try {
+      await this.http
+        .patch(`/api/orders/${orderId}/rename-client`, { name: newName }, { headers })
+        .toPromise();
+      this.loadOrders(true);
+    } catch (err: any) {
+      console.error('Erro ao renomear cliente:', err);
+      alert(err?.error?.message || 'Erro ao renomear cliente');
+    }
   }
 
   /**
