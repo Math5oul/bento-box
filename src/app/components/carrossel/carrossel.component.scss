@@ -77,6 +77,11 @@
       width: auto;
       height: auto;
       object-fit: contain;
+      display: block; // Fix para Firefox
+
+      // Fix específico para iOS
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
 
       @media (max-width: 767px) {
         max-height: 20vh;

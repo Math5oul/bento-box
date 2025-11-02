@@ -1,5 +1,9 @@
 .bento-container {
   display: grid;
+
+  // Fix para Firefox e iOS
+  grid-auto-rows: min-content;
+  align-items: start;
 }
 
 .bento-item,
@@ -12,6 +16,21 @@
   transition:
     transform 0.2s ease,
     opacity 0.2s ease;
+
+  // Garante que o wrapper ocupe todo o espaço
+  .component-wrapper {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    // Garante que o componente filho também ocupe 100%
+    > * {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+  }
 }
 
 // Estilos específicos para itens interativos (produtos)
