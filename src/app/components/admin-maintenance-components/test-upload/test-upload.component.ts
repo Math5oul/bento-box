@@ -2,11 +2,12 @@ import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-test-upload',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AdminHeaderComponent],
   templateUrl: './test-upload.component.html',
   styleUrl: './test-upload.component.scss',
 })

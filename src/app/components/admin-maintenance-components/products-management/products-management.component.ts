@@ -10,11 +10,18 @@ import { Product } from '../../../interfaces/product.interface';
 import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-modal.component';
 import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleProductComponent } from '../../simpleComponents/simple-product/simple-product.component';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-products-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ItemEditorModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ItemEditorModalComponent,
+    AdminHeaderComponent,
+  ],
   templateUrl: './products-management.component.html',
   styleUrl: './products-management.component.scss',
 })

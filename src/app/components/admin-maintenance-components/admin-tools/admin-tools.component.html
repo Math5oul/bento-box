@@ -1,9 +1,9 @@
+<app-admin-header></app-admin-header>
+
 <div class="container">
-  <!-- Header -->
-  <header>
-    <img src="/imgs/bento-logo.png" alt="Bento Box" class="logo" />
-    <p class="subtitle">Central de Ferramentas Administrativas</p>
-  </header>
+  <div class="page-title">
+    <h1>🏠 Central de Ferramentas Administrativas</h1>
+  </div>
 
   <!-- Status Bar -->
   <div class="status-bar">
@@ -51,27 +51,29 @@
           <li>Listagem de Pedidos</li>
           <li>Atualização de Status</li>
           <li>Polling Automático</li>
+          <li>Histórico de Pedidos</li>
         </ul>
         <a routerLink="/maintenance/kitchen" class="card-button">Abrir Painel</a>
       </div>
     }
-    <!-- Card 1: Gerenciamento de Contas -->
-    @if (userRole === 'admin') {
+
+    <!-- Card Garçom (visível para role garcom ou admin) -->
+    @if (userRole === 'garcom' || userRole === 'admin') {
       <div class="test-card">
-        <div class="card-icon">👥</div>
-        <h3 class="card-title">Gerenciamento de Contas</h3>
-        <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
+        <div class="card-icon">🧑‍🍳</div>
+        <h3 class="card-title">Painel do Garçom</h3>
+        <p class="card-description">Gerencie pedidos, mesas e status de atendimento</p>
         <ul class="card-features">
-          <li>Listar usuários</li>
-          <li>Criar/Editar contas</li>
-          <li>Promover para admin</li>
-          <li>Testar credenciais</li>
+          <li>Gerenciar Pedidos</li>
+          <li>Editar Items</li>
+          <li>Filtrar por Mesa/Status</li>
+          <li>Atualizar Status</li>
         </ul>
-        <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
+        <a routerLink="/maintenance/waiter" class="card-button">Abrir Painel</a>
       </div>
     }
 
-    <!-- Card 3: Gerenciar Produtos -->
+    <!-- Card: Gerenciar Produtos -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">🍱</div>
@@ -103,7 +105,7 @@
       </div>
     }
 
-    <!-- Card 4: Filler Management -->
+    <!-- Card: Filler Management -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">🛸</div>
@@ -119,7 +121,23 @@
       </div>
     }
 
-    <!-- Card 2: Upload Tests -->
+    <!-- Card: Gerenciamento de Contas -->
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">👥</div>
+        <h3 class="card-title">Gerenciamento de Contas</h3>
+        <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
+        <ul class="card-features">
+          <li>Listar usuários</li>
+          <li>Criar/Editar contas</li>
+          <li>Alterar roles</li>
+          <li>Testar credenciais</li>
+        </ul>
+        <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
+      </div>
+    }
+
+    <!-- Card: Upload Tests -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">📤</div>
@@ -135,7 +153,7 @@
       </div>
     }
 
-    <!-- Card 5: Frontend App -->
+    <!-- Card: Frontend App -->
     <div class="test-card">
       <div class="card-icon">🎨</div>
       <h3 class="card-title">Aplicação Frontend</h3>
@@ -149,7 +167,7 @@
       <a [href]="frontendUrl" class="card-button">Abrir App</a>
     </div>
 
-    <!-- Card 6: MongoDB Compass -->
+    <!-- Card: MongoDB Compass -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">🗄️</div>
@@ -165,7 +183,7 @@
       </div>
     }
 
-    <!-- Card 7: Documentation -->
+    <!-- Card: Documentation -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">📚</div>

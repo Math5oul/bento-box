@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-admin-tools',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
   templateUrl: './admin-tools.component.html',
   styleUrl: './admin-tools.component.scss',
 })

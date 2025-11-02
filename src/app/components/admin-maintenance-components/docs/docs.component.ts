@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import router from '../../../../../backend/routes/auth';
 import { RouterLink } from '@angular/router';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 interface HealthInfo {
   frontendUrl?: string;
@@ -13,7 +14,7 @@ interface HealthInfo {
 @Component({
   selector: 'app-docs',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AdminHeaderComponent],
   templateUrl: './docs.component.html',
   styleUrl: './docs.component.scss',
 })

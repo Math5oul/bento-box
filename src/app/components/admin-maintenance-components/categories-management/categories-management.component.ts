@@ -8,11 +8,12 @@ import {
   CreateCategoryDTO,
   UpdateCategoryDTO,
 } from '../../../interfaces/category.interface';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-categories-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
   templateUrl: './categories-management.component.html',
   styleUrl: './categories-management.component.scss',
 })

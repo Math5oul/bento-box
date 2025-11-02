@@ -46,13 +46,19 @@ router.patch(
       const { id } = req.params;
       const { role } = req.body;
 
-      // Validar role
-      if (!role || !['user', 'admin', 'cozinha', 'garçom'].includes(role)) {
+      // Validar role (aceita tanto "garçom" quanto "garcom")
+      const validRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
+      if (!role || !validRoles.includes(role)) {
         res
           .status(400)
-          .json({ message: 'Role inválida. Use "user", "admin", "cozinha" ou "garçom".' });
+          .json({
+            message: 'Role inválida. Use "user", "admin", "cozinha", "garcom" ou "client".',
+          });
         return;
       }
+
+      // Normalizar "garçom" para "garcom" (padrão do banco)
+      const normalizedRole = role === 'garçom' ? 'garcom' : role;
 
       // Impedir que o admin altere sua própria role
       if (id === req.user?.userId) {
@@ -61,7 +67,9 @@ router.patch(
       }
 
       // Atualizar role
-      const user = await User.findByIdAndUpdate(id, { role }, { new: true }).select('-password');
+      const user = await User.findByIdAndUpdate(id, { role: normalizedRole }, { new: true }).select(
+        '-password'
+      );
 
       if (!user) {
         res.status(404).json({ message: 'Usuário não encontrado' });
