@@ -5,13 +5,13 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-test-hub',
+  selector: 'app-admin-tools',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './test-hub.component.html',
-  styleUrl: './test-hub.component.scss',
+  templateUrl: './admin-tools.component.html',
+  styleUrl: './admin-tools.component.scss',
 })
-export class TestHubComponent implements OnInit {
+export class AdminToolsComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
@@ -20,7 +20,7 @@ export class TestHubComponent implements OnInit {
   dbStatus = 'checking...';
   productsCount = 0;
   frontendUrl = 'http://localhost:4200';
-  mongoUri = 'mongodb://localhost:27017/bento-box'; // Será atualizado pela API
+  mongoUri = 'mongodb://localhost:27017/bento-box';
 
   // Campos de formulário
   adminName = 'Admin Bento';
@@ -62,7 +62,7 @@ export class TestHubComponent implements OnInit {
       this.backendStatus = 'online';
       this.dbStatus = res.db?.readyState === 1 ? 'connected' : 'disconnected';
       this.frontendUrl = res.frontendUrl || this.frontendUrl;
-      this.mongoUri = res.mongoUri || this.mongoUri; // Atualiza URI do MongoDB
+      this.mongoUri = res.mongoUri || this.mongoUri;
     } catch (error) {
       this.backendStatus = 'offline';
       this.dbStatus = 'offline';

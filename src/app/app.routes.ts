@@ -27,10 +27,10 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
-    path: 'maintenance/test-hub',
+    path: 'maintenance/admin-tools',
     loadComponent: () =>
-      import('./components/admin-maintenance-components/test-hub/test-hub.component').then(
-        m => m.TestHubComponent
+      import('./components/admin-maintenance-components/admin-tools/admin-tools.component').then(
+        m => m.AdminToolsComponent
       ),
     canActivate: [adminGuard],
   },
