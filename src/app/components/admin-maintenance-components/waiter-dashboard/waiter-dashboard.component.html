@@ -94,8 +94,36 @@
         <!-- Card Body: Cliente + Itens -->
         <div class="order-body">
           <div class="client-info">
-            <span class="client-icon">👤</span>
-            <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+            <span class="client-icon" *ngIf="!order.isClientAnonymous">👤</span>
+
+            <div class="client-name-wrapper">
+              <!-- Se está editando este pedido, mostra input com salvar/cancelar -->
+              <ng-container *ngIf="editingNameOrderId === order.id; else showName">
+                <input type="text" [(ngModel)]="editingNameValue" class="inline-name-input" />
+                <div class="edit-actions">
+                  <button class="icon-btn save" (click)="saveEditName(order)" title="Salvar">
+                    ✔️
+                  </button>
+                  <button class="icon-btn cancel" (click)="cancelEditName()" title="Cancelar">
+                    ✖️
+                  </button>
+                </div>
+              </ng-container>
+              <ng-template #showName>
+                <span class="client-name-text">{{ order.clientName || 'Cliente' }}</span>
+              </ng-template>
+
+              <!-- ícone no fim direito da caixa -->
+              <button
+                *ngIf="order.isClientAnonymous && canEdit(order)"
+                class="client-icon editable right"
+                (click)="startEditName(order)"
+                title="Editar nome do cliente"
+              >
+                ✏️
+              </button>
+              <span class="client-icon" *ngIf="!order.isClientAnonymous">👤</span>
+            </div>
           </div>
 
           <div class="order-items">
@@ -148,6 +176,15 @@
               title="Cancelar pedido"
             >
               ❌ Cancelar
+            </button>
+            <!-- Botão Renomear Cliente -->
+            <button
+              *ngIf="canEdit(order)"
+              class="action-btn btn-rename"
+              (click)="renameAnonymousClient(order)"
+              title="Renomear cliente"
+            >
+              👥 Renomear
             </button>
           </div>
         </div>

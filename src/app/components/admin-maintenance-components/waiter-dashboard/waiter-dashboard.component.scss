@@ -413,6 +413,92 @@
   }
 }
 
+/* Estilos para edição inline do nome */
+.client-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  position: relative;
+}
+
+.client-name-text {
+  font-weight: 600;
+  color: #333;
+}
+
+.inline-name-input {
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95em;
+  flex: 1;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  background: #4facfe;
+  color: white;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  background: #4facfe;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+.icon-btn:hover {
+  background: #3aa0fb;
+}
+
+.icon-btn.save {
+  background: #4caf50;
+}
+
+.icon-btn.save:hover {
+  background: #43a047;
+}
+
+.icon-btn.cancel {
+  background: #f44336;
+}
+
+.icon-btn.cancel:hover {
+  background: #e53935;
+}
+
+.client-icon.right {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.client-icon.editable {
+  color: #4facfe;
+}
+
 .order-items {
   .items-title {
     font-size: 0.9em;
