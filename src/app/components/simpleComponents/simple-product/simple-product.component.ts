@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
-import { ProductModalComponent } from './product-modal/product-modal.component';
 import { CartService, CartItemSize } from '../../../services/cart-service/cart.service';
+import { ProductModalService } from '../../../services/product-modal-service/product-modal.service';
 
 @Component({
   selector: 'app-simple-product',
   standalone: true,
-  imports: [CommonModule, SanitizePipe, ProductModalComponent],
+  imports: [CommonModule, SanitizePipe],
   templateUrl: './simple-product.component.html',
   styleUrl: './simple-product.component.scss',
 })
@@ -32,16 +32,25 @@ export class SimpleProductComponent {
     editMode: false,
   };
 
-  @ViewChild(ProductModalComponent) productModal!: ProductModalComponent;
+  constructor(
+    private cartService: CartService,
+    private productModalService: ProductModalService
+  ) {}
+
   handleClick(event: MouseEvent) {
     if (this.inputs.editMode) {
       return;
     } else {
-      this.productModal.open();
+      this.productModalService.openModal({
+        images: this.inputs.images,
+        productName: this.inputs.productName,
+        price: this.inputs.price,
+        description: this.inputs.description,
+        sizes: this.inputs.sizes,
+        onOrderSubmitted: order => this.handleOrder(order),
+      });
     }
   }
-
-  constructor(private cartService: CartService) {}
 
   handleOrder(order: {
     quantity: number;

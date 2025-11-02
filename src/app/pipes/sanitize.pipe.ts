@@ -25,8 +25,11 @@ export class SanitizePipe implements PipeTransform {
 
     switch (type) {
       case 'html':
-        // Sanitiza conteúdo HTML (remove tags <script>, manipuladores on*, etc.)
-        return this.domSanitizer.sanitize(SecurityContext.HTML, value);
+        // Sanitiza conteúdo HTML e REMOVE links <a>
+        const sanitizedHtml = this.domSanitizer.sanitize(SecurityContext.HTML, value);
+        if (!sanitizedHtml) return null;
+        // Remove todas as tags <a>, mantendo apenas o texto interno
+        return sanitizedHtml.replace(/<a[^>]*>(.*?)<\/a>/gi, '$1');
       case 'url':
         // Sanitiza URLs (bloqueia schemes inseguros como javascript:)
         return this.domSanitizer.sanitize(SecurityContext.URL, value);
@@ -38,6 +41,7 @@ export class SanitizePipe implements PipeTransform {
         return this.domSanitizer.sanitize(SecurityContext.STYLE, value);
       case 'trustedHtml':
         // Para HTML confiável vindo de fontes controladas (ex.: rich text do banco de dados)
+        // PERMITE links e todo HTML
         return this.domSanitizer.bypassSecurityTrustHtml(value);
       default:
         return this.domSanitizer.sanitize(SecurityContext.HTML, value);

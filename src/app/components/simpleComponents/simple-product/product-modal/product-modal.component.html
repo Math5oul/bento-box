@@ -12,7 +12,10 @@
             <div class="product-text">
               <h2 class="product-name">{{ productName }}</h2>
               <p class="product-price">{{ getCurrentPrice() | currency: 'BRL' }}</p>
-              <p class="product-description">{{ description }}</p>
+              <p
+                class="product-description"
+                [innerHTML]="description | sanitize: 'trustedHtml'"
+              ></p>
 
               <!-- Seleção de Tamanhos (apenas se houver mais de 1 tamanho) -->
               @if (shouldShowSizeSelection()) {

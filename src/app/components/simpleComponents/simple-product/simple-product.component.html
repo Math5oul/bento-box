@@ -26,12 +26,3 @@
     </div>
   </div>
 </div>
-
-<app-product-modal
-  [images]="inputs.images"
-  [productName]="inputs.productName"
-  [price]="inputs.price"
-  [description]="inputs.description"
-  [sizes]="inputs.sizes || []"
-  (orderSubmitted)="handleOrder($event)"
-></app-product-modal>

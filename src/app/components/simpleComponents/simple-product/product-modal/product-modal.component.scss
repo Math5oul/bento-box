@@ -1,3 +1,17 @@
+.modal-back {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -8,7 +22,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 10000;
   overflow-y: none;
 
   @media (max-width: 767px) {
@@ -26,17 +40,17 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  max-height: 90%;
-  overflow-y: auto;
+  max-height: 90vh;
+  overflow: hidden;
 
   @media (max-width: 767px) {
     width: 100%;
     max-width: 100%;
     height: 100%;
-    max-height: 100%;
+    max-height: 100vh;
     border-radius: 0;
     padding: 0;
-    overflow-y: hidden; // O scroll será na área interna
+    overflow: hidden;
 
     // Área scrollável
     .modal-scroll-area {
@@ -68,6 +82,23 @@
   }
 }
 
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // Limita altura do carrossel
+  app-carrossel {
+    display: block;
+    max-height: 30vh;
+
+    @media (max-width: 767px) {
+      max-height: 25vh;
+    }
+  }
+}
+
 .close-button {
   position: absolute;
   top: 0.5rem;
@@ -76,7 +107,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  z-index: 2;
+  z-index: 10001;
 
   @media (max-width: 767px) {
     position: fixed;
@@ -102,22 +133,64 @@
     line-height: 1.5;
     margin-bottom: 1rem;
     padding-left: 1rem;
+
+    @media (max-width: 767px) {
+      padding-left: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
   }
 
   .product-description {
-    margin: 0;
+    margin: 0.5rem 0 1rem 0;
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    @media (max-width: 767px) {
+      margin: 0.5rem 0 0.75rem 0;
+      max-height: 120px;
+    }
+
+    // Scrollbar estilizada
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 3px;
+
+      &:hover {
+        background: #a0aec0;
+      }
+    }
   }
 
   .product-name {
     font-size: 1.5rem;
-    margin: 0;
+    margin: 0 0 0.5rem 0;
+
+    @media (max-width: 767px) {
+      font-size: 1.3rem;
+      margin: 0 0 0.35rem 0;
+    }
   }
 
   .product-price {
     font-size: 1.2rem;
     color: #e91e63;
     font-weight: bold;
-    margin: 0;
+    margin: 0 0 0.5rem 0;
+
+    @media (max-width: 767px) {
+      font-size: 1.1rem;
+      margin: 0 0 0.35rem 0;
+    }
   }
 }
 

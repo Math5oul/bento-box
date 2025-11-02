@@ -11,7 +11,7 @@ export interface InputConfig {
     | 'text'
     | 'number'
     | 'color'
-    | 'textarea'
+    | 'richtext'
     | 'select'
     | 'checkbox'
     | 'multiple-text'
@@ -81,7 +81,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
         {
           name: 'description',
           label: 'Descrição',
-          type: 'textarea',
+          type: 'richtext',
         },
         {
           name: 'price',
@@ -106,7 +106,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
         {
           name: 'text',
           label: 'Texto (HTML)',
-          type: 'textarea',
+          type: 'richtext',
           required: true,
           defaultValue: '<p>Insira seu texto aqui</p>',
         },
