@@ -7,14 +7,14 @@ import { environment } from '../../../../environments/environment';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
 import { Product } from '../../../interfaces/product.interface';
-import { NewItemModalComponent } from '../../new-item-modal/new-item-modal.component';
+import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-modal.component';
 import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleProductComponent } from '../../simpleComponents/simple-product/simple-product.component';
 
 @Component({
   selector: 'app-products-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NewItemModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ItemEditorModalComponent],
   templateUrl: './products-management.component.html',
   styleUrl: './products-management.component.scss',
 })

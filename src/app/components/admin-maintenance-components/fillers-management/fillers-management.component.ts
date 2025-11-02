@@ -9,7 +9,7 @@ import { StorageService } from '../../../services/storage-service/storage.servic
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
-import { NewItemModalComponent } from '../../new-item-modal/new-item-modal.component';
+import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-modal.component';
 import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleTextComponent } from '../../simpleComponents/simple-text/simple-text.component';
 import { SimpleImageComponent } from '../../simpleComponents/simple-image/simple-image.component';
@@ -46,7 +46,7 @@ interface Filler {
 @Component({
   selector: 'app-fillers-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SanitizePipe, NewItemModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SanitizePipe, ItemEditorModalComponent],
   templateUrl: './fillers-management.component.html',
   styleUrl: './fillers-management.component.scss',
 })

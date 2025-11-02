@@ -3,16 +3,16 @@ import { FormsModule } from '@angular/forms';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { BentoOptions } from '../../interfaces/bento-options.interface';
 import { GridService } from '../../services/grid-service/grid.service';
-import { NewItemModalComponent } from '../../components/new-item-modal/new-item-modal.component';
+import { ItemEditorModalComponent } from '../../components/item-editor-modal/item-editor-modal.component';
 import { StorageService } from '../../services/storage-service/storage.service';
 import { ComponentRegistryService } from '../../services/storage-service/component-registry.service';
 import { FillerService } from '../../services/filler-service/filler.service';
-import { COMPONENT_INPUTS_MAP } from '../../components/new-item-modal/Components_Inputs_map';
+import { COMPONENT_INPUTS_MAP } from '../../components/item-editor-modal/Components_Inputs_map';
 
 @Component({
   selector: 'app-bento-toolbar',
   standalone: true,
-  imports: [FormsModule, NewItemModalComponent],
+  imports: [FormsModule, ItemEditorModalComponent],
   templateUrl: './bento-toolbar.component.html',
   styleUrl: './bento-toolbar.component.scss',
 })

@@ -1,0 +1,52 @@
+<div class="cropper-modal" (click)="$event.stopPropagation()">
+  <div class="cropper-overlay" (click)="$event.stopPropagation()">
+    <div class="cropper-content" (click)="$event.stopPropagation()">
+      <div class="cropper-header">
+        <h3>
+          Cortar Imagem
+          @if (totalImages > 1) {
+            <span>({{ currentIndex }} de {{ totalImages }})</span>
+          }
+        </h3>
+        <p>Formato: Quadrado 1:1 (500x500px)</p>
+      </div>
+
+      <div class="cropper-body">
+        @if (isLoading) {
+          <div class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Carregando imagem...</p>
+          </div>
+        } @else {
+          <div
+            class="canvas-container"
+            (mouseup)="onMouseUp()"
+            (mouseleave)="onMouseUp()"
+            (touchend)="onMouseUp()"
+            (touchcancel)="onMouseUp()"
+          >
+            <canvas
+              #canvas
+              [width]="canvasWidth"
+              [height]="canvasHeight"
+              (mousedown)="onMouseDown($event)"
+              (mousemove)="onMouseMove($event)"
+              (touchstart)="onTouchStart($event)"
+              (touchmove)="onTouchMove($event)"
+            ></canvas>
+          </div>
+
+          <div class="instructions">
+            <p>Arraste a área selecionada para mover</p>
+            <p>Arraste os cantos para redimensionar</p>
+          </div>
+        }
+      </div>
+
+      <div class="cropper-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancelar</button>
+        <button type="button" class="btn-crop" (click)="cropImage()">Cortar e Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
