@@ -87,7 +87,7 @@
           </div>
           <div class="table-info">
             <span class="table-number">🍽️ Mesa {{ order.tableNumber }}</span>
-            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+            <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
           </div>
         </div>
 
@@ -178,7 +178,7 @@
             </div>
             <div class="table-info">
               <span class="table-number">Mesa {{ order.tableNumber }}</span>
-              <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+              <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
             </div>
           </div>
 

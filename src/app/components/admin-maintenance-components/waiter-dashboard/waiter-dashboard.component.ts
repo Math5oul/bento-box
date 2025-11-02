@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+// ...existing imports...
 
 interface WaiterOrder {
   id: string;
@@ -226,10 +227,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   /**
    * Formata hora
    */
-  formatTime(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  }
+  // keep getElapsedTime already implemented in this component, used in templates
 
   /**
    * Formata valor monetário
