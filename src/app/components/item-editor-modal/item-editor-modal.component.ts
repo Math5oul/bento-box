@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, Input, OnInit, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  Input,
+  OnInit,
+  AfterViewChecked,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -95,13 +103,17 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   selectedFiles: File[] = [];
   uploadedImagePaths: string[] = [];
   isUploading = false;
+  isConvertingImage = false; // Loading para conversão antes do crop
   currentTempId: string | null = null;
 
-  // Image cropper state
+  // Image cropper state - UMA IMAGEM POR VEZ
   showCropper = false;
   currentImageFile: File | null = null;
   croppedBlobs: Blob[] = [];
-  pendingFiles: File[] = [];
+  blobUrls: Map<Blob, string> = new Map(); // Cache de URLs
+
+  // Drag and drop state
+  draggedIndex: number | null = null;
 
   // Gerenciamento de tamanhos de produtos
   editingSizeIndex: number | null = null;
@@ -119,7 +131,8 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   constructor(
     private fb: FormBuilder,
     private imageUploadService: ImageUploadService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef
   ) {
     this.componentForm = this.fb.group({
       rowSpan: [1],
@@ -533,15 +546,22 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
    * Cria um novo item com base nos valores do formulário
    */
   createItem() {
-    if (this.selectedFiles.length > 0 && this.uploadedImagePaths.length === 0) {
+    if (this.selectedFiles.length > 0) {
       this.isUploading = true;
 
-      const tempId = this.generateTempProductId();
-      this.currentTempId = tempId;
+      // In edit mode, use the existing product ID; otherwise generate a temp ID
+      let uploadId: string;
+      if (this.editMode && this.itemToEdit) {
+        uploadId = String(this.itemToEdit.id);
+      } else {
+        uploadId = this.currentTempId || this.generateTempProductId();
+        this.currentTempId = uploadId;
+      }
 
-      this.imageUploadService.uploadImages(tempId, this.selectedFiles).subscribe({
+      this.imageUploadService.uploadImages(uploadId, this.selectedFiles).subscribe({
         next: paths => {
-          this.uploadedImagePaths = paths;
+          // In edit mode, append new images to existing ones
+          this.uploadedImagePaths = [...this.uploadedImagePaths, ...paths];
           this.isUploading = false;
 
           this.finalizeItemCreation();
@@ -597,49 +617,122 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * Handler para seleção de arquivos de imagem
+   * Handler para seleção de uma imagem por vez
    */
-  onFilesSelected(event: Event) {
+  async onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
 
-    if (input.files && input.files.length > 0) {
-      const files = Array.from(input.files);
-
-      const validFiles = this.imageUploadService.validateFiles(files);
-
-      if (validFiles.length > 0) {
-        // Inicia processo de crop para cada imagem
-        this.pendingFiles = [...validFiles];
-        this.croppedBlobs = [];
-
-        // Pequeno delay para garantir que o DOM está pronto
-        setTimeout(() => {
-          this.processNextImage();
-        }, 100);
-      }
+    if (!input.files || input.files.length === 0) {
+      return;
     }
 
-    // Limpa o input para permitir selecionar o mesmo arquivo novamente
+    const file = input.files[0];
+
+    if (!this.imageUploadService.validateImageFile(file)) {
+      console.error(`Formato inválido: ${file.name}`);
+      alert(`O arquivo ${file.name} não é uma imagem válida`);
+      input.value = '';
+      return;
+    }
+
+    await this.processImage(file);
     input.value = '';
   }
 
   /**
-   * Processa próxima imagem da fila
+   * Converte imagem para JPG (incluindo HEIC via heic2any)
    */
-  private processNextImage() {
-    if (this.pendingFiles.length === 0) {
-      // Todas as imagens foram processadas
-      if (this.croppedBlobs.length > 0) {
-        this.selectedFiles = this.croppedBlobs.map(
-          (blob, i) => new File([blob], `cropped-${Date.now()}-${i}.jpg`, { type: 'image/jpeg' })
-        );
-      }
-      return;
+  private async convertImageToJPG(file: File): Promise<File> {
+    const isHEIC =
+      /\.(heic|heif)$/i.test(file.name) ||
+      file.type === 'image/heic' ||
+      file.type === 'image/heif' ||
+      file.type === '';
+
+    let fileToConvert = file;
+
+    if (isHEIC) {
+      const heic2any = (await import('heic2any')).default;
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.92,
+      });
+
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      const originalName = file.name.replace(/\.[^/.]+$/, '');
+      fileToConvert = new File([blob], `${originalName}.jpg`, { type: 'image/jpeg' });
     }
 
-    // Atualiza estado para mostrar o cropper
-    this.currentImageFile = this.pendingFiles[0];
-    this.showCropper = true;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        const img = new Image();
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Erro no canvas'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0);
+
+          canvas.toBlob(
+            blob => {
+              if (!blob) {
+                reject(new Error('Erro ao criar JPG'));
+                return;
+              }
+
+              const originalName = file.name.replace(/\.[^/.]+$/, '');
+              const jpgFile = new File([blob], `${originalName}.jpg`, { type: 'image/jpeg' });
+              resolve(jpgFile);
+            },
+            'image/jpeg',
+            0.92
+          );
+        };
+
+        img.onerror = () => {
+          reject(new Error(`Erro ao carregar imagem`));
+        };
+
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = () => {
+        reject(new Error(`Erro ao ler arquivo`));
+      };
+
+      reader.readAsDataURL(fileToConvert);
+    });
+  }
+
+  /**
+   * Processa uma única imagem
+   */
+  private async processImage(file: File): Promise<void> {
+    this.isConvertingImage = true;
+
+    try {
+      const convertedFile = await this.convertImageToJPG(file);
+
+      this.isConvertingImage = false;
+      this.currentImageFile = convertedFile;
+      this.showCropper = true;
+
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Erro ao processar imagem:', error);
+      this.isConvertingImage = false;
+      alert(`Erro ao processar ${file.name}`);
+    }
   }
 
   /**
@@ -647,26 +740,26 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
    */
   onImageCropped(result: CropResult) {
     this.croppedBlobs.push(result.blob);
-    this.pendingFiles.shift(); // Remove primeira imagem da fila
 
-    // Fecha cropper e aguarda antes de processar próxima
+    // Converte blob em arquivo
+    const timestamp = Date.now();
+    const newFile = new File([result.blob], `cropped-${timestamp}.jpg`, { type: 'image/jpeg' });
+    this.selectedFiles.push(newFile);
+
     this.showCropper = false;
     this.currentImageFile = null;
 
-    setTimeout(() => {
-      this.processNextImage();
-    }, 300);
+    this.cdr.detectChanges();
   }
 
   /**
    * Callback quando crop é cancelado
    */
   onCropCancelled() {
-    // Se cancelar, limpa toda a fila
-    this.pendingFiles = [];
-    this.croppedBlobs = [];
     this.showCropper = false;
     this.currentImageFile = null;
+    this.isConvertingImage = false;
+    this.cdr.detectChanges();
   }
 
   uploadImages(productId: string) {
@@ -678,12 +771,13 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
 
     this.imageUploadService.uploadImages(productId, this.selectedFiles).subscribe({
       next: paths => {
-        this.uploadedImagePaths = paths;
+        // Append new images to existing ones instead of replacing
+        this.uploadedImagePaths = [...this.uploadedImagePaths, ...paths];
         this.isUploading = false;
 
         const imagesControl = this.componentForm.get(['inputs', 'images']);
         if (imagesControl) {
-          imagesControl.setValue(paths);
+          imagesControl.setValue(this.uploadedImagePaths);
         }
       },
       error: err => {
@@ -962,12 +1056,175 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   }
 
   /**
+   * Obtém URL temporária para preview de Blob (com cache)
+   */
+  getBlobUrl(blob: Blob): string {
+    if (!this.blobUrls.has(blob)) {
+      this.blobUrls.set(blob, URL.createObjectURL(blob));
+    }
+    return this.blobUrls.get(blob)!;
+  }
+
+  /**
+   * Remove imagem cortada antes do upload
+   */
+  removeCroppedImage(index: number): void {
+    const blob = this.croppedBlobs[index];
+
+    // Revoga a URL do blob para liberar memória
+    if (this.blobUrls.has(blob)) {
+      URL.revokeObjectURL(this.blobUrls.get(blob)!);
+      this.blobUrls.delete(blob);
+    }
+
+    this.croppedBlobs.splice(index, 1);
+    this.selectedFiles.splice(index, 1);
+  }
+
+  /**
+   * Reordena arrays sincronizados
+   */
+  private reorderArrays(fromIndex: number, toIndex: number): void {
+    if (fromIndex === toIndex) return;
+
+    // Reordena croppedBlobs
+    if (this.croppedBlobs.length > 0 && fromIndex < this.croppedBlobs.length) {
+      const draggedBlob = this.croppedBlobs[fromIndex];
+      this.croppedBlobs.splice(fromIndex, 1);
+      this.croppedBlobs.splice(toIndex, 0, draggedBlob);
+
+      // Recria o array para forçar detecção de mudança
+      this.croppedBlobs = [...this.croppedBlobs];
+
+      // Também reordena o cache de URLs
+      const url = this.blobUrls.get(draggedBlob);
+      if (url) {
+        this.blobUrls.delete(draggedBlob);
+        this.blobUrls.set(draggedBlob, url);
+      }
+    }
+
+    // Reordena selectedFiles
+    if (this.selectedFiles.length > 0 && fromIndex < this.selectedFiles.length) {
+      const draggedFile = this.selectedFiles[fromIndex];
+      this.selectedFiles.splice(fromIndex, 1);
+      this.selectedFiles.splice(toIndex, 0, draggedFile);
+
+      // Recria o array para forçar detecção de mudança
+      this.selectedFiles = [...this.selectedFiles];
+    }
+
+    // Reordena uploadedImagePaths
+    if (this.uploadedImagePaths.length > 0 && fromIndex < this.uploadedImagePaths.length) {
+      const draggedPath = this.uploadedImagePaths[fromIndex];
+      this.uploadedImagePaths.splice(fromIndex, 1);
+      this.uploadedImagePaths.splice(toIndex, 0, draggedPath);
+
+      // Recria o array para forçar detecção de mudança
+      this.uploadedImagePaths = [...this.uploadedImagePaths];
+    }
+
+    // Força detecção de mudanças
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Drag and Drop - Início do arraste (Desktop)
+   */
+  onDragStart(event: DragEvent, index: number): void {
+    this.draggedIndex = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }
+
+  /**
+   * Drag and Drop - Sobre um item (Desktop)
+   */
+  onDragOver(event: DragEvent, index: number): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  /**
+   * Drag and Drop - Soltar item (Desktop)
+   */
+  onDrop(event: DragEvent, dropIndex: number): void {
+    event.preventDefault();
+
+    if (this.draggedIndex === null || this.draggedIndex === dropIndex) {
+      return;
+    }
+
+    this.reorderArrays(this.draggedIndex, dropIndex);
+    this.draggedIndex = null;
+  }
+
+  /**
+   * Drag and Drop - Fim do arraste (Desktop)
+   */
+  onDragEnd(): void {
+    this.draggedIndex = null;
+  }
+
+  /**
+   * Touch Events - Início do toque (Mobile)
+   */
+  onTouchStart(event: TouchEvent, index: number): void {
+    this.draggedIndex = index;
+    const target = event.currentTarget as HTMLElement;
+    target.classList.add('dragging');
+  }
+
+  /**
+   * Touch Events - Movimento do toque (Mobile)
+   */
+  onTouchMove(event: TouchEvent, currentIndex: number): void {
+    event.preventDefault();
+
+    if (this.draggedIndex === null) return;
+
+    const touch = event.touches[0];
+    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (!elementAtPoint) return;
+
+    // Encontra o item mais próximo
+    const imageItem = elementAtPoint.closest('.image-preview-item');
+    if (imageItem) {
+      const allItems = Array.from(document.querySelectorAll('.image-preview-item'));
+      const dropIndex = allItems.indexOf(imageItem);
+
+      if (dropIndex !== -1 && dropIndex !== this.draggedIndex) {
+        this.reorderArrays(this.draggedIndex, dropIndex);
+        this.draggedIndex = dropIndex;
+      }
+    }
+  }
+
+  /**
+   * Touch Events - Fim do toque (Mobile)
+   */
+  onTouchEnd(event: TouchEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('dragging');
+    this.draggedIndex = null;
+  }
+
+  /**
    * Reseta o formulário ao fechar o modal
    */
   private resetForm() {
+    // Revoga todas as URLs dos blobs para liberar memória
+    this.blobUrls.forEach(url => URL.revokeObjectURL(url));
+    this.blobUrls.clear();
+
     this.selectedComponent = null;
     this.showDimensionsForm = false;
     this.selectedFiles = [];
+    this.croppedBlobs = [];
     this.uploadedImagePaths = [];
     this.isUploading = false;
     this.currentTempId = null;

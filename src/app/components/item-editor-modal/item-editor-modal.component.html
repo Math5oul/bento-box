@@ -471,20 +471,15 @@
                 <input
                   type="file"
                   id="imageUpload"
-                  [multiple]="hasInput('images') || selectedComponent?.name === 'Produto'"
                   accept="image/*"
                   (change)="onFilesSelected($event)"
                   [disabled]="isUploading"
                 />
                 <label for="imageUpload" class="upload-label">
                   @if (selectedFiles.length > 0) {
-                    <span>✅ {{ selectedFiles.length }} arquivo(s) selecionado(s)</span>
+                    <span>✅ {{ selectedFiles.length }} imagem(ns) adicionada(s)</span>
                   } @else {
-                    @if (hasInput('url')) {
-                      <span>Clique para selecionar uma imagem</span>
-                    } @else {
-                      <span>Clique para selecionar imagens (pode selecionar várias)</span>
-                    }
+                    <span>Clique para adicionar uma imagem</span>
                   }
                 </label>
 
@@ -507,25 +502,79 @@
                 }
               </div>
 
+              <!-- Preview das imagens cortadas aguardando envio -->
+              @if (croppedBlobs.length > 0 && uploadedImagePaths.length === 0) {
+                <div class="cropped-images-preview">
+                  <h5>📸 Imagens prontas para envio ({{ croppedBlobs.length }})</h5>
+                  <div class="image-preview-grid">
+                    @for (blob of croppedBlobs; track $index) {
+                      <div
+                        class="image-preview-item"
+                        [class.dragging]="draggedIndex === $index"
+                        draggable="true"
+                        (dragstart)="onDragStart($event, $index)"
+                        (dragover)="onDragOver($event, $index)"
+                        (drop)="onDrop($event, $index)"
+                        (dragend)="onDragEnd()"
+                        (touchstart)="onTouchStart($event, $index)"
+                        (touchmove)="onTouchMove($event, $index)"
+                        (touchend)="onTouchEnd($event)"
+                      >
+                        <img [src]="getBlobUrl(blob)" [alt]="'Imagem ' + ($index + 1)" />
+                        <div class="image-controls">
+                          <span class="image-order">{{ $index + 1 }}</span>
+                          <button
+                            type="button"
+                            class="remove-image-btn"
+                            (click)="removeCroppedImage($index)"
+                            title="Remover imagem"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div class="drag-handle" title="Arraste para reordenar">⋮⋮</div>
+                      </div>
+                    }
+                  </div>
+                  <p class="reorder-hint">💡 Arraste as imagens para reordenar</p>
+                </div>
+              }
+
               <!-- Preview das imagens enviadas -->
               @if (uploadedImagePaths.length > 0) {
                 <div class="uploaded-images">
                   <h5>Imagens Enviadas:</h5>
                   <div class="image-preview-grid">
                     @for (imagePath of uploadedImagePaths; track $index) {
-                      <div class="image-preview-item">
+                      <div
+                        class="image-preview-item"
+                        [class.dragging]="draggedIndex === $index"
+                        draggable="true"
+                        (dragstart)="onDragStart($event, $index)"
+                        (dragover)="onDragOver($event, $index)"
+                        (drop)="onDrop($event, $index)"
+                        (dragend)="onDragEnd()"
+                        (touchstart)="onTouchStart($event, $index)"
+                        (touchmove)="onTouchMove($event, $index)"
+                        (touchend)="onTouchEnd($event)"
+                      >
                         <img [src]="imagePath" [alt]="'Imagem ' + ($index + 1)" />
-                        <button
-                          type="button"
-                          class="remove-image-btn"
-                          (click)="removeUploadedImage($index)"
-                          title="Remover imagem"
-                        >
-                          ×
-                        </button>
+                        <div class="image-controls">
+                          <span class="image-order">{{ $index + 1 }}</span>
+                          <button
+                            type="button"
+                            class="remove-image-btn"
+                            (click)="removeUploadedImage($index)"
+                            title="Remover imagem"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div class="drag-handle" title="Arraste para reordenar">⋮⋮</div>
                       </div>
                     }
                   </div>
+                  <p class="reorder-hint">💡 Arraste as imagens para reordenar</p>
                 </div>
               }
             </div>
@@ -549,15 +598,23 @@
       </div>
     }
   </form>
-
-  <!-- Image Cropper Modal -->
-  @if (showCropper && currentImageFile) {
-    <app-image-cropper
-      [imageFile]="currentImageFile"
-      [currentIndex]="croppedBlobs.length + 1"
-      [totalImages]="pendingFiles.length + croppedBlobs.length"
-      (cropped)="onImageCropped($event)"
-      (cancelled)="onCropCancelled()"
-    />
-  }
 </div>
+
+<!-- Loading para conversão de imagem (fora do modal) -->
+@if (isConvertingImage) {
+  <div class="conversion-loading-overlay">
+    <div class="conversion-loading-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Preparando imagem para corte...</p>
+    </div>
+  </div>
+}
+
+<!-- Image Cropper Modal (fora do modal) -->
+@if (showCropper && currentImageFile) {
+  <app-image-cropper
+    [imageFile]="currentImageFile"
+    (cropped)="onImageCropped($event)"
+    (cancelled)="onCropCancelled()"
+  />
+}

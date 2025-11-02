@@ -4,6 +4,7 @@ import {
   Input,
   Output,
   OnInit,
+  AfterViewInit,
   OnDestroy,
   ViewChild,
   ElementRef,
@@ -22,10 +23,8 @@ export interface CropResult {
   templateUrl: './image-cropper.component.html',
   styleUrls: ['./image-cropper.component.scss'],
 })
-export class ImageCropperComponent implements OnInit, OnDestroy {
+export class ImageCropperComponent implements AfterViewInit, OnInit {
   @Input() imageFile: File | null = null;
-  @Input() currentIndex: number = 1;
-  @Input() totalImages: number = 1;
 
   @Output() cropped = new EventEmitter<CropResult>();
   @Output() cancelled = new EventEmitter<void>();
@@ -62,36 +61,63 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewInit() {
+    // Required by AfterViewInit interface
+  }
+
   ngOnDestroy() {
     this.image = null;
     this.imageUrl = '';
   }
 
   private loadImage() {
-    if (!this.imageFile) return;
+    if (!this.imageFile) {
+      console.log('⚠️ Cropper: Nenhum arquivo fornecido');
+      return;
+    }
+
+    console.log(
+      '📸 Cropper: Iniciando carregamento de',
+      this.imageFile.name,
+      'tipo:',
+      this.imageFile.type
+    );
     this.isLoading = true;
+
     const reader = new FileReader();
     reader.onload = e => {
+      console.log('📸 Cropper: FileReader completou');
       this.imageUrl = e.target?.result as string;
       this.image = new Image();
+
       this.image.onload = () => {
+        console.log('✅ Cropper: Imagem carregada com sucesso');
         this.isLoading = false;
         this.initializeCrop();
       };
+
       this.image.onerror = () => {
-        console.error('❌ Erro ao carregar imagem');
+        console.error('❌ Cropper: Erro ao carregar imagem');
+        const info = this.imageFile
+          ? `${this.imageFile.name} (${this.imageFile.type || 'tipo desconhecido'})`
+          : 'Arquivo desconhecido';
+        alert(`Erro ao carregar imagem: ${info}`);
         this.isLoading = false;
-        alert('Erro ao carregar imagem. Tente novamente.');
         this.cancel();
       };
+
+      console.log('📸 Cropper: Definindo src da imagem');
       this.image.src = this.imageUrl;
     };
+
     reader.onerror = () => {
-      console.error('❌ Erro ao ler arquivo');
+      console.error('❌ Cropper: Erro ao ler arquivo');
+      alert('Erro ao ler arquivo.');
       this.isLoading = false;
-      alert('Erro ao ler arquivo. Tente novamente.');
       this.cancel();
     };
+
+    console.log('📸 Cropper: Iniciando leitura do arquivo');
     reader.readAsDataURL(this.imageFile);
   }
 
@@ -173,29 +199,24 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
   }
 
   private drawHandles(ctx: CanvasRenderingContext2D) {
-    const handleSize = 10;
-    ctx.fillStyle = '#00b894';
+    const handleSize = 20; // Aumentado de 10 para 20 (mais fácil de ver e tocar)
+
+    // Desenha handles com borda branca para melhor visibilidade
+    const drawHandle = (x: number, y: number) => {
+      // Borda branca
+      ctx.fillStyle = 'white';
+      ctx.fillRect(x - handleSize / 2 - 2, y - handleSize / 2 - 2, handleSize + 4, handleSize + 4);
+
+      // Handle verde
+      ctx.fillStyle = '#00b894';
+      ctx.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+    };
 
     // Cantos
-    ctx.fillRect(this.cropX - handleSize / 2, this.cropY - handleSize / 2, handleSize, handleSize);
-    ctx.fillRect(
-      this.cropX + this.cropWidth - handleSize / 2,
-      this.cropY - handleSize / 2,
-      handleSize,
-      handleSize
-    );
-    ctx.fillRect(
-      this.cropX - handleSize / 2,
-      this.cropY + this.cropHeight - handleSize / 2,
-      handleSize,
-      handleSize
-    );
-    ctx.fillRect(
-      this.cropX + this.cropWidth - handleSize / 2,
-      this.cropY + this.cropHeight - handleSize / 2,
-      handleSize,
-      handleSize
-    );
+    drawHandle(this.cropX, this.cropY); // Top-left
+    drawHandle(this.cropX + this.cropWidth, this.cropY); // Top-right
+    drawHandle(this.cropX, this.cropY + this.cropHeight); // Bottom-left
+    drawHandle(this.cropX + this.cropWidth, this.cropY + this.cropHeight); // Bottom-right
   }
 
   onMouseDown(event: MouseEvent) {
@@ -226,7 +247,7 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
     // Remove todas as classes de cursor
     canvas.classList.remove('resizing-tl', 'resizing-tr', 'resizing-bl', 'resizing-br');
 
-    const handleSize = 10;
+    const handleSize = 20; // Aumentado para corresponder ao tamanho visual
 
     // Verifica se está próximo de algum handle e muda o cursor
     if (this.isNearHandle(x, y, this.cropX, this.cropY, handleSize)) {
@@ -291,7 +312,7 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
   }
 
   private handleInteractionStart(x: number, y: number) {
-    const handleSize = 10;
+    const handleSize = 20; // Aumentado para corresponder ao tamanho visual
     if (this.isNearHandle(x, y, this.cropX, this.cropY, handleSize)) {
       this.isResizing = true;
       this.resizeHandle = 'tl';
@@ -333,7 +354,9 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
   }
 
   private isNearHandle(x: number, y: number, hx: number, hy: number, size: number): boolean {
-    return Math.abs(x - hx) <= size && Math.abs(y - hy) <= size;
+    // Aumenta a área de toque para facilitar no mobile (2x o tamanho do handle)
+    const touchTolerance = size * 2;
+    return Math.abs(x - hx) <= touchTolerance && Math.abs(y - hy) <= touchTolerance;
   }
 
   private handleResize(x: number, y: number) {

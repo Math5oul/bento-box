@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 import Product from '../models/Product';
 import { optionalAuth } from '../middleware/auth';
 
@@ -48,14 +49,18 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
   fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp|avif/;
+    // Aceita HEIC/HEIF além dos outros formatos comuns
+    const allowedTypes = /jpeg|jpg|png|gif|webp|avif|heic|heif/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
 
-    if (extname && mimetype) {
+    // Aceita se EXTENSÃO OU MIMETYPE corresponderem — isso evita rejeitar uploads de alguns celulares
+    if (extname || mimetype) {
       cb(null, true);
     } else {
-      cb(new Error('Apenas imagens são permitidas (JPEG, PNG, GIF, WebP, AVIF)!'));
+      // Inclui informações do arquivo na mensagem de erro para facilitar debugging no frontend
+      const msg = `Apenas imagens são permitidas (JPEG, PNG, GIF, WebP, AVIF, HEIC/HEIF). Arquivo: ${file.originalname} (${file.mimetype}). Se estiver usando iPhone, prefira "Mais compatíveis" nas configurações da câmera.`;
+      cb(new Error(msg));
     }
   },
 });
@@ -83,14 +88,54 @@ router.post(
         return;
       }
 
-      // Retorna os caminhos relativos para usar no frontend
-      const imagePaths = files.map(file => {
-        return `assets/images/${productId}/${file.filename}`;
-      });
+      // Processa conversões (ex.: HEIC/HEIF -> AVIF) e monta os caminhos finais
+      const processedImagePaths: string[] = [];
 
-      console.log('✅ Imagens salvas:', imagePaths);
+      for (const file of files) {
+        try {
+          const originalFilename = file.filename;
+          const originalExt = path.extname(originalFilename).toLowerCase();
+          const folderPath = path.join(IMAGES_BASE_PATH, productId);
+          const originalFullPath = path.join(folderPath, originalFilename);
 
-      // Se o produto existe no MongoDB, atualiza o array de imagens
+          // Skip conversion for GIFs (animated) and already-AVIF files
+          if (originalExt === '.gif' || originalExt === '.avif') {
+            processedImagePaths.push(`assets/images/${productId}/${originalFilename}`);
+            continue;
+          }
+
+          // Tenta converter para AVIF (menor tamanho, boa qualidade). Se falhar, mantém o original.
+          const baseName = path.basename(originalFilename, originalExt);
+          const convertedFilename = `${baseName}.avif`;
+          const convertedFullPath = path.join(folderPath, convertedFilename);
+
+          // Usamos sharp para converter — se não suportar o formato (ou falhar), caímos no catch
+          await sharp(originalFullPath)
+            .withMetadata()
+            .toFormat('avif', { quality: 60 })
+            .toFile(convertedFullPath);
+
+          // Se a conversão teve sucesso, removemos o original para economizar espaço
+          try {
+            fs.unlinkSync(originalFullPath);
+          } catch (unlinkErr) {
+            console.warn('Não foi possível remover o arquivo original após conversão:', unlinkErr);
+          }
+
+          processedImagePaths.push(`assets/images/${productId}/${convertedFilename}`);
+        } catch (convErr: any) {
+          console.warn(
+            'Conversão falhou (mantendo arquivo original):',
+            convErr?.message || convErr
+          );
+          // Em caso de erro, usa o arquivo original
+          processedImagePaths.push(`assets/images/${productId}/${file.filename}`);
+        }
+      }
+
+      console.log('✅ Imagens salvas (após processamento):', processedImagePaths);
+
+      // Se o produto existe no MongoDB, atualiza o array de imagens com os caminhos processados
       // Verifica se é um ObjectId válido (não é ID temporário tipo "temp-123456")
       const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
 
@@ -98,7 +143,7 @@ router.post(
         const product = await Product.findById(productId);
         if (product) {
           console.log('📦 Produto encontrado, atualizando imagens');
-          product.images = [...product.images, ...imagePaths];
+          product.images = [...product.images, ...processedImagePaths];
           // Limita a 5 imagens
           if (product.images.length > 5) {
             product.images = product.images.slice(0, 5);
@@ -112,8 +157,8 @@ router.post(
         console.log('⚠️ ID temporário detectado, pulando atualização no MongoDB');
       }
 
-      console.log('📤 Resposta:', { success: true, files: imagePaths });
-      res.json({ success: true, files: imagePaths });
+      console.log('📤 Resposta:', { success: true, files: processedImagePaths });
+      res.json({ success: true, files: processedImagePaths });
     } catch (error: any) {
       console.error('❌ Erro no upload:', error);
       res.status(500).json({ success: false, error: error.message });

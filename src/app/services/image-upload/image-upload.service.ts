@@ -36,8 +36,6 @@ export class ImageUploadService {
 
   /**
    * Valida se o arquivo é uma imagem válida
-   * @param file Arquivo para validar
-   * @returns true se for uma imagem válida
    */
   validateImageFile(file: File): boolean {
     const allowedTypes = [
@@ -47,11 +45,20 @@ export class ImageUploadService {
       'image/gif',
       'image/webp',
       'image/avif',
+      'image/heic',
+      'image/heif',
     ];
+
+    const allowedExtensions = /\.(jpe?g|png|gif|webp|avif|heic|heif)$/i;
     const maxSize = 10 * 1024 * 1024; // 10MB
 
-    if (!allowedTypes.includes(file.type)) {
-      alert('Tipo de arquivo não suportado. Use: JPEG, PNG, GIF, WebP ou AVIF');
+    const hasValidMimeType = allowedTypes.includes(file.type);
+    const hasValidExtension = allowedExtensions.test(file.name);
+
+    if (!hasValidMimeType && !hasValidExtension) {
+      alert(
+        `Tipo de arquivo não suportado: ${file.name}. Use: JPEG, PNG, GIF, WebP, AVIF ou HEIC/HEIF`
+      );
       return false;
     }
 
