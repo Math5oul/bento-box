@@ -4,38 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { ImageUploadService } from '../../../services/image-upload/image-upload.service';
-import { StorageService } from '../../../services/storage-service/storage.service';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
+import { Product } from '../../../interfaces/product.interface';
 import { NewItemModalComponent } from '../../new-item-modal/new-item-modal.component';
 import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleProductComponent } from '../../simpleComponents/simple-product/simple-product.component';
-
-interface ProductSize {
-  name: string;
-  abbreviation: string;
-  price: number;
-}
-
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  sizes?: ProductSize[];
-  images: string[];
-  category: string; // Agora usa slug da categoria
-  format?: '1x1' | '1x2' | '2x1' | '2x2';
-  colorMode?: 'light' | 'dark';
-  available: boolean;
-  gridPosition?: {
-    row: number;
-    col: number;
-    rowSpan: number;
-    colSpan: number;
-  };
-}
 
 @Component({
   selector: 'app-products-management',
@@ -47,8 +21,6 @@ interface Product {
 export class ProductsManagementComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private imageUploadService = inject(ImageUploadService);
-  private storageService = inject(StorageService);
   private categoryService = inject(CategoryService);
 
   products: Product[] = [];
@@ -180,7 +152,7 @@ export class ProductsManagementComponent implements OnInit {
 
     this.modalItemToEdit = gridItem;
     this.modalEditMode = true;
-    this.currentProductId = product._id;
+    this.currentProductId = product._id ?? null;
     this.showModal = true;
   }
 
@@ -251,7 +223,13 @@ export class ProductsManagementComponent implements OnInit {
   /**
    * Deleta um produto
    */
-  async deleteProduct(productId: string): Promise<void> {
+  async deleteProduct(productId?: string): Promise<void> {
+    if (!productId) {
+      console.warn('deleteProduct chamado sem productId');
+      alert('Produto inválido ou sem ID');
+      return;
+    }
+
     if (!confirm('Tem certeza que deseja deletar este produto?')) {
       return;
     }
@@ -278,8 +256,14 @@ export class ProductsManagementComponent implements OnInit {
     }
 
     try {
+      const id = product._id;
+      if (!id) {
+        alert('Produto sem identificador. Não é possível alternar disponibilidade.');
+        return;
+      }
+
       await this.http
-        .put(`${environment.apiUrl}/products/${product._id}`, {
+        .put(`${environment.apiUrl}/products/${id}`, {
           available: newStatus,
         })
         .toPromise();

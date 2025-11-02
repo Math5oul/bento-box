@@ -7,7 +7,8 @@ import {
   FormGroup,
   FormArray,
 } from '@angular/forms';
-import { COMPONENT_INPUTS_MAP, ProductSize } from './Components_Inputs_map';
+import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
+import { Product, ProductSize } from '../../interfaces/product.interface';
 import { ImageUploadService } from '../../services/image-upload/image-upload.service';
 import { CategoryService } from '../../services/category-service/category.service';
 import { GridItem } from '../../interfaces/bento-box.interface';
@@ -16,20 +17,6 @@ import { SimpleProductComponent } from '../simpleComponents/simple-product/simpl
 import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
 import { SimpleImageComponent } from '../simpleComponents/simple-image/simple-image.component';
 import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
-
-// Interfaces locais para Product e Filler (compatível com os gerenciadores)
-interface Product {
-  _id?: string;
-  name: string;
-  description: string;
-  price: number;
-  sizes?: ProductSize[];
-  images: string[];
-  category: string;
-  format?: '1x1' | '1x2' | '2x1' | '2x2';
-  colorMode?: 'light' | 'dark';
-  available?: boolean;
-}
 
 interface FillerContent {
   text?: string;

@@ -4,12 +4,6 @@ import { SimpleProductComponent } from '../simpleComponents/simple-product/simpl
 import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
 import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
 
-export interface ProductSize {
-  name: string;
-  abbreviation: string;
-  price: number;
-}
-
 export interface InputConfig {
   name: string;
   label: string;
