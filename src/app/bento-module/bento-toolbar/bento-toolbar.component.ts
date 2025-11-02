@@ -362,6 +362,8 @@ export class BentoToolbarComponent {
       },
     };
 
+    console.log('📤 Dados do produto sendo enviados:', productData);
+
     this.storageService.createProduct(productData).subscribe({
       next: response => {
         const newProduct = response.data;

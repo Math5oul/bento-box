@@ -2,12 +2,7 @@
   <div class="cropper-overlay" (click)="$event.stopPropagation()">
     <div class="cropper-content" (click)="$event.stopPropagation()">
       <div class="cropper-header">
-        <h3>
-          Cortar Imagem
-          @if (totalImages > 1) {
-            <span>({{ currentIndex }} de {{ totalImages }})</span>
-          }
-        </h3>
+        <h3>Cortar Imagem</h3>
         <p>Formato: Quadrado 1:1 (500x500px)</p>
       </div>
 
