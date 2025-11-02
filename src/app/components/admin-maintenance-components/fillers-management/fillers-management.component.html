@@ -198,11 +198,11 @@
 
 <!-- Modal Unificado -->
 @if (showModal) {
-  <app-new-item-modal
+  <app-item-editor-modal
     [mode]="'filler'"
     [editMode]="modalEditMode"
     [itemToEdit]="modalItemToEdit"
     (itemCreated)="onItemCreated($event)"
     (modalClosed)="closeModal()"
-  ></app-new-item-modal>
+  ></app-item-editor-modal>
 }

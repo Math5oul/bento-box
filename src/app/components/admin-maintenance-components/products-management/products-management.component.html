@@ -146,12 +146,12 @@
 
   <!-- Modal Unificado (new-item-modal) -->
   @if (showModal) {
-    <app-new-item-modal
+    <app-item-editor-modal
       [mode]="'product'"
       [editMode]="modalEditMode"
       [itemToEdit]="modalItemToEdit"
       (itemCreated)="onItemCreated($event)"
       (modalClosed)="closeModal()"
-    ></app-new-item-modal>
+    ></app-item-editor-modal>
   }
 </div>

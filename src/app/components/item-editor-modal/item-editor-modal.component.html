@@ -208,13 +208,13 @@
 
                         <!-- Text color with hex input -->
                         <div class="rt-color-group">
-                          <label class="rt-color-label" title="Cor do texto">
-                            A
+                          <label class="rt-color-label" title="Selecione a cor">
+                            <span class="color-icon" [style.color]="textColor">A</span>
                             <input
                               type="color"
                               class="rt-color-picker"
-                              [value]="textColor"
-                              (change)="onTextColorChange($event)"
+                              [(ngModel)]="textColor"
+                              [ngModelOptions]="{ standalone: true }"
                             />
                           </label>
                           <input
@@ -223,9 +223,17 @@
                             placeholder="#000000"
                             [(ngModel)]="textColor"
                             [ngModelOptions]="{ standalone: true }"
-                            (change)="applyTextColor()"
                             maxlength="7"
                           />
+                          <button
+                            type="button"
+                            class="rt-btn rt-apply-color"
+                            (mousedown)="$event.preventDefault()"
+                            (click)="applyTextColor()"
+                            title="Aplicar cor ao texto selecionado"
+                          >
+                            ✓
+                          </button>
                         </div>
 
                         <button
@@ -541,4 +549,15 @@
       </div>
     }
   </form>
+
+  <!-- Image Cropper Modal -->
+  @if (showCropper && currentImageFile) {
+    <app-image-cropper
+      [imageFile]="currentImageFile"
+      [currentIndex]="croppedBlobs.length + 1"
+      [totalImages]="pendingFiles.length + croppedBlobs.length"
+      (cropped)="onImageCropped($event)"
+      (cancelled)="onCropCancelled()"
+    />
+  }
 </div>

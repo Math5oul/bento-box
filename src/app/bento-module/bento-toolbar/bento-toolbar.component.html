@@ -258,17 +258,17 @@
 </div>
 
 @if (showNewItemModal) {
-  <app-new-item-modal
+  <app-item-editor-modal
     (itemCreated)="addNewItem($event)"
     (modalClosed)="closeNewItemModal()"
-  ></app-new-item-modal>
+  ></app-item-editor-modal>
 }
 
 @if (showEditItemModal && itemToEdit) {
-  <app-new-item-modal
+  <app-item-editor-modal
     [editMode]="true"
     [itemToEdit]="itemToEdit"
     (itemCreated)="updateItem($event)"
     (modalClosed)="closeEditItemModal()"
-  ></app-new-item-modal>
+  ></app-item-editor-modal>
 }

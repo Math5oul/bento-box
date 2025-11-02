@@ -17,6 +17,7 @@ import { SimpleProductComponent } from '../simpleComponents/simple-product/simpl
 import { SimpleTextComponent } from '../simpleComponents/simple-text/simple-text.component';
 import { SimpleImageComponent } from '../simpleComponents/simple-image/simple-image.component';
 import { SimpleVideoComponent } from '../simpleComponents/simple-video/simple-video.component';
+import { ImageCropperComponent, CropResult } from '../image-cropper/image-cropper.component';
 
 interface FillerContent {
   text?: string;
@@ -38,13 +39,13 @@ interface Filler {
 }
 
 @Component({
-  selector: 'app-new-item-modal',
+  selector: 'app-item-editor-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './new-item-modal.component.html',
-  styleUrls: ['./new-item-modal.component.scss'],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ImageCropperComponent],
+  templateUrl: './item-editor-modal.component.html',
+  styleUrls: ['./item-editor-modal.component.scss'],
 })
-export class NewItemModalComponent implements OnInit, AfterViewChecked {
+export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   @Input() editMode = false;
   @Input() itemToEdit: GridItem | null = null;
   @Input() mode: 'product' | 'filler' | 'grid' = 'grid'; // Controla quais componentes são exibidos
@@ -95,6 +96,12 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
   uploadedImagePaths: string[] = [];
   isUploading = false;
   currentTempId: string | null = null;
+
+  // Image cropper state
+  showCropper = false;
+  currentImageFile: File | null = null;
+  croppedBlobs: Blob[] = [];
+  pendingFiles: File[] = [];
 
   // Gerenciamento de tamanhos de produtos
   editingSizeIndex: number | null = null;
@@ -154,9 +161,7 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
     this.restoreSelection();
     try {
       document.execCommand(command, false, value || undefined);
-    } catch (e) {
-      console.warn('Rich command failed:', command, e);
-    }
+    } catch (e) {}
   }
 
   /** Prompt the user for a link and insert it into the editor */
@@ -166,9 +171,7 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
     this.restoreSelection();
     try {
       document.execCommand('createLink', false, url);
-    } catch (e) {
-      console.warn('createLink failed', e);
-    }
+    } catch (e) {}
   }
 
   /** Saves the current selection/range in the editor */
@@ -181,7 +184,9 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
 
   /** Restores the previously saved selection */
   private restoreSelection() {
-    if (!this.savedSelection) return;
+    if (!this.savedSelection) {
+      return;
+    }
     const sel = window.getSelection();
     if (sel) {
       sel.removeAllRanges();
@@ -193,13 +198,72 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
   onTextColorChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.textColor = input.value;
-    this.applyTextColor();
   }
 
   /** Applies text color using execCommand */
   applyTextColor() {
-    if (!this.textColor || !this.textColor.startsWith('#')) return;
-    this.execRichCommand('foreColor', this.textColor);
+    if (!this.textColor || !this.textColor.startsWith('#')) {
+      return;
+    }
+
+    // Primeiro tenta restaurar a seleção salva
+    this.restoreSelection();
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+      alert('Selecione o texto que deseja colorir primeiro!');
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+
+    // Se há texto selecionado, aplica cor
+    if (!range.collapsed) {
+      // Tenta primeiro com execCommand
+      const success = document.execCommand('foreColor', false, this.textColor);
+
+      if (!success) {
+        // Fallback: envolve o conteúdo em um span
+        try {
+          const span = document.createElement('span');
+          span.style.color = this.textColor;
+
+          const contents = range.extractContents();
+          span.appendChild(contents);
+          range.insertNode(span);
+
+          // Atualiza a seleção para o novo span
+          range.selectNodeContents(span);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (e) {
+          console.error('Erro ao aplicar cor:', e);
+        }
+      }
+
+      // Salva a nova seleção
+      this.saveSelection();
+
+      // Força atualização do FormControl
+      const activeEditor = range.commonAncestorContainer;
+      const editorElement =
+        activeEditor.nodeType === Node.TEXT_NODE
+          ? (activeEditor.parentElement?.closest('[contenteditable]') as HTMLElement)
+          : ((activeEditor as HTMLElement).closest('[contenteditable]') as HTMLElement);
+
+      if (editorElement) {
+        const inputName = editorElement.getAttribute('data-control');
+        if (inputName) {
+          const control = this.componentForm.get(['inputs', inputName]);
+          if (control) {
+            control.setValue(editorElement.innerHTML);
+            control.markAsDirty();
+          }
+        }
+      }
+    } else {
+      alert('Selecione o texto que deseja colorir!');
+    }
   }
 
   /** Clears formatting inside the specified richtext editor and updates the control */
@@ -346,12 +410,10 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
    * @param component O componente selecionado, contendo informações como nome e configuração de inputs.
    */
   selectComponent(component: any) {
-    console.log('Componente selecionado:', component);
     this.selectedComponent = component;
     this.showDimensionsForm = true;
     this.richtextEditorsInitialized.clear(); // Limpa os editores ao trocar de componente
     this.initInputsForm(component.inputsConfig);
-    console.log('Formulário inicializado:', this.componentForm.value);
   }
 
   /**
@@ -546,9 +608,65 @@ export class NewItemModalComponent implements OnInit, AfterViewChecked {
       const validFiles = this.imageUploadService.validateFiles(files);
 
       if (validFiles.length > 0) {
-        this.selectedFiles = validFiles;
+        // Inicia processo de crop para cada imagem
+        this.pendingFiles = [...validFiles];
+        this.croppedBlobs = [];
+
+        // Pequeno delay para garantir que o DOM está pronto
+        setTimeout(() => {
+          this.processNextImage();
+        }, 100);
       }
     }
+
+    // Limpa o input para permitir selecionar o mesmo arquivo novamente
+    input.value = '';
+  }
+
+  /**
+   * Processa próxima imagem da fila
+   */
+  private processNextImage() {
+    if (this.pendingFiles.length === 0) {
+      // Todas as imagens foram processadas
+      if (this.croppedBlobs.length > 0) {
+        this.selectedFiles = this.croppedBlobs.map(
+          (blob, i) => new File([blob], `cropped-${Date.now()}-${i}.jpg`, { type: 'image/jpeg' })
+        );
+      }
+      return;
+    }
+
+    // Atualiza estado para mostrar o cropper
+    this.currentImageFile = this.pendingFiles[0];
+    this.showCropper = true;
+  }
+
+  /**
+   * Callback quando imagem é cortada
+   */
+  onImageCropped(result: CropResult) {
+    this.croppedBlobs.push(result.blob);
+    this.pendingFiles.shift(); // Remove primeira imagem da fila
+
+    // Fecha cropper e aguarda antes de processar próxima
+    this.showCropper = false;
+    this.currentImageFile = null;
+
+    setTimeout(() => {
+      this.processNextImage();
+    }, 300);
+  }
+
+  /**
+   * Callback quando crop é cancelado
+   */
+  onCropCancelled() {
+    // Se cancelar, limpa toda a fila
+    this.pendingFiles = [];
+    this.croppedBlobs = [];
+    this.showCropper = false;
+    this.currentImageFile = null;
   }
 
   uploadImages(productId: string) {
