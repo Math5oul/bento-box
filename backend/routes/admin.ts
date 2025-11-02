@@ -47,8 +47,10 @@ router.patch(
       const { role } = req.body;
 
       // Validar role
-      if (!role || !['user', 'admin'].includes(role)) {
-        res.status(400).json({ message: 'Role inválida. Use "user" ou "admin".' });
+      if (!role || !['user', 'admin', 'cozinha', 'garçom'].includes(role)) {
+        res
+          .status(400)
+          .json({ message: 'Role inválida. Use "user", "admin", "cozinha" ou "garçom".' });
         return;
       }
 

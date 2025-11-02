@@ -69,12 +69,29 @@
       }
 
       @for (category of filteredCategories; track category._id) {
-        <div class="category-card">
-          <div class="category-emoji">{{ category.emoji }}</div>
+        <div
+          class="category-card"
+          [class.dragging]="draggedCategory?._id === category._id"
+          [class.drag-over]="dragOverCategory?._id === category._id"
+          [attr.data-category-id]="category._id"
+          draggable="true"
+          (dragstart)="onDragStart($event, category)"
+          (dragover)="onDragOver($event, category)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event, category)"
+          (dragend)="onDragEnd()"
+          (touchstart)="onTouchStart($event, category)"
+          (touchmove)="onTouchMove($event)"
+          (touchend)="onTouchEnd($event)"
+          (touchcancel)="onTouchCancel()"
+        >
+          <div class="category-header">
+            <div class="category-emoji">{{ category.emoji }}</div>
+            <div class="category-index">#{{ category.index || 0 }}</div>
+          </div>
 
           <div class="category-info">
             <h3>{{ category.name }}</h3>
-            <p class="category-slug">{{ category.slug }}</p>
 
             @if (category.productCount !== undefined) {
               <div class="product-count">
@@ -87,7 +104,7 @@
 
           <div class="category-actions">
             <button class="edit-btn" (click)="openEditModal(category)" title="Editar categoria">
-              ✏️ Editar
+              ✏️
             </button>
             <button
               class="delete-btn"
@@ -99,7 +116,7 @@
                   : 'Deletar categoria'
               "
             >
-              🗑️ Deletar
+              🗑️
             </button>
           </div>
         </div>
@@ -161,20 +178,11 @@
             </div>
           </div>
 
-          <!-- Slug (gerado automaticamente) -->
+          <!-- Índice de Ordem -->
           <div class="form-group">
-            <label>Slug (gerado automaticamente)</label>
-            <input
-              type="text"
-              [(ngModel)]="newCategory.slug"
-              placeholder="sera-gerado-automaticamente"
-              maxlength="50"
-              readonly
-              class="readonly-input"
-            />
-            <small class="field-hint">
-              O slug é usado internamente para identificar a categoria
-            </small>
+            <label>Índice de Ordenação</label>
+            <input type="number" [(ngModel)]="newCategory.index" min="0" />
+            <small class="field-hint">Menor valor aparece primeiro (0, 1, 2...)</small>
           </div>
         </div>
 
@@ -243,18 +251,11 @@
             </div>
           </div>
 
-          <!-- Slug -->
+          <!-- Índice de Ordenação (edição) -->
           <div class="form-group">
-            <label>Slug *</label>
-            <input
-              type="text"
-              [(ngModel)]="editingCategory.slug"
-              placeholder="slug-da-categoria"
-              maxlength="50"
-            />
-            <small class="field-hint">
-              ⚠️ Alterar o slug também atualiza todos os produtos desta categoria
-            </small>
+            <label>Índice de Ordenação</label>
+            <input type="number" [(ngModel)]="editingCategory.index" min="0" />
+            <small class="field-hint">Menor valor aparece primeiro (0, 1, 2...)</small>
           </div>
 
           <!-- Produtos vinculados -->

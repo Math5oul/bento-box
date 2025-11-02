@@ -23,12 +23,22 @@ export class CategoriesManagementComponent implements OnInit {
   loading = true;
   searchTerm = '';
 
+  // Drag and drop
+  draggedCategory: Category | null = null;
+  dragOverCategory: Category | null = null;
+
+  // Touch support
+  private touchStartY = 0;
+  private touchStartX = 0;
+  private scrolling = false;
+
   // Modal de criação
   showCreateModal = false;
   newCategory: CreateCategoryDTO = {
     name: '',
     emoji: '📦',
     slug: '',
+    index: 0,
   };
 
   // Modal de edição
@@ -107,7 +117,8 @@ export class CategoriesManagementComponent implements OnInit {
     try {
       const response = await this.categoryService.getCategories().toPromise();
       if (response && response.success) {
-        this.categories = response.data;
+        // Ordena categorias pelo campo index
+        this.categories = response.data.slice().sort((a, b) => (a.index || 0) - (b.index || 0));
       }
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
@@ -146,6 +157,7 @@ export class CategoriesManagementComponent implements OnInit {
       name: '',
       emoji: '📦',
       slug: '',
+      index: 0,
     };
     this.showCreateModal = true;
   }
@@ -218,7 +230,14 @@ export class CategoriesManagementComponent implements OnInit {
     }
 
     try {
-      const response = await this.categoryService.createCategory(this.newCategory).toPromise();
+      const payload: CreateCategoryDTO = {
+        name: this.newCategory.name,
+        emoji: this.newCategory.emoji,
+        slug: this.newCategory.slug,
+        index: Number(this.newCategory.index) || 0,
+      };
+
+      const response = await this.categoryService.createCategory(payload).toPromise();
 
       if (response && response.success) {
         alert('✅ Categoria criada com sucesso!');
@@ -249,7 +268,7 @@ export class CategoriesManagementComponent implements OnInit {
     const updateData: UpdateCategoryDTO = {
       name: this.editingCategory.name,
       emoji: this.editingCategory.emoji,
-      slug: this.editingCategory.slug,
+      index: Number(this.editingCategory.index) || 0,
     };
 
     try {
@@ -293,6 +312,189 @@ export class CategoriesManagementComponent implements OnInit {
     } catch (error: any) {
       console.error('Erro ao deletar categoria:', error);
       alert('❌ ' + (error.error?.message || 'Erro ao deletar categoria'));
+    }
+  }
+
+  /**
+   * Drag and Drop handlers
+   */
+  onDragStart(event: DragEvent, category: Category): void {
+    this.draggedCategory = category;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', category._id);
+    }
+  }
+
+  onDragOver(event: DragEvent, category: Category): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.dragOverCategory = category;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    this.dragOverCategory = null;
+  }
+
+  onDrop(event: DragEvent, targetCategory: Category): void {
+    event.preventDefault();
+
+    if (!this.draggedCategory || this.draggedCategory._id === targetCategory._id) {
+      this.draggedCategory = null;
+      this.dragOverCategory = null;
+      return;
+    }
+
+    // Encontra os índices
+    const draggedIndex = this.categories.findIndex(c => c._id === this.draggedCategory!._id);
+    const targetIndex = this.categories.findIndex(c => c._id === targetCategory._id);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      this.draggedCategory = null;
+      this.dragOverCategory = null;
+      return;
+    }
+
+    // Reordena o array
+    const newCategories = [...this.categories];
+    const [removed] = newCategories.splice(draggedIndex, 1);
+    newCategories.splice(targetIndex, 0, removed);
+
+    // Atualiza os índices de todas as categorias
+    newCategories.forEach((cat, idx) => {
+      cat.index = idx;
+    });
+
+    this.categories = newCategories;
+
+    // Salva os novos índices no backend
+    this.saveAllIndices();
+
+    this.draggedCategory = null;
+    this.dragOverCategory = null;
+  }
+
+  onDragEnd(): void {
+    this.draggedCategory = null;
+    this.dragOverCategory = null;
+  }
+
+  /**
+   * Touch handlers for mobile support
+   */
+  onTouchStart(event: TouchEvent, category: Category): void {
+    // Previne scroll imediato
+    const touch = event.touches[0];
+    this.touchStartY = touch.clientY;
+    this.touchStartX = touch.clientX;
+    this.scrolling = false;
+
+    // Pequeno delay para distinguir entre scroll e drag
+    setTimeout(() => {
+      if (!this.scrolling) {
+        this.draggedCategory = category;
+      }
+    }, 150);
+  }
+
+  onTouchMove(event: TouchEvent, categoryElement?: HTMLElement): void {
+    if (!this.draggedCategory) {
+      // Se moveu muito, é scroll
+      const touch = event.touches[0];
+      const deltaY = Math.abs(touch.clientY - this.touchStartY);
+      const deltaX = Math.abs(touch.clientX - this.touchStartX);
+
+      if (deltaY > 10 || deltaX > 10) {
+        this.scrolling = true;
+      }
+      return;
+    }
+
+    event.preventDefault();
+    const touch = event.touches[0];
+
+    // Encontra o elemento sob o toque
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!elementBelow) return;
+
+    // Procura o card de categoria mais próximo
+    const categoryCard = elementBelow.closest('.category-card');
+    if (!categoryCard) {
+      this.dragOverCategory = null;
+      return;
+    }
+
+    // Encontra a categoria correspondente ao card
+    const categoryId = categoryCard.getAttribute('data-category-id');
+    if (!categoryId) return;
+
+    const targetCategory = this.categories.find(c => c._id === categoryId);
+    if (targetCategory && targetCategory._id !== this.draggedCategory._id) {
+      this.dragOverCategory = targetCategory;
+    }
+  }
+
+  onTouchEnd(event: TouchEvent): void {
+    if (!this.draggedCategory || this.scrolling) {
+      this.draggedCategory = null;
+      this.dragOverCategory = null;
+      this.scrolling = false;
+      return;
+    }
+
+    event.preventDefault();
+
+    if (this.dragOverCategory && this.draggedCategory._id !== this.dragOverCategory._id) {
+      // Encontra os índices
+      const draggedIndex = this.categories.findIndex(c => c._id === this.draggedCategory!._id);
+      const targetIndex = this.categories.findIndex(c => c._id === this.dragOverCategory!._id);
+
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        // Reordena o array
+        const newCategories = [...this.categories];
+        const [removed] = newCategories.splice(draggedIndex, 1);
+        newCategories.splice(targetIndex, 0, removed);
+
+        // Atualiza os índices de todas as categorias
+        newCategories.forEach((cat, idx) => {
+          cat.index = idx;
+        });
+
+        this.categories = newCategories;
+
+        // Salva os novos índices no backend
+        this.saveAllIndices();
+      }
+    }
+
+    this.draggedCategory = null;
+    this.dragOverCategory = null;
+    this.scrolling = false;
+  }
+
+  onTouchCancel(): void {
+    this.draggedCategory = null;
+    this.dragOverCategory = null;
+    this.scrolling = false;
+  }
+
+  /**
+   * Salva os índices de todas as categorias no backend
+   */
+  private async saveAllIndices(): Promise<void> {
+    try {
+      // Atualiza cada categoria com seu novo índice
+      const updatePromises = this.categories.map(category =>
+        this.categoryService.updateCategory(category._id, { index: category.index }).toPromise()
+      );
+
+      await Promise.all(updatePromises);
+    } catch (error) {
+      console.error('Erro ao salvar índices:', error);
+      alert('❌ Erro ao salvar a nova ordem. Recarregando...');
+      this.loadCategories();
     }
   }
 }

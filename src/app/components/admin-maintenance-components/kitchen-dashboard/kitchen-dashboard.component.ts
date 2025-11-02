@@ -51,6 +51,29 @@ export class KitchenDashboardComponent implements OnInit {
     { value: 'cancelled', label: 'Cancelado' },
   ];
 
+  /**
+   * Retorna o próximo status válido para um pedido dado o status atual.
+   * Se o status atual já for o último (delivered/cancelled) retorna null.
+   */
+  getNextStatus(currentStatus: string): string | null {
+    // Exclui a opção "Todos" (valor vazio) ao calcular índices
+    const orderStatuses = this.statuses.map(s => s.value).filter(v => v);
+    const idx = orderStatuses.indexOf(currentStatus);
+    if (idx === -1) return null;
+    const next = orderStatuses[idx + 1];
+    return next || null;
+  }
+
+  /**
+   * Retorna o rótulo do próximo status (ou null se não houver)
+   */
+  getNextStatusLabel(currentStatus: string): string | null {
+    const next = this.getNextStatus(currentStatus);
+    if (!next) return null;
+    const found = this.statuses.find(s => s.value === next);
+    return found ? found.label : next;
+  }
+
   ngOnInit(): void {
     this.loadOrders();
     this.startPolling();

@@ -128,6 +128,14 @@
     color: #666;
     text-transform: uppercase;
     letter-spacing: 1px;
+
+    .status-badge {
+      max-width: 140px; /* prevent long status from expanding */
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
   }
 
   .count-value {
@@ -247,6 +255,19 @@
   }
 }
 
+/* Hide the history icon on mobile */
+@media (max-width: 768px) {
+  .history-icon {
+    display: none;
+  }
+
+  /* hide the fire emoji on the active header in mobile */
+  .section-header h2 {
+    /* when the fire is present as a glyph at start, hide it on mobile */
+    font-feature-settings: 'kern';
+  }
+}
+
 .history-section {
   margin-top: 40px;
   padding-top: 30px;
@@ -263,17 +284,18 @@
 .order-card {
   background: white;
   border-radius: 15px;
-  padding: 20px 25px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  padding: 18px 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
   transition:
-    transform 0.2s,
-    box-shadow 0.2s,
+    transform 0.18s,
+    box-shadow 0.18s,
     background 0.3s;
   position: relative;
   overflow: hidden;
-  display: flex;
+  display: grid;
+  grid-template-columns: 160px 30ch 1fr 220px; /* badge/meta | name | items | actions */
+  gap: 18px;
   align-items: center;
-  gap: 25px;
   min-height: 80px;
 
   &::before {
@@ -336,18 +358,19 @@
 .order-card-header {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
   flex: 0 0 auto;
-  min-width: 200px;
 }
 
 .order-badge {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
 
   .order-number {
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
     color: #333;
     font-family: 'Courier New', monospace;
@@ -392,9 +415,11 @@
 
 .order-meta {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 6px;
   font-size: 0.9em;
-  flex: 0 0 auto;
+  grid-column: 1 / 2; /* badge/meta column */
+  align-self: start;
 
   .meta-item {
     display: flex;
@@ -404,7 +429,7 @@
     white-space: nowrap;
 
     .meta-icon {
-      font-size: 1.2em;
+      font-size: 1.1em;
     }
 
     .meta-text {
@@ -416,9 +441,10 @@
 .order-client {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  flex: 0 0 auto;
-  min-width: 150px;
+  grid-column: 2 / 3;
+  align-self: center;
 
   .client-icon {
     font-size: 1.2em;
@@ -428,13 +454,19 @@
     font-size: 1em;
     font-weight: 600;
     color: #333;
-    white-space: nowrap;
+    max-width: 30ch; /* ~30 characters space */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-break: break-word;
   }
 }
 
 .order-items {
+  grid-column: 3 / 4; /* items take the flexible column */
   flex: 1 1 auto;
   min-width: 0;
 
@@ -442,60 +474,55 @@
     display: none;
   }
 
+  /* Use grid so columns (quantity / name) align across different cards */
   .items-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 40px 1fr; /* narrower qty column aligns better */
+    gap: 6px 12px;
+    align-items: center;
   }
 
-  .item {
-    padding: 6px 12px;
-    background: #f5f5f5;
-    border-radius: 6px;
-    display: inline-flex;
+  .item-row {
+    display: contents; /* let grid place children into the columns */
+  }
+
+  .item-quantity {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.9em;
-    white-space: nowrap;
+    justify-content: flex-start;
+    font-weight: bold;
+    color: #667eea;
+  }
 
-    .item-quantity {
-      font-weight: bold;
-      color: #667eea;
+  .item-name {
+    color: #333;
+    word-break: break-word;
+  }
+
+  .item-notes {
+    grid-column: 2 / 3;
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
+    margin-top: 2px;
+
+    .notes-icon {
       font-size: 1em;
-    }
-
-    .item-name {
-      color: #333;
-    }
-
-    .item-notes {
-      width: auto;
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      border: none;
-      font-size: 0.85em;
-      color: #666;
-      font-style: italic;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-
-      .notes-icon {
-        font-size: 1em;
-      }
+      margin-right: 4px;
     }
   }
 }
 
 .order-actions {
-  flex: 0 0 auto;
+  grid-column: 4 / 5;
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: flex-end;
+  justify-self: end;
 
   .actions-title {
     display: none;
@@ -577,10 +604,11 @@
   }
 
   .order-card {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
-    padding: 15px 20px;
+    gap: 12px;
+    padding: 12px 14px;
   }
 
   .order-card-header,
@@ -589,6 +617,9 @@
   .order-items,
   .order-actions {
     min-width: 100%;
+  }
+  .order-client {
+    justify-content: flex-start;
   }
 
   .order-items .items-list {
@@ -612,5 +643,21 @@
 
   .order-badge {
     flex-wrap: wrap;
+  }
+
+  /* Reduce some badge/count font sizes to improve mobile layout */
+  .section-count {
+    font-size: 0.8em;
+    padding: 4px 10px;
+  }
+
+  .order-count {
+    .count-value {
+      font-size: 1.1em; /* smaller on mobile */
+    }
+
+    .count-label {
+      font-size: 0.75em;
+    }
   }
 }

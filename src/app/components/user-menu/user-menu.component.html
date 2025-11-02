@@ -48,6 +48,17 @@
         </button>
       }
 
+      <!-- Show kitchen dashboard link to Admins and Kitchen role -->
+      @if (isKitchenOrAdmin) {
+        @if (!isAdmin) {
+          <div class="menu-divider"></div>
+        }
+        <button class="menu-item admin-item" (click)="onKitchenDashboardClick()">
+          <span class="icon">🍳</span>
+          <span>Acompanhar Cozinha</span>
+        </button>
+      }
+
       <div class="menu-divider"></div>
 
       <button class="menu-item logout-item" (click)="logout()">

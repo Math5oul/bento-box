@@ -7,6 +7,7 @@ export interface ICategory extends Document {
   name: string;
   emoji: string;
   slug: string;
+  index?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,12 @@ const CategorySchema: Schema = new Schema(
       lowercase: true,
       trim: true,
       maxlength: [50, 'Slug não pode ter mais de 50 caracteres'],
+    },
+    index: {
+      type: Number,
+      required: false,
+      default: 0,
+      index: true,
     },
   },
   {
