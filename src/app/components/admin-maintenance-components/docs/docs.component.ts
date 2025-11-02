@@ -25,7 +25,7 @@ export class DocsComponent implements OnInit {
   backendUrl = 'http://localhost:3001';
   mongoHost = '—';
   tableUrl = 'http://localhost:4200/table/[id]';
-  testHubUrl = 'http://localhost:3001/test-hub.html';
+  adminToolsUrl = 'http://localhost:3001/admin-tools.html';
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -49,7 +49,7 @@ export class DocsComponent implements OnInit {
 
         this.mongoHost = info?.db?.host || this.mongoHost;
         this.tableUrl = `${this.frontendUrl}/table/[id]`;
-        this.testHubUrl = `${this.backendUrl}/test-hub.html`;
+        this.adminToolsUrl = `${this.backendUrl}/admin-tools.html`;
       },
       error: () => {
         // Manter valores padrão
