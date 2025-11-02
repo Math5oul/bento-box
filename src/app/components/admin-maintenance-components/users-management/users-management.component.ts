@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { UserRole } from '../../../interfaces/user.interface';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 interface User {
   _id: string;
@@ -17,7 +18,7 @@ interface User {
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
   templateUrl: './users-management.component.html',
   styleUrl: './users-management.component.scss',
 })

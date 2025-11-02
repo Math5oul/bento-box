@@ -14,6 +14,7 @@ import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleTextComponent } from '../../simpleComponents/simple-text/simple-text.component';
 import { SimpleImageComponent } from '../../simpleComponents/simple-image/simple-image.component';
 import { SimpleVideoComponent } from '../../simpleComponents/simple-video/simple-video.component';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 interface FillerContent {
   text?: string;
@@ -46,7 +47,14 @@ interface Filler {
 @Component({
   selector: 'app-fillers-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SanitizePipe, ItemEditorModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    SanitizePipe,
+    ItemEditorModalComponent,
+    AdminHeaderComponent,
+  ],
   templateUrl: './fillers-management.component.html',
   styleUrl: './fillers-management.component.scss',
 })

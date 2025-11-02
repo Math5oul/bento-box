@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BentoModuleComponent } from './bento-module/bento-module.component';
 import { adminGuard } from './guards/admin.guard';
 import { kitchenGuard } from './guards/kitchen.guard';
+import { waiterGuard } from './guards/waiter.guard';
 
 export const routes: Routes = [
   { path: '', component: BentoModuleComponent },
@@ -16,6 +17,14 @@ export const routes: Routes = [
         './components/admin-maintenance-components/kitchen-dashboard/kitchen-dashboard.component'
       ).then(m => m.KitchenDashboardComponent),
     canActivate: [kitchenGuard],
+  },
+  {
+    path: 'maintenance/waiter',
+    loadComponent: () =>
+      import(
+        './components/admin-maintenance-components/waiter-dashboard/waiter-dashboard.component'
+      ).then(m => m.WaiterDashboardComponent),
+    canActivate: [waiterGuard],
   },
   // Rotas de manutenção/administração (protegidas por adminGuard)
   {

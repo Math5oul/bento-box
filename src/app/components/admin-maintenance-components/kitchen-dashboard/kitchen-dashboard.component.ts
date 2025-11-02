@@ -1,11 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 import { UserRole } from '../../../interfaces/user.interface';
 import { AuthService } from '../../../services/auth-service/auth.service';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 interface KitchenOrderItem {
   productName: string;
@@ -25,7 +25,7 @@ interface KitchenOrder {
 @Component({
   selector: 'app-kitchen-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, AdminHeaderComponent],
   templateUrl: './kitchen-dashboard.component.html',
   styleUrl: './kitchen-dashboard.component.scss',
 })

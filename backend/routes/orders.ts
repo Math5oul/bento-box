@@ -461,7 +461,7 @@ router.get(
 
 /**
  * PUT /api/orders/:orderId/status
- * Atualiza status de um pedido (Admin)
+ * Atualiza status de um pedido (Admin, Kitchen, ou Waiter)
  */
 router.put(
   '/:orderId/status',
@@ -486,9 +486,9 @@ router.put(
         return;
       }
 
-      // Verifica permissão: admin ou cozinha
+      // Verifica permissão: admin, cozinha ou garçom
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'cozinha') {
+      if (role !== 'admin' && role !== 'cozinha' && role !== 'garcom') {
         res.status(403).json({ success: false, message: 'Permissão negada' });
         return;
       }
@@ -515,6 +515,171 @@ router.put(
       });
     } catch (error) {
       console.error('Erro ao atualizar status do pedido:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao atualizar pedido',
+      });
+    }
+  }
+);
+
+/**
+ * PATCH /api/orders/:orderId/status
+ * Atualiza status de um pedido (versão PATCH para compatibilidade)
+ */
+router.patch(
+  '/:orderId/status',
+  authenticate,
+  runValidations([
+    param('orderId').isMongoId().withMessage('ID do pedido inválido'),
+    body('status').isIn(Object.values(OrderStatus)).withMessage('Status inválido'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { orderId } = req.params;
+      const { status } = req.body;
+
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        res.status(404).json({
+          success: false,
+          message: 'Pedido não encontrado',
+        });
+        return;
+      }
+
+      // Verifica permissão: admin, cozinha ou garçom
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'cozinha' && role !== 'garcom') {
+        res.status(403).json({ success: false, message: 'Permissão negada' });
+        return;
+      }
+
+      order.status = status;
+
+      if (status === OrderStatus.DELIVERED) {
+        order.deliveredAt = new Date();
+      } else if (status === OrderStatus.CANCELLED) {
+        order.cancelledAt = new Date();
+      }
+
+      await order.save();
+
+      res.json({
+        success: true,
+        message: `Pedido marcado como ${status}`,
+        order: {
+          ...order.toObject(),
+          id: (order._id as any).toString(),
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar status do pedido:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao atualizar pedido',
+      });
+    }
+  }
+);
+
+/**
+ * PATCH /api/orders/:orderId
+ * Atualiza itens de um pedido (Admin ou Garçom)
+ */
+router.patch(
+  '/:orderId',
+  authenticate,
+  runValidations([
+    param('orderId').isMongoId().withMessage('ID do pedido inválido'),
+    body('items').optional().isArray({ min: 1 }).withMessage('Pedido deve ter pelo menos 1 item'),
+    body('items.*.productId').optional().isInt().withMessage('ID do produto inválido'),
+    body('items.*.productName').optional().notEmpty().withMessage('Nome do produto é obrigatório'),
+    body('items.*.quantity')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Quantidade deve ser maior que 0'),
+    body('items.*.unitPrice').optional().isFloat({ min: 0 }).withMessage('Preço unitário inválido'),
+    body('items.*.totalPrice').optional().isFloat({ min: 0 }).withMessage('Preço total inválido'),
+    body('totalAmount').optional().isFloat({ min: 0 }).withMessage('Total inválido'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { orderId } = req.params;
+      const { items, totalAmount, notes } = req.body;
+
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        res.status(404).json({
+          success: false,
+          message: 'Pedido não encontrado',
+        });
+        return;
+      }
+
+      // Verifica permissão: admin ou garçom
+      const role = req.user?.role;
+      if (role !== 'admin' && role !== 'garcom') {
+        res
+          .status(403)
+          .json({
+            success: false,
+            message: 'Permissão negada. Apenas admin ou garçom podem editar pedidos.',
+          });
+        return;
+      }
+
+      // Não pode editar pedidos já entregues ou cancelados
+      if (order.status === OrderStatus.DELIVERED || order.status === OrderStatus.CANCELLED) {
+        res.status(400).json({
+          success: false,
+          message: 'Não é possível editar pedidos já entregues ou cancelados',
+        });
+        return;
+      }
+
+      // Atualiza itens se fornecidos
+      if (items && Array.isArray(items)) {
+        order.items = items.map((item: any) => ({
+          productId: item.productId,
+          productName: item.productName,
+          productImage: item.productImage,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          notes: item.notes,
+          selectedSize: item.selectedSize,
+        }));
+      }
+
+      // Atualiza total se fornecido, senão recalcula
+      if (totalAmount !== undefined) {
+        order.totalAmount = totalAmount;
+      } else if (items) {
+        order.totalAmount = order.items.reduce((sum, item) => sum + item.totalPrice, 0);
+      }
+
+      // Atualiza notas se fornecidas
+      if (notes !== undefined) {
+        order.notes = notes;
+      }
+
+      await order.save();
+
+      res.json({
+        success: true,
+        message: 'Pedido atualizado com sucesso',
+        order: {
+          ...order.toObject(),
+          id: (order._id as any).toString(),
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar pedido:', error);
       res.status(500).json({
         success: false,
         message: 'Erro ao atualizar pedido',

@@ -1,0 +1,272 @@
+<app-admin-header></app-admin-header>
+
+<div class="waiter-dashboard">
+  <div class="page-title">
+    <h1>🧑‍🍳 Painel do Garçom</h1>
+    <p class="subtitle">Gestão de Pedidos e Mesas</p>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="filters-bar">
+    <div class="filter-item">
+      <label class="filter-label">Mesa:</label>
+      <select [(ngModel)]="filterTable" (change)="applyFilters()" class="filter-select">
+        <option value="all">Todas</option>
+        <option *ngFor="let table of tables" [value]="table">Mesa {{ table }}</option>
+      </select>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Status:</label>
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()" class="filter-select">
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+    </div>
+
+    <div class="filter-item search-box">
+      <label class="filter-label">Buscar:</label>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+        placeholder="Cliente ou mesa..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="order-count">
+      <span class="count-label">Pedidos Ativos:</span>
+      <span class="count-value">{{ filteredOrders.length }}</span>
+    </div>
+  </div>
+
+  <!-- Loading & Error States -->
+  <div *ngIf="loading" class="loading">⏳ Carregando pedidos...</div>
+  <div *ngIf="error" class="error-message">❌ {{ error }}</div>
+
+  <!-- Orders Container -->
+  <div class="orders-container" *ngIf="!loading && !error">
+    <!-- Active Orders -->
+    <div class="section-header">
+      <h2>🍽️ Pedidos Ativos</h2>
+      <button class="new-order-btn" (click)="createNewOrder()">➕ Novo Pedido</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredOrders.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>Nenhum pedido ativo</h3>
+      <p class="empty-hint">
+        {{
+          filterStatus !== 'all' || filterTable !== 'all' || searchTerm
+            ? 'Nenhum pedido encontrado com os filtros aplicados.'
+            : 'Aguarde novos pedidos ou crie um novo.'
+        }}
+      </p>
+    </div>
+
+    <!-- Orders Grid -->
+    <div class="orders-grid">
+      <div
+        class="order-card"
+        *ngFor="let order of filteredOrders; trackBy: trackById"
+        [class]="getStatusClass(order.status)"
+      >
+        <!-- Card Header: Status + Mesa + Tempo -->
+        <div class="order-header">
+          <div class="status-info">
+            <span class="status-badge" [class]="'badge-' + order.status">
+              {{ getStatusLabel(order.status) }}
+            </span>
+            <span
+              class="elapsed-time"
+              [class.warning]="getElapsedTime(order.createdAt).includes('h')"
+            >
+              ⏱️ {{ getElapsedTime(order.createdAt) }}
+            </span>
+          </div>
+          <div class="table-info">
+            <span class="table-number">🍽️ Mesa {{ order.tableNumber }}</span>
+            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+          </div>
+        </div>
+
+        <!-- Card Body: Cliente + Itens -->
+        <div class="order-body">
+          <div class="client-info">
+            <span class="client-icon">👤</span>
+            <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+          </div>
+
+          <div class="order-items">
+            <h4 class="items-title">Itens:</h4>
+            <ul class="items-list">
+              <li *ngFor="let item of order.items" class="item">
+                <div class="item-main">
+                  <span class="item-quantity">{{ item.quantity }}x</span>
+                  <span class="item-name">{{ item.productName }}</span>
+                  <span class="item-price">{{ formatCurrency(item.totalPrice) }}</span>
+                </div>
+                <div *ngIf="item.notes" class="item-notes">📝 {{ item.notes }}</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card Footer: Total + Ações -->
+        <div class="order-footer">
+          <div class="order-total">
+            <span class="total-label">Total:</span>
+            <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
+          </div>
+
+          <div class="order-actions">
+            <!-- Botão Editar (se pode editar) -->
+            <button
+              *ngIf="canEdit(order)"
+              class="action-btn btn-edit"
+              (click)="openEditModal(order)"
+              title="Editar pedido"
+            >
+              ✏️ Editar
+            </button>
+
+            <!-- Botão Entregar (apenas se status = ready) -->
+            <button
+              *ngIf="canDeliver(order)"
+              class="action-btn btn-deliver"
+              (click)="deliverOrder(order)"
+              title="Marcar como entregue"
+            >
+              ✅ Entregar
+            </button>
+
+            <!-- Botão Cancelar -->
+            <button
+              class="action-btn btn-cancel"
+              (click)="cancelOrder(order)"
+              title="Cancelar pedido"
+            >
+              ❌ Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="history-section" *ngIf="historyOrders.length > 0">
+      <div class="section-header">
+        <h2>📜 Histórico</h2>
+        <button class="toggle-history-btn" (click)="showHistory = !showHistory">
+          {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
+        </button>
+      </div>
+
+      <div class="orders-grid" *ngIf="showHistory">
+        <div
+          class="order-card history-card"
+          *ngFor="let order of historyOrders; trackBy: trackById"
+          [class]="getStatusClass(order.status)"
+        >
+          <!-- Histórico simplificado -->
+          <div class="order-header">
+            <div class="status-info">
+              <span class="status-badge" [class]="'badge-' + order.status">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </div>
+            <div class="table-info">
+              <span class="table-number">Mesa {{ order.tableNumber }}</span>
+              <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+            </div>
+          </div>
+
+          <div class="order-body">
+            <div class="client-info">
+              <span class="client-icon">👤</span>
+              <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+            </div>
+            <div class="order-summary">
+              <span>{{ order.items.length }} item(ns)</span>
+              <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição de Pedido -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>✏️ Editar Pedido</h2>
+      <button class="close-btn" (click)="closeEditModal()">✕</button>
+    </div>
+
+    <div class="modal-body" *ngIf="editingOrder">
+      <div class="order-info">
+        <div class="info-item"><strong>Mesa:</strong> {{ editingOrder.tableNumber }}</div>
+        <div class="info-item"><strong>Cliente:</strong> {{ editingOrder.clientName }}</div>
+        <div class="info-item">
+          <strong>Status:</strong>
+          <span class="status-badge" [class]="'badge-' + editingOrder.status">
+            {{ getStatusLabel(editingOrder.status) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="items-section">
+        <h3>Itens do Pedido</h3>
+        <div class="edit-items-list">
+          <div *ngFor="let item of editingItems; let i = index" class="edit-item">
+            <div class="item-info">
+              <span class="item-name">{{ item.productName }}</span>
+              <span class="item-unit-price">{{ formatCurrency(item.unitPrice) }}/un</span>
+            </div>
+
+            <div class="item-controls">
+              <div class="quantity-control">
+                <button
+                  class="qty-btn"
+                  (click)="updateItemQuantity(i, item.quantity - 1)"
+                  [disabled]="item.quantity <= 1"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  [(ngModel)]="item.quantity"
+                  (change)="updateItemQuantity(i, item.quantity)"
+                  min="1"
+                  class="qty-input"
+                />
+                <button class="qty-btn" (click)="updateItemQuantity(i, item.quantity + 1)">
+                  +
+                </button>
+              </div>
+
+              <span class="item-total">{{ formatCurrency(item.totalPrice) }}</span>
+
+              <button class="remove-btn" (click)="removeItem(i)" title="Remover item">🗑️</button>
+            </div>
+
+            <div *ngIf="item.notes" class="item-notes-display">📝 {{ item.notes }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-total">
+        <span class="total-label">Total do Pedido:</span>
+        <span class="total-value">{{ formatCurrency(getEditingTotal()) }}</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeEditModal()">Cancelar</button>
+      <button class="btn-primary" (click)="saveOrderChanges()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>

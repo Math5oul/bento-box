@@ -1,0 +1,64 @@
+<header class="admin-header">
+  <div class="header-content">
+    <!-- Logo -->
+    <div class="logo-section" routerLink="/maintenance/admin-tools">
+      <img src="/imgs/bento-logo.png" alt="Bento Box" class="logo" />
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <!-- User Info / Login -->
+
+      <button class="nav-btn btn-hub" routerLink="/maintenance/admin-tools" [disabled]="!isAdmin">
+        <span class="icon">🏠</span>
+        <span class="text">Hub Admin</span>
+      </button>
+      <button class="nav-btn btn-app" (click)="goToApp()">
+        <span class="icon">📋</span>
+        <span class="text">Cardápio</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Login Modal -->
+@if (showLoginModal) {
+  <div class="modal-overlay" (click)="closeLoginModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>Login Administrativo</h2>
+      <form (submit)="handleLogin($event)">
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="loginEmail"
+            name="email"
+            required
+            placeholder="seu@email.com"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Senha:</label>
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="loginPassword"
+            name="password"
+            required
+            placeholder="••••••••"
+          />
+        </div>
+        @if (loginError) {
+          <div class="error-message">{{ loginError }}</div>
+        }
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeLoginModal()">Cancelar</button>
+          <button type="submit" class="btn-submit" [disabled]="isLoggingIn">
+            {{ isLoggingIn ? 'Entrando...' : 'Entrar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
