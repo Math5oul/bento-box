@@ -46,7 +46,7 @@ import { FooterComponent } from '../components/footer/footer.component';
 })
 export class BentoModuleComponent implements OnDestroy, OnInit {
   data: GridItem[] = [];
-  fillers: GridItem[] = []; // Será preenchido com Fillers do MongoDB
+  fillers: GridItem[] = [];
 
   // Categorias dinâmicas do CategoryService
   categories: Category[] = [];
@@ -84,7 +84,7 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   private routeSub?: Subscription;
   private allProducts: GridItem[] = [];
   private searchSubject = new Subject<string>();
-  private isJoining = false; // Flag para evitar carregamento duplicado
+  private isJoining = false; // Indica se está no processo de join via QR Code
 
   get selectedItem(): GridItem | null {
     return this._selectedItem;
@@ -172,9 +172,8 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
         this.categories = categories.data;
       }
 
-      // Depois agrupa produtos e fillers por categoria
       this.groupProductsByCategory(products);
-
+      this.recalculateAllGrids();
       this.cdr.detectChanges();
     });
   }
@@ -332,6 +331,25 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     this.resetFillerCache();
     this.groupProductsByCategory(this.data);
     this.cdr.detectChanges();
+    this.recalculateAllGrids();
+  }
+
+  /**
+   * Recalcula todos os grids (search grid + category grids).
+   */
+  public recalculateAllGrids(): void {
+    setTimeout(() => {
+      try {
+        if (this.bentoBoxComponent) {
+          this.bentoBoxComponent.recalculateGrid();
+        }
+        if (this.bentoBoxComponents && this.bentoBoxComponents.length) {
+          this.bentoBoxComponents.forEach(box => box.recalculateGrid());
+        }
+      } catch (e) {
+        console.warn('Erro ao recalcular grids:', e);
+      }
+    }, 0);
   }
 
   /**
@@ -360,15 +378,8 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
         this.categories = categories.data;
       }
 
-      // Reagrupa produtos e fillers por categoria
       this.groupProductsByCategory(products);
-
-      console.log('✅ Dados recarregados:', {
-        produtos: products.length,
-        fillers: fillerGridItems.length,
-        categorias: this.categories.length,
-      });
-
+      this.recalculateAllGrids();
       this.cdr.detectChanges();
     });
   }
@@ -386,9 +397,11 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     if (!term) {
       this.isSearchActive = false;
       this.filteredProducts = [];
+      // Restore full product list and ensure fillers are recalculated
+      this.resetFillerCache();
       this.data = this.allProducts;
       this.groupProductsByCategory(this.allProducts);
-      this.resetFillerCache();
+      this.recalculateAllGrids();
     } else {
       this.isSearchActive = true;
       const filtered = this.allProducts.filter((item: GridItem) => {
@@ -399,6 +412,7 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
 
       this.filteredProducts = filtered;
       this.data = filtered;
+      this.recalculateAllGrids();
     }
 
     this.cdr.detectChanges();
@@ -409,8 +423,6 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
    */
   async joinTable(tableId: string): Promise<void> {
     try {
-      console.log('🔗 Acessando mesa via QR Code:', tableId);
-
       // Faz request para o backend para criar sessão
       const response = await fetch(`/api/tables/${tableId}/join`, {
         method: 'GET',
@@ -423,8 +435,6 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
       const data = await response.json();
 
       if (data.success) {
-        console.log('✅ Conectado à mesa com sucesso:', data);
-
         // Se retornou sessionToken, salva no localStorage (apenas no browser)
         if (isPlatformBrowser(this.platformId) && data.sessionToken) {
           try {
@@ -451,14 +461,6 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
             table: data.table.number,
           },
         });
-
-        // Após navegação, o subscription de route.params vai detectar
-        // que não há mais tableId e vai chamar loadInitialData() automaticamente
-        if (navigationSuccess) {
-          console.log(
-            '✅ Navegação concluída. Os dados serão carregados pelo route.params subscription.'
-          );
-        }
       } else {
         console.error('❌ Erro ao conectar à mesa:', data.message);
         alert(`Erro: ${data.message}`);
