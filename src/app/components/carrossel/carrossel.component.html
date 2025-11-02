@@ -2,14 +2,14 @@
   <div class="carousel-container">
     @if (currentIndex > 0) {
       <button class="carousel-nav left" (click)="prevImage(); $event.stopPropagation()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
           <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
         </svg>
       </button>
     }
     @if (currentIndex < images.length - 1) {
       <button class="carousel-nav right" (click)="nextImage(); $event.stopPropagation()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
           <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
         </svg>
       </button>
@@ -33,17 +33,14 @@
     </div>
   </div>
 
-  <!-- Miniaturas -->
   @if (images.length > 1) {
-    <div class="carousel-thumbnails">
+    <div class="carousel-dots">
       @for (image of images; track $index) {
-        <div
-          class="thumbnail"
+        <button
+          class="dot"
           [class.active]="$index === currentIndex"
           (click)="setCurrentIndex($index); $event.stopPropagation()"
-        >
-          <img [src]="image" alt="Miniatura {{ $index + 1 }}" />
-        </div>
+        ></button>
       }
     </div>
   }
