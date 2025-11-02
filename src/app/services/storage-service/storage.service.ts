@@ -5,7 +5,8 @@ import { tap, map, catchError, take, switchMap } from 'rxjs/operators';
 import { GridItem } from '../../interfaces/bento-box.interface';
 import { ComponentRegistryService } from './component-registry.service';
 import { environment } from '../../../environments/environment';
-import { ProductService, BatchPositionUpdate } from '../product-service/product.service';
+import { ProductService } from '../product-service/product.service';
+import { BatchPositionUpdate } from '../../interfaces/product.interface';
 
 interface ServerMenuItem {
   id: number;

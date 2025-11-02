@@ -23,3 +23,6 @@ export * from './bento-options.interface';
 
 // Filler
 export * from './filler.interface';
+
+// Product
+export * from './product.interface';

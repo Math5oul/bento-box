@@ -2,40 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
-export interface ProductSize {
-  name: string;
-  abbreviation: string;
-  price: number;
-}
-
-export interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  sizes?: ProductSize[];
-  images: string[];
-  category:
-    | 'food'
-    | 'hot beverage'
-    | 'cold beverage'
-    | 'dessert'
-    | 'alcoholic'
-    | 'beverage'
-    | 'other';
-  format?: '1x1' | '1x2' | '2x1' | '2x2';
-  colorMode?: 'light' | 'dark';
-  available: boolean;
-  gridPosition?: {
-    row: number;
-    col: number;
-    rowSpan: number;
-    colSpan: number;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Product, BatchPositionUpdate } from '../../interfaces/product.interface';
 
 export interface MenuResponse {
   success: boolean;
@@ -84,14 +51,6 @@ export interface ProductResponse {
   success: boolean;
   data: Product;
   message?: string;
-}
-
-export interface BatchPositionUpdate {
-  id: string;
-  row: number;
-  col: number;
-  rowSpan: number;
-  colSpan: number;
 }
 
 @Injectable({
