@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CarrosselComponent } from '../../../carrossel/carrossel.component';
 import { CartItemSize } from '../../../../services/cart-service/cart.service';
+import { SanitizePipe } from '../../../../pipes/sanitize.pipe';
 
 @Component({
   selector: 'app-product-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, CarrosselComponent],
+  imports: [CommonModule, FormsModule, CarrosselComponent, SanitizePipe],
   templateUrl: './product-modal.component.html',
   styleUrls: ['./product-modal.component.scss'],
 })

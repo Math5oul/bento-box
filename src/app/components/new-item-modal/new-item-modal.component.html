@@ -145,15 +145,110 @@
                   </div>
                 }
 
-                <!-- Textarea -->
-                @if (input.type === 'textarea') {
+                <!-- Rich Text Editor with toolbar -->
+                @if (input.type === 'richtext') {
                   <div>
                     <label>
                       {{ input.label }}:
-                      <textarea
-                        [formControlName]="input.name"
-                        [required]="input.required || false"
-                      ></textarea>
+
+                      <!-- Toolbar - prevent mousedown to keep editor focus -->
+                      <div
+                        class="richtext-toolbar"
+                        [attr.data-control]="input.name"
+                        (mousedown)="$event.preventDefault()"
+                      >
+                        <button
+                          type="button"
+                          class="rt-btn rt-bold"
+                          (click)="execRichCommand('bold')"
+                          title="Bold"
+                        >
+                          <strong>B</strong>
+                        </button>
+                        <button
+                          type="button"
+                          class="rt-btn rt-italic"
+                          (click)="execRichCommand('italic')"
+                          title="Italic"
+                        >
+                          <em>I</em>
+                        </button>
+                        <button
+                          type="button"
+                          class="rt-btn rt-underline"
+                          (click)="execRichCommand('underline')"
+                          title="Underline"
+                        >
+                          <u>U</u>
+                        </button>
+                        <button
+                          type="button"
+                          class="rt-btn"
+                          (click)="execRichCommand('insertUnorderedList')"
+                          title="Bulleted list"
+                        >
+                          • List
+                        </button>
+                        <button
+                          type="button"
+                          class="rt-btn"
+                          (click)="execRichCommand('insertOrderedList')"
+                          title="Numbered list"
+                        >
+                          1. List
+                        </button>
+                        <button
+                          type="button"
+                          class="rt-btn"
+                          (click)="promptLink()"
+                          title="Insert link"
+                        >
+                          🔗
+                        </button>
+
+                        <!-- Text color with hex input -->
+                        <div class="rt-color-group">
+                          <label class="rt-color-label" title="Cor do texto">
+                            A
+                            <input
+                              type="color"
+                              class="rt-color-picker"
+                              [value]="textColor"
+                              (change)="onTextColorChange($event)"
+                            />
+                          </label>
+                          <input
+                            type="text"
+                            class="rt-hex-input"
+                            placeholder="#000000"
+                            [(ngModel)]="textColor"
+                            [ngModelOptions]="{ standalone: true }"
+                            (change)="applyTextColor()"
+                            maxlength="7"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          class="rt-btn rt-clear"
+                          (click)="clearRichText(input.name)"
+                          title="Clear formatting"
+                        >
+                          Clear
+                        </button>
+                      </div>
+
+                      <!-- Editor -->
+                      <div
+                        class="richtext-editor"
+                        contenteditable="true"
+                        [attr.data-control]="input.name"
+                        (input)="onRichTextInput($event, input.name)"
+                        (focus)="saveSelection()"
+                        (mouseup)="saveSelection()"
+                        (keyup)="saveSelection()"
+                        #richtextEditor
+                      ></div>
                     </label>
                   </div>
                 }

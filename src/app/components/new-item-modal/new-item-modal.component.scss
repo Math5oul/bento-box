@@ -450,6 +450,122 @@
     }
   }
 
+  .richtext-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 8px 0;
+    align-items: center;
+
+    .rt-btn {
+      border: 1px solid #d1d5db;
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+      }
+
+      &:active {
+        background: #e5e7eb;
+        transform: scale(0.95);
+      }
+
+      &.rt-bold strong {
+        font-weight: 900;
+      }
+
+      &.rt-italic em {
+        font-style: italic;
+      }
+
+      &.rt-underline u {
+        text-decoration: underline;
+      }
+
+      &.rt-clear {
+        background: #fee2e2;
+        border-color: #fca5a5;
+
+        &:hover {
+          background: #fecaca;
+        }
+      }
+    }
+
+    .rt-color-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 2px 6px;
+      background: #fff;
+
+      .rt-color-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        position: relative;
+
+        .rt-color-picker {
+          position: absolute;
+          opacity: 0;
+          width: 0;
+          height: 0;
+          cursor: pointer;
+        }
+      }
+
+      .rt-hex-input {
+        width: 70px;
+        border: none;
+        padding: 2px 4px;
+        font-size: 0.75rem;
+        font-family: monospace;
+        text-transform: uppercase;
+        background: transparent;
+
+        &:focus {
+          outline: none;
+          background: #f9fafb;
+        }
+      }
+    }
+  }
+
+  .richtext-editor {
+    min-height: 120px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f5f5f5;
+    overflow: auto;
+    line-height: 1.6;
+    cursor: text;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    &:empty:before {
+      content: 'Digite aqui...';
+      color: #9ca3af;
+      font-style: italic;
+    }
+  }
+
   // Multi-select styles
   .multi-select-container {
     display: grid;

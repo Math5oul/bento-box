@@ -2,3 +2,31 @@
 body {
   margin: 0;
 }
+
+/* Estilos globais para links - discretos e sutis */
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.3);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    text-decoration-color: rgba(0, 0, 0, 0.6);
+    text-decoration-thickness: 1.5px;
+  }
+
+  &:visited {
+    color: inherit;
+  }
+}
+
+/* Links em textos com tema escuro */
+.dark a {
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+
+  &:hover {
+    text-decoration-color: rgba(255, 255, 255, 0.7);
+  }
+}

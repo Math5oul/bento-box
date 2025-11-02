@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -44,7 +44,7 @@ interface Filler {
   templateUrl: './new-item-modal.component.html',
   styleUrls: ['./new-item-modal.component.scss'],
 })
-export class NewItemModalComponent implements OnInit {
+export class NewItemModalComponent implements OnInit, AfterViewChecked {
   @Input() editMode = false;
   @Input() itemToEdit: GridItem | null = null;
   @Input() mode: 'product' | 'filler' | 'grid' = 'grid'; // Controla quais componentes são exibidos
@@ -74,6 +74,19 @@ export class NewItemModalComponent implements OnInit {
     }
   }
 
+  /**
+   * Handler para inputs richtext (contenteditable). Atualiza o FormControl com innerHTML.
+   */
+  onRichTextInput(event: Event, inputName: string) {
+    const el = event.target as HTMLElement | null;
+    const html = el?.innerHTML ?? '';
+    const control = this.componentForm.get(['inputs', inputName]);
+    if (control) {
+      control.setValue(html);
+      control.markAsDirty();
+    }
+  }
+
   selectedComponent: any = null;
   showDimensionsForm = false;
   componentForm: FormGroup;
@@ -91,6 +104,11 @@ export class NewItemModalComponent implements OnInit {
   categories: Category[] = [];
   categoryOptions: string[] = [];
 
+  // Richtext editor state
+  textColor = '#000000';
+  private savedSelection: Range | null = null;
+  private richtextEditorsInitialized = new Set<string>();
+
   constructor(
     private fb: FormBuilder,
     private imageUploadService: ImageUploadService,
@@ -103,6 +121,104 @@ export class NewItemModalComponent implements OnInit {
     });
   }
 
+  ngAfterViewChecked() {
+    // Inicializa o conteúdo dos editores richtext apenas uma vez
+    if (this.selectedComponent?.inputsConfig) {
+      this.selectedComponent.inputsConfig.forEach((input: any) => {
+        if (input.type === 'richtext') {
+          const controlName = input.name;
+          if (!this.richtextEditorsInitialized.has(controlName)) {
+            const editor = this.findEditorByControlName(controlName);
+            if (editor) {
+              const control = this.componentForm.get(['inputs', controlName]);
+              const controlValue = control?.value;
+              // Usa o valor do control se existir (incluindo string vazia), senão usa defaultValue
+              const value =
+                controlValue !== null && controlValue !== undefined
+                  ? controlValue
+                  : input.defaultValue || '';
+
+              if (editor.innerHTML !== value) {
+                editor.innerHTML = value;
+              }
+              this.richtextEditorsInitialized.add(controlName);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  /** Executes a basic rich-text command on the currently focused editor */
+  execRichCommand(command: string, value?: string) {
+    this.restoreSelection();
+    try {
+      document.execCommand(command, false, value || undefined);
+    } catch (e) {
+      console.warn('Rich command failed:', command, e);
+    }
+  }
+
+  /** Prompt the user for a link and insert it into the editor */
+  promptLink() {
+    const url = prompt('Cole a URL (comece com http:// ou https://)');
+    if (!url) return;
+    this.restoreSelection();
+    try {
+      document.execCommand('createLink', false, url);
+    } catch (e) {
+      console.warn('createLink failed', e);
+    }
+  }
+
+  /** Saves the current selection/range in the editor */
+  saveSelection() {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      this.savedSelection = sel.getRangeAt(0);
+    }
+  }
+
+  /** Restores the previously saved selection */
+  private restoreSelection() {
+    if (!this.savedSelection) return;
+    const sel = window.getSelection();
+    if (sel) {
+      sel.removeAllRanges();
+      sel.addRange(this.savedSelection);
+    }
+  }
+
+  /** Applies text color from the color picker */
+  onTextColorChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.textColor = input.value;
+    this.applyTextColor();
+  }
+
+  /** Applies text color using execCommand */
+  applyTextColor() {
+    if (!this.textColor || !this.textColor.startsWith('#')) return;
+    this.execRichCommand('foreColor', this.textColor);
+  }
+
+  /** Clears formatting inside the specified richtext editor and updates the control */
+  clearRichText(controlName: string) {
+    const editor = this.findEditorByControlName(controlName);
+    if (!editor) return;
+    // Replace innerHTML with plain text
+    const text = editor.textContent || '';
+    editor.innerHTML = text;
+    const ctrl = this.componentForm.get(['inputs', controlName]);
+    if (ctrl) {
+      ctrl.setValue(editor.innerHTML);
+      ctrl.markAsDirty();
+    }
+  }
+
+  private findEditorByControlName(controlName: string): HTMLElement | null {
+    return document.querySelector(`.richtext-editor[data-control='${controlName}']`);
+  }
   ngOnInit() {
     // Carregar categorias do banco
     this.loadCategories();
@@ -176,6 +292,9 @@ export class NewItemModalComponent implements OnInit {
 
       this.showDimensionsForm = true;
 
+      // Limpa editores richtext antes de recarregar
+      this.richtextEditorsInitialized.clear();
+
       this.initInputsForm(config.inputs);
 
       // Primeiro, definimos rowSpan e colSpan
@@ -206,7 +325,7 @@ export class NewItemModalComponent implements OnInit {
                 control.setValue(value);
               }
             } else {
-              // Para valores simples
+              // Para valores simples (incluindo richtext)
               control.setValue(value);
             }
           }
@@ -230,6 +349,7 @@ export class NewItemModalComponent implements OnInit {
     console.log('Componente selecionado:', component);
     this.selectedComponent = component;
     this.showDimensionsForm = true;
+    this.richtextEditorsInitialized.clear(); // Limpa os editores ao trocar de componente
     this.initInputsForm(component.inputsConfig);
     console.log('Formulário inicializado:', this.componentForm.value);
   }
@@ -735,6 +855,7 @@ export class NewItemModalComponent implements OnInit {
     this.currentTempId = null;
     this.editingSizeIndex = null;
     this.tempSize = { name: '', abbreviation: '', price: 0 };
+    this.richtextEditorsInitialized.clear();
     this.componentForm.reset({
       rowSpan: 1,
       colSpan: 1,
