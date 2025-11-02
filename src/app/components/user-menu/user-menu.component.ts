@@ -54,6 +54,14 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     return this.authService.isAdmin();
   }
 
+  get isKitchen() {
+    return this.authService.isKitchen();
+  }
+
+  get isKitchenOrAdmin() {
+    return this.isAdmin || this.isKitchen;
+  }
+
   get userInitial(): string {
     return this.user?.name?.charAt(0).toUpperCase() || '?';
   }
@@ -148,6 +156,11 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   onMaintenanceClick() {
     this.router.navigate(['/maintenance/admin-tools']);
+    this.closeMenu();
+  }
+
+  onKitchenDashboardClick() {
+    this.router.navigate(['/maintenance/kitchen']);
     this.closeMenu();
   }
 

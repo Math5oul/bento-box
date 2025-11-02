@@ -6,6 +6,7 @@ export interface Category {
   name: string;
   emoji: string;
   slug: string;
+  index?: number;
   productCount?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +19,7 @@ export interface CreateCategoryDTO {
   name: string;
   emoji: string;
   slug?: string;
+  index?: number;
 }
 
 /**
@@ -27,4 +29,5 @@ export interface UpdateCategoryDTO {
   name?: string;
   emoji?: string;
   slug?: string;
+  index?: number;
 }

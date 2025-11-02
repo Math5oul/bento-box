@@ -78,7 +78,7 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
  */
 router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, emoji, slug } = req.body;
+    const { name, emoji, slug, index } = req.body;
 
     // Verifica se já existe categoria com esse nome ou slug
     const existingCategory = await Category.findOne({
@@ -93,7 +93,7 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const newCategory = new Category({ name, emoji, slug });
+    const newCategory = new Category({ name, emoji, slug, index });
     await newCategory.save();
 
     res.status(201).json({
@@ -116,7 +116,7 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
  */
 router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, emoji, slug } = req.body;
+    const { name, emoji, slug, index } = req.body;
     const categoryId = req.params['id'];
 
     const category = await Category.findById(categoryId);
@@ -129,18 +129,25 @@ router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const oldSlug = category.slug;
-    const newSlug = slug || category.slug;
-
-    // Se o slug mudou, atualizar todos os produtos com a categoria antiga
-    if (oldSlug !== newSlug) {
-      await Product.updateMany({ category: oldSlug }, { $set: { category: newSlug } });
+    // Atualiza a categoria
+    if (name !== undefined) {
+      category.name = name;
     }
 
-    // Atualiza a categoria
-    category.name = name || category.name;
-    category.emoji = emoji || category.emoji;
-    category.slug = newSlug;
+    if (emoji !== undefined) {
+      category.emoji = emoji;
+    }
+
+    if (index !== undefined) {
+      category.set('index', index);
+    }
+
+    // Se o slug foi fornecido e é diferente, atualizar produtos
+    if (slug !== undefined && slug !== category.slug) {
+      const oldSlug = category.slug;
+      await Product.updateMany({ category: oldSlug }, { $set: { category: slug } });
+      category.slug = slug;
+    }
 
     await category.save();
 

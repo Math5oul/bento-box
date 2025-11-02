@@ -35,123 +35,35 @@
 
   // Estado de dragging (item sendo arrastado)
   &.dragging {
-    opacity: 0.3;
-    transform: scale(0.9);
+    opacity: 0.5;
+    transform: scale(0.98) rotate(2deg);
     cursor: grabbing;
-    filter: blur(2px);
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition:
+      transform 0.2s ease,
+      opacity 0.2s ease,
+      box-shadow 0.2s ease;
     position: relative;
-
-    // Adiciona uma borda pontilhada animada no lugar vazio
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      border: 3px dashed rgba(59, 130, 246, 0.5);
-      border-radius: 12px;
-      opacity: 1;
-      animation: dash 1s linear infinite;
-      background: rgba(59, 130, 246, 0.05);
-      pointer-events: none;
-    }
-
-    // Ícone de "sendo movido"
-    &::before {
-      content: '✋';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 48px;
-      opacity: 0.8;
-      z-index: 100;
-      animation: float 1s ease-in-out infinite;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-      pointer-events: none;
-    }
-  }
-
-  @keyframes dash {
-    to {
-      stroke-dashoffset: -20;
-      border-color: rgba(99, 179, 237, 0.7);
-    }
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translate(-50%, -50%) translateY(0);
-    }
-    50% {
-      transform: translate(-50%, -50%) translateY(-10px);
-    }
   }
 
   // Estado de drag-over (item sobre o qual está sendo arrastado)
   &.drag-over {
-    transform: scale(1.03);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
-    border-radius: 12px;
-    animation: pulse-glow 0.8s ease-in-out infinite;
+    border: 2px dashed #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    animation: pulse 0.6s ease-in-out infinite alternate;
     z-index: 5;
-
-    &::before {
-      opacity: 1;
-      background: linear-gradient(
-        135deg,
-        rgba(59, 130, 246, 0.15),
-        rgba(99, 179, 237, 0.15)
-      ); // Gradiente azul
-    }
-
-    &::after {
-      border-color: rgba(59, 130, 246, 1);
-      border-width: 3px;
-      opacity: 1;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-    }
-
-    // Seta indicando troca
-    .drop-arrow {
-      display: block;
-    }
+    border-radius: 12px;
   }
 
-  // Seta de troca (escondida por padrão)
-  .drop-arrow {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 64px;
-    z-index: 200;
-    animation: rotate-arrow 1s ease-in-out infinite;
-    filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.8));
-    pointer-events: none;
-
-    &::before {
-      content: '🔄';
+  @keyframes pulse {
+    from {
+      transform: scale(1.05);
     }
-  }
-
-  @keyframes rotate-arrow {
-    0%,
-    100% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    50% {
-      transform: translate(-50%, -50%) rotate(180deg);
-    }
-  }
-
-  @keyframes pulse-glow {
-    0%,
-    100% {
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
-    }
-    50% {
-      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.6);
+    to {
+      transform: scale(1.08);
     }
   }
 

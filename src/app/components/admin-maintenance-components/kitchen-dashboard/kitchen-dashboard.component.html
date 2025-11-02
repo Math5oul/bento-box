@@ -30,8 +30,8 @@
   <div class="orders-container" *ngIf="!loading && !error">
     <!-- Pedidos Ativos -->
     <div class="section-header">
-      <h2>🔥 Pedidos Ativos</h2>
-      <span class="section-count">{{ orders.length }} pedido(s)</span>
+      <h2>🔥 Ativos</h2>
+      <span class="section-count">{{ orders.length }}</span>
     </div>
 
     <div *ngIf="orders.length === 0" class="empty-state">
@@ -48,8 +48,11 @@
       >
         <div class="order-card-header">
           <div class="order-badge">
-            <span class="order-number">#{{ order.id.slice(-6) }}</span>
-            <span class="status-badge" [class]="'badge-' + order.status">
+            <span
+              class="status-badge"
+              [class]="'badge-' + order.status"
+              [title]="'ID: ' + order.id"
+            >
               {{ getStatusLabel(order.status) }}
             </span>
           </div>
@@ -73,30 +76,41 @@
         <div class="order-items">
           <h4 class="items-title">Itens do Pedido:</h4>
           <ul class="items-list">
-            <li *ngFor="let item of order.items" class="item">
-              <span class="item-quantity">{{ item.quantity }}x</span>
-              <span class="item-name">{{ item.productName }}</span>
-              <span *ngIf="item.notes" class="item-notes">
+            <ng-container *ngFor="let item of order.items">
+              <li class="item-row">
+                <span class="item-quantity">{{ item.quantity }}x</span>
+                <span class="item-name">{{ item.productName }}</span>
+              </li>
+              <li *ngIf="item.notes" class="item-notes">
                 <span class="notes-icon">📝</span>
                 {{ item.notes }}
-              </span>
-            </li>
+              </li>
+            </ng-container>
           </ul>
         </div>
 
         <div class="order-actions">
-          <div class="actions-title">Alterar Status:</div>
+          <div class="actions-title">Ações:</div>
           <div class="actions-buttons">
-            <ng-container *ngFor="let s of statuses">
+            <!-- Mostrar apenas o próximo status válido (se houver) -->
+            <ng-container *ngIf="getNextStatus(order.status) as nextStatus">
               <button
-                *ngIf="s.value && s.value !== order.status"
-                (click)="updateStatus(order, s.value)"
                 class="action-btn"
-                [class]="'btn-' + s.value"
+                (click)="updateStatus(order, nextStatus)"
+                [class]="'btn-' + nextStatus"
               >
-                {{ s.label }}
+                {{ getNextStatusLabel(order.status) }}
               </button>
             </ng-container>
+
+            <!-- Sempre mostrar: Cancelar (último) -->
+            <button
+              class="action-btn btn-cancelled"
+              (click)="updateStatus(order, 'cancelled')"
+              title="Cancelar pedido"
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       </div>
@@ -105,9 +119,9 @@
     <!-- Histórico de Pedidos -->
     <div class="history-section" *ngIf="historyOrders.length > 0">
       <div class="section-header">
-        <h2>📜 Histórico</h2>
+        <h2><span class="history-icon">📜</span> Histórico</h2>
         <button class="toggle-history-btn" (click)="showHistory = !showHistory">
-          {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }} ({{ historyOrders.length }})
+          {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
         </button>
       </div>
 

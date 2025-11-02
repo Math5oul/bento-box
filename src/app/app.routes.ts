@@ -15,7 +15,7 @@ export const routes: Routes = [
       import(
         './components/admin-maintenance-components/kitchen-dashboard/kitchen-dashboard.component'
       ).then(m => m.KitchenDashboardComponent),
-    canActivate: [kitchenGuard, adminGuard],
+    canActivate: [kitchenGuard],
   },
   // Rotas de manutenção/administração (protegidas por adminGuard)
   {
