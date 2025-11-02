@@ -207,19 +207,61 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
   }
 
   onMouseMove(event: MouseEvent) {
-    if (!this.isDragging && !this.isResizing) return;
-
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    this.handleInteractionMove(x, y);
+    if (this.isDragging || this.isResizing) {
+      this.handleInteractionMove(x, y);
+    } else {
+      // Atualiza cursor hover baseado na posição
+      this.updateHoverCursor(x, y);
+    }
+  }
+
+  private updateHoverCursor(x: number, y: number) {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    // Remove todas as classes de cursor
+    canvas.classList.remove('resizing-tl', 'resizing-tr', 'resizing-bl', 'resizing-br');
+
+    const handleSize = 10;
+
+    // Verifica se está próximo de algum handle e muda o cursor
+    if (this.isNearHandle(x, y, this.cropX, this.cropY, handleSize)) {
+      canvas.classList.add('resizing-tl');
+    } else if (this.isNearHandle(x, y, this.cropX + this.cropWidth, this.cropY, handleSize)) {
+      canvas.classList.add('resizing-tr');
+    } else if (this.isNearHandle(x, y, this.cropX, this.cropY + this.cropHeight, handleSize)) {
+      canvas.classList.add('resizing-bl');
+    } else if (
+      this.isNearHandle(x, y, this.cropX + this.cropWidth, this.cropY + this.cropHeight, handleSize)
+    ) {
+      canvas.classList.add('resizing-br');
+    }
   }
 
   onMouseUp() {
     this.isDragging = false;
     this.isResizing = false;
     this.resizeHandle = null;
+    this.updateCanvasCursor();
+  }
+
+  private updateCanvasCursor() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    // Remove todas as classes de cursor
+    canvas.classList.remove('dragging', 'resizing-tl', 'resizing-tr', 'resizing-bl', 'resizing-br');
+
+    // Adiciona a classe apropriada baseada no estado
+    if (this.isDragging) {
+      canvas.classList.add('dragging');
+    } else if (this.isResizing && this.resizeHandle) {
+      canvas.classList.add(`resizing-${this.resizeHandle}`);
+    }
   }
 
   onTouchStart(event: TouchEvent) {
@@ -274,6 +316,9 @@ export class ImageCropperComponent implements OnInit, OnDestroy {
       this.dragStartX = x - this.cropX;
       this.dragStartY = y - this.cropY;
     }
+
+    // Atualiza o cursor
+    this.updateCanvasCursor();
   }
 
   private handleInteractionMove(x: number, y: number) {

@@ -103,6 +103,26 @@
     border-radius: 4px;
     max-width: 100%;
     height: auto;
+
+    &.resizing-tl {
+      cursor: nwse-resize; // Top-left: diagonal ↖↘
+    }
+
+    &.resizing-tr {
+      cursor: nesw-resize; // Top-right: diagonal ↗↙
+    }
+
+    &.resizing-bl {
+      cursor: nesw-resize; // Bottom-left: diagonal ↗↙
+    }
+
+    &.resizing-br {
+      cursor: nwse-resize; // Bottom-right: diagonal ↖↘
+    }
+
+    &.dragging {
+      cursor: grabbing;
+    }
   }
 }
 
