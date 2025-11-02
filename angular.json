@@ -75,7 +75,12 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "proxyConfig": "proxy.conf.json",
-            "allowedHosts": ["all"]
+            "allowedHosts": [
+              "gatherable-unasking-niels.ngrok-free.dev",
+              "localhost",
+              "127.0.0.1"
+            ],
+            "host": "0.0.0.0"
           },
           "configurations": {
             "production": {
