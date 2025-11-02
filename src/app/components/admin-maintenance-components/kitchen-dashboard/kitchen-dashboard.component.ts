@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { UserRole } from '../../../interfaces/user.interface';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+// ...existing imports...
 
 interface KitchenOrderItem {
   productName: string;
@@ -187,9 +188,17 @@ export class KitchenDashboardComponent implements OnInit {
     return found ? found.label : status;
   }
 
-  formatTime(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  getElapsedTime(createdAt: string): string {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'agora';
+    if (diffMins < 60) return `${diffMins} min`;
+    const hours = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
+    return `${hours}h ${mins}m`;
   }
 
   trackById(index: number, order: KitchenOrder) {

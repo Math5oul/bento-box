@@ -59,8 +59,8 @@
               <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
             </div>
             <div class="meta-item">
-              <span class="meta-icon">⏰</span>
-              <span class="meta-text">{{ formatTime(order.createdAt) }}</span>
+              <span class="meta-icon">⏱️</span>
+              <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
               </div>
               <div class="meta-item">
                 <span class="meta-icon">⏰</span>
-                <span class="meta-text">{{ formatTime(order.createdAt) }}</span>
+                <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
               </div>
             </div>
           </div>

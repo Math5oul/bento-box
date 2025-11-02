@@ -28,9 +28,11 @@ describe('KitchenDashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('formatTime should format a date string to HH:MM', () => {
-    const formatted = component.formatTime(new Date('2025-01-01T08:30:00Z').toISOString());
-    expect(formatted).toMatch(/\d{2}:\d{2}/);
+  it('getElapsedTime should return a readable elapsed string', () => {
+    const now = new Date();
+    const thirtyMinsAgo = new Date(now.getTime() - 30 * 60000).toISOString();
+    const res = component.getElapsedTime(thirtyMinsAgo);
+    expect(res).toMatch(/min|h|agora/);
   });
 
   it('getStatusLabel should return label for known status', () => {
