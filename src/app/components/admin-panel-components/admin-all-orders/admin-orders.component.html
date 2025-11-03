@@ -77,7 +77,7 @@
                     <span class="items-title">Itens do Pedido</span>
                   </div>
                   <ul class="items-list">
-                    @for (item of order.items; track item.productName) {
+                    @for (item of order.items; track i; let i = $index) {
                       <li class="item-row">
                         <div class="item-name-container">
                           <span class="item-name">{{ item.productName }}</span>
