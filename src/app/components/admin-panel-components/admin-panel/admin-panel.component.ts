@@ -8,8 +8,10 @@ import {
   Renderer2,
   ElementRef,
   ViewChild,
+  PLATFORM_ID,
+  Inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AdminOrdersComponent } from '../admin-all-orders/admin-orders.component';
 import { AdminTablesTabComponent } from '../admin-tables-tab/admin-tables-tab.component';
 import { AdminReservationsTabComponent } from '../admin-reservations-tab/admin-reservations-tab.component';
@@ -47,9 +49,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   activeTab: 'tables' | 'orders' | 'stats' | 'reservations' = 'tables';
   pendingScrollToTable: number | null = null;
 
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
   ngOnInit() {
     // Move o elemento para o body ao inicializar
     this.renderer.appendChild(document.body, this.elementRef.nativeElement);
+
+    // Bloqueia o scroll do body (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   ngOnDestroy() {
@@ -57,6 +66,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     if (this.elementRef.nativeElement.parentNode === document.body) {
       this.renderer.removeChild(document.body, this.elementRef.nativeElement);
     }
+    document.body.style.overflow = 'auto';
   }
 
   closePanel() {
