@@ -139,6 +139,16 @@
                           [step]="input.step || '1'"
                           [required]="input.required || false"
                           [placeholder]="input.placeholder || ''"
+                          [disabled]="input.name === 'price' && hasSizes()"
+                          [value]="
+                            input.name === 'price' && hasSizes() ? getFirstSizePrice() : null
+                          "
+                          [class.price-locked]="input.name === 'price' && hasSizes()"
+                          [attr.title]="
+                            input.name === 'price' && hasSizes()
+                              ? 'Se o produto tiver tamanhos, o preço base será definido automaticamente pelo valor do primeiro tamanho.'
+                              : null
+                          "
                         />
                       }
                     </label>

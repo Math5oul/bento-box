@@ -141,6 +141,44 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  /**
+   * Retorna true se o produto tem tamanhos definidos
+   */
+  hasSizes(): boolean {
+    const sizes = this.getProductSizes();
+    return Array.isArray(sizes) && sizes.length > 0;
+  }
+
+  /**
+   * Retorna o preço do primeiro tamanho, se houver
+   */
+  getFirstSizePrice(): number | null {
+    const sizes = this.getProductSizes();
+    if (Array.isArray(sizes) && sizes.length > 0) {
+      return sizes[0].price;
+    }
+    return null;
+  }
+
+  /**
+   * Sincroniza o campo de preço com o primeiro tamanho, se houver tamanhos
+   */
+  public syncPriceWithSizes() {
+    const priceControl = this.componentForm.get(['inputs', 'price']);
+    if (!priceControl) return;
+    if (this.hasSizes()) {
+      const firstPrice = this.getFirstSizePrice();
+      if (firstPrice !== null && priceControl.value !== firstPrice) {
+        priceControl.setValue(firstPrice);
+        priceControl.disable({ emitEvent: false });
+      }
+    } else {
+      if (priceControl.disabled) {
+        priceControl.enable({ emitEvent: false });
+      }
+    }
+  }
+
   ngAfterViewChecked() {
     // Inicializa o conteúdo dos editores richtext apenas uma vez
     if (this.selectedComponent?.inputsConfig) {
@@ -859,6 +897,9 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     currentSizes.push({ ...this.tempSize });
     sizesControl.setValue(currentSizes);
 
+    // Sincroniza preço após adicionar tamanho
+    this.syncPriceWithSizes();
+
     // Reseta o formulário temporário
     this.tempSize = { name: '', abbreviation: '', price: 0 };
   }
@@ -890,6 +931,9 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     currentSizes[this.editingSizeIndex] = { ...this.tempSize };
     sizesControl.setValue(currentSizes);
 
+    // Sincroniza preço após editar tamanho
+    this.syncPriceWithSizes();
+
     this.cancelEditSize();
   }
 
@@ -913,6 +957,9 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     const currentSizes: ProductSize[] = [...(sizesControl.value || [])];
     currentSizes.splice(index, 1);
     sizesControl.setValue(currentSizes);
+
+    // Sincroniza preço após remover tamanho
+    this.syncPriceWithSizes();
   }
 
   /**
