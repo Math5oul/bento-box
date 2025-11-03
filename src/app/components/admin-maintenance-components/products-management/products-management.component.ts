@@ -154,6 +154,7 @@ export class ProductsManagementComponent implements OnInit {
         category: product.category,
         format: product.format || '1x1',
         colorMode: product.colorMode || 'light',
+        variations: product.variations || [],
       },
     };
 
