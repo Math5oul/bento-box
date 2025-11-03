@@ -1,3 +1,40 @@
+.price-locked {
+  background: repeating-linear-gradient(135deg, #f8f9fa, #f8f9fa 10px, #e0e0e0 10px, #e0e0e0 20px);
+  color: #888 !important;
+  border: 2px solid #bdbdbd !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  font-style: italic;
+  position: relative;
+}
+
+.price-locked:hover::after,
+.price-locked:focus::after {
+  content: 'Preço bloqueado: será definido automaticamente pelo primeiro tamanho.';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  white-space: pre-line;
+  margin-top: 8px;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+// Estilo para campo de preço bloqueado
+.price-locked {
+  background: repeating-linear-gradient(135deg, #f8f9fa, #f8f9fa 10px, #e0e0e0 10px, #e0e0e0 20px);
+  color: #888 !important;
+  border: 2px solid #bdbdbd !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  font-style: italic;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
