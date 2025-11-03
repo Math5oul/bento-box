@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CarrosselComponent } from '../../../carrossel/carrossel.component';
@@ -13,6 +14,7 @@ import { SanitizePipe } from '../../../../pipes/sanitize.pipe';
   styleUrls: ['./product-modal.component.scss'],
 })
 export class ProductModalComponent {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   @Input() images: string[] = [];
   currentImageIndex: number = 0;
   @Input() productName: string = '';
@@ -37,8 +39,10 @@ export class ProductModalComponent {
    */
   open() {
     this.isOpen = true;
-    // Bloqueia o scroll do body
-    document.body.style.overflow = 'hidden';
+    // Bloqueia o scroll do body (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
     // Se houver apenas um tamanho, seleciona automaticamente
     if (this.sizes && this.sizes.length === 1) {
       this.selectedSize = { ...this.sizes[0] };
@@ -50,8 +54,10 @@ export class ProductModalComponent {
    */
   close() {
     this.isOpen = false;
-    // Libera o scroll do body
-    document.body.style.overflow = '';
+    // Libera o scroll do body (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     this.resetForm();
   }
 
