@@ -155,24 +155,26 @@
             } @else {
               @for (product of filteredProducts; track product._id) {
                 <button class="product-card" (click)="addProductToOrder(product)">
-                  @if (product.images && product.images.length > 0) {
-                    <img [src]="product.images[0]" [alt]="product.name" class="product-image" />
-                  } @else {
-                    <div class="product-image-placeholder">📦</div>
-                  }
-                  <div class="product-info">
-                    <div class="product-name">{{ product.name }}</div>
-                    @if (product.sizes && product.sizes.length > 0) {
-                      <div class="product-sizes">
-                        @for (size of product.sizes; track size.abbreviation) {
-                          <span class="size-tag"
-                            >{{ size.abbreviation }}: {{ formatCurrency(size.price) }}</span
-                          >
-                        }
-                      </div>
+                  <div class="product-card-content">
+                    @if (product.images && product.images.length > 0) {
+                      <img [src]="product.images[0]" [alt]="product.name" class="product-image" />
                     } @else {
-                      <div class="product-price">{{ formatCurrency(product.price) }}</div>
+                      <div class="product-image-placeholder">📦</div>
                     }
+                    <div class="product-info">
+                      <div class="product-name">{{ product.name }}</div>
+                      @if (product.sizes && product.sizes.length > 0) {
+                        <div class="product-sizes">
+                          @for (size of product.sizes; track size.abbreviation) {
+                            <span class="size-tag"
+                              >{{ size.abbreviation }}: {{ formatCurrency(size.price) }}</span
+                            >
+                          }
+                        </div>
+                      } @else {
+                        <div class="product-price">{{ formatCurrency(product.price) }}</div>
+                      }
+                    </div>
                   </div>
                 </button>
               }
