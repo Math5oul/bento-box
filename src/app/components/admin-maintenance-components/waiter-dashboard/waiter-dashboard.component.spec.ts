@@ -8,6 +8,12 @@ class MockAuthService {
   getToken() {
     return 'fake-token';
   }
+  isAdmin() {
+    return false;
+  }
+  getCurrentUser() {
+    return { id: 1, name: 'Test' };
+  }
 }
 
 describe('WaiterDashboardComponent', () => {
@@ -25,6 +31,9 @@ describe('WaiterDashboardComponent', () => {
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
+
+    const initReq = httpMock.expectOne('/api/orders');
+    initReq.flush({ orders: [] });
   });
 
   afterEach(() => {

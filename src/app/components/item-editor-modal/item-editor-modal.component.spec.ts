@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ItemEditorModalComponent } from './item-editor-modal.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ItemEditorModalComponent', () => {
   let component: ItemEditorModalComponent;
@@ -8,7 +9,7 @@ describe('ItemEditorModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ItemEditorModalComponent],
+      imports: [ItemEditorModalComponent, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ItemEditorModalComponent);
