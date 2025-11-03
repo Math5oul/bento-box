@@ -13,6 +13,7 @@ describe('SimpleTextComponent', () => {
 
     fixture = TestBed.createComponent(SimpleTextComponent);
     component = fixture.componentInstance;
+    component.inputs = { text: 'Test', background: '#ffffff' } as any;
     fixture.detectChanges();
   });
 

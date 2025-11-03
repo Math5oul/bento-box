@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminHeaderComponent } from './admin-header.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
-// Teste básico de renderização
 describe('AdminHeaderComponent', () => {
   let component: AdminHeaderComponent;
   let fixture: ComponentFixture<AdminHeaderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminHeaderComponent],
+      imports: [AdminHeaderComponent, HttpClientTestingModule, RouterTestingModule],
     }).compileComponents();
     fixture = TestBed.createComponent(AdminHeaderComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminPanelComponent } from './admin-panel.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('AdminPanelComponent', () => {
   let component: AdminPanelComponent;
@@ -7,7 +8,7 @@ describe('AdminPanelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AdminPanelComponent],
+      imports: [AdminPanelComponent, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminPanelComponent);

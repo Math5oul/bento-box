@@ -196,6 +196,7 @@ export class CategoriesManagementComponent implements OnInit {
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '')
       .trim();
   }
 
