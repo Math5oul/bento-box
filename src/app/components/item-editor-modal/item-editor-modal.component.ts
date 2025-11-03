@@ -527,6 +527,12 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
             }
           }
         });
+        // Preenche o array de variações para o formulário de variações
+        if (Array.isArray(this.itemToEdit.inputs.variations)) {
+          this.variations = [...this.itemToEdit.inputs.variations];
+        } else {
+          this.variations = [];
+        }
       }
 
       // Carregar imagens
