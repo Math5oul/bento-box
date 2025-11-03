@@ -37,6 +37,8 @@ export class ProductModalComponent {
    */
   open() {
     this.isOpen = true;
+    // Bloqueia o scroll do body
+    document.body.style.overflow = 'hidden';
     // Se houver apenas um tamanho, seleciona automaticamente
     if (this.sizes && this.sizes.length === 1) {
       this.selectedSize = { ...this.sizes[0] };
@@ -48,6 +50,8 @@ export class ProductModalComponent {
    */
   close() {
     this.isOpen = false;
+    // Libera o scroll do body
+    document.body.style.overflow = '';
     this.resetForm();
   }
 

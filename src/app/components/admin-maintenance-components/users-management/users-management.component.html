@@ -186,9 +186,9 @@
           <div class="form-group">
             <label>Tipo de Conta</label>
             <select [(ngModel)]="newUser.role" name="role">
-              <option *ngFor="let role of availableRoles" [value]="role.value">
-                {{ role.label }}
-              </option>
+              @for (role of availableRoles; track role.value) {
+                <option [value]="role.value">{{ role.label }}</option>
+              }
             </select>
           </div>
 
@@ -220,9 +220,9 @@
           <div class="form-group">
             <label>Role</label>
             <select [(ngModel)]="editingUser.role">
-              <option *ngFor="let role of availableRoles" [value]="role.value">
-                {{ role.label }}
-              </option>
+              @for (role of availableRoles; track role.value) {
+                <option [value]="role.value">{{ role.label }}</option>
+              }
             </select>
           </div>
 

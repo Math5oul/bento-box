@@ -11,7 +11,9 @@
     <div class="filter-item">
       <label class="filter-label">Filtrar por Status:</label>
       <select [(ngModel)]="filterStatus" (change)="loadOrders()" class="filter-select">
-        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+        @for (s of statuses; track s.value) {
+          <option [value]="s.value">{{ s.label }}</option>
+        }
       </select>
     </div>
     <div class="order-count">
@@ -21,152 +23,162 @@
     </div>
   </div>
 
-  <div *ngIf="loading" class="loading">⏳ Carregando pedidos...</div>
-  <div *ngIf="error" class="error-message">❌ {{ error }}</div>
+  @if (loading) {
+    <div class="loading">⏳ Carregando pedidos...</div>
+  } @else if (error) {
+    <div class="error-message">❌ {{ error }}</div>
+  } @else {
+    <div class="orders-container">
+      <!-- Pedidos Ativos -->
+      <div class="section-header">
+        <h2>🔥 Ativos</h2>
+        <span class="section-count">{{ orders.length }}</span>
+      </div>
 
-  <div class="orders-container" *ngIf="!loading && !error">
-    <!-- Pedidos Ativos -->
-    <div class="section-header">
-      <h2>🔥 Ativos</h2>
-      <span class="section-count">{{ orders.length }}</span>
-    </div>
+      @if (orders.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>Nenhum pedido ativo</h3>
+          <p class="empty-hint">Aguarde novos pedidos chegarem.</p>
+        </div>
+      } @else {
+        <div class="orders-grid">
+          @for (order of orders; track order.id) {
+            <div class="order-card" [class]="getStatusClass(order.status)">
+              <div class="order-card-header">
+                <div class="order-badge">
+                  <span
+                    class="status-badge"
+                    [class]="'badge-' + order.status"
+                    [title]="'ID: ' + order.id"
+                  >
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </div>
+                <div class="order-meta">
+                  <div class="meta-item">
+                    <span class="meta-icon">🍽️</span>
+                    <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
+                  </div>
+                </div>
+              </div>
 
-    <div *ngIf="orders.length === 0" class="empty-state">
-      <div class="empty-icon">📭</div>
-      <h3>Nenhum pedido ativo</h3>
-      <p class="empty-hint">Aguarde novos pedidos chegarem.</p>
-    </div>
+              <div class="order-client">
+                <span class="client-icon">👤</span>
+                <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+              </div>
 
-    <div class="orders-grid">
-      <div
-        class="order-card"
-        *ngFor="let order of orders; trackBy: trackById"
-        [class]="getStatusClass(order.status)"
-      >
-        <div class="order-card-header">
-          <div class="order-badge">
-            <span
-              class="status-badge"
-              [class]="'badge-' + order.status"
-              [title]="'ID: ' + order.id"
-            >
-              {{ getStatusLabel(order.status) }}
-            </span>
-          </div>
-          <div class="order-meta">
-            <div class="meta-item">
-              <span class="meta-icon">🍽️</span>
-              <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
+              <div class="order-items">
+                <h4 class="items-title">Itens do Pedido:</h4>
+                <ul class="items-list">
+                  @for (item of order.items; track i; let i = $index) {
+                    <li class="item-row">
+                      <span class="item-quantity">{{ item.quantity }}x</span>
+                      <span class="item-name">{{ item.productName }}</span>
+                    </li>
+                    @if (item.notes) {
+                      <li class="item-notes">
+                        <span class="notes-icon">📝</span>
+                        {{ item.notes }}
+                      </li>
+                    }
+                  }
+                </ul>
+              </div>
+
+              <div class="order-actions">
+                <div class="actions-title">Ações:</div>
+                <div class="actions-buttons">
+                  @if (getNextStatus(order.status)) {
+                    <button
+                      class="action-btn"
+                      (click)="updateStatus(order, getNextStatus(order.status)!)"
+                      [class]="'btn-' + getNextStatus(order.status)"
+                    >
+                      {{ getNextStatusLabel(order.status) }}
+                    </button>
+                  }
+
+                  <button
+                    class="action-btn btn-cancelled"
+                    (click)="updateStatus(order, 'cancelled')"
+                    title="Cancelar pedido"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-icon">⏱️</span>
-              <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
-            </div>
-          </div>
+          }
         </div>
+      }
 
-        <div class="order-client">
-          <span class="client-icon">👤</span>
-          <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
-        </div>
-
-        <div class="order-items">
-          <h4 class="items-title">Itens do Pedido:</h4>
-          <ul class="items-list">
-            <ng-container *ngFor="let item of order.items">
-              <li class="item-row">
-                <span class="item-quantity">{{ item.quantity }}x</span>
-                <span class="item-name">{{ item.productName }}</span>
-              </li>
-              <li *ngIf="item.notes" class="item-notes">
-                <span class="notes-icon">📝</span>
-                {{ item.notes }}
-              </li>
-            </ng-container>
-          </ul>
-        </div>
-
-        <div class="order-actions">
-          <div class="actions-title">Ações:</div>
-          <div class="actions-buttons">
-            <!-- Mostrar apenas o próximo status válido (se houver) -->
-            <ng-container *ngIf="getNextStatus(order.status) as nextStatus">
-              <button
-                class="action-btn"
-                (click)="updateStatus(order, nextStatus)"
-                [class]="'btn-' + nextStatus"
-              >
-                {{ getNextStatusLabel(order.status) }}
-              </button>
-            </ng-container>
-
-            <!-- Sempre mostrar: Cancelar (último) -->
-            <button
-              class="action-btn btn-cancelled"
-              (click)="updateStatus(order, 'cancelled')"
-              title="Cancelar pedido"
-            >
-              Cancelar
+      <!-- Histórico de Pedidos -->
+      @if (historyOrders.length > 0) {
+        <div class="history-section">
+          <div class="section-header">
+            <h2><span class="history-icon">📜</span> Histórico</h2>
+            <button class="toggle-history-btn" (click)="showHistory = !showHistory">
+              {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
             </button>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Histórico de Pedidos -->
-    <div class="history-section" *ngIf="historyOrders.length > 0">
-      <div class="section-header">
-        <h2><span class="history-icon">📜</span> Histórico</h2>
-        <button class="toggle-history-btn" (click)="showHistory = !showHistory">
-          {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
-        </button>
-      </div>
+          @if (showHistory) {
+            <div class="orders-grid">
+              @for (order of historyOrders; track order.id) {
+                <div class="order-card" [class]="getStatusClass(order.status)">
+                  <div class="order-card-header">
+                    <div class="order-badge">
+                      <span class="order-number">#{{ order.id.slice(-6) }}</span>
+                      <span class="status-badge" [class]="'badge-' + order.status">
+                        {{ getStatusLabel(order.status) }}
+                      </span>
+                    </div>
+                    <div class="order-meta">
+                      <div class="meta-item">
+                        <span class="meta-icon">🍽️</span>
+                        <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
+                      </div>
+                      <div class="meta-item">
+                        <span class="meta-icon">⏰</span>
+                        <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
+                      </div>
+                    </div>
+                  </div>
 
-      <div class="orders-grid" *ngIf="showHistory">
-        <div
-          class="order-card"
-          *ngFor="let order of historyOrders; trackBy: trackById"
-          [class]="getStatusClass(order.status)"
-        >
-          <div class="order-card-header">
-            <div class="order-badge">
-              <span class="order-number">#{{ order.id.slice(-6) }}</span>
-              <span class="status-badge" [class]="'badge-' + order.status">
-                {{ getStatusLabel(order.status) }}
-              </span>
+                  <div class="order-client">
+                    <span class="client-icon">👤</span>
+                    <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+                  </div>
+
+                  <div class="order-items">
+                    <h4 class="items-title">Itens do Pedido:</h4>
+                    <ul class="items-list">
+                      @for (item of order.items; track item.productName) {
+                        <li class="item">
+                          <span class="item-quantity">{{ item.quantity }}x</span>
+                          <span class="item-name">{{ item.productName }}</span>
+
+                          @if (item.notes) {
+                            <span class="item-notes">
+                              <span class="notes-icon">📝</span>
+                              {{ item.notes }}
+                            </span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                </div>
+              }
             </div>
-            <div class="order-meta">
-              <div class="meta-item">
-                <span class="meta-icon">🍽️</span>
-                <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-icon">⏰</span>
-                <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-client">
-            <span class="client-icon">👤</span>
-            <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
-          </div>
-
-          <div class="order-items">
-            <h4 class="items-title">Itens do Pedido:</h4>
-            <ul class="items-list">
-              <li *ngFor="let item of order.items" class="item">
-                <span class="item-quantity">{{ item.quantity }}x</span>
-                <span class="item-name">{{ item.productName }}</span>
-                <span *ngIf="item.notes" class="item-notes">
-                  <span class="notes-icon">📝</span>
-                  {{ item.notes }}
-                </span>
-              </li>
-            </ul>
-          </div>
+          }
         </div>
-      </div>
+      }
     </div>
-  </div>
+  }
 </div>

@@ -189,6 +189,7 @@
 
   .panel-header {
     padding: 1rem 1.5rem;
+    padding-top: calc(2.2rem + env(safe-area-inset-top, 0px));
 
     h2 {
       font-size: 1.25rem;
