@@ -44,7 +44,9 @@
 ### Por que Bento Box?
 
 - 📱 **QR Code para Mesas**: Cada mesa possui um QR Code único que leva os clientes diretamente ao cardápio
-- 🎨 **Grid Dinâmico**: Layout totalmente personalizável com produtos de diferentes tamanhos (1x1, 1x2, 2x1, 2x2)
+- 🎨 **Grid Dinâmico e Responsivo**: Layout totalmente personalizável e adaptável a qualquer dispositivo, com produtos de diferentes tamanhos (1x1, 1x2, 2x1, 2x2)
+- 👥 **Pedidos listados por Cliente**: Os pedidos são organizados por cliente, mesmo agrupados por mesa, facilitando o acompanhamento individualizado e o atendimento personalizado
+- ⏩ **Avanço de Status pelo Garçom e pela Cozinha**: Os paineis do garçom e cozinha permitem avançar o status dos pedidos
 - 🔄 **Edição em Tempo Real**: Reorganize produtos por drag-and-drop e veja as mudanças instantaneamente
 - 🛒 **Sistema de Pedidos**: Carrinho integrado com histórico de pedidos e notificações
 - 🖼️ **Gerenciamento de Imagens**: Upload e otimização automática de imagens de produtos
@@ -52,9 +54,9 @@
 
 ---
 
-## ✨ Funcionalidades
+### ✨ Funcionalidades & Diferenciais
 
-### 🎨 Grid Dinâmico Personalizável
+#### 🎨 Grid Dinâmico e Responsivo
 
 - Grid responsivo com células configuráveis
 - Tamanhos personalizados por item (colSpan x rowSpan)
@@ -63,7 +65,15 @@
 - Modo de edição com feedback visual em tempo real
 - Auto-ajuste e otimização de layout
 
-### 🍔 Gerenciamento Completo de Produtos
+#### 👥 Pedidos listados por Cliente
+
+- Os pedidos são exibidos agrupados por cliente, mesmo organizados por mesa, facilitando o acompanhamento individual e o histórico de cada cliente
+
+#### ⏩ Avanço de Status do pedido
+
+- Nos paineis do garçom e da cozinha é possivel avançar o status dos pedidos, igual ao dashboard da cozinha, tornando o fluxo mais ágil
+
+#### 🍔 Gerenciamento Completo de Produtos
 
 - ✅ Criação, edição e exclusão de produtos
 - 🖼️ Upload de múltiplas imagens
@@ -72,14 +82,14 @@
 - 🏷️ Sistema de categorias
 - 🔍 Busca e filtros avançados
 
-### 📱 QR Code e Mesas
+#### 📱 QR Code e Mesas
 
 - Geração automática de QR Codes para cada mesa
 - Acesso direto ao cardápio via QR Code
 - Identificação automática da mesa
 - Regeneração de QR Codes via script
 
-### 🛒 Sistema de Pedidos
+#### 🛒 Sistema de Pedidos
 
 - Carrinho de compras interativo
 - Adição de observações aos pedidos
@@ -88,7 +98,7 @@
 - Notificações em tempo real
 - Interface intuitiva para clientes
 
-### 🔐 Autenticação e Autorização
+#### � Autenticação e Autorização
 
 - Sistema JWT para autenticação segura
 - Níveis de acesso: Admin, Cozinha, Cliente
@@ -96,7 +106,7 @@
 - Sessões persistentes
 - Logout automático por inatividade
 
-### 📊 Painel Administrativo
+#### 📊 Painel Administrativo
 
 - Dashboard com estatísticas
 - Gerenciamento de produtos e categorias
@@ -104,6 +114,10 @@
 - Ferramentas de manutenção
 - Central de testes integrada (Test Hub)
 - Documentação interativa
+
+---
+
+> 💡 **Diferencial:** Os pedidos são listados por cliente (mesmo agrupados por mesa), facilitando o atendimento personalizado e o acompanhamento individual. O painel do garçom agora também pode avançar o status dos pedidos, igual ao dashboard da cozinha. O grid é totalmente responsivo e adaptado para mobile.
 
 ---
 
@@ -252,43 +266,43 @@ Reforce a identidade visual da marca:
 
 ### Frontend
 
-| Tecnologia    | Versão | Descrição                                    |
-| ------------- | ------ | -------------------------------------------- |
-| **Angular**   | 20.3   | Framework frontend moderno                   |
-| **TypeScript**| 5.8    | Superset JavaScript com tipagem estática     |
-| **SCSS**      | -      | Pré-processador CSS                          |
-| **RxJS**      | 7.8    | Programação reativa                          |
-| **Signals**   | -      | Sistema de reatividade do Angular            |
+| Tecnologia     | Versão | Descrição                                |
+| -------------- | ------ | ---------------------------------------- |
+| **Angular**    | 20.3   | Framework frontend moderno               |
+| **TypeScript** | 5.8    | Superset JavaScript com tipagem estática |
+| **SCSS**       | -      | Pré-processador CSS                      |
+| **RxJS**       | 7.8    | Programação reativa                      |
+| **Signals**    | -      | Sistema de reatividade do Angular        |
 
 ### Backend
 
-| Tecnologia        | Versão | Descrição                           |
-| ----------------- | ------ | ----------------------------------- |
-| **Node.js**       | 18+    | Runtime JavaScript                  |
-| **Express**       | 4.18   | Framework web                       |
-| **TypeScript**    | 5.8    | Linguagem de programação            |
-| **JWT**           | 9.0    | Autenticação via tokens             |
-| **Multer**        | 2.0    | Upload de arquivos                  |
-| **Bcrypt**        | 6.0    | Hashing de senhas                   |
-| **CORS**          | 2.8    | Cross-Origin Resource Sharing       |
+| Tecnologia     | Versão | Descrição                     |
+| -------------- | ------ | ----------------------------- |
+| **Node.js**    | 18+    | Runtime JavaScript            |
+| **Express**    | 4.18   | Framework web                 |
+| **TypeScript** | 5.8    | Linguagem de programação      |
+| **JWT**        | 9.0    | Autenticação via tokens       |
+| **Multer**     | 2.0    | Upload de arquivos            |
+| **Bcrypt**     | 6.0    | Hashing de senhas             |
+| **CORS**       | 2.8    | Cross-Origin Resource Sharing |
 
 ### Banco de Dados
 
-| Tecnologia    | Versão | Descrição                        |
-| ------------- | ------ | -------------------------------- |
-| **MongoDB**   | 8+     | Banco de dados NoSQL             |
-| **Mongoose**  | 8.19   | ODM para MongoDB                 |
+| Tecnologia   | Versão | Descrição            |
+| ------------ | ------ | -------------------- |
+| **MongoDB**  | 8+     | Banco de dados NoSQL |
+| **Mongoose** | 8.19   | ODM para MongoDB     |
 
 ### Ferramentas
 
-| Ferramenta        | Descrição                           |
-| ----------------- | ----------------------------------- |
-| **Angular CLI**   | CLI oficial do Angular              |
-| **ts-node-dev**   | Desenvolvimento TypeScript          |
-| **Concurrently**  | Execução paralela de scripts        |
-| **Prettier**      | Formatação de código                |
-| **Husky**         | Git hooks                           |
-| **QRCode**        | Geração de QR Codes                 |
+| Ferramenta       | Descrição                    |
+| ---------------- | ---------------------------- |
+| **Angular CLI**  | CLI oficial do Angular       |
+| **ts-node-dev**  | Desenvolvimento TypeScript   |
+| **Concurrently** | Execução paralela de scripts |
+| **Prettier**     | Formatação de código         |
+| **Husky**        | Git hooks                    |
+| **QRCode**       | Geração de QR Codes          |
 
 ---
 
@@ -385,21 +399,21 @@ http://localhost:4200
 
 ---
 
-## 📜 Scripts Disponíveis
+## 📜 Scripts Disponíveis para desenvolvimento
 
-| Script                      | Descrição                                      |
-| --------------------------- | ---------------------------------------------- |
-| `npm start`                 | Inicia apenas o Angular (porta 4200)           |
-| `npm run backend`           | Inicia apenas o backend (porta 3001)           |
-| `npm run dev`               | Inicia Angular + Backend simultaneamente       |
-| `npm run dev:mobile`        | Dev server com acesso externo para mobile      |
-| `npm run build`             | Build de produção do frontend                  |
-| `npm run build:backend`     | Compila TypeScript do backend                  |
-| `npm test`                  | Executa testes unitários com Karma             |
-| `npm run watch`             | Build em modo watch (desenvolvimento)          |
-| `npm run regenerate:qrcodes`| Regenera QR Codes de todas as mesas            |
-| `npm run format`            | Formata código com Prettier                    |
-| `npm run format:check`      | Verifica formatação sem modificar              |
+| Script                       | Descrição                                 |
+| ---------------------------- | ----------------------------------------- |
+| `npm start`                  | Inicia apenas o Angular (porta 4200)      |
+| `npm run backend`            | Inicia apenas o backend (porta 3001)      |
+| `npm run dev`                | Inicia Angular + Backend simultaneamente  |
+| `npm run dev:mobile`         | Dev server com acesso externo para mobile |
+| `npm run build`              | Build de produção do frontend             |
+| `npm run build:backend`      | Compila TypeScript do backend             |
+| `npm test`                   | Executa testes unitários com Karma        |
+| `npm run watch`              | Build em modo watch (desenvolvimento)     |
+| `npm run regenerate:qrcodes` | Regenera QR Codes de todas as mesas       |
+| `npm run format`             | Formata código com Prettier               |
+| `npm run format:check`       | Verifica formatação sem modificar         |
 
 ### Exemplos de Uso
 
