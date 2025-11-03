@@ -70,6 +70,10 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     return this.isAdmin || this.isWaiter;
   }
 
+  get isClient() {
+    return this.authService.isClient();
+  }
+
   get userInitial(): string {
     return this.user?.name?.charAt(0).toUpperCase() || '?';
   }

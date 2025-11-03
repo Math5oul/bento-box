@@ -36,38 +36,34 @@
         <span>Alterar Senha</span>
       </button>
 
-      @if (isAdmin) {
+      @if (!isClient) {
         <div class="menu-divider"></div>
-        <button class="menu-item admin-item" (click)="onAdminPanelClick()">
-          <span class="icon">👥</span>
-          <span>Status</span>
-        </button>
-        <button class="menu-item admin-item" (click)="onMaintenanceClick()">
-          <span class="icon">⚙️</span>
-          <span>Configurações</span>
-        </button>
-      }
 
-      <!-- Show kitchen dashboard link to Admins and Kitchen role -->
-      @if (isKitchenOrAdmin) {
-        @if (!isAdmin) {
-          <div class="menu-divider"></div>
-        }
+        <!-- Show kitchen dashboard link to Admins and Kitchen role -->
+
         <button class="menu-item admin-item" (click)="onKitchenDashboardClick()">
           <span class="icon">🍳</span>
           <span>Acompanhar Cozinha</span>
         </button>
-      }
 
-      <!-- Show waiter dashboard link to Admins and Waiter role -->
-      @if (isWaiterOrAdmin) {
-        @if (!isAdmin && !isKitchen) {
-          <div class="menu-divider"></div>
-        }
+        <!-- Show waiter dashboard link to Admins and Waiter role -->
+
         <button class="menu-item admin-item" (click)="onWaiterDashboardClick()">
-          <span class="icon">🍽️</span>
+          <span class="icon">🧑‍🍳</span>
           <span>Painel do Garçom</span>
         </button>
+
+        <button class="menu-item admin-item" (click)="onAdminPanelClick()">
+          <span class="icon">🍽️</span>
+          <span>Status das Mesas</span>
+        </button>
+
+        @if (isAdmin) {
+          <button class="menu-item admin-item" (click)="onMaintenanceClick()">
+            <span class="icon">⚙️</span>
+            <span>Configurações</span>
+          </button>
+        }
       }
 
       <div class="menu-divider"></div>
