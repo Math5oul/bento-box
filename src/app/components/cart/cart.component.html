@@ -37,96 +37,98 @@
             <p>Seu carrinho está vazio</p>
             <small>Adicione itens do cardápio para começar</small>
           </div>
-        }
-
-        @for (item of carrinho; track item.productName) {
-          <div class="cart-item">
-            <div class="item-header">
-              <div class="item-main-info">
-                <span class="product-image">
-                  <img [src]="item.image" alt="{{ item.productName }}" />
-                </span>
-                <div class="product-details">
-                  <span class="product-name">{{ item.productName }}</span>
-                  @if (shouldShowSize(item)) {
-                    <span class="product-size"
-                      >{{ item.selectedSize!.abbreviation }} - {{ item.selectedSize!.name }}</span
-                    >
-                  }
-                  @if (item.observations) {
-                    <span class="product-observations">📝 {{ item.observations }}</span>
-                  }
+        } @else {
+          @for (item of carrinho; track item.productName) {
+            <div class="cart-item">
+              <div class="item-header">
+                <div class="item-main-info">
+                  <span class="product-image">
+                    <img [src]="item.image" alt="{{ item.productName }}" />
+                  </span>
+                  <div class="product-details">
+                    <span class="product-name">{{ item.productName }}</span>
+                    @if (shouldShowSize(item)) {
+                      <span class="product-size"
+                        >{{ item.selectedSize!.abbreviation }} - {{ item.selectedSize!.name }}</span
+                      >
+                    }
+                    @if (item.observations) {
+                      <span class="product-observations">📝 {{ item.observations }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="item-actions-row">
+                  <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
+                  <button class="edit-item-btn" (click)="openEditModal(item)" title="Editar item">
+                    ✏️
+                  </button>
                 </div>
               </div>
-              <div class="item-actions-row">
-                <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
-                <button class="edit-item-btn" (click)="openEditModal(item)" title="Editar item">
-                  ✏️
-                </button>
+
+              <div class="item-controls">
+                <div class="quantity-adjuster">
+                  <button
+                    class="quantity-button decrease"
+                    (click)="decreaseQuantity(item)"
+                    [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'"
+                  >
+                    @if (item.quantity === 1) {
+                      <span class="trash-icon">🗑️</span>
+                    } @else {
+                      <span>-</span>
+                    }
+                  </button>
+
+                  <span class="quantity">{{ item.quantity }}</span>
+
+                  <button
+                    class="quantity-button increase"
+                    (click)="increaseQuantity(item)"
+                    title="Aumentar quantidade"
+                  >
+                    <span>+</span>
+                  </button>
+                </div>
+
+                <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
               </div>
             </div>
-
-            <div class="item-controls">
-              <div class="quantity-adjuster">
-                <button
-                  class="quantity-button decrease"
-                  (click)="decreaseQuantity(item)"
-                  [title]="item.quantity === 1 ? 'Remover item' : 'Diminuir quantidade'"
-                >
-                  @if (item.quantity === 1) {
-                    <span class="trash-icon">🗑️</span>
-                  } @else {
-                    <span>-</span>
-                  }
-                </button>
-
-                <span class="quantity">{{ item.quantity }}</span>
-
-                <button
-                  class="quantity-button increase"
-                  (click)="increaseQuantity(item)"
-                  title="Aumentar quantidade"
-                >
-                  <span>+</span>
-                </button>
-              </div>
-
-              <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Rodapé com total e botão (só na aba "Novo Pedido") -->
-      <div class="cart-footer">
-        @if (orderSuccess) {
-          <div class="success-message">✅ Pedido enviado com sucesso!</div>
-        }
-
-        @if (orderError) {
-          <div class="error-message">❌ {{ orderError }}</div>
-        }
-
-        <div class="total-container">
-          <span>Total:</span>
-          <span class="total-price">{{ total | currency: 'BRL' }}</span>
-        </div>
-
-        <div *ngIf="!isTableLinked" class="table-link-message">
-          {{ tableLinkMessage }}
-        </div>
-
-        <button
-          class="checkout-button"
-          (click)="finalizarPedido()"
-          [disabled]="isPlacingOrder || carrinho.length === 0 || !isTableLinked"
-        >
-          @if (isPlacingOrder) {
-            <span>⏳ Enviando...</span>
-          } @else {
-            <span>🍱 Enviar Pedido</span>
           }
-        </button>
+        }
+
+        <!-- Rodapé com total e botão (só na aba "Novo Pedido") -->
+        <div class="cart-footer">
+          @if (orderSuccess) {
+            <div class="success-message">✅ Pedido enviado com sucesso!</div>
+          }
+
+          @if (orderError) {
+            <div class="error-message">❌ {{ orderError }}</div>
+          }
+
+          <div class="total-container">
+            <span>Total:</span>
+            <span class="total-price">{{ total | currency: 'BRL' }}</span>
+          </div>
+
+          @if (!isTableLinked) {
+            <div class="table-link-message">
+              {{ tableLinkMessage }}
+            </div>
+          }
+
+          <button
+            class="checkout-button"
+            (click)="finalizarPedido()"
+            [disabled]="isPlacingOrder || carrinho.length === 0 || !isTableLinked"
+          >
+            @if (isPlacingOrder) {
+              <span>⏳ Enviando...</span>
+            } @else {
+              <span>🍱 Enviar Pedido</span>
+            }
+          </button>
+        </div>
       </div>
     }
 
