@@ -755,9 +755,16 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
       format = formValue.inputs.format;
     }
 
+    // Lógica para price: se houver sizes, pega o price do primeiro size, senão usa o do form
+    let price = formValue.inputs?.price;
+    if (Array.isArray(formValue.inputs?.sizes) && formValue.inputs.sizes.length > 0) {
+      price = formValue.inputs.sizes[0]?.price;
+    }
+
     const inputs = {
       ...formValue.inputs,
       format: format,
+      price: price,
     };
 
     if (this.uploadedImagePaths.length > 0) {
