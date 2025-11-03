@@ -6,6 +6,13 @@ export interface IProductSize {
   price: number;
 }
 
+export interface IProductVariation {
+  title: string;
+  description?: string;
+  image?: string;
+  price: number;
+}
+
 export interface IProduct extends Document {
   name: string;
   description: string;
@@ -22,6 +29,7 @@ export interface IProduct extends Document {
     rowSpan: number;
     colSpan: number;
   };
+  variations?: IProductVariation[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,6 +114,33 @@ const ProductSchema: Schema = new Schema(
       col: { type: Number },
       rowSpan: { type: Number, default: 1 },
       colSpan: { type: Number, default: 1 },
+    },
+    variations: {
+      type: [
+        {
+          title: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: [100, 'Título da variação não pode ter mais de 100 caracteres'],
+          },
+          description: {
+            type: String,
+            trim: true,
+            maxlength: [300, 'Descrição da variação não pode ter mais de 300 caracteres'],
+          },
+          image: {
+            type: String,
+            trim: true,
+          },
+          price: {
+            type: Number,
+            required: true,
+            min: [0, 'Preço da variação não pode ser negativo'],
+          },
+        },
+      ],
+      default: [],
     },
   },
   {

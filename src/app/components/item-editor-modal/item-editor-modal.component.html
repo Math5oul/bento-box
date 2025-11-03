@@ -364,7 +364,156 @@
                   </div>
                 }
 
-                <!-- Product Sizes -->
+                <!-- Variantes Types -->
+                @if (input.type === 'product-variants') {
+                  <div class="product-variants-section">
+                    <label class="variants-label">Variações do Produto:</label>
+                    <p class="variants-description">
+                      🔀 Adicione variações como ponto da carne, tipo (vegano, tradicional...), etc.
+                      Cada variação pode ter título, descrição, foto e preço adicional.
+                    </p>
+
+                    <!-- Lista de variantes existentes -->
+                    <div class="variants-list">
+                      <!-- Quadrado de adicionar variação: só mostra se NÃO estiver editando -->
+                      <!-- Lista de variantes -->
+                      @for (variant of variations; track $index) {
+                        <div class="variant-item">
+                          <ng-container *ngIf="variant.image; else placeholder">
+                            <img [src]="variant.image" alt="Foto" class="variant-img" />
+                          </ng-container>
+                          <ng-template #placeholder>
+                            <div class="variant-img-placeholder" title="Sem imagem">
+                              <span>🖼️</span>
+                            </div>
+                          </ng-template>
+                          <div class="variant-info-col">
+                            <span class="variant-title">{{ variant.title }}</span>
+                            <span *ngIf="variant.description" class="variant-desc">{{
+                              variant.description
+                            }}</span>
+                          </div>
+                          <div class="variant-price">+{{ variant.price | currency: 'BRL' }}</div>
+                          <div class="variant-actions">
+                            <button
+                              type="button"
+                              class="btn-edit-variant"
+                              (click)="startEditVariation($index)"
+                              title="Editar variação"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              type="button"
+                              class="btn-remove-variant"
+                              (click)="removeVariation($index)"
+                              title="Remover variação"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Formulário para adicionar/editar variante -->
+                    <div class="variant-form">
+                      <h4 class="variant-form-title">
+                        {{
+                          editingVariationIndex !== null
+                            ? '✏️ Editar Variação'
+                            : '➕ Adicionar Variação'
+                        }}
+                      </h4>
+                      <div class="variant-form-inputs">
+                        <div class="variant-input-group">
+                          <label for="variant-title">Título</label>
+                          <input
+                            class="variant-title-input"
+                            type="text"
+                            id="variant-title"
+                            [(ngModel)]="tempVariation.title"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Ex: Vegano, Bem Passado, Mal Passado"
+                          />
+                        </div>
+                        <div class="variant-input-group">
+                          <label for="variant-price">Preço adicional</label>
+                          <input
+                            class="variant-price-input"
+                            type="number"
+                            id="variant-price"
+                            [(ngModel)]="tempVariation.price"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                          />
+                        </div>
+                        <div class="variant-input-group variant-desc-group">
+                          <label for="variant-desc">Descrição</label>
+                          <input
+                            class="variant-desc-input"
+                            type="text"
+                            id="variant-desc"
+                            [(ngModel)]="tempVariation.description"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Descrição opcional"
+                          />
+                        </div>
+                      </div>
+                      <div class="variant-image-upload-group">
+                        <label style="margin-bottom: 0.3rem">Foto</label>
+                        <label for="variant-image" class="variant-img-upload-box">
+                          <ng-container *ngIf="!variationImagePreview">
+                            <span class="variant-img-upload-plus">＋</span>
+                          </ng-container>
+                          <img
+                            *ngIf="variationImagePreview"
+                            [src]="variationImagePreview"
+                            alt="Preview"
+                            class="variant-img-upload-preview"
+                          />
+                          <input
+                            class="variant-image-input"
+                            type="file"
+                            id="variant-image"
+                            accept="image/*"
+                            (change)="onVariationImageSelected($event)"
+                            style="display: none"
+                          />
+                        </label>
+                      </div>
+                      <div class="variant-form-actions">
+                        <button
+                          type="button"
+                          *ngIf="editingVariationIndex !== null"
+                          class="btn-save-variant"
+                          (click)="saveEditVariation()"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          type="button"
+                          *ngIf="editingVariationIndex !== null"
+                          class="btn-cancel-variant"
+                          (click)="cancelEditVariation()"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          *ngIf="editingVariationIndex === null"
+                          class="btn-add-variant"
+                          (click)="addVariation()"
+                        >
+                          Adicionar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
                 @if (input.type === 'product-sizes') {
                   <div class="product-sizes-section">
                     <label class="sizes-label">{{ input.label }}:</label>

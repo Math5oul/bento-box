@@ -188,6 +188,7 @@ export class ProductsManagementComponent implements OnInit {
       format: gridItem.inputs.format,
       colorMode: gridItem.inputs.colorMode,
       available: true,
+      variations: gridItem.inputs.variations || [],
     };
 
     try {
