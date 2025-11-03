@@ -483,6 +483,13 @@
                             style="display: none"
                           />
                         </label>
+                        <!-- Cropper para imagem da variação -->
+                        <app-image-cropper
+                          *ngIf="showVariationCropper && variationCropFile"
+                          [imageFile]="variationCropFile"
+                          (cropped)="onVariationImageCropped($event)"
+                          (cancelled)="onVariationCropCancelled()"
+                        ></app-image-cropper>
                       </div>
                       <div class="variant-form-actions">
                         <button
