@@ -1,6 +1,7 @@
 /**
  * Script para exportar todo o banco de dados atual
  * Gera um arquivo JSON com backup completo
+ * Comando: npm run seed:export
  */
 
 import dotenv from 'dotenv';

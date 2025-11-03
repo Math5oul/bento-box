@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-11-01T18:41:15.478Z",
+  "exportDate": "2025-11-03T00:11:08.672Z",
   "version": "1.0",
   "collections": {
     "products": [
@@ -7,11 +7,11 @@
         "_id": "68fcff1c03375fdc95423d9e",
         "name": "Expresso",
         "description": "Noir comme l'âme de votre propriétaire, venez goûter",
-        "price": 4.5,
+        "price": 3.5,
         "images": [
-          "https://plus.unsplash.com/premium_photo-1723903231073-29e8762d79a8?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://conscienciacafe.com.br/wp-content/uploads/2023/09/cafe-espresso-maquina.jpg",
-          "https://conscienciacafe.com.br/wp-content/uploads/2023/09/xicara-de-cafe-espresso.jpg"
+          "assets/images/68fcff1c03375fdc95423d9e/1762118174038.avif",
+          "assets/images/68fcff1c03375fdc95423d9e/1762118174482.avif",
+          "assets/images/68fcff1c03375fdc95423d9e/1762118174698.avif"
         ],
         "category": "bebidas-quentes",
         "format": "1x1",
@@ -23,19 +23,24 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.471Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:47:03.357Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 3.5,
+            "_id": "6907d02e3175fe0a39bd22d8"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da0",
         "name": "Hot Chocolat",
         "description": "Boisson chaude composée de chocolat râpé ou fondu et de lait",
-        "price": 14.99,
-        "images": [
-          "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        ],
+        "price": 9.99,
+        "images": ["assets/images/68fcff1c03375fdc95423da0/1762118175219.avif"],
         "category": "bebidas-quentes",
         "format": "1x2",
         "colorMode": "dark",
@@ -46,9 +51,9 @@
           "rowSpan": 2,
           "colSpan": 1
         },
-        "__v": 0,
+        "__v": 1,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:47:29.289Z",
         "sizes": [
           {
             "name": "Pequeno",
@@ -68,10 +73,8 @@
         "_id": "68fcff1c03375fdc95423da1",
         "name": "Latte",
         "description": "Le meilleur café au lait de la ville",
-        "price": 6.99,
-        "images": [
-          "https://images.unsplash.com/photo-1622971157199-3acf98f06b53?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=987"
-        ],
+        "price": 5.99,
+        "images": ["assets/images/68fcff1c03375fdc95423da1/1762118177077.avif"],
         "category": "bebidas-quentes",
         "format": "1x1",
         "colorMode": "light",
@@ -82,20 +85,33 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:47:46.130Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 5.99,
+            "_id": "6907d0963175fe0a39bd238b"
+          },
+          {
+            "name": "Medio",
+            "abbreviation": "M",
+            "price": 7.99,
+            "_id": "6907d0963175fe0a39bd238c"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da2",
         "name": "Americano",
         "description": "Café espresso diluído em água quente, intenso e encorpado",
-        "price": 6.99,
+        "price": 5.99,
         "images": [
-          "https://plus.unsplash.com/premium_photo-1723559972702-2659e41dbb5b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1036",
-          "https://images.unsplash.com/photo-1652507733698-b0c536a92cd4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1950",
-          "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=987"
+          "assets/images/68fcff1c03375fdc95423da2/1762118179418.avif",
+          "assets/images/68fcff1c03375fdc95423da2/1762118181086.avif",
+          "assets/images/68fcff1c03375fdc95423da2/1762118181639.avif"
         ],
         "category": "bebidas-quentes",
         "format": "1x1",
@@ -107,9 +123,9 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 0,
+        "__v": 1,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T11:51:03.947Z",
+        "updatedAt": "2025-11-02T21:46:23.132Z",
         "sizes": [
           {
             "name": "Pequeno",
@@ -127,12 +143,10 @@
       },
       {
         "_id": "68fcff1c03375fdc95423da3",
-        "name": "Mocha",
+        "name": "Mocca",
         "description": "Espresso com chocolate e leite vaporizado, finalizado com chantilly",
-        "price": 8.5,
-        "images": [
-          "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        ],
+        "price": 7.25,
+        "images": ["assets/images/68fcff1c03375fdc95423da3/1762118182274.avif"],
         "category": "bebidas-quentes",
         "format": "2x1",
         "colorMode": "dark",
@@ -143,19 +157,30 @@
           "rowSpan": 1,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:48:44.453Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 7.25,
+            "_id": "6907d1bc3175fe0a39bd2778"
+          },
+          {
+            "name": "Medio",
+            "abbreviation": "M",
+            "price": 9.25,
+            "_id": "6907d1bc3175fe0a39bd2779"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da4",
         "name": "Chá Latte",
         "description": "Chá preto com leite vaporizado e espuma",
-        "price": 6.2,
-        "images": [
-          "https://media.istockphoto.com/id/912295362/pt/foto/golden-milk-turmeric-latte-golden-latte.jpg?s=1024x1024&w=is&k=20&c=G9HuZ7hojAAcmIN11XPo_bNGmbHtyxt_20H9ZZV-6vk="
-        ],
+        "price": 5.2,
+        "images": ["assets/images/68fcff1c03375fdc95423da4/1762118182856.avif"],
         "category": "bebidas-quentes",
         "format": "1x1",
         "colorMode": "light",
@@ -166,19 +191,32 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:46:36.777Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 5.2,
+            "_id": "6907d00a3175fe0a39bd22a4"
+          },
+          {
+            "name": "Médio",
+            "abbreviation": "M",
+            "price": 7.2,
+            "_id": "6907d00a3175fe0a39bd22a5"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da5",
         "name": "Flat White",
         "description": "Café cremoso com duplo espresso e leite microespumoso",
-        "price": 7.25,
+        "price": 6.25,
         "images": [
-          "https://plus.unsplash.com/premium_photo-1664970900069-47e15574f7bf?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1735645568851-0323e4cc17d7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423da5/1762118183673.avif",
+          "assets/images/68fcff1c03375fdc95423da5/1762118184372.avif"
         ],
         "category": "bebidas-quentes",
         "format": "1x1",
@@ -190,10 +228,23 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:47:13.782Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 6.25,
+            "_id": "6907d0483175fe0a39bd2301"
+          },
+          {
+            "name": "Médio",
+            "abbreviation": "M",
+            "price": 8.25,
+            "_id": "6907d0483175fe0a39bd2302"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da6",
@@ -201,9 +252,9 @@
         "description": "Chá verde japonês com leite vaporizado",
         "price": 8.75,
         "images": [
-          "https://images.unsplash.com/photo-1582785513054-8d1bf9d69c1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1628088784459-0eebea2d3ecf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423da6/1762118184936.avif",
+          "assets/images/68fcff1c03375fdc95423da6/1762118185402.avif",
+          "assets/images/68fcff1c03375fdc95423da6/1762118186034.avif"
         ],
         "category": "bebidas-quentes",
         "format": "1x2",
@@ -215,10 +266,23 @@
           "rowSpan": 2,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.472Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:44:49.174Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 8.75,
+            "_id": "6907d0d13175fe0a39bd2424"
+          },
+          {
+            "name": "Medio",
+            "abbreviation": "M",
+            "price": 9.75,
+            "_id": "6907d0d13175fe0a39bd2425"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da7",
@@ -226,9 +290,9 @@
         "description": "Café gelado com leite e xarope de baunilha",
         "price": 6.99,
         "images": [
-          "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1515316416554-1af1fbca57a2?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1589985902809-39d25db22101?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423da7/1762118186895.avif",
+          "assets/images/68fcff1c03375fdc95423da7/1762118187436.avif",
+          "assets/images/68fcff1c03375fdc95423da7/1762118188252.avif"
         ],
         "category": "bebidas-frias",
         "format": "2x1",
@@ -240,10 +304,29 @@
           "rowSpan": 1,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:43:19.288Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 6.99,
+            "_id": "6907d0773175fe0a39bd234a"
+          },
+          {
+            "name": "Medio",
+            "abbreviation": "M",
+            "price": 8.99,
+            "_id": "6907d0773175fe0a39bd234b"
+          },
+          {
+            "name": "Grande",
+            "abbreviation": "G",
+            "price": 10.99,
+            "_id": "6907d0773175fe0a39bd234c"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da8",
@@ -251,9 +334,9 @@
         "description": "Mistura de frutas frescas com iogurte natural",
         "price": 7.5,
         "images": [
-          "https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://plus.unsplash.com/premium_photo-1663126827264-409d695e0be7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1600718374662-0483d2b9da44?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423da8/1762118188931.avif",
+          "assets/images/68fcff1c03375fdc95423da8/1762118189530.avif",
+          "assets/images/68fcff1c03375fdc95423da8/1762118190264.avif"
         ],
         "category": "bebidas-frias",
         "format": "1x2",
@@ -265,10 +348,23 @@
           "rowSpan": 2,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:49:12.014Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 7.5,
+            "_id": "6907d0f33175fe0a39bd2493"
+          },
+          {
+            "name": "Médio",
+            "abbreviation": "M",
+            "price": 8.25,
+            "_id": "6907d0f33175fe0a39bd2494"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423da9",
@@ -276,9 +372,9 @@
         "description": "Limonada natural com hortelã e gelo",
         "price": 4.25,
         "images": [
-          "https://images.unsplash.com/photo-1575596510825-f748919a2bf7?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1621263764928-df1444c5e859?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1555949366-819808d99159?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423da9/1762118191213.avif",
+          "assets/images/68fcff1c03375fdc95423da9/1762118191879.avif",
+          "assets/images/68fcff1c03375fdc95423da9/1762118192759.avif"
         ],
         "category": "bebidas-frias",
         "format": "2x2",
@@ -290,10 +386,29 @@
           "rowSpan": 2,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "sizes": []
+        "updatedAt": "2025-11-02T21:44:24.004Z",
+        "sizes": [
+          {
+            "name": "Pequeno",
+            "abbreviation": "P",
+            "price": 4.25,
+            "_id": "6907d0b83175fe0a39bd23e1"
+          },
+          {
+            "name": "Médio",
+            "abbreviation": "M",
+            "price": 6.25,
+            "_id": "6907d0b83175fe0a39bd23e2"
+          },
+          {
+            "name": "Grande",
+            "abbreviation": "G",
+            "price": 8.25,
+            "_id": "6907d0b83175fe0a39bd23e3"
+          }
+        ]
       },
       {
         "_id": "68fcff1c03375fdc95423daa",
@@ -301,9 +416,9 @@
         "description": "Donuts fresquinhos com cobertura de chocolate e granulado",
         "price": 6.75,
         "images": [
-          "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1618411640018-972400a01458?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1551106652-a5bcf4b29ab6?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423daa/1762118193569.avif",
+          "assets/images/68fcff1c03375fdc95423daa/1762118194499.avif",
+          "assets/images/68fcff1c03375fdc95423daa/1762118195546.avif"
         ],
         "category": "sobremesas",
         "format": "2x1",
@@ -315,9 +430,9 @@
           "rowSpan": 1,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:35.551Z",
         "sizes": []
       },
       {
@@ -326,9 +441,9 @@
         "description": "Folhado tradicional francês, perfeito para acompanhar seu café",
         "price": 4.5,
         "images": [
-          "https://images.unsplash.com/photo-1623334044303-241021148842?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423dab/1762118196724.avif",
+          "assets/images/68fcff1c03375fdc95423dab/1762118197695.avif",
+          "assets/images/68fcff1c03375fdc95423dab/1762118198686.avif"
         ],
         "category": "pratos",
         "format": "2x2",
@@ -340,20 +455,20 @@
           "rowSpan": 2,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:38.693Z",
         "sizes": []
       },
       {
         "_id": "68fcff1c03375fdc95423dac",
         "name": "Bolo de Chocolate",
-        "description": "Fatia generosa de bolo de chocolate com ganache",
+        "description": "Fatia generosa de bolo de chocolate com <b>ganache</b>",
         "price": 7.99,
         "images": [
-          "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1989&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://plus.unsplash.com/premium_photo-1715015440855-7d95cf92608a?q=80&w=2576&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423dac/1762118199498.avif",
+          "assets/images/68fcff1c03375fdc95423dac/1762118200288.avif",
+          "assets/images/68fcff1c03375fdc95423dac/1762118201119.avif"
         ],
         "category": "sobremesas",
         "format": "2x1",
@@ -365,17 +480,10 @@
           "rowSpan": 1,
           "colSpan": 2
         },
-        "__v": 0,
+        "__v": 1,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T17:28:44.804Z",
-        "sizes": [
-          {
-            "name": "Médio",
-            "abbreviation": "M",
-            "price": 7.99,
-            "_id": "6905bb1f7bcb8b93637ea94f"
-          }
-        ]
+        "updatedAt": "2025-11-02T21:16:41.128Z",
+        "sizes": []
       },
       {
         "_id": "68fcff1c03375fdc95423dad",
@@ -383,9 +491,9 @@
         "description": "Muffin fofinho com mirtilos frescos",
         "price": 5.25,
         "images": [
-          "https://images.unsplash.com/photo-1558303420-f814d8a590f5?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1722251172903-cc8774501df7?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1637087788449-222cf1da072a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423dad/1762118202161.avif",
+          "assets/images/68fcff1c03375fdc95423dad/1762118202954.avif",
+          "assets/images/68fcff1c03375fdc95423dad/1762118203648.avif"
         ],
         "category": "sobremesas",
         "format": "2x2",
@@ -397,9 +505,9 @@
           "rowSpan": 2,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:43.651Z",
         "sizes": []
       },
       {
@@ -408,9 +516,9 @@
         "description": "Pão integral com peru defumado e vegetais frescos",
         "price": 9.5,
         "images": [
-          "https://images.unsplash.com/photo-1736928840243-63b83b4bf80f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1670710029403-607db8eeec83?q=80&w=2652&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://plus.unsplash.com/premium_photo-1738431707788-3960bf6fddc3?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423dae/1762118204643.avif",
+          "assets/images/68fcff1c03375fdc95423dae/1762118205571.avif",
+          "assets/images/68fcff1c03375fdc95423dae/1762118206638.avif"
         ],
         "category": "pratos",
         "format": "2x1",
@@ -422,9 +530,9 @@
           "rowSpan": 1,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:46.640Z",
         "sizes": []
       },
       {
@@ -433,9 +541,9 @@
         "description": "Fatia de cheesecake clássico com calda de frutas vermelhas",
         "price": 8.99,
         "images": [
-          "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?q=80&w=2755&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1676300185983-d5f242babe34?q=80&w=2590&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1578775887804-699de7086ff9?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423daf/1762118207405.avif",
+          "assets/images/68fcff1c03375fdc95423daf/1762118208184.avif",
+          "assets/images/68fcff1c03375fdc95423daf/1762118209003.avif"
         ],
         "category": "sobremesas",
         "format": "1x2",
@@ -447,9 +555,9 @@
           "rowSpan": 2,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:49.008Z",
         "sizes": []
       },
       {
@@ -458,9 +566,9 @@
         "description": "Crepe recheado com Chantilly e morangos frescos",
         "price": 6.75,
         "images": [
-          "https://images.unsplash.com/photo-1734056650036-7002ede7b8f8?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://plus.unsplash.com/premium_photo-1707757442370-c86084c6ae0c?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          "https://images.unsplash.com/photo-1677844592730-ce9c936d8f1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          "assets/images/68fcff1c03375fdc95423db0/1762118209961.avif",
+          "assets/images/68fcff1c03375fdc95423db0/1762118210931.avif",
+          "assets/images/68fcff1c03375fdc95423db0/1762118211842.avif"
         ],
         "category": "sobremesas",
         "format": "2x2",
@@ -472,9 +580,9 @@
           "rowSpan": 2,
           "colSpan": 2
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:51.847Z",
         "sizes": []
       },
       {
@@ -482,7 +590,7 @@
         "name": "Tiramisu",
         "description": "Sobremesa italiana clássica com café e cacau em pó",
         "price": 9.25,
-        "images": ["https://cdn.pixabay.com/photo/2016/02/08/12/40/tiramisu-1186465_1280.jpg"],
+        "images": ["assets/images/68fcff1c03375fdc95423db1/1762118212727.avif"],
         "category": "sobremesas",
         "format": "1x1",
         "colorMode": "dark",
@@ -493,9 +601,9 @@
           "rowSpan": 1,
           "colSpan": 1
         },
-        "__v": 1,
+        "__v": 2,
         "createdAt": "2025-10-25T16:47:24.473Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
+        "updatedAt": "2025-11-02T21:16:52.729Z",
         "sizes": []
       },
       {
@@ -503,9 +611,7 @@
         "name": "Panquecas",
         "description": "Panquecas fofinhas e douradas, servidas quentinhas com manteiga derretendo por cima. Perfeitas para começar o dia com aconchego e sabor",
         "price": 11.2,
-        "images": [
-          "https://plus.unsplash.com/premium_photo-1663858367001-89e5c92d1e0e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGZvb2R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=500"
-        ],
+        "images": ["assets/images/68feec9b62c7e4df380cc9d1/1762118213227.avif"],
         "category": "pratos",
         "format": "1x2",
         "colorMode": "light",
@@ -517,8 +623,8 @@
           "colSpan": 1
         },
         "createdAt": "2025-10-27T03:52:59.375Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "__v": 1,
+        "updatedAt": "2025-11-02T21:16:53.256Z",
+        "__v": 2,
         "sizes": []
       },
       {
@@ -526,9 +632,7 @@
         "name": "Salada Fit",
         "description": "Salada leve e nutritiva com folhas frescas, legumes crocantes e um toque especial de azeite. Ideal para quem busca sabor e bem-estar no mesmo prato.",
         "price": 16.5,
-        "images": [
-          "https://images.unsplash.com/photo-1484980972926-edee96e0960d?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=387"
-        ],
+        "images": ["assets/images/68feef5262c7e4df380cc9e1/1762118213797.avif"],
         "category": "pratos",
         "format": "2x1",
         "colorMode": "light",
@@ -540,8 +644,8 @@
           "colSpan": 2
         },
         "createdAt": "2025-10-27T04:04:34.898Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "__v": 1,
+        "updatedAt": "2025-11-02T21:16:53.799Z",
+        "__v": 2,
         "sizes": []
       },
       {
@@ -549,9 +653,7 @@
         "name": "Soda Pop",
         "description": "Soda artesanal refrescante, com sabores vibrantes e borbulhas na medida certa. Experimente nossas versões frutadas e descubra sua favorita!",
         "price": 5.6,
-        "images": [
-          "https://images.unsplash.com/photo-1566846128021-b940b0eec910?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=387"
-        ],
+        "images": ["assets/images/68fef01362c7e4df380cc9e7/1762118214102.avif"],
         "category": "bebidas-frias",
         "format": "2x1",
         "colorMode": "dark",
@@ -563,18 +665,29 @@
           "colSpan": 2
         },
         "createdAt": "2025-10-27T04:07:47.431Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "__v": 1,
-        "sizes": []
+        "updatedAt": "2025-11-02T21:49:33.020Z",
+        "__v": 2,
+        "sizes": [
+          {
+            "name": "300ml",
+            "abbreviation": "P",
+            "price": 5.6,
+            "_id": "6907d1223175fe0a39bd250c"
+          },
+          {
+            "name": "Médio",
+            "abbreviation": "M",
+            "price": 7.6,
+            "_id": "6907d1ed3175fe0a39bd283e"
+          }
+        ]
       },
       {
         "_id": "68fef23f62c7e4df380cc9fb",
         "name": "Quiche",
         "description": "Quiche artesanal com massa leve e crocante, recheada com ingredientes frescos e saborosos. Uma combinação perfeita de conforto e elegância em cada fatia.",
         "price": 13.2,
-        "images": [
-          "https://plus.unsplash.com/premium_photo-1726783346698-aeeee98bd358?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=853"
-        ],
+        "images": ["assets/images/68fef23f62c7e4df380cc9fb/1762118214534.avif"],
         "category": "pratos",
         "format": "2x1",
         "colorMode": "light",
@@ -586,8 +699,8 @@
           "colSpan": 2
         },
         "createdAt": "2025-10-27T04:17:03.612Z",
-        "updatedAt": "2025-11-01T10:31:54.293Z",
-        "__v": 1,
+        "updatedAt": "2025-11-02T21:16:54.536Z",
+        "__v": 2,
         "sizes": []
       }
     ],
@@ -598,8 +711,9 @@
         "emoji": "🥐",
         "slug": "pratos",
         "createdAt": "2025-11-01T08:14:03.213Z",
-        "updatedAt": "2025-11-01T08:14:03.213Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T03:23:32.530Z",
+        "__v": 0,
+        "index": 0
       },
       {
         "_id": "6905c14bee0e393c8915ce00",
@@ -607,8 +721,9 @@
         "emoji": "☕",
         "slug": "bebidas-quentes",
         "createdAt": "2025-11-01T08:14:03.251Z",
-        "updatedAt": "2025-11-01T08:14:03.251Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T03:26:30.603Z",
+        "__v": 0,
+        "index": 1
       },
       {
         "_id": "6905c14bee0e393c8915ce02",
@@ -616,8 +731,9 @@
         "emoji": "🥤",
         "slug": "bebidas-frias",
         "createdAt": "2025-11-01T08:14:03.277Z",
-        "updatedAt": "2025-11-01T08:14:03.277Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T21:50:37.567Z",
+        "__v": 0,
+        "index": 2
       },
       {
         "_id": "6905c14bee0e393c8915ce04",
@@ -625,8 +741,9 @@
         "emoji": "🍰",
         "slug": "sobremesas",
         "createdAt": "2025-11-01T08:14:03.300Z",
-        "updatedAt": "2025-11-01T08:14:03.300Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T21:50:37.566Z",
+        "__v": 0,
+        "index": 3
       },
       {
         "_id": "6905c14bee0e393c8915ce0a",
@@ -634,8 +751,9 @@
         "emoji": "📦",
         "slug": "outros",
         "createdAt": "2025-11-01T08:14:03.369Z",
-        "updatedAt": "2025-11-01T08:14:03.369Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T03:21:34.563Z",
+        "__v": 0,
+        "index": 4
       }
     ],
     "fillers": [
@@ -1052,14 +1170,39 @@
         "number": 1,
         "status": "reserved",
         "capacity": 4,
-        "qrCode": "/table/6905a493005cbf0e8947589a/join",
-        "clients": [],
-        "anonymousClients": [],
-        "currentOrders": [],
+        "qrCode": "https://gatherable-unasking-niels.ngrok-free.dev/table/6905a493005cbf0e8947589a/join",
+        "clients": ["690797168b18f71105a7eaef"],
+        "anonymousClients": [
+          {
+            "sessionId": "69078e4edb2d0e548c682f04",
+            "sessionToken": "7209948c-4d7b-4f66-aeea-933a47b9ea34",
+            "joinedAt": "2025-11-02T17:01:02.232Z",
+            "expiresAt": "2025-11-03T17:01:02.183Z",
+            "deviceInfo": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36",
+            "_id": "69078e4edb2d0e548c682f1c"
+          },
+          {
+            "sessionId": "690796a48b18f71105a7e8fb",
+            "sessionToken": "981d1ac2-9e60-4115-b258-9e5ee2c68a7b",
+            "joinedAt": "2025-11-02T17:36:36.607Z",
+            "expiresAt": "2025-11-03T17:36:36.570Z",
+            "deviceInfo": "Mozilla/5.0 (Android 16; Mobile; rv:144.0) Gecko/144.0 Firefox/144.0",
+            "_id": "690796a48b18f71105a7e914"
+          },
+          {
+            "sessionId": "6907aefb8b18f71105a800f3",
+            "sessionToken": "6a8eb6c7-0902-4079-819c-2fda937ae9b3",
+            "joinedAt": "2025-11-02T19:20:27.748Z",
+            "expiresAt": "2025-11-03T19:20:27.716Z",
+            "deviceInfo": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
+            "_id": "6907aefb8b18f71105a8010d"
+          }
+        ],
+        "currentOrders": ["6907972d8b18f71105a7ec39", "6907af468b18f71105a801b7"],
         "totalConsumption": 0,
         "createdAt": "2025-11-01T06:11:31.333Z",
-        "updatedAt": "2025-11-01T06:12:08.726Z",
-        "__v": 0,
+        "updatedAt": "2025-11-02T19:21:42.739Z",
+        "__v": 6,
         "reservationInfo": {
           "clientName": "Maria Reserva",
           "clientPhone": "11213113123",
@@ -1068,14 +1211,15 @@
           "createdAt": "2025-11-01T06:12:08.725Z",
           "createdBy": "68ff8584a92ff64584c5e361",
           "_id": "6905a4b8005cbf0e894758b4"
-        }
+        },
+        "qrCodeImage": "data:image/png;base64,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"
       },
       {
         "_id": "6905aec45953d8c56deba4e1",
         "number": 2,
         "status": "occupied",
         "capacity": 4,
-        "qrCode": "/table/6905aec45953d8c56deba4e1/join",
+        "qrCode": "https://gatherable-unasking-niels.ngrok-free.dev/table/6905aec45953d8c56deba4e1/join",
         "clients": ["68ff9b37c6449dca52cf1383", "68ffbda76cfcf3669c776312"],
         "anonymousClients": [
           {
@@ -1257,50 +1401,62 @@
         ],
         "totalConsumption": 0,
         "createdAt": "2025-11-01T06:55:00.477Z",
-        "updatedAt": "2025-11-01T12:24:00.329Z",
-        "__v": 30
-      },
-      {
-        "_id": "6905aec65953d8c56deba4e6",
-        "number": 3,
-        "status": "available",
-        "capacity": 4,
-        "qrCode": "/table/6905aec65953d8c56deba4e6/join",
-        "clients": [],
-        "anonymousClients": [],
-        "currentOrders": [],
-        "totalConsumption": 0,
-        "createdAt": "2025-11-01T06:55:02.473Z",
-        "updatedAt": "2025-11-01T06:55:02.501Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T17:00:37.292Z",
+        "__v": 30,
+        "qrCodeImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAklEQVR4AewaftIAAAoWSURBVO3BgY0cSRIEwfDE6q9yPBWofqDIHk7y3Iz+EklaYCJJS0wkaYmJJC0xkaQlJpK0xESSlphI0hITSVpiIklLTCRpiYkkLTGRpCUmkrTERJKW+MlvAPKvaJtvA+SkbZ4AOWmbEyC32uYEyEnbvAHIk7a5AeRJ27wByL+ibW5MJGmJiSQtMZGkJSaStMREkpaYSNISP3lJ23wbIG8AcqttTtrmBMiTtvkmbXMC5FbbnLTNLSAnbfMEyEnbvKFtvg2QP20iSUtMJGmJiSQtMZGkJSaStMREkpaYSNISP/lLgLyhbd4A5EbbPAFyo21uAbnVNidATtrmpG2eADkB8oa2+VcAeUPbfNpEkpaYSNISE0laYiJJS0wkaYmJJC3xE70KyK22uQXkpG1OgDwBctI2b2ibEyAnbfMEyAkQfZ+JJC0xkaQlJpK0xESSlphI0hITSVriJ/ptbfMGIJ/WNreA3GibJ0BO2uYEyJO2+TQgJ22jZxNJWmIiSUtMJGmJiSQtMZGkJSaStMREkpb4yV/SNv8KICdt8wTISdu8AcittjlpmxtAbgE5aZs3ANmkbf4VE0laYiJJS0wkaYmJJC0xkaQlJpK0xE9eAuS/om1OgDxpmxMgJ23zBMhJ25wAuQXkpG1utc0JkFtATtrmVtucAHkDkP+CiSQtMZGkJSaStMREkpaYSNISE0la4ie/oW30e4DcAHILyKcBOWmbJ0BO2uYEyN8A5KRtbrXNf91EkpaYSNISE0laYiJJS0wkaYmJJC0xkaQl6C+5BOSkbZ4A+SZtcwvIrbY5AfJpbfMEyEnbfBMgT9rmBMintc0TIN+kbT5tIklLTCRpiYkkLTGRpCUmkrTERJKWoL/kEpBbbXMC5A1t8wYgn9Y2t4CctM0TIJ/WNidAPq1tvg2Qk7a5BeRW2/xpE0laYiJJS0wkaYmJJC0xkaQlJpK0xE9+Q9tsAuSkbW61jZK2+SZt8wYg/xIgbwBy0jY3JpK0xESSlphI0hITSVpiIklLTCRpiYkkLfGT3wDkpG2+TducALnVNreAfFrbnAB50jYnQG60zRMgJ23zaW3zBMhJ25wAedI2b2ibNwD50yaStMREkpaYSNISE0laYiJJS0wkaYmf/Ia2OQHypG0+Dci3aZs3AHkDkJO2uQHkSducADlpmydA3tA2bwBy0jYnQP4VE0laYiJJS0wkaYmJJC0xkaQlJpK0xE/+EiA32uYNQJ60zQ0gt9rmBMiTtnlD25wA+bS2OQHypG0+DchJ29wCctI2/4qJJC0xkaQlJpK0xESSlphI0hITSVpiIklL0F9yCcgb2uYEyBva5haQW23zaUBO2ubbADlpm28D5KRtbgH5tLa5BeSkbW5MJGmJiSQtMZGkJSaStMREkpaYSNISP/kNbXMC5G9omzcA+TQgb2ibEyBP2uZPA/IGILfa5gTIk7Z5Q9ucALnVNjeAfNpEkpaYSNISE0laYiJJS0wkaYmJJC3xk98A5A1ATtrmFpBbbXMDyK22eQOQk7Z5AuRPa5tbQE7a5haQW0A+rW1OgNwC8k0mkrTERJKWmEjSEhNJWmIiSUtMJGmJiSQtQX/JXwDkDW1zA8iTtrkB5G9omxtAnrTNDSBvaJsTILfaZhMgJ23zBiBP2uZPm0jSEhNJWmIiSUtMJGmJiSQtMZGkJegveQGQJ21zA8iTtjkBctI2t4DcapsbQL5N29wA8qRtToCctM0bgNxqm1tATtrmFpCTtjkBcqttbkwkaYmJJC0xkaQlJpK0xESSlphI0hI/+Q9pmze0zQmQW0BO2uYWkJO2+TZA3gDkpG1utc0JkDcAOWmbJ21zo22eAPnTJpK0xESSlphI0hITSVpiIklLTCRpCfpLLgH5tLZ5AuRG2zwBctI2nwbkVtvcAnLSNt8EyJO2OQFy0jZPgHxa25wAeUPbfNpEkpaYSNISE0laYiJJS0wkaYmJJC0xkaQl6C/5C4CctM2/AsittjkBcqttToA8aZsbQN7QNidAnrTNpwG51TZvAHLSNt9kIklLTCRpiYkkLTGRpCUmkrTERJKW+MkXAvJt2uYEyEnbPAFyAuRW25wAeQOQk7Y5AfKkbW60zRuAfBsgnwbkVtvcmEjSEhNJWmIiSUtMJGmJiSQtMZGkJX7yEiBvaJsnQE7a5gTIG4D8V7TNG4DcaJsnQE7a5tPa5gmQN7TNFhNJWmIiSUtMJGmJiSQtMZGkJSaStMREkpagv+TLALnVNidAPq1t3gDkVtvcAnKjbTYB8l/RNidA3tA2NyaStMREkpaYSNISE0laYiJJS0wkaQn6Sy4BeUPbfBqQJ21zAuSkbW4BudU2N4A8aZsTIG9omxMgn9Y23wbISdv8KyaStMREkpaYSNISE0laYiJJS0wkaYmfvKRtbgE5aZtbQN7QNt8GyBuA3GibW0ButM0bgGwC5Enb3AByq21uTCRpiYkkLTGRpCUmkrTERJKWmEjSEhNJWuInX6htToDcaps3ADlpmze0zRuAPGmbEyA3gPxL2uYEyEnbPAHyTdrmCZA/bSJJS0wkaYmJJC0xkaQlJpK0xESSlvjJXwLkpG3eAORW25y0zQmQJ21zA8iTtrnRNk+AnLTNjba5BeQWkG8C5NsA+SYTSVpiIklLTCRpiYkkLTGRpCUmkrQE/SX6v4DcaJsnQG60zd8A5Ju0zQmQJ21zA8gb2uYNQG61zTeZSNISE0laYiJJS0wkaYmJJC0xkaQlJpK0xE9+A5B/Rds8aZsTIN8GyKe1zQ0gt4CctM0TIDfa5haQW0BO2uZW25wAeUPb3JhI0hITSVpiIklLTCRpiYkkLTGRpCV+8pK2+TZAbgE5aZtbbXMC5A1t803a5gmQG0CetM0NIE/a5g1t8wYgJ23zTSaStMREkpaYSNISE0laYiJJS0wkaYmf/CVA3tA23wTI39A2bwBy0jYnQE7a5knb3AByC8hJ2zwBcgPI39A2J0BO2uYJkJO2uTGRpCUmkrTERJKWmEjSEhNJWmIiSUtMJGmJn+hVbfMEyBuAnLTNCZBbQG4AedI2J0BuATlpmxMgt9rmBMittjkBcqttToB82kSSlphI0hITSVpiIklLTCRpiYkkLfET/TYgt9rmBpAnbXMC5KRtngA5aZtv0jZPgHwakJO2eUPbPAGyxUSSlphI0hITSVpiIklLTCRpiYkkLfGTv6RtNmmbEyAnbfMEyKe1za22uQHkDW1zq22+CZBbbXMC5Fbb3ALyp00kaYmJJC0xkaQlJpK0xESSlphI0hITSVriJy8B8i8B8oa2uQHkCZCTtrkF5KRtTtrmDUBO2uYJkE9rmxMg3wbIN5lI0hITSVpiIklLTCRpiYkkLTGRpCXoL5GkBSaStMREkpaYSNISE0laYiJJS0wkaYmJJC0xkaQlJpK0xESSlphI0hITSVpiIklL/A/AQI+eytiDmAAAAABJRU5ErkJggg=="
       },
       {
         "_id": "6905aec85953d8c56deba4eb",
         "number": 4,
-        "status": "available",
+        "status": "occupied",
         "capacity": 4,
-        "qrCode": "/table/6905aec85953d8c56deba4eb/join",
+        "qrCode": "https://gatherable-unasking-niels.ngrok-free.dev/table/6905aec85953d8c56deba4eb/join",
         "clients": [],
-        "anonymousClients": [],
-        "currentOrders": [],
+        "anonymousClients": [
+          {
+            "sessionId": "6907a1e28b18f71105a7f624",
+            "sessionToken": "efd523d8-76fd-441c-8221-12b8bdd5f648",
+            "joinedAt": "2025-11-02T18:24:34.437Z",
+            "expiresAt": "2025-11-03T18:24:34.407Z",
+            "deviceInfo": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/29.0 Chrome/136.0.0.0 Mobile Safari/537.36",
+            "_id": "6907a1e28b18f71105a7f626"
+          }
+        ],
+        "currentOrders": ["6907a2228b18f71105a7f6ce"],
         "totalConsumption": 0,
         "createdAt": "2025-11-01T06:55:04.350Z",
-        "updatedAt": "2025-11-01T06:55:04.373Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T18:25:38.136Z",
+        "__v": 2,
+        "qrCodeImage": "data:image/png;base64,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"
       },
       {
         "_id": "6905aeca5953d8c56deba4f0",
         "number": 5,
         "status": "available",
         "capacity": 4,
-        "qrCode": "/table/6905aeca5953d8c56deba4f0/join",
+        "qrCode": "https://gatherable-unasking-niels.ngrok-free.dev/table/6905aeca5953d8c56deba4f0/join",
         "clients": [],
         "anonymousClients": [],
         "currentOrders": [],
         "totalConsumption": 0,
         "createdAt": "2025-11-01T06:55:06.878Z",
-        "updatedAt": "2025-11-01T06:55:06.901Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T17:00:37.388Z",
+        "__v": 0,
+        "qrCodeImage": "data:image/png;base64,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"
+      },
+      {
+        "_id": "6907c3cc3175fe0a39bd1832",
+        "number": 3,
+        "status": "occupied",
+        "capacity": 4,
+        "qrCode": "/table/6907c3cc3175fe0a39bd1832/join",
+        "clients": ["68ffbda76cfcf3669c776312"],
+        "anonymousClients": [],
+        "currentOrders": ["6907c4293175fe0a39bd19ed"],
+        "totalConsumption": 0,
+        "createdAt": "2025-11-02T20:49:16.891Z",
+        "updatedAt": "2025-11-02T20:50:49.705Z",
+        "__v": 2
       }
     ],
     "users": [
@@ -1357,306 +1513,120 @@
           "6905a8b96d31bc82451b726b",
           "6905a8de6d31bc82451b7291",
           "6905a9ef790f7c10c4bfe999",
-          "6905b16faa197d3345cd38cd"
+          "6905b16faa197d3345cd38cd",
+          "6907c4293175fe0a39bd19ed"
         ],
         "paymentMethods": [],
         "createdAt": "2025-10-27T18:44:55.863Z",
-        "updatedAt": "2025-11-01T07:06:23.710Z",
+        "updatedAt": "2025-11-02T20:50:49.686Z",
         "__v": 0,
-        "currentTableId": "6905aec45953d8c56deba4e1"
+        "currentTableId": "6907c3cc3175fe0a39bd1832"
       },
       {
-        "_id": "6905b177aa197d3345cd38de",
-        "name": "Cliente Mesa 2 #2637 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": ["6905b180aa197d3345cd38e6"],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "_id": "6906d7a30567486817450dd7",
+        "email": "cozinha@mail.com",
+        "name": "Cozinha Membro",
+        "role": "cozinha",
+        "isAnonymous": false,
+        "orderHistory": [],
         "paymentMethods": [],
-        "sessionToken": "4efc3bff-20d9-4cb6-a82a-bcba8c019914",
-        "sessionExpiry": "2025-11-02T07:06:31.914Z",
-        "createdAt": "2025-11-01T07:06:31.914Z",
-        "updatedAt": "2025-11-01T07:06:40.859Z",
+        "createdAt": "2025-11-02T04:01:39.374Z",
+        "updatedAt": "2025-11-02T04:04:18.712Z",
         "__v": 0
       },
       {
-        "_id": "6905ee4bf13d7a8a6babbb52",
-        "name": "Cliente Mesa 2 #7228 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": ["6905ee57f13d7a8a6babbb64"],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "_id": "6906df584685d3cba911ae7b",
+        "email": "garcom@mail.com",
+        "name": "Garçom Membro",
+        "role": "garcom",
+        "isAnonymous": false,
+        "orderHistory": [],
         "paymentMethods": [],
-        "sessionToken": "02f13027-a527-4f01-9f12-f4ed25bf362a",
-        "sessionExpiry": "2025-11-02T11:26:03.492Z",
-        "createdAt": "2025-11-01T11:26:03.497Z",
-        "updatedAt": "2025-11-01T11:26:15.185Z",
+        "createdAt": "2025-11-02T04:34:32.433Z",
+        "updatedAt": "2025-11-02T04:37:37.744Z",
         "__v": 0
       },
       {
-        "_id": "6905f219c35e54e8cc6565d2",
-        "name": "Cliente Mesa 2 #2617 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": ["6905f231c35e54e8cc65660d"],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "d257ddaf-d2b7-473a-a122-1710f1cb1919",
-        "sessionExpiry": "2025-11-02T11:42:17.095Z",
-        "createdAt": "2025-11-01T11:42:17.095Z",
-        "updatedAt": "2025-11-01T11:42:41.966Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f4419d4d67e51609fc8d",
-        "name": "Cliente Mesa 2 #8834 (PC)",
+        "_id": "69077db28f7d300b1ba3b834",
+        "name": "Cliente Mesa 3 #4471 (Android)",
         "role": "client",
         "isAnonymous": true,
         "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "currentTableId": "6905aec65953d8c56deba4e6",
         "paymentMethods": [],
-        "sessionToken": "e53821d4-879f-4fb1-aa3c-ef49506410e2",
-        "sessionExpiry": "2025-11-02T11:51:29.968Z",
-        "createdAt": "2025-11-01T11:51:29.970Z",
-        "updatedAt": "2025-11-01T11:51:29.970Z",
+        "sessionToken": "aad459b7-d435-4d75-9118-f321e3b03d84",
+        "sessionExpiry": "2025-11-03T15:50:10.692Z",
+        "createdAt": "2025-11-02T15:50:10.695Z",
+        "updatedAt": "2025-11-02T15:50:10.695Z",
         "__v": 0
       },
       {
-        "_id": "6905f49e9d4d67e51609fd78",
-        "name": "Cliente Mesa 2 #6816 (PC)",
+        "_id": "69078e4edb2d0e548c682f04",
+        "name": "Cliente Mesa 1 #8645 (Android)",
         "role": "client",
         "isAnonymous": true,
         "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "currentTableId": "6905a493005cbf0e8947589a",
         "paymentMethods": [],
-        "sessionToken": "ad26bfa3-ca2f-48f9-97ed-94c39e56268f",
-        "sessionExpiry": "2025-11-02T11:53:02.221Z",
-        "createdAt": "2025-11-01T11:53:02.222Z",
-        "updatedAt": "2025-11-01T11:53:02.222Z",
+        "sessionToken": "7209948c-4d7b-4f66-aeea-933a47b9ea34",
+        "sessionExpiry": "2025-11-03T17:01:02.183Z",
+        "createdAt": "2025-11-02T17:01:02.187Z",
+        "updatedAt": "2025-11-02T17:01:02.187Z",
         "__v": 0
       },
       {
-        "_id": "6905f50a9d4d67e51609fe56",
-        "name": "Cliente Mesa 2 #5787 (PC)",
+        "_id": "690796a48b18f71105a7e8fb",
+        "name": "Cliente Mesa 1 #2578 (Android)",
         "role": "client",
         "isAnonymous": true,
         "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "currentTableId": "6905a493005cbf0e8947589a",
         "paymentMethods": [],
-        "sessionToken": "e2dc835d-3ac4-40b4-b742-32f5f9bcca54",
-        "sessionExpiry": "2025-11-02T11:54:50.071Z",
-        "createdAt": "2025-11-01T11:54:50.072Z",
-        "updatedAt": "2025-11-01T11:54:50.072Z",
+        "sessionToken": "981d1ac2-9e60-4115-b258-9e5ee2c68a7b",
+        "sessionExpiry": "2025-11-03T17:36:36.570Z",
+        "createdAt": "2025-11-02T17:36:36.573Z",
+        "updatedAt": "2025-11-02T17:36:36.573Z",
         "__v": 0
       },
       {
-        "_id": "6905f59d9d4d67e51609ff63",
-        "name": "Cliente Mesa 2 #9002 (PC)",
+        "_id": "690797168b18f71105a7eaef",
+        "email": "joanajsdf@gmail.com",
+        "name": "Maria",
+        "role": "client",
+        "isAnonymous": false,
+        "orderHistory": ["6907972d8b18f71105a7ec39"],
+        "paymentMethods": [],
+        "createdAt": "2025-11-02T17:38:30.146Z",
+        "updatedAt": "2025-11-02T17:38:53.313Z",
+        "__v": 0,
+        "currentTableId": "6905a493005cbf0e8947589a"
+      },
+      {
+        "_id": "6907a1e28b18f71105a7f624",
+        "name": "Cliente Mesa 4 #6471 (Android)",
         "role": "client",
         "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "orderHistory": ["6907a2228b18f71105a7f6ce"],
+        "currentTableId": "6905aec85953d8c56deba4eb",
         "paymentMethods": [],
-        "sessionToken": "15a72640-ec0d-4b03-aeaa-4cf915d96423",
-        "sessionExpiry": "2025-11-02T11:57:17.250Z",
-        "createdAt": "2025-11-01T11:57:17.251Z",
-        "updatedAt": "2025-11-01T11:57:17.251Z",
+        "sessionToken": "efd523d8-76fd-441c-8221-12b8bdd5f648",
+        "sessionExpiry": "2025-11-03T18:24:34.407Z",
+        "createdAt": "2025-11-02T18:24:34.407Z",
+        "updatedAt": "2025-11-02T18:25:38.107Z",
         "__v": 0
       },
       {
-        "_id": "6905f6ea9d4d67e51609ffda",
-        "name": "Cliente Mesa 2 #9240 (PC)",
+        "_id": "6907aefb8b18f71105a800f3",
+        "name": "Cliente Mesa 1 #3041 (Android)",
         "role": "client",
         "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
+        "orderHistory": ["6907af468b18f71105a801b7"],
+        "currentTableId": "6905a493005cbf0e8947589a",
         "paymentMethods": [],
-        "sessionToken": "841a10b2-892f-4b34-a765-e7828dc002df",
-        "sessionExpiry": "2025-11-02T12:02:50.393Z",
-        "createdAt": "2025-11-01T12:02:50.394Z",
-        "updatedAt": "2025-11-01T12:02:50.394Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f77169d0621795fc6a22",
-        "name": "Cliente Mesa 2 #7306 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "c1140e81-0f6f-4cff-b500-f38195844b79",
-        "sessionExpiry": "2025-11-02T12:05:05.201Z",
-        "createdAt": "2025-11-01T12:05:05.204Z",
-        "updatedAt": "2025-11-01T12:05:05.204Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f84469d0621795fc6aae",
-        "name": "Cliente Mesa 2 #1426 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "9148d231-9703-44d6-af12-8988431ecc3d",
-        "sessionExpiry": "2025-11-02T12:08:36.530Z",
-        "createdAt": "2025-11-01T12:08:36.530Z",
-        "updatedAt": "2025-11-01T12:08:36.530Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f85b69d0621795fc6b0c",
-        "name": "Cliente Mesa 2 #1115 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "47e68624-a95d-468e-9f09-79e0ed215123",
-        "sessionExpiry": "2025-11-02T12:08:59.033Z",
-        "createdAt": "2025-11-01T12:08:59.033Z",
-        "updatedAt": "2025-11-01T12:08:59.033Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f8ba7cbee7e0ab816e9a",
-        "name": "Cliente Mesa 2 #4177 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "d363369d-39bc-425b-88fd-042c31f5e502",
-        "sessionExpiry": "2025-11-02T12:10:34.593Z",
-        "createdAt": "2025-11-01T12:10:34.598Z",
-        "updatedAt": "2025-11-01T12:10:34.598Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f8e67cbee7e0ab816f34",
-        "name": "Cliente Mesa 2 #4971 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "09e53869-b705-4839-829f-c477dd31e787",
-        "sessionExpiry": "2025-11-02T12:11:18.489Z",
-        "createdAt": "2025-11-01T12:11:18.490Z",
-        "updatedAt": "2025-11-01T12:11:18.490Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f9237cbee7e0ab817021",
-        "name": "Cliente Mesa 2 #6395 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "a4604857-baf3-46d1-8610-5b92bd7d9369",
-        "sessionExpiry": "2025-11-02T12:12:19.298Z",
-        "createdAt": "2025-11-01T12:12:19.298Z",
-        "updatedAt": "2025-11-01T12:12:19.298Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f9527cbee7e0ab8170be",
-        "name": "Cliente Mesa 2 #5902 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "1c1178e3-28fd-445a-8855-74ba04ed0033",
-        "sessionExpiry": "2025-11-02T12:13:06.172Z",
-        "createdAt": "2025-11-01T12:13:06.172Z",
-        "updatedAt": "2025-11-01T12:13:06.172Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f98d7cbee7e0ab817192",
-        "name": "Cliente Mesa 2 #3621 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "8489a6ae-1513-4570-b764-b40a1a24a08c",
-        "sessionExpiry": "2025-11-02T12:14:05.409Z",
-        "createdAt": "2025-11-01T12:14:05.409Z",
-        "updatedAt": "2025-11-01T12:14:05.409Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905f9c87cbee7e0ab81723e",
-        "name": "Cliente Mesa 2 #1755 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "db48cb6e-e6b0-4213-9b4a-bc5c8621ead4",
-        "sessionExpiry": "2025-11-02T12:15:04.915Z",
-        "createdAt": "2025-11-01T12:15:04.915Z",
-        "updatedAt": "2025-11-01T12:15:04.915Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905fa627cbee7e0ab817498",
-        "name": "Cliente Mesa 2 #8668 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "21bd4309-1729-47b0-b2fa-32022504a012",
-        "sessionExpiry": "2025-11-02T12:17:38.609Z",
-        "createdAt": "2025-11-01T12:17:38.609Z",
-        "updatedAt": "2025-11-01T12:17:38.609Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905fa7e7cbee7e0ab817575",
-        "name": "Cliente Mesa 2 #2623 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "c246f171-465b-4663-aaf1-a0cd56f1f363",
-        "sessionExpiry": "2025-11-02T12:18:06.305Z",
-        "createdAt": "2025-11-01T12:18:06.305Z",
-        "updatedAt": "2025-11-01T12:18:06.305Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905fb94be553c0ddb292a34",
-        "name": "Cliente Mesa 2 #2094 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "e6a8134b-57f7-4cde-879b-b802c86a841c",
-        "sessionExpiry": "2025-11-02T12:22:44.309Z",
-        "createdAt": "2025-11-01T12:22:44.311Z",
-        "updatedAt": "2025-11-01T12:22:44.311Z",
-        "__v": 0
-      },
-      {
-        "_id": "6905fbe0be553c0ddb292b92",
-        "name": "Cliente Mesa 2 #2295 (PC)",
-        "role": "client",
-        "isAnonymous": true,
-        "orderHistory": [],
-        "currentTableId": "6905aec45953d8c56deba4e1",
-        "paymentMethods": [],
-        "sessionToken": "fdb8187c-25f7-47d4-9c16-5e679ce21d8a",
-        "sessionExpiry": "2025-11-02T12:24:00.299Z",
-        "createdAt": "2025-11-01T12:24:00.300Z",
-        "updatedAt": "2025-11-01T12:24:00.300Z",
+        "sessionToken": "6a8eb6c7-0902-4079-819c-2fda937ae9b3",
+        "sessionExpiry": "2025-11-03T19:20:27.716Z",
+        "createdAt": "2025-11-02T19:20:27.716Z",
+        "updatedAt": "2025-11-02T19:21:42.712Z",
         "__v": 0
       }
     ],
@@ -1670,19 +1640,18 @@
           {
             "productId": 1475,
             "productName": "Croissant",
-            "productImage": "https://images.unsplash.com/photo-1623334044303-241021148842?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            "quantity": 1,
+            "quantity": 2,
             "unitPrice": 4.5,
-            "totalPrice": 4.5,
+            "totalPrice": 9,
             "notes": "",
-            "_id": "6905b121aa197d3345cd386f"
+            "_id": "6906def74685d3cba911addc"
           }
         ],
-        "totalAmount": 4.5,
+        "totalAmount": 9,
         "status": "preparing",
         "createdAt": "2025-11-01T07:05:05.489Z",
-        "updatedAt": "2025-11-01T11:36:42.132Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T04:32:55.531Z",
+        "__v": 1
       },
       {
         "_id": "6905b14faa197d3345cd38a7",
@@ -1693,19 +1662,19 @@
           {
             "productId": 5737,
             "productName": "Hot Chocolat",
-            "productImage": "https://images.unsplash.com/photo-1481391032119-d89fee407e44?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            "quantity": 2,
+            "quantity": 1,
             "unitPrice": 14.99,
-            "totalPrice": 29.98,
+            "totalPrice": 14.99,
             "notes": "",
-            "_id": "6905b14faa197d3345cd38a8"
+            "_id": "6906e04068b4e472d1368590"
           }
         ],
-        "totalAmount": 29.98,
-        "status": "preparing",
+        "totalAmount": 14.99,
+        "status": "cancelled",
         "createdAt": "2025-11-01T07:05:51.009Z",
-        "updatedAt": "2025-11-01T11:34:07.272Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T17:41:42.682Z",
+        "__v": 1,
+        "cancelledAt": "2025-11-02T17:41:42.681Z"
       },
       {
         "_id": "6905b16faa197d3345cd38cd",
@@ -1750,10 +1719,11 @@
           }
         ],
         "totalAmount": 6.75,
-        "status": "ready",
+        "status": "delivered",
         "createdAt": "2025-11-01T07:06:40.830Z",
-        "updatedAt": "2025-11-01T11:31:04.071Z",
-        "__v": 0
+        "updatedAt": "2025-11-02T04:33:19.270Z",
+        "__v": 0,
+        "deliveredAt": "2025-11-02T04:33:19.268Z"
       },
       {
         "_id": "6905ee57f13d7a8a6babbb64",
@@ -1785,7 +1755,7 @@
         "tableId": "6905aec45953d8c56deba4e1",
         "clientId": "6905f219c35e54e8cc6565d2",
         "sessionToken": "d257ddaf-d2b7-473a-a122-1710f1cb1919",
-        "clientName": "Cliente Mesa 2 #2617 (PC)",
+        "clientName": "Cliente Anonimo Renomeado",
         "items": [
           {
             "productId": 9444,
@@ -1821,7 +1791,151 @@
         "totalAmount": 30.240000000000002,
         "status": "pending",
         "createdAt": "2025-11-01T11:42:41.937Z",
-        "updatedAt": "2025-11-01T11:42:41.937Z",
+        "updatedAt": "2025-11-02T06:52:47.729Z",
+        "__v": 0
+      },
+      {
+        "_id": "6907972d8b18f71105a7ec39",
+        "tableId": "6905a493005cbf0e8947589a",
+        "clientId": "690797168b18f71105a7eaef",
+        "clientName": "Maria",
+        "items": [
+          {
+            "productId": 913,
+            "productName": "Croissant",
+            "productImage": "https://images.unsplash.com/photo-1623334044303-241021148842?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "quantity": 1,
+            "unitPrice": 4.5,
+            "totalPrice": 4.5,
+            "notes": "",
+            "_id": "6907972d8b18f71105a7ec3a"
+          },
+          {
+            "productId": 9478,
+            "productName": "Sanduíche",
+            "productImage": "https://images.unsplash.com/photo-1736928840243-63b83b4bf80f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "quantity": 1,
+            "unitPrice": 9.5,
+            "totalPrice": 9.5,
+            "notes": "",
+            "_id": "6907972d8b18f71105a7ec3b"
+          }
+        ],
+        "totalAmount": 14,
+        "status": "pending",
+        "createdAt": "2025-11-02T17:38:53.278Z",
+        "updatedAt": "2025-11-02T17:38:53.278Z",
+        "__v": 0
+      },
+      {
+        "_id": "6907a2228b18f71105a7f6ce",
+        "tableId": "6905aec85953d8c56deba4eb",
+        "clientId": "6907a1e28b18f71105a7f624",
+        "sessionToken": "efd523d8-76fd-441c-8221-12b8bdd5f648",
+        "clientName": "Cliente Mesa 4 #6471 (Android)",
+        "items": [
+          {
+            "productId": 4544,
+            "productName": "Cueio",
+            "productImage": "assets/images/temp-1762105429945/1762105429643.jpg",
+            "quantity": 1,
+            "unitPrice": 66.6,
+            "totalPrice": 66.6,
+            "notes": "",
+            "_id": "6907a2228b18f71105a7f6cf"
+          }
+        ],
+        "totalAmount": 66.6,
+        "status": "pending",
+        "createdAt": "2025-11-02T18:25:38.077Z",
+        "updatedAt": "2025-11-02T18:25:38.077Z",
+        "__v": 0
+      },
+      {
+        "_id": "6907af468b18f71105a801b7",
+        "tableId": "6905a493005cbf0e8947589a",
+        "clientId": "6907aefb8b18f71105a800f3",
+        "sessionToken": "6a8eb6c7-0902-4079-819c-2fda937ae9b3",
+        "clientName": "Cliente Mesa 1 #3041 (Android)",
+        "items": [
+          {
+            "productId": 3885,
+            "productName": "Panquecas",
+            "productImage": "https://plus.unsplash.com/premium_photo-1663858367001-89e5c92d1e0e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGZvb2R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=500",
+            "quantity": 1,
+            "unitPrice": 11.2,
+            "totalPrice": 11.2,
+            "notes": "",
+            "_id": "6907af468b18f71105a801b8"
+          },
+          {
+            "productId": 8545,
+            "productName": "Quiche",
+            "productImage": "https://plus.unsplash.com/premium_photo-1726783346698-aeeee98bd358?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=853",
+            "quantity": 1,
+            "unitPrice": 13.2,
+            "totalPrice": 13.2,
+            "notes": "",
+            "_id": "6907af468b18f71105a801b9"
+          },
+          {
+            "productId": 8630,
+            "productName": "Matcha Latte",
+            "productImage": "https://images.unsplash.com/photo-1582785513054-8d1bf9d69c1a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "quantity": 1,
+            "unitPrice": 8.75,
+            "totalPrice": 8.75,
+            "notes": "",
+            "_id": "6907af468b18f71105a801ba"
+          }
+        ],
+        "totalAmount": 33.15,
+        "status": "pending",
+        "createdAt": "2025-11-02T19:21:42.684Z",
+        "updatedAt": "2025-11-02T19:21:42.684Z",
+        "__v": 0
+      },
+      {
+        "_id": "6907c4293175fe0a39bd19ed",
+        "tableId": "6907c3cc3175fe0a39bd1832",
+        "clientId": "68ffbda76cfcf3669c776312",
+        "clientName": "Cliente2",
+        "items": [
+          {
+            "productId": 9185,
+            "productName": "Quiche",
+            "productImage": "https://plus.unsplash.com/premium_photo-1726783346698-aeeee98bd358?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=853",
+            "quantity": 1,
+            "unitPrice": 13.2,
+            "totalPrice": 13.2,
+            "notes": "",
+            "_id": "6907c4293175fe0a39bd19ee"
+          },
+          {
+            "productId": 7612,
+            "productName": "Mocha",
+            "productImage": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "quantity": 1,
+            "unitPrice": 8.5,
+            "totalPrice": 8.5,
+            "notes": "",
+            "_id": "6907c4293175fe0a39bd19ef"
+          },
+          {
+            "productId": 7554,
+            "productName": "Cheesecake",
+            "productImage": "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?q=80&w=2755&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "quantity": 1,
+            "unitPrice": 8.99,
+            "totalPrice": 8.99,
+            "notes": "",
+            "_id": "6907c4293175fe0a39bd19f0"
+          }
+        ],
+        "totalAmount": 30.689999999999998,
+        "status": "pending",
+        "createdAt": "2025-11-02T20:50:49.665Z",
+        "updatedAt": "2025-11-02T20:50:49.665Z",
         "__v": 0
       }
     ]
@@ -1831,7 +1945,7 @@
     "categories": 5,
     "fillers": 16,
     "tables": 5,
-    "users": 24,
-    "orders": 6
+    "users": 11,
+    "orders": 10
   }
 }
