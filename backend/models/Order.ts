@@ -24,7 +24,7 @@ export interface IOrderItemSize {
  * Interface do Item do Pedido
  */
 export interface IOrderItem {
-  productId: number;
+  productId: string;
   productName: string;
   productImage?: string;
   quantity: number;
@@ -56,7 +56,7 @@ export interface IOrder extends Document {
  * Schema do Item do Pedido
  */
 const OrderItemSchema = new Schema<IOrderItem>({
-  productId: { type: Number, required: true },
+  productId: { type: String, required: true },
   productName: { type: String, required: true },
   productImage: String,
   quantity: { type: Number, required: true, min: 1 },

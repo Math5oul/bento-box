@@ -15,13 +15,39 @@ const router = Router();
  */
 router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const tables = await Table.find().sort({ number: 1 });
+    const tables = await Table.find()
+      .sort({ number: 1 })
+      .populate('clients', '_id name email isAnonymous');
 
     // Transformar _id em id para compatibilidade com frontend
-    const tablesFormatted = tables.map(table => ({
-      ...table.toObject(),
-      id: (table._id as any).toString(),
-    }));
+    const tablesFormatted = await Promise.all(
+      tables.map(async table => {
+        const tableObj = table.toObject();
+
+        // Para cada sessão anônima, buscar os dados do usuário
+        const anonymousClientsWithData = await Promise.all(
+          (tableObj.anonymousClients || []).map(async (anonSession: any) => {
+            const user = await User.findById(anonSession.sessionId).select('_id name isAnonymous');
+            return {
+              ...anonSession,
+              userData: user
+                ? {
+                    _id: user._id,
+                    name: user.name,
+                    isAnonymous: user.isAnonymous,
+                  }
+                : null,
+            };
+          })
+        );
+
+        return {
+          ...tableObj,
+          id: (table._id as any).toString(),
+          anonymousClients: anonymousClientsWithData,
+        };
+      })
+    );
 
     res.json({
       success: true,
@@ -466,6 +492,91 @@ router.get(
       res.status(500).json({
         success: false,
         message: 'Erro ao carregar pedidos',
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/table/create-anonymous-client
+ * Cria um cliente anônimo e vincula à mesa (Waiter/Admin)
+ */
+router.post(
+  '/create-anonymous-client',
+  authenticate,
+  runValidations([
+    body('tableId').isMongoId().withMessage('ID da mesa inválido'),
+    body('clientName').notEmpty().withMessage('Nome do cliente é obrigatório'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tableId, clientName } = req.body;
+
+      // Busca mesa
+      const table = await Table.findById(tableId);
+
+      if (!table) {
+        res.status(404).json({
+          success: false,
+          message: 'Mesa não encontrada',
+        });
+        return;
+      }
+
+      // Verifica se mesa está fechada
+      if (table.status === TableStatus.CLOSED) {
+        res.status(400).json({
+          success: false,
+          message: 'Mesa fechada para novos clientes',
+        });
+        return;
+      }
+
+      // Cria usuário anônimo com nome personalizado
+      const anonymousUser = new User({
+        name: clientName,
+        role: UserRole.CLIENT,
+        isAnonymous: true,
+        currentTableId: table._id,
+      });
+
+      // Gera session token
+      const sessionToken = anonymousUser.generateSessionToken();
+      await anonymousUser.save();
+
+      // Adiciona sessão anônima à mesa
+      table.anonymousClients.push({
+        sessionId: (anonymousUser._id as any).toString(),
+        sessionToken,
+        joinedAt: new Date(),
+        expiresAt: anonymousUser.sessionExpiry!,
+      });
+
+      // Atualiza status da mesa se estava disponível
+      if (table.status === TableStatus.AVAILABLE) {
+        table.status = TableStatus.OCCUPIED;
+      }
+
+      await table.save();
+
+      res.json({
+        success: true,
+        message: 'Cliente anônimo criado com sucesso',
+        client: {
+          _id: anonymousUser._id,
+          id: anonymousUser._id,
+          name: anonymousUser.name,
+          isAnonymous: true,
+          sessionToken,
+          sessionExpiry: anonymousUser.sessionExpiry,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao criar cliente anônimo:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao criar cliente',
       });
     }
   }

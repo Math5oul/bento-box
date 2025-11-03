@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { NewOrderModalComponent } from '../new-order-modal/new-order-modal.component';
 // ...existing imports...
 
 interface WaiterOrder {
@@ -30,7 +31,7 @@ interface WaiterOrder {
 @Component({
   selector: 'app-waiter-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent, NewOrderModalComponent],
   templateUrl: './waiter-dashboard.component.html',
   styleUrls: ['./waiter-dashboard.component.scss'],
 })
@@ -42,6 +43,9 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   loading = false;
   error = '';
   showHistory = false;
+
+  // Modal de novo pedido
+  showNewOrderModal = false;
 
   // Modal de edição
   showEditModal = false;
@@ -481,10 +485,24 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navegação para criar novo pedido (funcionalidade futura)
+   * Navegação para criar novo pedido
    */
   createNewOrder() {
-    alert('Funcionalidade "Criar Novo Pedido" será implementada em breve!');
-    // TODO: Navegar para tela de criação de pedido
+    this.showNewOrderModal = true;
+  }
+
+  /**
+   * Fecha o modal de novo pedido
+   */
+  handleCloseNewOrderModal() {
+    this.showNewOrderModal = false;
+  }
+
+  /**
+   * Manipula o evento de pedido criado
+   */
+  handleOrderCreated() {
+    this.showNewOrderModal = false;
+    this.loadOrders(true);
   }
 }

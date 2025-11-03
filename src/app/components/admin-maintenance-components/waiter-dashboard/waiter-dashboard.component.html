@@ -307,3 +307,8 @@
     </div>
   </div>
 </div>
+
+<!-- New Order Modal -->
+@if (showNewOrderModal) {
+  <app-new-order-modal (close)="handleCloseNewOrderModal()" (orderCreated)="handleOrderCreated()" />
+}
