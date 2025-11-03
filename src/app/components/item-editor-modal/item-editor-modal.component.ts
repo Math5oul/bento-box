@@ -60,6 +60,9 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   tempVariation: ProductVariation = { title: '', price: 0 };
   variationImageFile: File | null = null;
   variationImagePreview: string | null = null;
+  isUploadingVariationImage: boolean = false;
+  showVariationCropper: boolean = false;
+  variationCropFile: File | null = null;
 
   /** Adiciona uma nova variação ao produto */
   addVariation() {
@@ -120,13 +123,48 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
-    this.variationImageFile = file;
-    // Preview
-    const reader = new FileReader();
-    reader.onload = e => {
-      this.variationImagePreview = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    if (!this.imageUploadService.validateImageFile(file)) {
+      alert('Arquivo de imagem inválido.');
+      input.value = '';
+      return;
+    }
+    this.variationCropFile = file;
+    this.showVariationCropper = true;
+    input.value = '';
+  }
+
+  /** Callback do cropper da variação */
+  onVariationImageCropped(result: CropResult) {
+    // Cria arquivo a partir do blob cortado
+    const timestamp = Date.now();
+    const croppedFile = new File([result.blob], `variation-cropped-${timestamp}.jpg`, {
+      type: 'image/jpeg',
+    });
+    this.isUploadingVariationImage = true;
+    // Usa o mesmo id temporário do produto, se existir, senão gera um
+    const uploadId = this.currentTempId || this.generateTempProductId();
+    this.currentTempId = uploadId;
+    this.imageUploadService.uploadImages(uploadId, [croppedFile]).subscribe({
+      next: paths => {
+        this.variationImagePreview = paths[0];
+        this.variationImageFile = null;
+        this.isUploadingVariationImage = false;
+        this.showVariationCropper = false;
+        this.variationCropFile = null;
+      },
+      error: err => {
+        alert('Erro ao fazer upload da imagem da variação.');
+        this.isUploadingVariationImage = false;
+        this.showVariationCropper = false;
+        this.variationCropFile = null;
+      },
+    });
+  }
+
+  /** Cancela crop da variação */
+  onVariationCropCancelled() {
+    this.showVariationCropper = false;
+    this.variationCropFile = null;
   }
 
   /** Reseta o formulário temporário de variação */
