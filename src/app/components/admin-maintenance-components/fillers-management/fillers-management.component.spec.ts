@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FillersManagementComponent } from './fillers-management.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('FillersManagementComponent', () => {
   let component: FillersManagementComponent;
@@ -8,7 +10,7 @@ describe('FillersManagementComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FillersManagementComponent],
+      imports: [FillersManagementComponent, HttpClientTestingModule, RouterTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FillersManagementComponent);

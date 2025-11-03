@@ -1,11 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { KitchenDashboardComponent } from './kitchen-dashboard.component';
 import { AuthService } from '../../../services/auth-service/auth.service';
 
 class MockAuthService {
   getToken() {
     return 'fake-token';
+  }
+  isAdmin() {
+    return false;
+  }
+  isKitchen() {
+    return true;
+  }
+  isWaiter() {
+    return false;
+  }
+  getCurrentUser() {
+    return { id: 1, name: 'Test' };
   }
 }
 
@@ -15,7 +28,7 @@ describe('KitchenDashboardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KitchenDashboardComponent, HttpClientTestingModule],
+      imports: [KitchenDashboardComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [{ provide: AuthService, useClass: MockAuthService }],
     }).compileComponents();
 

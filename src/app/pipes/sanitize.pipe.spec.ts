@@ -1,13 +1,41 @@
 import { SanitizePipe } from './sanitize.pipe';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
+import { SecurityContext } from '@angular/core';
 
 describe('SanitizePipe', () => {
   let pipe: SanitizePipe;
   let sanitizer: DomSanitizer;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    class MockDomSanitizer {
+      sanitize(context: SecurityContext, value: string | null) {
+        if (value === null || value === undefined) return null;
+        switch (context) {
+          case SecurityContext.HTML:
+            return (value as string).replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
+          case SecurityContext.URL:
+          case SecurityContext.RESOURCE_URL:
+            return /^\s*javascript:/i.test(value as string) ? null : value;
+          case SecurityContext.STYLE:
+            let cleaned = (value as string).replace(
+              /url\(\s*(['\"]?)\s*javascript:[^\)]*\1\s*\)/gi,
+              ''
+            );
+            cleaned = cleaned.replace(/javascript\s*:/gi, '');
+            return cleaned || null;
+          default:
+            return value;
+        }
+      }
+      bypassSecurityTrustHtml(v: string) {
+        return v;
+      }
+    }
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: DomSanitizer, useClass: MockDomSanitizer }],
+    });
     sanitizer = TestBed.inject(DomSanitizer);
     pipe = new SanitizePipe(sanitizer);
   });
