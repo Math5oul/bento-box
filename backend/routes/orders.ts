@@ -18,7 +18,7 @@ router.post(
   runValidations([
     body('tableId').isMongoId().withMessage('ID da mesa inválido'),
     body('items').isArray({ min: 1 }).withMessage('Pedido deve ter pelo menos 1 item'),
-    body('items.*.productId').isInt().withMessage('ID do produto inválido'),
+    body('items.*.productId').notEmpty().withMessage('ID do produto é obrigatório'),
     body('items.*.productName').notEmpty().withMessage('Nome do produto é obrigatório'),
     body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantidade deve ser maior que 0'),
     body('items.*.unitPrice').isFloat({ min: 0 }).withMessage('Preço unitário inválido'),
@@ -27,7 +27,14 @@ router.post(
   validate,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { tableId, items, notes, sessionToken } = req.body;
+      const {
+        tableId,
+        items,
+        notes,
+        sessionToken,
+        clientId: bodyClientId,
+        isClientAnonymous,
+      } = req.body;
 
       // Verifica se mesa existe
       const table = await Table.findById(tableId);
@@ -48,19 +55,41 @@ router.post(
         return;
       }
 
-      let clientId = req.user?.userId;
+      let clientId: string | undefined;
       let clientName = 'Cliente';
       let orderSessionToken = sessionToken;
 
-      // Se tem usuário autenticado
-      if (req.user && !req.user.isAnonymous) {
+      // CASO 1: Garçom/Admin criando pedido para cliente específico
+      if (bodyClientId) {
+        const targetClient = await User.findById(bodyClientId);
+        if (!targetClient) {
+          res.status(404).json({
+            success: false,
+            message: 'Cliente não encontrado',
+          });
+          return;
+        }
+        clientId = String(targetClient._id);
+        clientName = targetClient.name;
+
+        // Se cliente é anônimo, mantém o sessionToken
+        if (targetClient.isAnonymous && targetClient.sessionToken) {
+          orderSessionToken = targetClient.sessionToken;
+        } else {
+          orderSessionToken = undefined;
+        }
+      }
+      // CASO 2: Cliente autenticado fazendo próprio pedido
+      else if (req.user && !req.user.isAnonymous) {
         const user = await User.findById(req.user.userId);
         if (user) {
+          clientId = req.user.userId;
           clientName = user.name;
-          orderSessionToken = undefined; // Usuário autenticado não precisa de sessionToken
+          orderSessionToken = undefined;
         }
-      } else if (sessionToken) {
-        // Cliente anônimo com sessionToken
+      }
+      // CASO 3: Cliente anônimo com sessionToken
+      else if (sessionToken) {
         const anonymousUser = await User.findOne({
           sessionToken,
           isAnonymous: true,
@@ -69,8 +98,8 @@ router.post(
 
         if (anonymousUser) {
           clientName = anonymousUser.name || `Cliente Anônimo`;
-          clientId = String(anonymousUser._id); // Salva o ID do usuário anônimo
-          orderSessionToken = sessionToken; // Mantém sessionToken para facilitar transferência
+          clientId = String(anonymousUser._id);
+          orderSessionToken = sessionToken;
         } else {
           res.status(401).json({
             success: false,
@@ -78,10 +107,12 @@ router.post(
           });
           return;
         }
-      } else {
+      }
+      // CASO 4: Sem informações de cliente
+      else {
         res.status(401).json({
           success: false,
-          message: 'Autenticação necessária ou sessão anônima inválida',
+          message: 'Informações de cliente são obrigatórias',
         });
         return;
       }
@@ -789,11 +820,17 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       const isClientAnonymous =
         (clientObj && typeof clientObj === 'object' && clientObj.isAnonymous === true) ||
         !!obj.sessionToken;
+
+      // Importante: Manter o clientName original do pedido, não sobrescrever com o populate
+      // O clientName foi definido na criação do pedido e deve ser preservado
+      const clientName = obj.clientName;
+
       return {
         ...obj,
         id: (order._id as any).toString(),
         tableNumber,
         isClientAnonymous,
+        clientName, // Garante que usa o clientName original salvo no pedido
       };
     });
 

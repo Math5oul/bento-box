@@ -1,0 +1,284 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>Novo Pedido</h2>
+      <button class="close-btn" (click)="closeModal()" aria-label="Fechar">
+        <span>×</span>
+      </button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar">
+      <div
+        class="step"
+        [class.active]="currentStep === 'table'"
+        [class.completed]="currentStep !== 'table'"
+      >
+        <span class="step-number">1</span>
+        <span class="step-label">Mesa</span>
+      </div>
+      <div
+        class="step"
+        [class.active]="currentStep === 'client'"
+        [class.completed]="currentStep === 'products'"
+      >
+        <span class="step-number">2</span>
+        <span class="step-label">Cliente</span>
+      </div>
+      <div class="step" [class.active]="currentStep === 'products'">
+        <span class="step-number">3</span>
+        <span class="step-label">Produtos</span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (error) {
+      <div class="error-message">{{ error }}</div>
+    }
+
+    <!-- STEP 1: Seleção de Mesa -->
+    @if (currentStep === 'table') {
+      <div class="modal-body">
+        <h3>Selecione a Mesa</h3>
+
+        @if (loadingTables) {
+          <div class="loading">Carregando mesas...</div>
+        } @else if (tables.length === 0) {
+          <p class="empty-state">Nenhuma mesa disponível</p>
+        } @else {
+          <div class="table-grid">
+            @for (table of tables; track table._id) {
+              <button
+                class="table-card"
+                [class.occupied]="table.status === 'occupied'"
+                [class.reserved]="table.status === 'reserved'"
+                (click)="selectTable(table)"
+              >
+                <div class="table-number">Mesa {{ table.number }}</div>
+                <div class="table-status">{{ getTableStatusLabel(table.status) }}</div>
+                <div class="table-clients">
+                  {{ (table.clients.length || 0) + (table.anonymousClients.length || 0) }}
+                  cliente(s)
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- STEP 2: Seleção/Criação de Cliente -->
+    @if (currentStep === 'client') {
+      <div class="modal-body">
+        <h3>Selecione ou Crie um Cliente - Mesa {{ selectedTable?.number }}</h3>
+
+        @if (!creatingNewClient) {
+          <!-- Lista de Clientes Existentes -->
+          @if (clients.length > 0) {
+            <div class="client-list">
+              @for (client of clients; track client._id) {
+                <button class="client-card" (click)="selectClient(client)">
+                  <span class="client-icon">👤</span>
+                  <span class="client-name">{{ client.name }}</span>
+                  @if (client.isAnonymous) {
+                    <span class="badge anon">Anônimo</span>
+                  }
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Botão Criar Novo Cliente -->
+          <button class="btn btn-secondary full-width" (click)="startCreateClient()">
+            ➕ Criar Novo Cliente Anônimo
+          </button>
+        } @else {
+          <!-- Formulário de Novo Cliente -->
+          <div class="new-client-form">
+            <label for="clientName">Nome do Cliente:</label>
+            <input
+              type="text"
+              id="clientName"
+              [(ngModel)]="newClientName"
+              placeholder="Digite o nome do cliente"
+              class="form-input"
+              (keyup.enter)="createAnonymousClient()"
+            />
+
+            <div class="form-actions">
+              <button class="btn btn-secondary" (click)="cancelCreateClient()">Cancelar</button>
+              <button
+                class="btn btn-primary"
+                (click)="createAnonymousClient()"
+                [disabled]="!newClientName.trim()"
+              >
+                Criar Cliente
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- STEP 3: Seleção de Produtos -->
+    @if (currentStep === 'products') {
+      <div class="modal-body products-step">
+        <div class="products-header">
+          <h3>Adicionar Produtos - {{ selectedClient?.name }}</h3>
+
+          <!-- Filtros -->
+          <div class="filters">
+            <select [(ngModel)]="selectedCategory" class="form-select">
+              <option value="all">Todas as Categorias</option>
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              placeholder="Buscar produtos..."
+              class="form-input search-input"
+            />
+          </div>
+        </div>
+
+        <div class="products-container">
+          <!-- Lista de Produtos -->
+          <div class="products-list">
+            @if (loadingProducts) {
+              <div class="loading">Carregando produtos...</div>
+            } @else if (filteredProducts.length === 0) {
+              <p class="empty-state">Nenhum produto encontrado</p>
+            } @else {
+              @for (product of filteredProducts; track product._id) {
+                <button class="product-card" (click)="addProductToOrder(product)">
+                  @if (product.images && product.images.length > 0) {
+                    <img [src]="product.images[0]" [alt]="product.name" class="product-image" />
+                  } @else {
+                    <div class="product-image-placeholder">📦</div>
+                  }
+                  <div class="product-info">
+                    <div class="product-name">{{ product.name }}</div>
+                    @if (product.sizes && product.sizes.length > 0) {
+                      <div class="product-sizes">
+                        @for (size of product.sizes; track size.abbreviation) {
+                          <span class="size-tag"
+                            >{{ size.abbreviation }}: {{ formatCurrency(size.price) }}</span
+                          >
+                        }
+                      </div>
+                    } @else {
+                      <div class="product-price">{{ formatCurrency(product.price) }}</div>
+                    }
+                  </div>
+                </button>
+              }
+            }
+          </div>
+
+          <!-- Carrinho de Pedido -->
+          <div class="order-cart">
+            <h4>Itens do Pedido</h4>
+
+            @if (orderItems.length === 0) {
+              <p class="empty-cart">Nenhum item adicionado</p>
+            } @else {
+              <div class="cart-items">
+                @for (item of orderItems; track trackByItem($index, item)) {
+                  <div class="cart-item">
+                    <div class="item-header">
+                      <span class="item-name">
+                        {{ item.product.name }}
+                        @if (item.selectedSize) {
+                          <span class="size-badge">{{ item.selectedSize.abbreviation }}</span>
+                        }
+                      </span>
+                      <button class="remove-btn" (click)="removeItem(item)" title="Remover">
+                        ×
+                      </button>
+                    </div>
+
+                    <div class="item-controls">
+                      <div class="quantity-controls">
+                        <button class="qty-btn" (click)="updateQuantity(item, -1)">−</button>
+                        <span class="quantity">{{ item.quantity }}</span>
+                        <button class="qty-btn" (click)="updateQuantity(item, 1)">+</button>
+                      </div>
+
+                      <span class="item-total">
+                        {{
+                          formatCurrency(
+                            (item.selectedSize?.price || item.product.price) * item.quantity
+                          )
+                        }}
+                      </span>
+                    </div>
+
+                    <input
+                      type="text"
+                      [(ngModel)]="item.notes"
+                      placeholder="Observações (opcional)"
+                      class="form-input notes-input"
+                    />
+                  </div>
+                }
+              </div>
+
+              <div class="cart-total">
+                <span>Total:</span>
+                <span class="total-value">{{ formatCurrency(getTotalAmount()) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Footer com Botões de Navegação -->
+    <div class="modal-footer">
+      @if (currentStep !== 'table') {
+        <button class="btn btn-secondary" (click)="goBack()">← Voltar</button>
+      }
+
+      <div class="spacer"></div>
+
+      @if (currentStep === 'products') {
+        <button
+          class="btn btn-primary"
+          (click)="submitOrder()"
+          [disabled]="orderItems.length === 0"
+        >
+          Finalizar Pedido
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Seleção de Tamanho -->
+@if (showSizeSelector && productForSize) {
+  <div class="size-selector-overlay" (click)="closeSizeSelector()">
+    <div class="size-selector-modal" (click)="$event.stopPropagation()">
+      <div class="size-selector-header">
+        <h3>Escolha o tamanho</h3>
+        <button class="close-btn" (click)="closeSizeSelector()">×</button>
+      </div>
+
+      <div class="size-selector-product">
+        <strong>{{ productForSize.name }}</strong>
+      </div>
+
+      <div class="size-options">
+        @for (size of productForSize.sizes; track size.abbreviation) {
+          <button class="size-option" (click)="selectSize(size)">
+            <span class="size-name">{{ size.name }} ({{ size.abbreviation }})</span>
+            <span class="size-price">{{ formatCurrency(size.price) }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
