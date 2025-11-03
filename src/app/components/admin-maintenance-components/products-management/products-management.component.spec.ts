@@ -15,6 +15,10 @@ describe('ProductsManagementComponent', () => {
 
     fixture = TestBed.createComponent(ProductsManagementComponent);
     component = fixture.componentInstance;
+    component.categories = [
+      { id: 1, name: 'Food', slug: 'food', emoji: '🥐' } as any,
+      { id: 2, name: 'Dessert', slug: 'dessert', emoji: '🍰' } as any,
+    ];
     fixture.detectChanges();
   });
 
