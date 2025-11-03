@@ -4,6 +4,13 @@ export interface ProductSize {
   price: number;
 }
 
+export interface ProductVariation {
+  title: string;
+  description?: string;
+  image?: string;
+  price: number;
+}
+
 export interface Product {
   _id?: string;
   name: string;
@@ -21,6 +28,7 @@ export interface Product {
     rowSpan: number;
     colSpan: number;
   };
+  variations?: ProductVariation[];
   createdAt?: Date;
   updatedAt?: Date;
 }

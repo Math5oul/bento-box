@@ -16,7 +16,7 @@ import {
   FormArray,
 } from '@angular/forms';
 import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
-import { Product, ProductSize } from '../../interfaces/product.interface';
+import { Product, ProductSize, ProductVariation } from '../../interfaces/product.interface';
 import { ImageUploadService } from '../../services/image-upload/image-upload.service';
 import { CategoryService } from '../../services/category-service/category.service';
 import { GridItem } from '../../interfaces/bento-box.interface';
@@ -54,6 +54,88 @@ interface Filler {
   styleUrls: ['./item-editor-modal.component.scss'],
 })
 export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
+  // ===== Gerenciamento de Variações de Produto =====
+  variations: ProductVariation[] = [];
+  editingVariationIndex: number | null = null;
+  tempVariation: ProductVariation = { title: '', price: 0 };
+  variationImageFile: File | null = null;
+  variationImagePreview: string | null = null;
+
+  /** Adiciona uma nova variação ao produto */
+  addVariation() {
+    if (
+      !this.tempVariation.title ||
+      this.tempVariation.price === null ||
+      this.tempVariation.price === undefined
+    ) {
+      alert('Preencha pelo menos o título e o preço da variação');
+      return;
+    }
+    const newVariation: ProductVariation = { ...this.tempVariation };
+    if (this.variationImagePreview) newVariation.image = this.variationImagePreview;
+    this.variations.push(newVariation);
+    this.resetVariationForm();
+  }
+
+  /** Inicia a edição de uma variação existente */
+  startEditVariation(index: number) {
+    this.editingVariationIndex = index;
+    this.tempVariation = { ...this.variations[index] };
+    this.variationImagePreview = this.tempVariation.image || null;
+    this.variationImageFile = null;
+  }
+
+  /** Salva as alterações de uma variação */
+  saveEditVariation() {
+    if (this.editingVariationIndex === null) return;
+    if (
+      !this.tempVariation.title ||
+      this.tempVariation.price === null ||
+      this.tempVariation.price === undefined
+    ) {
+      alert('Preencha pelo menos o título e o preço da variação');
+      return;
+    }
+    const updatedVariation: ProductVariation = { ...this.tempVariation };
+    if (this.variationImagePreview) updatedVariation.image = this.variationImagePreview;
+    this.variations[this.editingVariationIndex] = updatedVariation;
+    this.cancelEditVariation();
+  }
+
+  /** Cancela a edição de variação */
+  cancelEditVariation() {
+    this.editingVariationIndex = null;
+    this.resetVariationForm();
+  }
+
+  /** Remove uma variação */
+  removeVariation(index: number) {
+    if (!confirm('Deseja remover esta variação?')) return;
+    this.variations.splice(index, 1);
+    this.cancelEditVariation();
+  }
+
+  /** Handler para upload de imagem da variação */
+  async onVariationImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    this.variationImageFile = file;
+    // Preview
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.variationImagePreview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /** Reseta o formulário temporário de variação */
+  resetVariationForm() {
+    this.tempVariation = { title: '', price: 0 };
+    this.variationImageFile = null;
+    this.variationImagePreview = null;
+    this.editingVariationIndex = null;
+  }
   @Input() editMode = false;
   @Input() itemToEdit: GridItem | null = null;
   @Input() mode: 'product' | 'filler' | 'grid' = 'grid'; // Controla quais componentes são exibidos
@@ -640,6 +722,11 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
       } else if (this.hasInput('images')) {
         inputs.images = this.uploadedImagePaths;
       }
+    }
+
+    // Adiciona as variações ao produto, se houver
+    if (this.variations.length > 0) {
+      inputs.variations = this.variations;
     }
 
     const newItem = {

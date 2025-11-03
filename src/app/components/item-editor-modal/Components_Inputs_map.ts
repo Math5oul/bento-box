@@ -16,7 +16,8 @@ export interface InputConfig {
     | 'checkbox'
     | 'multiple-text'
     | 'multi-select'
-    | 'product-sizes';
+    | 'product-sizes'
+    | 'product-variants';
   required?: boolean;
   defaultValue?: any;
   placeholder?: string;
@@ -61,7 +62,7 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'category',
           label: 'Categoria',
           type: 'select',
-          options: [], // Será preenchido dinamicamente com as categorias do banco
+          options: [],
           defaultValue: '',
           required: true,
         },
@@ -93,6 +94,12 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'sizes',
           label: 'Tamanhos Disponíveis',
           type: 'product-sizes',
+          defaultValue: [],
+        },
+        {
+          name: 'variations',
+          label: 'Variações do Produto',
+          type: 'product-variants',
           defaultValue: [],
         },
       ],

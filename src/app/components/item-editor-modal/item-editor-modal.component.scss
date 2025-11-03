@@ -1,3 +1,35 @@
+/* Upload de imagem da variação: quadrado pontilhado com + */
+.variant-img-upload-box {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed #b2bec3;
+  border-radius: 8px;
+  background: #fafbfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+  overflow: hidden;
+}
+.variant-img-upload-box:hover {
+  border-color: #00b894;
+}
+.variant-img-upload-plus {
+  color: #b2bec3;
+  font-size: 2.2rem;
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+}
+.variant-img-upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
 .price-locked {
   background: repeating-linear-gradient(135deg, #f8f9fa, #f8f9fa 10px, #e0e0e0 10px, #e0e0e0 20px);
   color: #888 !important;
@@ -65,6 +97,267 @@
     colo    // Ajustes para seções de upload
     .image-upload-section {
       margin-top: 1rem;
+    }
+  }
+}
+
+// ===== Estilos para Gerenciamento de Variantes de Produtos =====
+.product-variants-section {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+
+  .variants-label {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #2d3436;
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+
+  .variants-description {
+    font-size: 0.85rem;
+    color: #636e72;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+
+  .variants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .variant-item {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background: white;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    transition: all 0.2s ease;
+    gap: 0.75rem;
+
+    &:hover {
+      border-color: #00b894;
+      box-shadow: 0 2px 8px rgba(0, 184, 148, 0.15);
+    }
+
+    .variant-img,
+    .variant-img-placeholder {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1.5px solid #e0e0e0;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.5rem;
+    }
+
+    .variant-img-placeholder {
+      border: 2px dashed #b2bec3;
+      background: #fafbfc;
+      color: #b2bec3;
+      cursor: pointer;
+      font-size: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      transition: border-color 0.2s;
+    }
+    .variant-img-placeholder:hover {
+      border-color: #00b894;
+      color: #00b894;
+    }
+
+    .variant-info-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+      gap: 0.15rem;
+
+      .variant-title {
+        font-weight: 600;
+        color: #2d3436;
+        font-size: 0.98rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .variant-desc {
+        color: #636e72;
+        font-size: 0.85rem;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .variant-price {
+      font-weight: 700;
+      color: #00b894;
+      font-size: 0.95rem;
+    }
+
+    .variant-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      align-items: flex-end;
+      justify-content: center;
+
+      button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0.2rem 0.4rem;
+        transition:
+          transform 0.2s,
+          opacity 0.2s;
+        opacity: 0.7;
+
+        &:hover {
+          transform: scale(1.15);
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .variant-form {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px dashed #dee2e6;
+
+    .variant-form-title {
+      margin: 0 0 0.75rem 0;
+      font-size: 0.95rem;
+      color: #2d3436;
+      font-weight: 600;
+    }
+
+    .variant-form-inputs {
+      display: grid;
+      grid-template-columns: 2.5fr 1fr; /* Título e preço lado a lado */
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+
+      .variant-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+
+        label {
+          font-weight: 600;
+          font-size: 0.8rem;
+          color: #636e72;
+        }
+
+        input {
+          padding: 0.5rem 0.65rem;
+          border: 2px solid #dee2e6;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          transition: border-color 0.2s;
+
+          &:focus {
+            outline: none;
+            border-color: #00b894;
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+          }
+
+          &::placeholder {
+            color: #b2bec3;
+            font-size: 0.85rem;
+          }
+        }
+
+        /* Preço igual ao size-price-input */
+        .variant-price-input {
+          width: 40px;
+        }
+
+        /* Descrição ocupa linha inteira */
+        &.variant-desc-group {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+
+    /* Botão de adicionar imagem embaixo */
+    .variant-image-upload-group {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      align-items: flex-start;
+    }
+
+    .variant-form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+
+      button {
+        padding: 0.5rem 1.25rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &.btn-add-variant {
+          background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
+          }
+        }
+
+        &.btn-save-variant {
+          background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(9, 132, 227, 0.4);
+          }
+        }
+
+        &.btn-cancel-variant {
+          background: white;
+          color: #636e72;
+          border: 2px solid #dee2e6;
+
+          &:hover {
+            background: #f8f9fa;
+            border-color: #b2bec3;
+          }
+        }
+      }
     }
   }
 }
