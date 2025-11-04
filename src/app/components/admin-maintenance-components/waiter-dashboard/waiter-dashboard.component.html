@@ -145,6 +145,21 @@
                         @if (item.notes) {
                           <div class="item-notes">📝 {{ item.notes }}</div>
                         }
+                        @if (item.selectedSize) {
+                          <div class="item-size">
+                            🔹 Tamanho: {{ item.selectedSize.name }} ({{
+                              item.selectedSize.abbreviation
+                            }})
+                          </div>
+                        }
+                        @if (item.selectedVariation) {
+                          <div class="item-variation">
+                            🔸 Variação: {{ item.selectedVariation.title
+                            }}<span *ngIf="item.selectedVariation.description">
+                              — {{ item.selectedVariation.description }}</span
+                            >
+                          </div>
+                        }
                       </li>
                     }
                   </ul>

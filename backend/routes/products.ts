@@ -127,16 +127,21 @@ router.get('/categories', optionalAuth, async (req: Request, res: Response) => {
  */
 router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
   try {
-    const product = await Product.findById(req.params['id']);
-
+    const id = req.params['id'];
+    // Verifica se o id é um ObjectId válido
+    if (!id || !id.match(/^[a-fA-F0-9]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de produto inválido',
+      });
+    }
+    const product = await Product.findById(id);
     if (!product) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Produto não encontrado',
       });
-      return;
     }
-
     res.json({
       success: true,
       data: product,
