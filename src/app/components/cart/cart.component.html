@@ -230,6 +230,28 @@
             </div>
           }
 
+          <!-- Seleção de Variação (se houver) -->
+          @if (editingItemVariations && editingItemVariations.length > 0) {
+            <div class="edit-size-section">
+              <label>Variação:</label>
+              <div class="size-options">
+                @for (variation of editingItemVariations; track variation.title) {
+                  <button
+                    type="button"
+                    class="size-option-btn"
+                    [class.selected]="editingItem.selectedVariation?.title === variation.title"
+                    (click)="selectVariationForEdit(variation)"
+                  >
+                    <span class="size-title">{{ variation.title }}</span>
+                    @if (variation.price > 0) {
+                      <span class="size-price">+{{ variation.price | currency: 'BRL' }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Observações -->
           <div class="edit-observations-section">
             <label>Observações:</label>
