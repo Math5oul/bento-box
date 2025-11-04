@@ -400,6 +400,14 @@ export class NewOrderModalComponent implements OnInit {
                 price: item.selectedSize.price,
               }
             : undefined,
+          selectedVariation: item.selectedVariation
+            ? {
+                title: item.selectedVariation.title,
+                description: item.selectedVariation.description,
+                image: item.selectedVariation.image,
+                price: item.selectedVariation.price,
+              }
+            : undefined,
         };
       }),
       totalAmount: this.getTotalAmount(),

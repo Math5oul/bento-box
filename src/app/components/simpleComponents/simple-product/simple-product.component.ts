@@ -61,7 +61,7 @@ export class SimpleProductComponent {
     productName?: string;
     observations?: string;
     selectedSize?: CartItemSize;
-    selectedVariant?: ProductVariation;
+    selectedVariation?: ProductVariation;
   }) {
     let finalPrice = this.inputs.price;
 
@@ -69,8 +69,8 @@ export class SimpleProductComponent {
       finalPrice = order.selectedSize.price;
     }
 
-    if (order.selectedVariant) {
-      finalPrice += order.selectedVariant.price;
+    if (order.selectedVariation) {
+      finalPrice += order.selectedVariation.price;
     }
 
     this.cartService.addItem({
@@ -80,7 +80,7 @@ export class SimpleProductComponent {
       observations: order.observations || '',
       image: this.inputs.images[0],
       selectedSize: order.selectedSize,
-      selectedVariation: order.selectedVariant,
+      selectedVariation: order.selectedVariation,
       totalSizes: this.inputs.sizes?.length || 0,
     });
   }

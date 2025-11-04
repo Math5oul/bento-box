@@ -126,6 +126,8 @@ router.post(
         unitPrice: item.unitPrice,
         totalPrice: item.totalPrice,
         notes: item.notes,
+        selectedSize: item.selectedSize,
+        selectedVariation: item.selectedVariation,
       }));
 
       const totalAmount = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -682,6 +684,7 @@ router.patch(
           totalPrice: item.totalPrice,
           notes: item.notes,
           selectedSize: item.selectedSize,
+          selectedVariation: item.selectedVariation,
         }));
       }
 

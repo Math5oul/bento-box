@@ -21,6 +21,16 @@ export interface IOrderItemSize {
 }
 
 /**
+ * Interface da Variação do Item
+ */
+export interface IOrderItemVariation {
+  title: string;
+  description?: string;
+  image?: string;
+  price: number;
+}
+
+/**
  * Interface do Item do Pedido
  */
 export interface IOrderItem {
@@ -32,6 +42,7 @@ export interface IOrderItem {
   totalPrice: number;
   notes?: string;
   selectedSize?: IOrderItemSize;
+  selectedVariation?: IOrderItemVariation;
 }
 
 /**
@@ -67,6 +78,15 @@ const OrderItemSchema = new Schema<IOrderItem>({
     type: {
       name: { type: String, required: true },
       abbreviation: { type: String, required: true },
+      price: { type: Number, required: true, min: 0 },
+    },
+    required: false,
+  },
+  selectedVariation: {
+    type: {
+      title: { type: String, required: true },
+      description: String,
+      image: String,
       price: { type: Number, required: true, min: 0 },
     },
     required: false,
@@ -143,7 +163,18 @@ OrderSchema.pre('validate', function (next) {
  */
 OrderSchema.pre('save', function (next) {
   if (this.isModified('items')) {
-    this.totalAmount = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const orderItems: IOrderItem[] = this.items.map((item: any) => ({
+      productId: item.productId,
+      productName: item.productName,
+      productImage: item.productImage,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
+      notes: item.notes,
+      selectedSize: item.selectedSize,
+      selectedVariation: item.selectedVariation,
+    }));
+    this.totalAmount = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
   }
   next();
 });

@@ -43,7 +43,6 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
-  private storageService = inject(StorageService);
 
   isPlacingOrder = false;
   orderSuccess = false;
