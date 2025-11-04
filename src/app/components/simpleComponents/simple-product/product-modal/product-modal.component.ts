@@ -30,14 +30,14 @@ export class ProductModalComponent {
     quantity: number;
     observations: string;
     selectedSize?: CartItemSize;
-    selectedVariant?: ProductVariation;
+    selectedVariation?: ProductVariation;
   }>();
 
   isOpen: boolean = false;
   quantity: number = 1;
   observations: string = '';
   selectedSize: CartItemSize | null = null;
-  selectedVariant: ProductVariation | null = null;
+  selectedVariation: ProductVariation | null = null;
 
   /**
    * Abre o modal de produto
@@ -92,7 +92,7 @@ export class ProductModalComponent {
       quantity: this.quantity,
       observations: this.observations,
       selectedSize: this.selectedSize || undefined,
-      selectedVariant: this.selectedVariant || undefined,
+      selectedVariation: this.selectedVariation || undefined,
     });
     this.close();
   }
@@ -107,12 +107,12 @@ export class ProductModalComponent {
   /**
    * Seleciona uma variação
    */
-  selectVariant(variant: ProductVariation) {
+  selectVariation(variation: ProductVariation) {
     // Se clicar na mesma variação, desseleciona
-    if (this.selectedVariant?.title === variant.title) {
-      this.selectedVariant = null;
+    if (this.selectedVariation?.title === variation.title) {
+      this.selectedVariation = null;
     } else {
-      this.selectedVariant = { ...variant };
+      this.selectedVariation = { ...variation };
     }
   }
 
@@ -128,8 +128,8 @@ export class ProductModalComponent {
     }
 
     // Adiciona preço da variação selecionada
-    if (this.selectedVariant) {
-      currentPrice += this.selectedVariant.price;
+    if (this.selectedVariation) {
+      currentPrice += this.selectedVariation.price;
     }
 
     return currentPrice;
@@ -157,6 +157,6 @@ export class ProductModalComponent {
     this.quantity = 1;
     this.observations = '';
     this.selectedSize = null;
-    this.selectedVariant = null;
+    this.selectedVariation = null;
   }
 }

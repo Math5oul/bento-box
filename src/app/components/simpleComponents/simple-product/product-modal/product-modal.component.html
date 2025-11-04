@@ -26,8 +26,8 @@
                       <button
                         type="button"
                         class="variant-btn"
-                        [class.selected]="selectedVariant?.title === variant.title"
-                        (click)="selectVariant(variant)"
+                        [class.selected]="selectedVariation?.title === variant.title"
+                        (click)="selectVariation(variant)"
                       >
                         <div class="variant-content">
                           @if (variant.image) {
