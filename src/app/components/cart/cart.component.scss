@@ -778,7 +778,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 12px;
@@ -812,15 +811,16 @@
 
 .edit-size-section,
 .edit-observations-section {
-  margin-bottom: 1.5rem;
-
   label {
     display: block;
     font-weight: 600;
     color: #2d3436;
-    margin-bottom: 0.75rem;
+    margin: 0.75rem 0;
     font-size: 0.95rem;
   }
+}
+::last-child {
+  margin-bottom: 0;
 }
 
 .size-options {
