@@ -52,13 +52,15 @@
                         >{{ item.selectedSize!.abbreviation }} - {{ item.selectedSize!.name }}</span
                       >
                     }
+                    @if (item.selectedVariation) {
+                      <span class="product-variation"> {{ item.selectedVariation.title }}</span>
+                    }
                     @if (item.observations) {
                       <span class="product-observations">📝 {{ item.observations }}</span>
                     }
                   </div>
                 </div>
                 <div class="item-actions-row">
-                  <span class="product-price">{{ item.price | currency: 'BRL' }}</span>
                   <button class="edit-item-btn" (click)="openEditModal(item)" title="Editar item">
                     ✏️
                   </button>
