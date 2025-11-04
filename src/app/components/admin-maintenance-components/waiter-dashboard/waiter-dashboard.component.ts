@@ -256,11 +256,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Formata hora
-   */
-  // keep getElapsedTime already implemented in this component, used in templates
-
-  /**
    * Formata valor monetário
    */
   formatCurrency(value: number): string {

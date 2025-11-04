@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ProductModalContainerComponent } from './components/product-modal-container/product-modal-container.component';
+import { ProductModalContainerComponent } from './components/simpleComponents/simple-product/product-modal/product-modal-container/product-modal-container.component';
 
 @Component({
   selector: 'app-root',
