@@ -260,12 +260,41 @@
   </div>
 </div>
 
-<!-- Modal de Seleção de Tamanho -->
-@if (showSizeSelector && productForSize) {
+<!-- Modal de Seleção de Tamanho/Variante -->
+<ng-container *ngIf="showSizeSelector && productForSize">
   <div class="size-selector-overlay" (click)="closeSizeSelector()">
     <div class="size-selector-modal" (click)="$event.stopPropagation()">
       <div class="size-selector-header">
-        <h3>Escolha o tamanho</h3>
+        <h3>
+          <ng-container
+            *ngIf="
+              productForSize.sizes &&
+              productForSize.sizes.length > 0 &&
+              productForSize.variations &&
+              productForSize.variations.length > 0
+            "
+          >
+            Escolha o tamanho e/ou variação
+          </ng-container>
+          <ng-container
+            *ngIf="
+              productForSize.sizes &&
+              productForSize.sizes.length > 0 &&
+              (!productForSize.variations || productForSize.variations.length === 0)
+            "
+          >
+            Escolha o tamanho
+          </ng-container>
+          <ng-container
+            *ngIf="
+              (!productForSize.sizes || productForSize.sizes.length === 0) &&
+              productForSize.variations &&
+              productForSize.variations.length > 0
+            "
+          >
+            Escolha a variação
+          </ng-container>
+        </h3>
         <button class="close-btn" (click)="closeSizeSelector()">×</button>
       </div>
 
@@ -273,14 +302,76 @@
         <strong>{{ productForSize.name }}</strong>
       </div>
 
-      <div class="size-options">
-        @for (size of productForSize.sizes; track size.abbreviation) {
-          <button class="size-option" (click)="selectSize(size)">
-            <span class="size-name">{{ size.name }} ({{ size.abbreviation }})</span>
-            <span class="size-price">{{ formatCurrency(size.price) }}</span>
+      <!-- Variações -->
+      <ng-container *ngIf="productForSize.variations && productForSize.variations.length > 0">
+        <div class="variation-options">
+          <div class="variation-list">
+            <ng-container
+              *ngFor="let variation of productForSize.variations; trackBy: trackByVariation"
+            >
+              <button
+                class="variation-option"
+                [class.selected]="selectedVariation?.title === variation.title"
+                (click)="selectVariation(variation)"
+              >
+                <ng-container *ngIf="variation.image">
+                  <img [src]="variation.image" alt="{{ variation.title }}" class="variation-img" />
+                </ng-container>
+                <div class="variation-info">
+                  <span class="variation-title">{{ variation.title }}</span>
+                </div>
+                <span class="variation-price">{{ formatCurrency(variation.price) }}</span>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Divisória entre variações e tamanhos -->
+      <ng-container
+        *ngIf="
+          productForSize.variations &&
+          productForSize.variations.length > 0 &&
+          productForSize.sizes &&
+          productForSize.sizes.length > 0
+        "
+      >
+        <div class="divider"></div>
+      </ng-container>
+
+      <!-- Tamanhos -->
+      <ng-container *ngIf="productForSize.sizes && productForSize.sizes.length > 0">
+        <div class="size-options">
+          <ng-container *ngFor="let size of productForSize.sizes; trackBy: trackBySize">
+            <button class="size-option box-style" (click)="selectSize(size)">
+              <span class="size-name">{{ size.name }} ({{ size.abbreviation }})</span>
+              <span class="size-price">{{ formatCurrency(size.price) }}</span>
+              <ng-container *ngIf="selectedVariation">
+                <span class="variation-badge">{{ selectedVariation.title }}</span>
+              </ng-container>
+            </button>
+          </ng-container>
+        </div>
+      </ng-container>
+      <ng-container
+        *ngIf="
+          (!productForSize.sizes || productForSize.sizes.length === 0) &&
+          productForSize.variations &&
+          productForSize.variations.length > 0
+        "
+      >
+        <!-- Se só tem variação, botão para confirmar -->
+        <div class="variation-confirm">
+          <button
+            class="confirm-btn"
+            [disabled]="!selectedVariation"
+            (click)="selectSize(undefined)"
+          >
+            Adicionar
+            <ng-container *ngIf="selectedVariation">{{ selectedVariation.title }}</ng-container>
           </button>
-        }
-      </div>
+        </div>
+      </ng-container>
     </div>
   </div>
-}
+</ng-container>

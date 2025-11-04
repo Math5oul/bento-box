@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Product, ProductVariation } from '../../interfaces';
 
 export interface ProductModalData {
   images: string[];
@@ -7,6 +8,7 @@ export interface ProductModalData {
   price: number;
   description: string;
   sizes?: Array<{ name: string; abbreviation: string; price: number }>;
+  variations?: ProductVariation[];
   onOrderSubmitted: (order: {
     productName: string;
     quantity: number;

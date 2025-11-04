@@ -1,4 +1,3 @@
-// cart.component.ts
 import {
   Component,
   Input,
@@ -20,10 +19,10 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from './../../services/product-service/product.service';
 import { StorageService } from '../../services/storage-service/storage.service';
 import { Order, OrderItem, CreateOrderDTO } from '../../interfaces/order.interface';
-import { User } from '../../interfaces/user.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { OrderService } from '../../services/order-service/order.service';
 import { CartService, CartItem, CartItemSize } from './../../services/cart-service/cart.service';
+import { ProductVariation } from '../../interfaces/product.interface';
 import { interval, Subscription, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -61,13 +60,13 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   // Modal de edição
   showEditModal = false;
   editingItem: CartItem | null = null;
-  editingItemOriginal: CartItem | null = null; // Para restaurar se cancelar
+  editingItemOriginal: CartItem | null = null;
   editingItemSizes: CartItemSize[] = [];
+  editingItemVariations: ProductVariation[] = [];
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Quando o carrinho abrir e tiver itens, volta para aba "Novo Pedido"
     if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
       if (this.carrinho.length > 0) {
         this.activeTab = 'new';
@@ -76,33 +75,25 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    // Move o elemento para o body ao inicializar
     this.renderer.appendChild(document.body, this.elementRef.nativeElement);
-
-    // Carrega histórico inicial
     this.loadOrderHistory();
 
-    // Polling a cada 30 segundos para atualizar status
     this.pollingSubscription = interval(30000)
       .pipe(switchMap(() => this.loadOrderHistoryObservable()))
       .subscribe();
 
-    // Recarrega histórico quando usuário faz login (pedidos transferidos)
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       if (user && isPlatformBrowser(this.platformId)) {
-        // Recarrega histórico para mostrar pedidos transferidos
         this.loadOrderHistory();
       }
     });
   }
 
   ngOnDestroy() {
-    // Remove o elemento do body ao destruir
     if (this.elementRef.nativeElement.parentNode === document.body) {
       this.renderer.removeChild(document.body, this.elementRef.nativeElement);
     }
 
-    // Cancela subscriptions
     this.pollingSubscription?.unsubscribe();
     this.authSubscription?.unsubscribe();
   }
@@ -133,7 +124,6 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     this.orderSuccess = false;
 
     try {
-      // Verifica se tem mesa selecionada (sessão anônima ou usuário)
       const tableId = localStorage.getItem('tableId');
 
       if (!tableId) {
@@ -151,19 +141,19 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      // Converte itens do carrinho para formato do pedido
+      // Converte itens do carrinho para formato do pedido INCLUINDO VARIAÇÕES
       const orderItems: OrderItem[] = cartItems.map(item => ({
-        productId: (item as any).id || Math.floor(Math.random() * 10000), // Usa ID se existir
+        productId: (item as any).id || Math.floor(Math.random() * 10000),
         productName: item.productName,
         productImage: item.image,
         quantity: item.quantity,
         unitPrice: item.price,
         totalPrice: item.price * item.quantity,
         notes: item.observations,
-        selectedSize: item.selectedSize, // Inclui tamanho selecionado
+        selectedSize: item.selectedSize,
+        selectedVariation: item.selectedVariation,
       }));
 
-      // Recupera nome do cliente (usuário logado ou anônimo)
       let clientName = '';
       const userStr = localStorage.getItem('user');
       if (userStr) {
@@ -188,10 +178,8 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
         this.orderSuccess = true;
         this._cartService.clearCart();
 
-        // Recarrega histórico de pedidos
         this.loadOrderHistory();
 
-        // Muda para aba de histórico
         setTimeout(() => {
           this.activeTab = 'history';
           this.orderSuccess = false;
@@ -205,9 +193,6 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  /**
-   * Carrega histórico de pedidos da mesa atual
-   */
   private loadOrderHistory(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -229,9 +214,6 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  /**
-   * Versão Observable para o polling
-   */
   private loadOrderHistoryObservable() {
     if (!isPlatformBrowser(this.platformId)) {
       return new Promise(resolve => resolve([]));
@@ -245,16 +227,10 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     return this.orderService.getOrdersForCurrentTable(tableId);
   }
 
-  /**
-   * Retorna label de status em português
-   */
   getStatusLabel(status: string): string {
     return this.orderService.getStatusLabel(status as any);
   }
 
-  /**
-   * Formata tempo relativo do pedido
-   */
   getOrderTime(order: Order): string {
     if (!order.createdAt) return '';
 
@@ -276,33 +252,20 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     return `Há ${diffDays} dias`;
   }
 
-  /**
-   * Verifica se deve mostrar o tamanho do item
-   * Oculta se o produto só tinha 1 tamanho
-   */
   shouldShowSize(item: CartItem): boolean {
-    // Mostra o tamanho se ele existir e se o produto tiver mais de um tamanho disponível
     return !!item.selectedSize && !!item.totalSizes && item.totalSizes > 1;
   }
 
-  /**
-   * Verifica se deve mostrar o tamanho no histórico de pedidos
-   * Sempre mostra se existir (para compatibilidade com pedidos antigos)
-   */
   shouldShowSizeInHistory(item: OrderItem): boolean {
     return item.selectedSize !== undefined;
   }
 
-  /**
-   * Abre modal de edição do item
-   */
   openEditModal(item: CartItem): void {
-    // Clonando os objetos para evitar two-way data binding direto na lista
     this.editingItemOriginal = item;
     this.editingItem = { ...item };
     this.showEditModal = true;
 
-    // Buscar os tamanhos disponíveis para este produto
+    // Buscar os tamanhos E variações disponíveis para este produto
     this.productService.getAllProducts({ search: item.productName }).subscribe({
       next: response => {
         if (response.success && response.data.length > 0) {
@@ -312,47 +275,72 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
           } else {
             this.editingItemSizes = [];
           }
+          if (product && product.variations) {
+            this.editingItemVariations = product.variations;
+          } else {
+            this.editingItemVariations = [];
+          }
         } else {
           this.editingItemSizes = [];
+          this.editingItemVariations = [];
         }
       },
       error: () => {
         this.editingItemSizes = [];
+        this.editingItemVariations = [];
       },
     });
   }
 
-  /**
-   * Fecha modal de edição
-   */
   closeEditModal(): void {
     this.showEditModal = false;
     this.editingItem = null;
     this.editingItemOriginal = null;
     this.editingItemSizes = [];
+    this.editingItemVariations = [];
   }
 
-  /**
-   * Seleciona um tamanho durante a edição
-   */
   selectSizeForEdit(size: CartItemSize): void {
     if (this.editingItem) {
       this.editingItem.selectedSize = size;
-      this.editingItem.price = size.price; // Atualiza o preço do item
+      this.updateEditingItemPrice();
     }
   }
 
-  /**
-   * Salva as edições do item
-   */
+  selectVariationForEdit(variation: ProductVariation): void {
+    if (this.editingItem) {
+      // Se clicar na mesma variação, desseleciona
+      if (this.editingItem.selectedVariation?.title === variation.title) {
+        this.editingItem.selectedVariation = undefined;
+      } else {
+        this.editingItem.selectedVariation = { ...variation };
+      }
+      this.updateEditingItemPrice();
+    }
+  }
+
+  private updateEditingItemPrice(): void {
+    if (this.editingItem) {
+      let basePrice = this.editingItemOriginal?.price || 0;
+
+      // Se tiver tamanho selecionado, usa o preço do tamanho
+      if (this.editingItem.selectedSize) {
+        basePrice = this.editingItem.selectedSize.price;
+      }
+
+      // Adiciona o preço da variação se houver
+      if (this.editingItem.selectedVariation) {
+        basePrice += this.editingItem.selectedVariation.price;
+      }
+
+      this.editingItem.price = basePrice;
+    }
+  }
+
   saveEditedItem(): void {
     if (this.editingItem && this.editingItemOriginal) {
-      // Lógica para salvar
-      // 1. Remover o item original do carrinho
       this._cartService.removeSpecificItem(this.editingItemOriginal);
-      // 2. Adicionar o item modificado
       this._cartService.addItem(this.editingItem);
-      // 3. Fechar o modal
       this.closeEditModal();
     }
   }

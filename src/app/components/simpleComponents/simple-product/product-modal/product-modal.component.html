@@ -6,7 +6,7 @@
 
         <!-- Área scrollável -->
         <div class="modal-scroll-area">
-          <app-carrossel [images]="images" [(currentIndex)]="currentImageIndex"> ></app-carrossel>
+          <app-carrossel [images]="images" [(currentIndex)]="currentImageIndex"></app-carrossel>
 
           <div class="product-info">
             <div class="product-text">
@@ -16,6 +16,42 @@
                 class="product-description"
                 [innerHTML]="description | sanitize: 'trustedHtml'"
               ></p>
+
+              <!-- Seleção de Variações (apenas se houver variações) -->
+              @if (shouldShowVariantsSelection()) {
+                <div class="variants-selection">
+                  <label class="variants-label">Variações:</label>
+                  <div class="variants-buttons">
+                    @for (variant of variations; track variant.title) {
+                      <button
+                        type="button"
+                        class="variant-btn"
+                        [class.selected]="selectedVariant?.title === variant.title"
+                        (click)="selectVariant(variant)"
+                      >
+                        <div class="variant-content">
+                          @if (variant.image) {
+                            <img
+                              [src]="variant.image"
+                              [alt]="variant.title"
+                              class="variant-image"
+                            />
+                          }
+                          <div class="variant-info">
+                            <span class="variant-title">{{ variant.title }}</span>
+                            @if (variant.description) {
+                              <span class="variant-description">{{ variant.description }}</span>
+                            }
+                            <span class="variant-price"
+                              >+ {{ variant.price | currency: 'BRL' }}</span
+                            >
+                          </div>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
 
               <!-- Seleção de Tamanhos (apenas se houver mais de 1 tamanho) -->
               @if (shouldShowSizeSelection()) {
@@ -70,7 +106,9 @@
 
         <!-- Botão fixo (fora da área scrollável) -->
         <div class="modal-actions">
-          <button class="submit-button" (click)="submitOrder()">Adicionar ao Carrinho</button>
+          <button class="submit-button" (click)="submitOrder()">
+            Adicionar ao Carrinho - {{ getCurrentPrice() * quantity | currency: 'BRL' }}
+          </button>
         </div>
       </div>
     </div>

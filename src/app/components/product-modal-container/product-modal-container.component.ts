@@ -18,6 +18,7 @@ import { ProductModalComponent } from '../simpleComponents/simple-product/produc
       [price]="modalData?.price || 0"
       [description]="modalData?.description || ''"
       [sizes]="modalData?.sizes || []"
+      [variations]="modalData?.variations || []"
       (orderSubmitted)="onOrderSubmitted($event)"
     ></app-product-modal>
   `,

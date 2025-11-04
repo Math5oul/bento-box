@@ -154,7 +154,6 @@ export class ProductsManagementComponent implements OnInit {
         category: product.category,
         format: product.format || '1x1',
         colorMode: product.colorMode || 'light',
-        variations: product.variations || [],
       },
     };
 
@@ -189,7 +188,6 @@ export class ProductsManagementComponent implements OnInit {
       format: gridItem.inputs.format,
       colorMode: gridItem.inputs.colorMode,
       available: true,
-      variations: gridItem.inputs.variations || [],
     };
 
     try {

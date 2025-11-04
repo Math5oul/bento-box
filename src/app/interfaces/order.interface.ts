@@ -33,6 +33,16 @@ export interface OrderItemSize {
 }
 
 /**
+ * Variação selecionada do produto
+ */
+export interface OrderItemVariation {
+  title: string;
+  description?: string;
+  image?: string;
+  price: number;
+}
+
+/**
  * Item do Pedido
  */
 export interface OrderItem {
@@ -44,6 +54,7 @@ export interface OrderItem {
   totalPrice: number;
   notes?: string; // Observações do item (ex: "Sem cebola")
   selectedSize?: OrderItemSize; // Tamanho selecionado
+  selectedVariation?: OrderItemVariation; // Variação selecionada
 }
 
 /**
@@ -82,6 +93,7 @@ export interface CreateOrderItemDTO {
   unitPrice: number;
   notes?: string;
   selectedSize?: OrderItemSize; // Tamanho selecionado
+  selectedVariation?: OrderItemVariation; // Variação selecionada
 }
 
 /**

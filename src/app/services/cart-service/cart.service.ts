@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Product, ProductVariation } from '../../interfaces';
 
 export interface CartItemSize {
   name: string;
@@ -14,7 +15,8 @@ export interface CartItem {
   observations?: string;
   image?: string;
   selectedSize?: CartItemSize;
-  totalSizes?: number; // Número total de tamanhos disponíveis no produto
+  totalSizes?: number;
+  selectedVariation?: ProductVariation;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,10 +32,12 @@ export class CartService {
   addItem(item: CartItem): void {
     const currentItems = this.cartItemsSubject.value;
 
-    // Encontra item existente com mesmo produto E mesmo tamanho
+    // Encontra item existente com mesmo produto, mesmo tamanho E mesma variação
     const existingIndex = currentItems.findIndex(
       i =>
-        i.productName === item.productName && this.areSizesEqual(i.selectedSize, item.selectedSize)
+        i.productName === item.productName &&
+        this.areSizesEqual(i.selectedSize, item.selectedSize) &&
+        this.areVariationsEqual(i.selectedVariation, item.selectedVariation)
     );
 
     const newItems = [...currentItems];
@@ -62,13 +66,30 @@ export class CartService {
   }
 
   /**
+   * Verifica se duas variações são iguais
+   */
+  private areVariationsEqual(
+    variation1?: ProductVariation,
+    variation2?: ProductVariation
+  ): boolean {
+    if (!variation1 && !variation2) return true;
+    if (!variation1 || !variation2) return false;
+    return variation1.title === variation2.title;
+  }
+
+  /**
    * Diminui a quantidade de um item no carrinho em 1 unidade.
    * Remove o item se a quantidade chegar a zero.
    * @param item Item a ter a quantidade reduzida.
    */
   decreaseQuantity(item: CartItem): void {
     const currentItems = [...this.cartItemsSubject.value];
-    const index = currentItems.findIndex(i => i.productName === item.productName);
+    const index = currentItems.findIndex(
+      i =>
+        i.productName === item.productName &&
+        this.areSizesEqual(i.selectedSize, item.selectedSize) &&
+        this.areVariationsEqual(i.selectedVariation, item.selectedVariation)
+    );
 
     if (index === -1) return;
 
@@ -78,7 +99,7 @@ export class CartService {
     };
 
     if (updatedItem.quantity <= 0) {
-      this.removeItem(item.productName); // Remove se quantidade <= 0
+      this.removeSpecificItem(item); // Remove se quantidade <= 0
     } else {
       currentItems[index] = updatedItem;
       this.cartItemsSubject.next(currentItems);
@@ -88,11 +109,16 @@ export class CartService {
 
   /**
    * Aumenta a quantidade de um item no carrinho em 1 unidade.
-   * @param productName Nome do produto a ter a quantidade aumentada.
+   * @param item Item a ter a quantidade aumentada.
    */
-  increaseQuantity(productName: string): void {
+  increaseQuantity(item: CartItem): void {
     const currentItems = [...this.cartItemsSubject.value];
-    const index = currentItems.findIndex(item => item.productName === productName);
+    const index = currentItems.findIndex(
+      i =>
+        i.productName === item.productName &&
+        this.areSizesEqual(i.selectedSize, item.selectedSize) &&
+        this.areVariationsEqual(i.selectedVariation, item.selectedVariation)
+    );
 
     if (index === -1) return;
 
@@ -117,7 +143,7 @@ export class CartService {
   }
 
   /**
-   * Remove um item específico do carrinho (considerando produto e tamanho)
+   * Remove um item específico do carrinho (considerando produto, tamanho e variação)
    * @param item Item a ser removido
    */
   removeSpecificItem(item: CartItem): void {
@@ -125,7 +151,8 @@ export class CartService {
       i =>
         !(
           i.productName === item.productName &&
-          this.areSizesEqual(i.selectedSize, item.selectedSize)
+          this.areSizesEqual(i.selectedSize, item.selectedSize) &&
+          this.areVariationsEqual(i.selectedVariation, item.selectedVariation)
         )
     );
     this.cartItemsSubject.next(newItems);
@@ -142,7 +169,8 @@ export class CartService {
     const index = currentItems.findIndex(
       i =>
         i.productName === oldItem.productName &&
-        this.areSizesEqual(i.selectedSize, oldItem.selectedSize)
+        this.areSizesEqual(i.selectedSize, oldItem.selectedSize) &&
+        this.areVariationsEqual(i.selectedVariation, oldItem.selectedVariation)
     );
 
     if (index > -1) {
@@ -151,6 +179,19 @@ export class CartService {
       this.cartItemsSubject.next(newItems);
       this.saveCartToStorage(newItems);
     }
+  }
+
+  /**
+   * Encontra um item específico no carrinho
+   * @param item Item a ser encontrado
+   */
+  findItem(item: CartItem): CartItem | undefined {
+    return this.cartItemsSubject.value.find(
+      i =>
+        i.productName === item.productName &&
+        this.areSizesEqual(i.selectedSize, item.selectedSize) &&
+        this.areVariationsEqual(i.selectedVariation, item.selectedVariation)
+    );
   }
 
   /**

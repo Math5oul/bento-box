@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CarrosselComponent } from '../../../carrossel/carrossel.component';
 import { CartItemSize } from '../../../../services/cart-service/cart.service';
 import { SanitizePipe } from '../../../../pipes/sanitize.pipe';
+import { Product, ProductVariation } from '../../../../interfaces';
 
 @Component({
   selector: 'app-product-modal',
@@ -15,24 +16,28 @@ import { SanitizePipe } from '../../../../pipes/sanitize.pipe';
 })
 export class ProductModalComponent {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
   @Input() images: string[] = [];
   currentImageIndex: number = 0;
   @Input() productName: string = '';
   @Input() description: string = '';
   @Input() price: number = 0;
   @Input() sizes: Array<{ name: string; abbreviation: string; price: number }> = [];
+  @Input() variations: ProductVariation[] = [];
 
   @Output() orderSubmitted = new EventEmitter<{
     productName: string;
     quantity: number;
     observations: string;
     selectedSize?: CartItemSize;
+    selectedVariant?: ProductVariation;
   }>();
 
   isOpen: boolean = false;
   quantity: number = 1;
   observations: string = '';
   selectedSize: CartItemSize | null = null;
+  selectedVariant: ProductVariation | null = null;
 
   /**
    * Abre o modal de produto
@@ -87,6 +92,7 @@ export class ProductModalComponent {
       quantity: this.quantity,
       observations: this.observations,
       selectedSize: this.selectedSize || undefined,
+      selectedVariant: this.selectedVariant || undefined,
     });
     this.close();
   }
@@ -99,10 +105,34 @@ export class ProductModalComponent {
   }
 
   /**
-   * Retorna o preço atual (do tamanho selecionado ou preço base)
+   * Seleciona uma variação
+   */
+  selectVariant(variant: ProductVariation) {
+    // Se clicar na mesma variação, desseleciona
+    if (this.selectedVariant?.title === variant.title) {
+      this.selectedVariant = null;
+    } else {
+      this.selectedVariant = { ...variant };
+    }
+  }
+
+  /**
+   * Retorna o preço atual (do tamanho selecionado + variação selecionada ou preço base)
    */
   getCurrentPrice(): number {
-    return this.selectedSize ? this.selectedSize.price : this.price;
+    let currentPrice = this.price;
+
+    // Adiciona preço do tamanho selecionado
+    if (this.selectedSize) {
+      currentPrice = this.selectedSize.price;
+    }
+
+    // Adiciona preço da variação selecionada
+    if (this.selectedVariant) {
+      currentPrice += this.selectedVariant.price;
+    }
+
+    return currentPrice;
   }
 
   /**
@@ -113,6 +143,13 @@ export class ProductModalComponent {
   }
 
   /**
+   * Verifica se deve mostrar a seção de seleção de variações
+   */
+  shouldShowVariantsSelection(): boolean {
+    return this.variations && this.variations.length > 0;
+  }
+
+  /**
    * Reseta o formulário para o estado inicial
    * @private
    */
@@ -120,5 +157,6 @@ export class ProductModalComponent {
     this.quantity = 1;
     this.observations = '';
     this.selectedSize = null;
+    this.selectedVariant = null;
   }
 }
