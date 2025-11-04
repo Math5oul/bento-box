@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { CartService, CartItemSize } from '../../../services/cart-service/cart.service';
 import { ProductModalService } from '../../../services/product-modal-service/product-modal.service';
+import { ProductVariation } from '../../../interfaces/product.interface';
 
 @Component({
   selector: 'app-simple-product',
@@ -20,6 +21,7 @@ export class SimpleProductComponent {
     description: string;
     price: number;
     sizes?: Array<{ name: string; abbreviation: string; price: number }>;
+    variations?: ProductVariation[];
     editMode: boolean;
   } = {
     format: '1x1',
@@ -29,6 +31,7 @@ export class SimpleProductComponent {
     description: '',
     price: 0,
     sizes: [],
+    variations: [],
     editMode: false,
   };
 
@@ -47,6 +50,7 @@ export class SimpleProductComponent {
         price: this.inputs.price,
         description: this.inputs.description,
         sizes: this.inputs.sizes,
+        variations: this.inputs.variations,
         onOrderSubmitted: order => this.handleOrder(order),
       });
     }
@@ -57,14 +61,26 @@ export class SimpleProductComponent {
     productName?: string;
     observations?: string;
     selectedSize?: CartItemSize;
+    selectedVariant?: ProductVariation;
   }) {
+    let finalPrice = this.inputs.price;
+
+    if (order.selectedSize) {
+      finalPrice = order.selectedSize.price;
+    }
+
+    if (order.selectedVariant) {
+      finalPrice += order.selectedVariant.price;
+    }
+
     this.cartService.addItem({
       productName: this.inputs.productName,
-      price: order.selectedSize ? order.selectedSize.price : this.inputs.price,
+      price: finalPrice,
       quantity: order.quantity,
       observations: order.observations || '',
       image: this.inputs.images[0],
       selectedSize: order.selectedSize,
+      selectedVariation: order.selectedVariant,
       totalSizes: this.inputs.sizes?.length || 0,
     });
   }

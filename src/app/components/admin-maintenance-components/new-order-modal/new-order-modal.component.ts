@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth-service/auth.service';
-import { Product, ProductSize } from '../../../interfaces/product.interface';
+import { Product, ProductSize, ProductVariation } from '../../../interfaces/product.interface';
 
 interface Table {
   _id: string;
@@ -24,6 +24,7 @@ interface OrderItem {
   quantity: number;
   notes: string;
   selectedSize?: ProductSize;
+  selectedVariation?: ProductVariation;
 }
 
 @Component({
@@ -45,6 +46,7 @@ export class NewOrderModalComponent implements OnInit {
   // Seleção de tamanho
   showSizeSelector = false;
   productForSize: Product | null = null;
+  selectedVariation: ProductVariation | null = null;
 
   selectedTable: Table | null = null;
   loadingTables = false;
@@ -241,16 +243,20 @@ export class NewOrderModalComponent implements OnInit {
   }
 
   addProductToOrder(product: Product) {
-    // Se produto tem tamanhos, abre modal de seleção
-    if (product.sizes && product.sizes.length > 0) {
+    // Se produto tem tamanhos ou variações, abre modal de seleção
+    if (
+      (product.sizes && product.sizes.length > 0) ||
+      (product.variations && product.variations.length > 0)
+    ) {
       this.productForSize = product;
+      this.selectedVariation = null;
       this.showSizeSelector = true;
       return;
     }
 
-    // Se não tem tamanhos, adiciona direto
+    // Se não tem tamanhos nem variações, adiciona direto
     const existing = this.orderItems.find(
-      item => item.product._id === product._id && !item.selectedSize
+      item => item.product._id === product._id && !item.selectedSize && !item.selectedVariation
     );
 
     if (existing) {
@@ -264,13 +270,16 @@ export class NewOrderModalComponent implements OnInit {
     }
   }
 
-  selectSize(size: ProductSize) {
+  selectSize(size?: ProductSize) {
     if (!this.productForSize) return;
 
+    const sizeKey = size ? size.abbreviation : undefined;
+    const variationKey = this.selectedVariation ? this.selectedVariation.title : undefined;
     const existing = this.orderItems.find(
       item =>
         item.product._id === this.productForSize!._id &&
-        item.selectedSize?.abbreviation === size.abbreviation
+        (sizeKey ? item.selectedSize?.abbreviation === sizeKey : !item.selectedSize) &&
+        (variationKey ? item.selectedVariation?.title === variationKey : !item.selectedVariation)
     );
 
     if (existing) {
@@ -281,15 +290,29 @@ export class NewOrderModalComponent implements OnInit {
         quantity: 1,
         notes: '',
         selectedSize: size,
+        selectedVariation: this.selectedVariation || undefined,
       });
     }
 
     this.closeSizeSelector();
   }
 
+  trackByVariation(index: number, variation: ProductVariation) {
+    return variation.title;
+  }
+
+  trackBySize(index: number, size: ProductSize) {
+    return size.abbreviation;
+  }
+
+  selectVariation(variation: ProductVariation) {
+    this.selectedVariation = variation;
+  }
+
   closeSizeSelector() {
     this.showSizeSelector = false;
     this.productForSize = null;
+    this.selectedVariation = null;
   }
 
   updateQuantity(item: OrderItem, delta: number) {
@@ -308,7 +331,10 @@ export class NewOrderModalComponent implements OnInit {
 
   getTotalAmount(): number {
     return this.orderItems.reduce((sum, item) => {
-      const price = item.selectedSize?.price || item.product.price;
+      let price = item.selectedSize?.price || item.product.price;
+      if (item.selectedVariation) {
+        price = item.selectedVariation.price;
+      }
       return sum + price * item.quantity;
     }, 0);
   }

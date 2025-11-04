@@ -378,3 +378,76 @@
     margin: 0; // Resetado em mobile pois o padding é controlado pelo .modal-actions
   }
 }
+
+.variants-selection {
+  margin: 1rem 0;
+
+  .variants-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .variants-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .variant-btn {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+
+    &:hover {
+      border-color: #ccc;
+      background: #f9f9f9;
+    }
+
+    &.selected {
+      border-color: #007bff;
+      background: #f0f8ff;
+    }
+
+    .variant-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .variant-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .variant-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .variant-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .variant-description {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .variant-price {
+      font-weight: 600;
+      color: #e91e63;
+      font-size: 0.875rem;
+    }
+  }
+}
