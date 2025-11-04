@@ -94,10 +94,13 @@
                 </button>
               </div>
             </div>
+
+            <!-- Observações movidas para ficar mais próxima do botão -->
             <div class="observations">
+              <label class="observations-label">Observações:</label>
               <textarea
                 [(ngModel)]="observations"
-                placeholder="Adicione observações ao pedido..."
+                placeholder="Ex: Sem cebola, bem passado, molho à parte..."
                 rows="3"
               ></textarea>
             </div>

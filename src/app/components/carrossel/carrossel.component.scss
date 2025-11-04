@@ -77,7 +77,8 @@
       width: auto;
       height: auto;
       object-fit: contain;
-      display: block; // Fix para Firefox
+      display: block;
+      border-radius: 16px;
 
       // Fix específico para iOS
       -webkit-transform: translateZ(0);
