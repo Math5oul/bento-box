@@ -79,13 +79,21 @@
                     <li class="item-row">
                       <span class="item-quantity">{{ item.quantity }}x</span>
                       <span class="item-name">{{ item.productName }}</span>
+                      <!-- Tamanho -->
+                      @if (item.selectedSize) {
+                        <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
+                      }
+                      <!-- Variação -->
+                      @if (item.selectedVariation) {
+                        <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
+                      }
+                      <!-- Notas -->
+                      @if (item.notes) {
+                        <div class="item-notes">
+                          <span class="notes-icon">📝</span> {{ item.notes }}
+                        </div>
+                      }
                     </li>
-                    @if (item.notes) {
-                      <li class="item-notes">
-                        <span class="notes-icon">📝</span>
-                        {{ item.notes }}
-                      </li>
-                    }
                   }
                 </ul>
               </div>
@@ -162,12 +170,28 @@
                         <li class="item">
                           <span class="item-quantity">{{ item.quantity }}x</span>
                           <span class="item-name">{{ item.productName }}</span>
-
+                          <!-- Tamanho -->
+                          @if (item.selectedSize) {
+                            <div class="item-size">
+                              🔹 Tamanho: {{ item.selectedSize.name }} ({{
+                                item.selectedSize.abbreviation
+                              }})
+                            </div>
+                          }
+                          <!-- Variação -->
+                          @if (item.selectedVariation) {
+                            <div class="item-variation">
+                              🔸 Variação: {{ item.selectedVariation.title
+                              }}<span *ngIf="item.selectedVariation.description">
+                                — {{ item.selectedVariation.description }}</span
+                              >
+                            </div>
+                          }
+                          <!-- Notas -->
                           @if (item.notes) {
-                            <span class="item-notes">
-                              <span class="notes-icon">📝</span>
-                              {{ item.notes }}
-                            </span>
+                            <span class="item-notes"
+                              ><span class="notes-icon">📝</span> {{ item.notes }}</span
+                            >
                           }
                         </li>
                       }

@@ -1,4 +1,14 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  NgZone,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -34,9 +44,124 @@ interface OrderItem {
   templateUrl: './new-order-modal.component.html',
   styleUrls: ['./new-order-modal.component.scss'],
 })
-export class NewOrderModalComponent implements OnInit {
+export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
   @Output() orderCreated = new EventEmitter<void>();
+
+  // Controle do botão flutuante
+  isViewingCart = false;
+  private scrollCheckInterval: any;
+
+  // Elementos para scroll
+  @ViewChild('productsList', { static: false }) productsListElement?: ElementRef<HTMLDivElement>;
+  @ViewChild('orderCart', { static: false }) orderCartElement?: ElementRef<HTMLDivElement>;
+  @ViewChild('modalContent', { static: false }) modalContentElement?: ElementRef<HTMLDivElement>;
+
+  ngAfterViewInit(): void {
+    // Inicia a verificação periódica de scroll após um pequeno delay
+    setTimeout(() => {
+      this.startScrollMonitoring();
+    }, 500);
+  }
+
+  ngOnDestroy(): void {
+    this.stopScrollMonitoring();
+  }
+
+  /**
+   * Inicia o monitoramento de scroll
+   */
+  private startScrollMonitoring() {
+    this.stopScrollMonitoring();
+
+    // Verifica a posição inicial
+    this.checkScrollPosition();
+
+    // Configura verificação periódica
+    this.scrollCheckInterval = setInterval(() => {
+      this.checkScrollPosition();
+    }, 200);
+
+    // Adiciona listener de scroll
+    if (this.modalContentElement) {
+      this.modalContentElement.nativeElement.addEventListener(
+        'scroll',
+        this.handleScroll.bind(this)
+      );
+    }
+  }
+
+  /**
+   * Para o monitoramento de scroll
+   */
+  private stopScrollMonitoring() {
+    if (this.scrollCheckInterval) {
+      clearInterval(this.scrollCheckInterval);
+      this.scrollCheckInterval = null;
+    }
+
+    if (this.modalContentElement) {
+      this.modalContentElement.nativeElement.removeEventListener(
+        'scroll',
+        this.handleScroll.bind(this)
+      );
+    }
+  }
+
+  /**
+   * Handler para eventos de scroll
+   */
+  private handleScroll() {
+    this.checkScrollPosition();
+  }
+
+  /**
+   * Verifica a posição do scroll e atualiza o estado do botão
+   */
+  private checkScrollPosition() {
+    if (!this.modalContentElement || !this.productsListElement || !this.orderCartElement) return;
+
+    const modalContent = this.modalContentElement.nativeElement;
+    const productsList = this.productsListElement.nativeElement;
+    const orderCart = this.orderCartElement.nativeElement;
+
+    // Obtém as posições relativas dentro do modal
+    const modalRect = modalContent.getBoundingClientRect();
+    const productsRect = productsList.getBoundingClientRect();
+    const cartRect = orderCart.getBoundingClientRect();
+
+    // Calcula quanto de cada seção está visível
+    const productsVisibility = this.calculateVisibility(productsRect, modalRect);
+    const cartVisibility = this.calculateVisibility(cartRect, modalRect);
+
+    // Determina qual seção está mais visível
+    // Se o carrinho está pelo menos 30% visível e mais visível que os produtos, considera que está vendo o carrinho
+    const wasViewingCart = this.isViewingCart;
+    this.isViewingCart = cartVisibility > 0.3 && cartVisibility >= productsVisibility;
+
+    // Log para debug (pode remover depois)
+    if (wasViewingCart !== this.isViewingCart) {
+      console.log('View state changed:', {
+        viewingCart: this.isViewingCart,
+        productsVisibility,
+        cartVisibility,
+      });
+    }
+  }
+
+  /**
+   * Calcula a porcentagem de visibilidade de um elemento dentro do container
+   */
+  private calculateVisibility(elementRect: DOMRect, containerRect: DOMRect): number {
+    // Calcula a interseção entre o elemento e o container
+    const visibleTop = Math.max(elementRect.top, containerRect.top);
+    const visibleBottom = Math.min(elementRect.bottom, containerRect.bottom);
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+    // Calcula a porcentagem do elemento que está visível
+    const elementHeight = elementRect.height;
+    return elementHeight > 0 ? visibleHeight / elementHeight : 0;
+  }
 
   // Etapas do fluxo
   currentStep: 'table' | 'client' | 'products' = 'table';
@@ -69,7 +194,8 @@ export class NewOrderModalComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -364,6 +490,27 @@ export class NewOrderModalComponent implements OnInit {
       this.selectedClient = null;
       this.orderItems = [];
     }
+  }
+
+  /**
+   * Navega entre lista de produtos e carrinho
+   */
+  scrollBetweenSections() {
+    if (!this.productsListElement?.nativeElement || !this.orderCartElement?.nativeElement) return;
+    if (this.isViewingCart) {
+      // Scroll para o topo da lista de produtos
+      this.productsListElement.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    } else {
+      // Scroll para o carrinho
+      this.orderCartElement.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+    this.isViewingCart = !this.isViewingCart;
   }
 
   closeModal() {

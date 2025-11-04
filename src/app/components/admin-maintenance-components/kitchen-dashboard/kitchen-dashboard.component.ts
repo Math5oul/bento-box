@@ -12,6 +12,17 @@ interface KitchenOrderItem {
   productName: string;
   quantity: number;
   notes?: string;
+  selectedSize?: {
+    name: string;
+    abbreviation: string;
+    price: number;
+  };
+  selectedVariation?: {
+    title: string;
+    description?: string;
+    image?: string;
+    price: number;
+  };
 }
 
 interface KitchenOrder {
@@ -146,7 +157,9 @@ export class KitchenDashboardComponent implements OnInit {
 
   async updateStatus(order: KitchenOrder, newStatus: string): Promise<void> {
     const statusLabel = this.getStatusLabel(newStatus);
-    if (!confirm(`Alterar status do pedido #${order.id.slice(-6)} para ${statusLabel}?`)) return;
+    if (newStatus === 'cancelled') {
+      if (!confirm(`Tem certeza que deseja cancelar o pedido #${order.id.slice(-6)}?`)) return;
+    }
     try {
       const token = this.authService.getToken();
       const headers = new HttpHeaders({

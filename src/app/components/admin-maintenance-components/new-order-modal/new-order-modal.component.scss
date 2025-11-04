@@ -892,3 +892,95 @@
     opacity: 1;
   }
 }
+// ==================== BOTÃO FLUTUANTE (APENAS MOBILE) ====================
+
+.floating-nav-btn {
+  display: none; // Escondido por padrão no desktop
+  opacity: 0.5;
+
+  // Mostrar apenas no mobile
+  @media (max-width: 768px) {
+    display: flex;
+    position: fixed;
+    bottom: 80px;
+    right: 15px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: rgba(0, 158, 125, 0.9);
+    color: white;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: rgba(0, 158, 125, 1);
+      transform: scale(1.1);
+      box-shadow:
+        0 6px 25px rgba(0, 0, 0, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.9);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    // Efeito de pulso quando há itens no carrinho e não está vendo o carrinho
+    &:not(.viewing-cart) {
+      animation: pulse 2s infinite;
+    }
+
+    &.viewing-cart {
+      background: rgba(102, 126, 234, 0.9);
+
+      &:hover {
+        background: rgba(102, 126, 234, 1);
+      }
+    }
+  }
+
+  // Ajustes para telas muito pequenas
+  @media (max-width: 768px) and (max-height: 500px) {
+    bottom: 10px;
+    right: 10px;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+}
+
+// Animação de pulso para chamar atenção (apenas no mobile)
+@keyframes pulse {
+  0% {
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow:
+      0 4px 20px rgba(0, 158, 125, 0.5),
+      0 0 0 2px rgba(0, 158, 125, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Melhorar a navegação por scroll no mobile
+@media (max-width: 768px) {
+  .products-list,
+  .order-cart {
+    scroll-margin-top: 10px;
+  }
+}
