@@ -7,7 +7,6 @@ import { AuthService } from '../../../services/auth-service/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { NewOrderModalComponent } from '../new-order-modal/new-order-modal.component';
-// ...existing imports...
 
 interface WaiterOrder {
   id: string;
@@ -16,12 +15,23 @@ interface WaiterOrder {
   isClientAnonymous?: boolean;
   status: string;
   items: {
-    productId?: number;
+    productId?: string;
     productName: string;
     quantity: number;
     unitPrice: number;
     totalPrice: number;
     notes?: string;
+    selectedSize?: {
+      name: string;
+      abbreviation: string;
+      price: number;
+    };
+    selectedVariation?: {
+      title: string;
+      description?: string;
+      image?: string;
+      price: number;
+    };
   }[];
   totalAmount: number;
   createdAt: string;
@@ -36,6 +46,11 @@ interface WaiterOrder {
   styleUrls: ['./waiter-dashboard.component.scss'],
 })
 export class WaiterDashboardComponent implements OnInit, OnDestroy {
+  productOptions: {
+    sizes?: { name: string; abbreviation: string; price: number }[];
+    variations?: { title: string; description?: string; image?: string; price: number }[];
+    basePrice: number;
+  }[] = [];
   orders: WaiterOrder[] = [];
   filteredOrders: WaiterOrder[] = [];
   historyOrders: WaiterOrder[] = [];
@@ -54,12 +69,23 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   editingNameOrderId: string | null = null;
   editingNameValue = '';
   editingItems: {
-    productId?: number;
+    productId?: string;
     productName: string;
     quantity: number;
     unitPrice: number;
     totalPrice: number;
     notes?: string;
+    selectedSize?: {
+      name: string;
+      abbreviation: string;
+      price: number;
+    };
+    selectedVariation?: {
+      title: string;
+      description?: string;
+      image?: string;
+      price: number;
+    };
   }[] = [];
 
   // Filtros
@@ -326,9 +352,35 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     }
 
     this.editingOrder = order;
-    // Cria cópia dos itens para edição
     this.editingItems = JSON.parse(JSON.stringify(order.items));
-    this.showEditModal = true;
+    this.productOptions = [];
+    // Para cada item, busca as opções do produto
+    const requests = this.editingItems.map(item =>
+      this.http.get<{ success: boolean; data: any }>(`/api/products/${item.productId}`).toPromise()
+    );
+    Promise.all(requests).then(results => {
+      this.productOptions = results.map(r => ({
+        sizes: r && r.data && r.data.sizes ? r.data.sizes : [],
+        variations: r && r.data && r.data.variations ? r.data.variations : [],
+        basePrice: r && r.data && typeof r.data.price === 'number' ? r.data.price : 0,
+      }));
+      // Atualiza todos os preços dos itens ao abrir o modal
+      this.editingItems.forEach((_, i) => this.onSizeOrVariationChange(i));
+      this.showEditModal = true;
+    });
+  }
+
+  /**
+   * Atualiza preço do item ao mudar size/variation
+   */
+  onSizeOrVariationChange(index: number) {
+    const item = this.editingItems[index];
+    // Preço base do produto
+    let basePrice = this.productOptions[index]?.basePrice ?? item.unitPrice;
+    let sizePrice = item.selectedSize ? item.selectedSize.price : 0;
+    let variationPrice = item.selectedVariation ? item.selectedVariation.price : 0;
+    item.unitPrice = basePrice + sizePrice + variationPrice;
+    item.totalPrice = item.unitPrice * item.quantity;
   }
 
   /**
