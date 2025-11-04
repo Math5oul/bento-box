@@ -4,24 +4,14 @@ import { Subject, takeUntil } from 'rxjs';
 import {
   ProductModalService,
   ProductModalData,
-} from '../../services/product-modal-service/product-modal.service';
-import { ProductModalComponent } from '../simpleComponents/simple-product/product-modal/product-modal.component';
+} from '../../../../../services/product-modal-service/product-modal.service';
+import { ProductModalComponent } from '../product-modal.component';
 
 @Component({
   selector: 'app-product-modal-container',
   standalone: true,
   imports: [CommonModule, ProductModalComponent],
-  template: `
-    <app-product-modal
-      [images]="modalData?.images || []"
-      [productName]="modalData?.productName || ''"
-      [price]="modalData?.price || 0"
-      [description]="modalData?.description || ''"
-      [sizes]="modalData?.sizes || []"
-      [variations]="modalData?.variations || []"
-      (orderSubmitted)="onOrderSubmitted($event)"
-    ></app-product-modal>
-  `,
+  templateUrl: './product-modal-container.component.html',
 })
 export class ProductModalContainerComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(ProductModalComponent) modalRef!: ProductModalComponent;

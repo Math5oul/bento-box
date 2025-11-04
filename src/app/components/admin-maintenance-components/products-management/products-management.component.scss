@@ -4,7 +4,6 @@
   padding: 2rem;
 }
 
-/* Ensure inner elements respect container padding and avoid overflow */
 .products-management-container,
 .products-management-container * {
   box-sizing: border-box;
@@ -103,7 +102,6 @@
 }
 
 .create-button {
-  /* Muted green, smaller */
   background: linear-gradient(135deg, #2fa768 0%, #1f8f5a 100%);
   color: white;
   padding: 10px 20px;
@@ -127,7 +125,6 @@
 
 .search-bar {
   position: relative;
-  /* avoid overflowing the padded container */
   max-width: 100%;
   margin: 0 auto 10px;
   padding: 0 0.25rem;
@@ -232,7 +229,6 @@
 // Grid de produtos
 .products-grid {
   display: grid;
-  /* more compact layout on desktop */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 }

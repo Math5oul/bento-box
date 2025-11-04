@@ -26,7 +26,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
 
   // Polling para atualização em tempo real
   private pollingSubscription?: Subscription;
-  private readonly POLLING_INTERVAL = 5000; // 5 segundos (mais rápido para pedidos)
+  private readonly POLLING_INTERVAL = 5000;
 
   constructor(private orderService: OrderService) {}
 
