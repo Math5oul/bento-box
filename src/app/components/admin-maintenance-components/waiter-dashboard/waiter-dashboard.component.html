@@ -146,17 +146,11 @@
                           <div class="item-notes">📝 {{ item.notes }}</div>
                         }
                         @if (item.selectedSize) {
-                          <div class="item-size">
-                            🔹 Tamanho: {{ item.selectedSize.name }} ({{
-                              item.selectedSize.abbreviation
-                            }})
-                          </div>
+                          <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
                         }
                         @if (item.selectedVariation) {
                           <div class="item-variation">
-                            🔸 Variação: {{ item.selectedVariation.title
-                            }}<span *ngIf="item.selectedVariation.description">
-                              — {{ item.selectedVariation.description }}</span
+                            🔸 {{ item.selectedVariation.title }}
                             >
                           </div>
                         }
@@ -264,7 +258,7 @@
   }
 </div>
 
-<!-- Modal de Edição -->
+<!-- Modal de Edição - Atualizado com campo de notas -->
 @if (showEditModal) {
   <div class="modal-overlay" (click)="closeEditModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
@@ -317,10 +311,61 @@
                       </button>
                     </div>
 
+                    <!-- Dropdown de tamanho -->
+                    @if (productOptions[i]?.sizes?.length) {
+                      <div class="dropdown-control">
+                        <label for="size-{{ i }}">Tamanho:</label>
+                        <select
+                          id="size-{{ i }}"
+                          [(ngModel)]="item.selectedSize"
+                          (change)="onSizeOrVariationChange(i)"
+                        >
+                          <option [ngValue]="undefined">Nenhum</option>
+                          @for (size of productOptions[i].sizes; track size.abbreviation) {
+                            <option [ngValue]="size">
+                              {{ size.name }} ({{ size.abbreviation }}) -
+                              {{ formatCurrency(size.price) }}
+                            </option>
+                          }
+                        </select>
+                      </div>
+                    }
+
+                    <!-- Dropdown de variação -->
+                    @if (productOptions[i]?.variations?.length) {
+                      <div class="dropdown-control">
+                        <label for="variation-{{ i }}">Variação:</label>
+                        <select
+                          id="variation-{{ i }}"
+                          [(ngModel)]="item.selectedVariation"
+                          (change)="onSizeOrVariationChange(i)"
+                        >
+                          <option [ngValue]="undefined">Nenhuma</option>
+                          @for (variation of productOptions[i].variations; track variation.title) {
+                            <option [ngValue]="variation">
+                              {{ variation.title }} - {{ formatCurrency(variation.price) }}
+                            </option>
+                          }
+                        </select>
+                      </div>
+                    }
+
                     <span class="item-total">{{ formatCurrency(item.totalPrice) }}</span>
                     <button class="remove-btn" (click)="removeItem(i)" title="Remover item">
                       🗑️
                     </button>
+                  </div>
+
+                  <!-- Campo de notas -->
+                  <div class="notes-control">
+                    <label for="notes-{{ i }}">Observações:</label>
+                    <textarea
+                      id="notes-{{ i }}"
+                      [(ngModel)]="item.notes"
+                      placeholder="Alguma observação sobre o item..."
+                      class="notes-textarea"
+                      rows="2"
+                    ></textarea>
                   </div>
 
                   @if (item.notes) {

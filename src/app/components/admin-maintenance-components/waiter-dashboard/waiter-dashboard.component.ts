@@ -318,9 +318,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
    * Marca pedido como entregue
    */
   deliverOrder(order: WaiterOrder) {
-    if (confirm(`Confirmar entrega do pedido da Mesa ${order.tableNumber}?`)) {
-      this.updateStatus(order, 'delivered');
-    }
+    this.updateStatus(order, 'delivered');
   }
 
   /**
@@ -354,18 +352,77 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     this.editingOrder = order;
     this.editingItems = JSON.parse(JSON.stringify(order.items));
     this.productOptions = [];
+
     // Para cada item, busca as opções do produto
-    const requests = this.editingItems.map(item =>
-      this.http.get<{ success: boolean; data: any }>(`/api/products/${item.productId}`).toPromise()
-    );
+    const requests = this.editingItems.map((item, index) => {
+      if (!item.productId) {
+        return Promise.resolve({
+          success: true,
+          data: {
+            price: item.unitPrice,
+            sizes: [],
+            variations: [],
+          },
+        });
+      }
+
+      return this.http
+        .get<{ success: boolean; data: any }>(`/api/products/${item.productId}`)
+        .toPromise()
+        .catch(error => {
+          console.error(`Erro ao carregar produto ${item.productId}:`, error);
+          return {
+            success: false,
+            data: {
+              price: item.unitPrice,
+              sizes: [],
+              variations: [],
+            },
+          };
+        });
+    });
+
     Promise.all(requests).then(results => {
-      this.productOptions = results.map(r => ({
-        sizes: r && r.data && r.data.sizes ? r.data.sizes : [],
-        variations: r && r.data && r.data.variations ? r.data.variations : [],
-        basePrice: r && r.data && typeof r.data.price === 'number' ? r.data.price : 0,
-      }));
-      // Atualiza todos os preços dos itens ao abrir o modal
-      this.editingItems.forEach((_, i) => this.onSizeOrVariationChange(i));
+      this.productOptions = results.map((r, index) => {
+        const productData = r?.data || {};
+        const currentItem = this.editingItems[index];
+
+        return {
+          sizes: productData.sizes || [],
+          variations: productData.variations || [],
+          basePrice:
+            typeof productData.price === 'number' ? productData.price : currentItem.unitPrice,
+        };
+      });
+
+      // AGORA FAZEMOS O MATCH DOS VALORES SELECIONADOS COM AS OPÇÕES DISPONÍVEIS
+      this.editingItems.forEach((item, index) => {
+        const options = this.productOptions[index];
+
+        // Match do tamanho selecionado
+        if (item.selectedSize && options.sizes!.length > 0) {
+          const matchedSize = options.sizes!.find(
+            size => size.abbreviation === item.selectedSize?.abbreviation
+          );
+          item.selectedSize = matchedSize || undefined;
+        } else {
+          item.selectedSize = undefined;
+        }
+
+        // Match da variação selecionada
+        if (item.selectedVariation && options.variations!.length > 0) {
+          const matchedVariation = options.variations!.find(
+            variation => variation.title === item.selectedVariation?.title
+          );
+          item.selectedVariation = matchedVariation || undefined;
+        } else {
+          item.selectedVariation = undefined;
+        }
+
+        // Recalcula o preço após o match
+        this.onSizeOrVariationChange(index);
+      });
+
       this.showEditModal = true;
     });
   }
@@ -375,12 +432,27 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
    */
   onSizeOrVariationChange(index: number) {
     const item = this.editingItems[index];
-    // Preço base do produto
-    let basePrice = this.productOptions[index]?.basePrice ?? item.unitPrice;
-    let sizePrice = item.selectedSize ? item.selectedSize.price : 0;
-    let variationPrice = item.selectedVariation ? item.selectedVariation.price : 0;
-    item.unitPrice = basePrice + sizePrice + variationPrice;
-    item.totalPrice = item.unitPrice * item.quantity;
+    const productOption = this.productOptions[index];
+
+    if (!productOption) return;
+
+    let unitPrice = 0;
+
+    // Se tem tamanho selecionado, usa o preço do tamanho (que já é o preço base)
+    if (item.selectedSize) {
+      unitPrice = item.selectedSize.price;
+    } else {
+      // Se não tem tamanho, usa o preço base do produto
+      unitPrice = productOption.basePrice;
+    }
+
+    if (item.selectedVariation) {
+      unitPrice += item.selectedVariation.price;
+    }
+
+    // Atualiza preço unitário e total
+    item.unitPrice = unitPrice;
+    item.totalPrice = unitPrice * item.quantity;
   }
 
   /**
@@ -445,6 +517,8 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         unitPrice: item.unitPrice,
         totalPrice: item.totalPrice,
         notes: item.notes,
+        selectedSize: item.selectedSize,
+        selectedVariation: item.selectedVariation,
       })),
       totalAmount: this.getEditingTotal(),
     };
@@ -458,7 +532,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         next: response => {
           console.log('✅ Pedido atualizado:', response.message);
           this.closeEditModal();
-          this.loadOrders(true); // Recarrega silenciosamente
+          this.loadOrders(true);
         },
         error: err => {
           console.error('Erro ao atualizar pedido:', err);

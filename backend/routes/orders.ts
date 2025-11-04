@@ -628,7 +628,7 @@ router.patch(
   runValidations([
     param('orderId').isMongoId().withMessage('ID do pedido inválido'),
     body('items').optional().isArray({ min: 1 }).withMessage('Pedido deve ter pelo menos 1 item'),
-    body('items.*.productId').optional().isInt().withMessage('ID do produto inválido'),
+    body('items.*.productId').optional().isMongoId().withMessage('ID do produto inválido'),
     body('items.*.productName').optional().notEmpty().withMessage('Nome do produto é obrigatório'),
     body('items.*.quantity')
       .optional()
