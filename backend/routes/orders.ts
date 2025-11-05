@@ -728,19 +728,16 @@ router.patch(
         order.notes = notes;
       }
 
-      // Derivar status do pedido a partir dos itens (se items foram fornecidas)
-      // Regras:
-      // - todos 'ready' -> delivered
-      // - todos 'pending' -> pending
-      // - se algum 'preparing' -> preparing
-      // - default -> preparing
+      // Derivar status do pedido a partir dos itens (status mais baixo)
+
       try {
         const itemStatuses = (order.items || []).map((it: any) => it.status || OrderStatus.PENDING);
         let derivedStatus: OrderStatus = order.status as OrderStatus;
         if (itemStatuses.length === 0) {
           derivedStatus = OrderStatus.PENDING;
+        } else if (itemStatuses.every(s => s === OrderStatus.DELIVERED)) {
+          derivedStatus = OrderStatus.DELIVERED;
         } else if (itemStatuses.every(s => s === OrderStatus.READY)) {
-          // When all items are ready, mark order as READY (not delivered) so kitchen keeps it until delivery
           derivedStatus = OrderStatus.READY;
         } else if (itemStatuses.every(s => s === OrderStatus.PENDING)) {
           derivedStatus = OrderStatus.PENDING;
@@ -750,7 +747,6 @@ router.patch(
           derivedStatus = OrderStatus.PREPARING;
         }
 
-        // Apply derived status and timestamps
         order.status = derivedStatus;
         if (String(derivedStatus) === String(OrderStatus.DELIVERED)) {
           order.deliveredAt = new Date();
@@ -763,7 +759,6 @@ router.patch(
           order.cancelledAt = undefined as any;
         }
       } catch (e) {
-        // ignore derivation errors and keep current order.status
         console.warn('Erro ao derivar status do pedido a partir dos items:', e);
       }
 
