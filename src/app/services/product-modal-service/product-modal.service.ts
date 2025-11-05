@@ -9,8 +9,12 @@ export interface ProductModalData {
   description: string;
   sizes?: Array<{ name: string; abbreviation: string; price: number }>;
   variations?: ProductVariation[];
+  // Optional product id provided when opening modal from a product card
+  productId?: string;
+
   onOrderSubmitted: (order: {
     productName: string;
+    productId?: string;
     quantity: number;
     observations: string;
     selectedSize?: { name: string; abbreviation: string; price: number };

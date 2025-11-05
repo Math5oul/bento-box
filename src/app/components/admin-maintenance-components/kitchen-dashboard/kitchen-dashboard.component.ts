@@ -12,6 +12,7 @@ interface KitchenOrderItem {
   productName: string;
   quantity: number;
   notes?: string;
+  status?: string; // novo: status do item (pending, preparing, ready, etc.)
   selectedSize?: {
     name: string;
     abbreviation: string;
@@ -133,18 +134,58 @@ export class KitchenDashboardComponent implements OnInit {
           id: order.id || order._id,
           tableNumber: order.tableNumber,
           clientName: order.clientName,
+          // manter status do pedido por compatibilidade, mas iremos derivar de items
           status: order.status,
           createdAt: order.createdAt,
-          items: order.items || [],
+          items: (order.items || []).map((it: any) => ({
+            productName: it.productName,
+            quantity: it.quantity,
+            notes: it.notes,
+            selectedSize: it.selectedSize,
+            selectedVariation: it.selectedVariation,
+            status: it.status || 'pending',
+          })),
         }));
+
+        // helper para derivar status do pedido a partir dos itens
+        const deriveOrderStatus = (items: KitchenOrderItem[]) => {
+          if (!items || items.length === 0) return 'pending';
+          const statuses = items.map(i => i.status || 'pending');
+          // se todos prontos -> marcar como 'ready' (pronto para entrega), não como 'delivered'
+          if (statuses.every(s => s === 'ready')) return 'ready';
+          // se todos pendentes
+          if (statuses.every(s => s === 'pending')) return 'pending';
+          // se algum preparando -> preparing
+          if (statuses.some(s => s === 'preparing')) return 'preparing';
+          // default: preparing
+          return 'preparing';
+        };
+
+        // Derivar status do pedido a partir dos items para consistência
+        allOrders.forEach((o: any) => {
+          const itemStatuses = (o.items || []).map((it: any) => it.status || 'pending');
+          if (itemStatuses.length === 0) {
+            o.status = o.status || 'pending';
+          } else if (itemStatuses.every((s: string) => s === 'ready')) {
+            o.status = 'ready';
+          } else if (itemStatuses.every((s: string) => s === 'pending')) {
+            o.status = 'pending';
+          } else if (itemStatuses.some((s: string) => s === 'preparing')) {
+            o.status = 'preparing';
+          } else {
+            o.status = o.status || 'preparing';
+          }
+        });
 
         // Separar pedidos ativos de histórico
         let activeOrders = allOrders.filter(
           (o: KitchenOrder) => o.status !== 'delivered' && o.status !== 'cancelled'
         );
         if (this.filterStatus === 'kitchen') {
+          // Mostrar pedidos que estão na cozinha: pendentes, em preparo ou prontos para entrega
           activeOrders = activeOrders.filter(
-            (o: KitchenOrder) => o.status === 'pending' || o.status === 'preparing'
+            (o: KitchenOrder) =>
+              o.status === 'pending' || o.status === 'preparing' || o.status === 'ready'
           );
         }
         this.orders = activeOrders;
@@ -200,6 +241,116 @@ export class KitchenDashboardComponent implements OnInit {
     } catch (err: any) {
       alert('Erro ao atualizar status: ' + (err.error?.message || err.message));
       console.error('Erro ao atualizar status:', err);
+    }
+  }
+
+  /**
+   * Atualiza o status de um item dentro de um pedido.
+   * Faz uma chamada à API para persistir o novo status do item.
+   * Depois reavalia o status do pedido e atualiza se necessário.
+   */
+  async updateItemStatus(
+    order: KitchenOrder,
+    item: KitchenOrderItem,
+    newStatus: string
+  ): Promise<void> {
+    try {
+      const token = this.authService.getToken();
+      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+      // Encontrar índice do item no array local
+      const itemIndex = order.items.findIndex(i => i === item);
+      if (itemIndex === -1) {
+        console.warn('Item não encontrado no pedido (local)');
+        return;
+      }
+
+      // Primeira: buscar o pedido completo do servidor para obter fields necessários (productId, unitPrice, totalPrice...)
+      const getResp: any = await this.http
+        .get(`${environment.apiUrl}/orders/${order.id}`, { headers })
+        .toPromise();
+
+      if (!getResp || !getResp.success || !getResp.order) {
+        console.error('Não foi possível obter pedido completo para atualização de item', getResp);
+        return;
+      }
+
+      const serverOrder = getResp.order as any;
+      const serverItems = Array.isArray(serverOrder.items) ? serverOrder.items : [];
+
+      // Atualiza o status do item no array completo
+      const updatedItems = serverItems.map((it: any, idx: number) => {
+        // Normalize/ensure all required fields are present and properly typed
+        const normalized = {
+          productId: it.productId ? String(it.productId) : undefined,
+          productName: it.productName,
+          productImage: it.productImage,
+          quantity: typeof it.quantity === 'number' ? it.quantity : Number(it.quantity) || 0,
+          unitPrice: typeof it.unitPrice === 'number' ? it.unitPrice : Number(it.unitPrice) || 0,
+          totalPrice:
+            typeof it.totalPrice === 'number' ? it.totalPrice : Number(it.totalPrice) || 0,
+          notes: it.notes,
+          selectedSize: it.selectedSize,
+          selectedVariation: it.selectedVariation,
+          status: it.status || 'pending',
+        } as any;
+
+        if (idx === itemIndex) {
+          normalized.status = newStatus;
+        }
+
+        return normalized;
+      });
+
+      // Helpful debug: log the exact payload that will be sent to the server
+      console.debug('PATCH /orders/' + order.id + ' payload', { items: updatedItems });
+
+      // Envia PATCH para atualizar o pedido com os items modificados
+      const patchResp: any = await this.http
+        .patch(`${environment.apiUrl}/orders/${order.id}`, { items: updatedItems }, { headers })
+        .toPromise();
+
+      if (patchResp && patchResp.success) {
+        // Atualiza localmente usando os dados retornados (se houver)
+        const updatedOrder = patchResp.order || serverOrder;
+
+        // Mapear itens para o formato local usado na UI
+        order.items = (updatedOrder.items || []).map((it: any) => ({
+          productName: it.productName,
+          quantity: it.quantity,
+          notes: it.notes,
+          selectedSize: it.selectedSize,
+          selectedVariation: it.selectedVariation,
+          status: it.status || 'pending',
+        }));
+
+        // Preferir o status calculado/persistido no servidor quando disponível
+        const serverStatus =
+          updatedOrder && updatedOrder.status ? String(updatedOrder.status) : null;
+        if (serverStatus) {
+          order.status = serverStatus;
+        } else {
+          // Fallback: derivar localmente a partir dos itens
+          const statuses = order.items.map(i => i.status || 'pending');
+          if (statuses.every(s => s === 'ready')) order.status = 'ready';
+          else if (statuses.every(s => s === 'pending')) order.status = 'pending';
+          else if (statuses.some(s => s === 'preparing')) order.status = 'preparing';
+          else order.status = order.status || 'preparing';
+        }
+
+        // Se o pedido ficou entregue ou cancelado, mover para histórico
+        if (order.status === 'delivered' || order.status === 'cancelled') {
+          this.orders = this.orders.filter(o => o.id !== order.id);
+          this.historyOrders.unshift(order);
+        }
+      } else {
+        console.error('Falha ao atualizar item via PATCH /orders/:orderId', patchResp);
+      }
+    } catch (err: any) {
+      console.error('Erro ao atualizar status do item:', err);
+      console.error('Detalhes do erro do backend:', err.error);
+      const msg = err.error?.message || err.error?.errors || err.message || 'Erro desconhecido';
+      alert('Erro ao atualizar status do item: ' + JSON.stringify(msg));
     }
   }
 

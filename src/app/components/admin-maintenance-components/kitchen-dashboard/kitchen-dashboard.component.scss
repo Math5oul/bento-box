@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 * {
   margin: 0;
   padding: 0;
@@ -412,6 +414,9 @@
   padding: 12px;
   border-left: 3px solid #667eea;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .item-header {
@@ -433,7 +438,7 @@
   font-weight: 700;
   color: #333;
   font-size: 1.05em;
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .item-details {
@@ -477,10 +482,66 @@
   }
 }
 
-// Ações - Compactas e funcionais
+// Small button used for per-item actions (placed at the right edge)
+.small-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  border: none;
+  min-width: 90px;
+}
+
+.small-btn.btn-preparing {
+  background: #2196f3;
+  color: white;
+}
+
+.small-btn.btn-ready {
+  background: #4caf50;
+  color: white;
+}
+
+.small-btn:active {
+  transform: translateY(1px);
+}
+
+/* Ready pill for items that are already ready */
+.ready-pill {
+  background: #00796b; /* teal tone, distinct from green */
+  color: white;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9em;
+  display: inline-block;
+}
+
+/* Delivered pill to indicate item was delivered */
+.delivered-pill {
+  background: #8e24aa; /* slightly muted purple matching delivered order color */
+  color: white;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9em;
+  display: inline-block;
+}
+
+.item-status.item-ready {
+  background: rgba(0, 121, 107, 0.12);
+  color: #004d40;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
 .order-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding-top: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -490,6 +551,7 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  width: 110px;
 }
 
 .action-btn {
@@ -508,7 +570,7 @@
     color: white;
 
     &:hover {
-      background: darken(#2196f3, 8%);
+      background: color.scale(#2196f3, $lightness: -8%);
     }
   }
 
@@ -517,7 +579,7 @@
     color: white;
 
     &:hover {
-      background: darken(#4caf50, 8%);
+      background: color.scale(#4caf50, $lightness: -8%);
     }
   }
 
@@ -526,7 +588,7 @@
     color: white;
 
     &:hover {
-      background: darken(#9c27b0, 8%);
+      background: color.scale(#9c27b0, $lightness: -8%);
     }
   }
 
@@ -535,7 +597,7 @@
     color: white;
 
     &:hover {
-      background: darken(#f44336, 8%);
+      background: color.scale(#f44336, $lightness: -8%);
     }
   }
 

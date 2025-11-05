@@ -45,7 +45,8 @@ export class ProductModalContainerComponent implements OnInit, OnDestroy, AfterV
 
   onOrderSubmitted(order: any) {
     if (this.modalData?.onOrderSubmitted) {
-      this.modalData.onOrderSubmitted(order);
+      const enriched = { ...order, productId: this.modalData.productId };
+      this.modalData.onOrderSubmitted(enriched);
     }
     this.productModalService.closeModal();
   }

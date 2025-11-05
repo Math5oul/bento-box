@@ -22,36 +22,19 @@ async function checkOrder() {
 
     if (orderId) {
       // Busca pedido específico
-      console.log(`\n🔍 Buscando pedido ${orderId}...\n`);
       const order = await Order.findById(orderId);
 
       if (order) {
-        console.log('✅ Pedido encontrado:');
-        console.log('─────────────────────────────────');
-        console.log(`ID:           ${order._id}`);
-        console.log(`Mesa:         ${order.tableId}`);
-        console.log(`ClientID:     ${order.clientId || 'undefined'}`);
-        console.log(`ClientName:   "${order.clientName}"`);
-        console.log(`SessionToken: ${order.sessionToken || 'undefined'}`);
-        console.log(`Total:        R$ ${order.totalAmount.toFixed(2)}`);
-        console.log(`Status:       ${order.status}`);
-        console.log(`Criado em:    ${order.createdAt}`);
-        console.log('─────────────────────────────────\n');
+        // Pedido encontrado — saída removida per request
       } else {
-        console.log('❌ Pedido não encontrado\n');
+        // Pedido não encontrado — output removed
       }
     } else {
-      // Lista últimos 5 pedidos
-      console.log('\n📋 Últimos 5 pedidos:\n');
+      // Lista últimos 5 pedidos — output removed per request
       const orders = await Order.find().sort({ createdAt: -1 }).limit(5);
 
       orders.forEach((order, index) => {
-        console.log(`${index + 1}. Pedido ${order._id}`);
-        console.log(`   Cliente:      "${order.clientName}"`);
-        console.log(`   ClientID:     ${order.clientId || 'undefined'}`);
-        console.log(`   SessionToken: ${order.sessionToken || 'undefined'}`);
-        console.log(`   Total:        R$ ${order.totalAmount.toFixed(2)}`);
-        console.log('');
+        // summary suppressed
       });
     }
 

@@ -46,7 +46,8 @@ export interface OrderItemVariation {
  * Item do Pedido
  */
 export interface OrderItem {
-  productId: number; // ID do item do menu (bento-box)
+  // productId can be a legacy numeric id or a MongoDB ObjectId string
+  productId?: string | number; // ID do item do menu (bento-box)
   productName: string;
   productImage?: string;
   quantity: number;
@@ -89,7 +90,7 @@ export interface CreateOrderDTO {
  * DTO para Item ao Criar Pedido
  */
 export interface CreateOrderItemDTO {
-  productId: number;
+  productId?: string | number;
   productName: string;
   productImage?: string;
   quantity: number;

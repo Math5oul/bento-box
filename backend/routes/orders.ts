@@ -542,7 +542,14 @@ router.put(
       if (status === OrderStatus.DELIVERED) {
         order.deliveredAt = new Date();
       } else if (status === OrderStatus.CANCELLED) {
+        // Mark order as cancelled and set all item statuses to CANCELLED
         order.cancelledAt = new Date();
+        if (Array.isArray(order.items)) {
+          order.items = order.items.map((it: any) => ({
+            ...it,
+            status: OrderStatus.CANCELLED,
+          }));
+        }
       }
 
       await order.save();
@@ -604,7 +611,14 @@ router.patch(
       if (status === OrderStatus.DELIVERED) {
         order.deliveredAt = new Date();
       } else if (status === OrderStatus.CANCELLED) {
+        // Mark order as cancelled and set all item statuses to CANCELLED
         order.cancelledAt = new Date();
+        if (Array.isArray(order.items)) {
+          order.items = order.items.map((it: any) => ({
+            ...it,
+            status: OrderStatus.CANCELLED,
+          }));
+        }
       }
 
       await order.save();
@@ -667,12 +681,12 @@ router.patch(
         return;
       }
 
-      // Verifica permissão: admin ou garçom
+      // Verifica permissão: admin, garçom ou cozinha
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'garcom') {
+      if (role !== 'admin' && role !== 'garcom' && role !== 'cozinha') {
         res.status(403).json({
           success: false,
-          message: 'Permissão negada. Apenas admin ou garçom podem editar pedidos.',
+          message: 'Permissão negada. Apenas admin, garçom ou cozinha podem editar pedidos.',
         });
         return;
       }
@@ -712,6 +726,45 @@ router.patch(
       // Atualiza notas se fornecidas
       if (notes !== undefined) {
         order.notes = notes;
+      }
+
+      // Derivar status do pedido a partir dos itens (se items foram fornecidas)
+      // Regras:
+      // - todos 'ready' -> delivered
+      // - todos 'pending' -> pending
+      // - se algum 'preparing' -> preparing
+      // - default -> preparing
+      try {
+        const itemStatuses = (order.items || []).map((it: any) => it.status || OrderStatus.PENDING);
+        let derivedStatus: OrderStatus = order.status as OrderStatus;
+        if (itemStatuses.length === 0) {
+          derivedStatus = OrderStatus.PENDING;
+        } else if (itemStatuses.every(s => s === OrderStatus.READY)) {
+          // When all items are ready, mark order as READY (not delivered) so kitchen keeps it until delivery
+          derivedStatus = OrderStatus.READY;
+        } else if (itemStatuses.every(s => s === OrderStatus.PENDING)) {
+          derivedStatus = OrderStatus.PENDING;
+        } else if (itemStatuses.some(s => s === OrderStatus.PREPARING)) {
+          derivedStatus = OrderStatus.PREPARING;
+        } else {
+          derivedStatus = OrderStatus.PREPARING;
+        }
+
+        // Apply derived status and timestamps
+        order.status = derivedStatus;
+        if (String(derivedStatus) === String(OrderStatus.DELIVERED)) {
+          order.deliveredAt = new Date();
+        } else {
+          order.deliveredAt = undefined as any;
+        }
+        if (String(derivedStatus) === String(OrderStatus.CANCELLED)) {
+          order.cancelledAt = new Date();
+        } else {
+          order.cancelledAt = undefined as any;
+        }
+      } catch (e) {
+        // ignore derivation errors and keep current order.status
+        console.warn('Erro ao derivar status do pedido a partir dos items:', e);
       }
 
       await order.save();
@@ -783,6 +836,12 @@ router.delete(
       // Cancela pedido
       order.status = OrderStatus.CANCELLED;
       order.cancelledAt = new Date();
+      if (Array.isArray(order.items)) {
+        order.items = order.items.map((it: any) => ({
+          ...it,
+          status: OrderStatus.CANCELLED,
+        }));
+      }
       await order.save();
 
       // Remove da lista de pedidos atuais da mesa
