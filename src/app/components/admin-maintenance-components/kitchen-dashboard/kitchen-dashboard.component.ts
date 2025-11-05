@@ -49,13 +49,14 @@ export class KitchenDashboardComponent implements OnInit {
   historyOrders: KitchenOrder[] = [];
   loading = false;
   error: string | null = null;
-  filterStatus: string = '';
+  filterStatus: string = 'kitchen';
   pollIntervalMs = 5000; // Poll a cada 5s
   pollingHandle: any;
   showHistory: boolean = false;
 
   statuses = [
     { value: '', label: 'Todos' },
+    { value: 'kitchen', label: 'Na Cozinha' },
     { value: 'pending', label: 'Pendente' },
     { value: 'preparing', label: 'Preparando' },
     { value: 'ready', label: 'Pronto' },
@@ -116,9 +117,13 @@ export class KitchenDashboardComponent implements OnInit {
         Authorization: `Bearer ${token}`,
       });
 
+      let params: any = {};
+      if (this.filterStatus && this.filterStatus !== 'kitchen') {
+        params.status = this.filterStatus;
+      }
       const resp: any = await this.http
         .get(`${environment.apiUrl}/orders`, {
-          params: this.filterStatus ? { status: this.filterStatus } : {},
+          params,
           headers,
         })
         .toPromise();
@@ -134,9 +139,15 @@ export class KitchenDashboardComponent implements OnInit {
         }));
 
         // Separar pedidos ativos de histórico
-        this.orders = allOrders.filter(
+        let activeOrders = allOrders.filter(
           (o: KitchenOrder) => o.status !== 'delivered' && o.status !== 'cancelled'
         );
+        if (this.filterStatus === 'kitchen') {
+          activeOrders = activeOrders.filter(
+            (o: KitchenOrder) => o.status === 'pending' || o.status === 'preparing'
+          );
+        }
+        this.orders = activeOrders;
         this.historyOrders = allOrders.filter(
           (o: KitchenOrder) => o.status === 'delivered' || o.status === 'cancelled'
         );
