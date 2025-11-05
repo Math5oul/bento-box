@@ -520,7 +520,6 @@
   display: inline-block;
 }
 
-/* Delivered pill to indicate item was delivered */
 .delivered-pill {
   background: #8e24aa; /* slightly muted purple matching delivered order color */
   color: white;
@@ -675,17 +674,11 @@
   .order-actions {
     flex-direction: column;
     gap: 10px;
-    align-items: stretch;
   }
 
   .actions-buttons {
     justify-content: center;
-
-    .action-btn {
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-    }
+    width: 100%;
   }
 
   .item-header {
