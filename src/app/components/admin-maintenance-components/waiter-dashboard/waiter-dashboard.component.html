@@ -149,10 +149,7 @@
                           <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
                         }
                         @if (item.selectedVariation) {
-                          <div class="item-variation">
-                            🔸 {{ item.selectedVariation.title }}
-                            >
-                          </div>
+                          <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
                         }
                       </li>
                     }
@@ -184,7 +181,7 @@
                       (click)="openEditModal(order)"
                       title="Editar pedido"
                     >
-                      ✏️ Editar
+                      ✏️ Editar pedido
                     </button>
                   }
 
@@ -195,16 +192,6 @@
                   >
                     ❌ Cancelar
                   </button>
-
-                  @if (canEdit(order)) {
-                    <button
-                      class="action-btn btn-rename"
-                      (click)="renameAnonymousClient(order)"
-                      title="Renomear cliente"
-                    >
-                      👥 Renomear
-                    </button>
-                  }
                 </div>
               </div>
             </div>

@@ -396,6 +396,8 @@
 
 .client-name-wrapper {
   display: flex;
+  width: 100%;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
   flex: 1;
@@ -484,6 +486,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    padding: 0.25rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
   }
 
   .item-quantity {
@@ -583,8 +589,8 @@
   }
 
   &.btn-deliver {
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    color: #2e7d32;
+    background: linear-gradient(135deg, #e8f5e9 0%, #aec2eb 100%);
+    color: #2b862f;
   }
 
   &.btn-cancel {
@@ -1100,10 +1106,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-  }
-
-  .client-name-wrapper {
-    width: 100%;
   }
 
   .order-items .item-main {

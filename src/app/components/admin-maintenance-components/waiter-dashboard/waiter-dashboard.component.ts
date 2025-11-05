@@ -195,7 +195,9 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
 
     // Filtro por mesa
     if (this.filterTable !== 'all') {
-      filtered = filtered.filter(o => o.tableNumber === this.filterTable);
+      filtered = filtered.filter(
+        o => String(o.tableNumber).trim() === String(this.filterTable).trim()
+      );
     }
 
     // Busca por texto (cliente ou mesa) — multi-token AND: cada token deve casar com algum campo
