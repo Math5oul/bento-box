@@ -95,6 +95,18 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   filterStatus = 'ready';
   filterTable = 'all';
   searchTerm = '';
+  activeTab: 'deliver' | 'tables' = 'deliver';
+  showReadyOnly = true;
+
+  // Array de itens prontos com referência ao pedido
+  readyViewItems: Array<{
+    orderId: string;
+    tableNumber: string;
+    clientName?: string;
+    item: any;
+    itemIndex: number;
+    order?: WaiterOrder;
+  }> = [];
 
   // Listas de opções para filtros (alinhado com kitchen)
   statuses = [
@@ -177,6 +189,8 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         });
 
         this.applyFilters();
+        // compute ready-items view for waiter quick access
+        this.computeReadyView();
         this.loading = false;
       },
       error: err => {
@@ -185,6 +199,70 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
     });
+  }
+
+  /**
+   * Computa lista de itens com status 'ready' para a vista rápida do garçom
+   */
+  computeReadyView() {
+    const items: any[] = [];
+    (this.orders || []).forEach(order => {
+      (order.items || []).forEach((it, idx) => {
+        const status = it.status || 'pending';
+        if (status === 'ready') {
+          items.push({
+            orderId: order.id,
+            tableNumber: order.tableNumber,
+            clientName: order.clientName,
+            item: it,
+            itemIndex: idx,
+            order,
+          });
+        }
+      });
+    });
+
+    // Keep most-recent first
+    this.readyViewItems = items.sort((a, b) => {
+      const ta = new Date(a.order?.createdAt || 0).getTime();
+      const tb = new Date(b.order?.createdAt || 0).getTime();
+      return tb - ta;
+    });
+  }
+
+  /**
+   * Getter rápido para contar itens prontos
+   */
+  get readyItemsCount(): number {
+    return this.readyViewItems.length;
+  }
+
+  /** Toggle da visão de itens prontos */
+  toggleReadyView() {
+    this.showReadyOnly = !this.showReadyOnly;
+    this.activeTab = this.showReadyOnly ? 'deliver' : 'tables';
+  }
+
+  /**
+   * Entrega um único item (usado na visão de itens prontos)
+   */
+  deliverSingleItem(orderId: string, item: any) {
+    const order = this.orders.find(o => o.id === orderId);
+    if (!order) {
+      console.warn('Pedido não encontrado para deliverSingleItem', orderId);
+      return;
+    }
+
+    // encontra o item no pedido (por referência ou por matching de produto/nome)
+    const serverItem = order.items.find(
+      i => i === item || (i.productName === item.productName && i.quantity === item.quantity)
+    );
+    if (!serverItem) {
+      // fallback: passa o objeto item recebido
+      this.updateItemStatus(order, item, 'delivered');
+    } else {
+      this.updateItemStatus(order, serverItem, 'delivered');
+    }
   }
 
   /**
@@ -717,6 +795,11 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
    */
   trackById(index: number, order: WaiterOrder) {
     return order.id;
+  }
+
+  /** trackBy for ready items list */
+  trackByReady(index: number, item: any) {
+    return `${item.orderId}-${index}-${item.item?.productName}`;
   }
 
   /**

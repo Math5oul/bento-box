@@ -7,7 +7,26 @@
   </div>
 
   <!-- Filters Bar -->
-  <div class="filters-bar">
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'deliver'"
+      (click)="activeTab = 'deliver'; showReadyOnly = true"
+    >
+      Entregas
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'tables'"
+      (click)="activeTab = 'tables'; showReadyOnly = false"
+    >
+      Mesas
+    </button>
+  </div>
+
+  <!-- Filters Bar  -->
+  <div class="filters-bar" *ngIf="activeTab === 'tables'">
     <div class="filter-item">
       <label class="filter-label">Mesa:</label>
       <select [(ngModel)]="filterTable" (change)="applyFilters()" class="filter-select">
@@ -37,11 +56,16 @@
         class="search-input"
       />
     </div>
+  </div>
 
-    <div class="order-count">
-      <span class="count-label">Pedidos Ativos:</span>
-      <span class="count-value">{{ filteredOrders.length }}</span>
-    </div>
+  <!-- tabs  -->
+  <div class="section-header">
+    @if (activeTab === 'deliver') {
+      <h2>Itens para Entrega</h2>
+    } @else {
+      <h2>🍽️ Pedidos Ativos</h2>
+    }
+    <button class="new-order-btn" (click)="createNewOrder()">Novo Pedido</button>
   </div>
 
   <!-- Loading & Error States -->
@@ -51,13 +75,46 @@
     <div class="error-message">❌ {{ error }}</div>
   } @else {
     <!-- Orders Container -->
-    <div class="orders-container">
-      <!-- Active Orders -->
-      <div class="section-header">
-        <h2>🍽️ Pedidos Ativos</h2>
-        <button class="new-order-btn" (click)="createNewOrder()">Novo Pedido</button>
+    <!-- Tab Entregas -->
+    @if (activeTab === 'deliver') {
+      <div class="ready-panel">
+        @if (readyViewItems.length === 0) {
+          <div class="empty-state">
+            <h3>Nenhum item pronto no momento</h3>
+            <p class="empty-hint">Aguarde a cozinha preparar os itens.</p>
+          </div>
+        } @else {
+          <div class="ready-items-list">
+            @for (rv of readyViewItems; track i; let i = $index) {
+              <div class="ready-item">
+                <div class="ready-item-info">
+                  <div class="ready-item-meta">
+                    <div class="ready-item-table">Mesa {{ rv.tableNumber }}</div>
+                  </div>
+                  <div class="ready-item-name">
+                    <span class="ready-item-quantity">{{ rv.item.quantity }}x </span>
+                    <span class="ready-item-product">{{ rv.item.productName }}</span>
+                  </div>
+                </div>
+                <div class="ready-item-actions">
+                  <div class="ready-item-client-right">{{ rv.clientName || 'Cliente' }}</div>
+                  <button
+                    class="action-btn btn-deliver"
+                    (click)="deliverSingleItem(rv.orderId, rv.item)"
+                  >
+                    Entregar
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
-
+    }
+    @if (activeTab === 'deliver') {
+      <div class="deliver-separator" aria-hidden="true"></div>
+    }
+    <div class="orders-container">
       @if (filteredOrders.length === 0) {
         <!-- Empty State -->
         <div class="empty-state">
@@ -162,7 +219,7 @@
                               Entregar item
                             </button>
                           } @else if ((item.status || 'pending') === 'delivered') {
-                            <span class="delivered-pill">Entregue ✓</span>
+                            <span class="delivered-pill">Entregue</span>
                           }
                         </div>
                       </li>
@@ -177,16 +234,6 @@
                   <span class="total-label">Total:</span>
                   <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
                 </div>
-
-                @if (canDeliver(order)) {
-                  <button
-                    class="action-btn btn-deliver"
-                    (click)="deliverOrder(order)"
-                    title="Marcar como entregue"
-                  >
-                    ✅ Entregar
-                  </button>
-                }
 
                 <div class="order-actions">
                   @if (canEdit(order)) {
@@ -214,7 +261,7 @@
       }
 
       <!-- History Section -->
-      @if (historyOrders.length > 0) {
+      @if (historyOrders.length > 0 && activeTab === 'tables') {
         <div class="history-section">
           <div class="section-header">
             <h2>📜 Histórico</h2>

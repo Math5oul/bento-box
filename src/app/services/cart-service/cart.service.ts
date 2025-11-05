@@ -9,10 +9,8 @@ export interface CartItemSize {
 }
 
 export interface CartItem {
-  /** Optional product id (MongoDB ObjectId string) preserved when item is added from product card/modal */
   id?: string;
-  /** Backwards-compatible alias used in some places */
-  productId?: string;
+  productId: string;
   productName: string;
   price: number;
   quantity: number;
