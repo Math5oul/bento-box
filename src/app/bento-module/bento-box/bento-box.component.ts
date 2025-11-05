@@ -420,10 +420,17 @@ export class BentoBoxComponent {
    * @param component O componente para o qual os inputs são destinados.
    * @returns Os inputs modificados, se aplicável.
    */
-  getComponentInputs(inputs: any): any {
+  // Accept the full GridItem so we can inject the top-level item.id into the child inputs
+  getComponentInputs(item: any): any {
+    const inputs = item?.inputs || {};
+    const topLevelId = item?.id ?? item?._id ?? undefined;
+
     return {
       inputs: {
         ...inputs,
+        // surface the grid item id inside the inputs so child components can access it
+        _id: inputs._id ?? inputs.id ?? topLevelId,
+        id: inputs.id ?? inputs._id ?? topLevelId,
         editMode: this.options.mode === 'edit',
       },
     };

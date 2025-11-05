@@ -151,6 +151,20 @@
                         @if (item.selectedVariation) {
                           <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
                         }
+                        <div class="item-actions">
+                          @if ((item.status || 'pending') === 'ready') {
+                            <span class="ready-pill">Pronto para entrega</span>
+                            <button
+                              class="action-btn btn-deliver"
+                              (click)="updateItemStatus(order, item, 'delivered')"
+                              title="Marcar item como entregue"
+                            >
+                              Entregar item
+                            </button>
+                          } @else if ((item.status || 'pending') === 'delivered') {
+                            <span class="delivered-pill">Entregue ✓</span>
+                          }
+                        </div>
                       </li>
                     }
                   </ul>

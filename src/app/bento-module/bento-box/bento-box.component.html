@@ -52,9 +52,7 @@
             width: '100%',
           }"
         >
-          <ng-container
-            *ngComponentOutlet="item.component; inputs: getComponentInputs(item.inputs)"
-          >
+          <ng-container *ngComponentOutlet="item.component; inputs: getComponentInputs(item)">
           </ng-container>
         </div>
 
@@ -95,7 +93,7 @@
             padding: options.gridGap + 'px',
           }"
         >
-          <div *ngComponentOutlet="item.component; inputs: { inputs: item.inputs }"></div>
+          <div *ngComponentOutlet="item.component; inputs: getComponentInputs(item)"></div>
         </div>
       }
     }

@@ -77,40 +77,54 @@
                 <ul class="items-list">
                   @for (item of order.items; track i; let i = $index) {
                     <li class="item-row">
-                      <span class="item-quantity">{{ item.quantity }}x</span>
-                      <span class="item-name">{{ item.productName }}</span>
-                      <!-- Tamanho -->
-                      @if (item.selectedSize) {
-                        <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
-                      }
-                      <!-- Variação -->
-                      @if (item.selectedVariation) {
-                        <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
-                      }
-                      <!-- Notas -->
-                      @if (item.notes) {
-                        <div class="item-notes">
-                          <span class="notes-icon">📝</span> {{ item.notes }}
-                        </div>
-                      }
+                      <div class="item-main-row">
+                        <span class="item-quantity">{{ item.quantity }}x</span>
+                        <span class="item-name">{{ item.productName }}</span>
+                        @if (item.selectedSize) {
+                          <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
+                        }
+                        @if (item.selectedVariation) {
+                          <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
+                        }
+                        @if (item.notes) {
+                          <div class="item-notes">
+                            <span class="notes-icon">📝</span> {{ item.notes }}
+                          </div>
+                        }
+                      </div>
+
+                      <div class="item-action">
+                        @if ((item.status || 'pending') === 'pending') {
+                          <button
+                            class="small-btn btn-preparing"
+                            (click)="updateItemStatus(order, item, 'preparing')"
+                            title="Marcar preparando"
+                          >
+                            Preparar
+                          </button>
+                        } @else if ((item.status || 'pending') === 'preparing') {
+                          <button
+                            class="small-btn btn-ready"
+                            (click)="updateItemStatus(order, item, 'ready')"
+                            title="Marcar pronto"
+                          >
+                            Pronto
+                          </button>
+                        } @else if ((item.status || 'pending') === 'ready') {
+                          <span class="ready-pill" title="Pronto para entrega"
+                            >Pronto para entrega ✓</span
+                          >
+                        } @else if ((item.status || 'pending') === 'delivered') {
+                          <span class="delivered-pill" title="Entregue">Entregue ✓</span>
+                        }
+                      </div>
                     </li>
                   }
                 </ul>
               </div>
 
               <div class="order-actions">
-                <div class="actions-title">Ações:</div>
                 <div class="actions-buttons">
-                  @if (getNextStatus(order.status)) {
-                    <button
-                      class="action-btn"
-                      (click)="updateStatus(order, getNextStatus(order.status)!)"
-                      [class]="'btn-' + getNextStatus(order.status)"
-                    >
-                      {{ getNextStatusLabel(order.status) }}
-                    </button>
-                  }
-
                   <button
                     class="action-btn btn-cancelled"
                     (click)="updateStatus(order, 'cancelled')"
@@ -142,9 +156,9 @@
                   <div class="order-card-header">
                     <div class="order-badge">
                       <span class="order-number">#{{ order.id.slice(-6) }}</span>
-                      <span class="status-badge" [class]="'badge-' + order.status">
-                        {{ getStatusLabel(order.status) }}
-                      </span>
+                      <span class="status-badge" [class]="'badge-' + order.status">{{
+                        getStatusLabel(order.status)
+                      }}</span>
                     </div>
                     <div class="order-meta">
                       <div class="meta-item">
@@ -166,11 +180,10 @@
                   <div class="order-items">
                     <h4 class="items-title">Itens do Pedido:</h4>
                     <ul class="items-list">
-                      @for (item of order.items; track item.productName) {
+                      @for (item of order.items; track i; let i = $index) {
                         <li class="item">
                           <span class="item-quantity">{{ item.quantity }}x</span>
                           <span class="item-name">{{ item.productName }}</span>
-                          <!-- Tamanho -->
                           @if (item.selectedSize) {
                             <div class="item-size">
                               🔹 Tamanho: {{ item.selectedSize.name }} ({{
@@ -178,16 +191,14 @@
                               }})
                             </div>
                           }
-                          <!-- Variação -->
                           @if (item.selectedVariation) {
                             <div class="item-variation">
-                              🔸 Variação: {{ item.selectedVariation.title
-                              }}<span *ngIf="item.selectedVariation.description">
-                                — {{ item.selectedVariation.description }}</span
-                              >
+                              🔸 Variação: {{ item.selectedVariation.title }}
+                              @if (item.selectedVariation.description) {
+                                — {{ item.selectedVariation.description }}
+                              }
                             </div>
                           }
-                          <!-- Notas -->
                           @if (item.notes) {
                             <span class="item-notes"
                               ><span class="notes-icon">📝</span> {{ item.notes }}</span

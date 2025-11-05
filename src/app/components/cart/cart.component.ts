@@ -141,7 +141,8 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
 
       // Converte itens do carrinho para formato do pedido INCLUINDO VARIAÇÕES
       const orderItems: OrderItem[] = cartItems.map(item => ({
-        productId: (item as any).id || Math.floor(Math.random() * 10000),
+        // Prefer explicit id/productId if present on the cart item. Do not synthesize a random id.
+        productId: (item as any).id || (item as any).productId || undefined,
         productName: item.productName,
         productImage: item.image,
         quantity: item.quantity,

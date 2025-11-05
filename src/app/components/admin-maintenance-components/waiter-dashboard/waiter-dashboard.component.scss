@@ -99,6 +99,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  .delivered-pill {
+    display: inline-block;
+    background: linear-gradient(180deg, #6b4bff 0%, #5a36e6 100%);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .item-actions {
+    margin-top: 8px;
+  }
+
+  .action-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .btn-deliver {
+    background: #4caf50;
+    color: white;
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .delivered-pill {
+    display: inline-block;
+    background: #9c27b0;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+  }
   gap: 8px;
   padding: 8px 15px;
   background: #f0f9ff;
@@ -340,6 +380,36 @@
   }
 }
 
+/* Global delivered pill style so item-level pills get highlighted like kitchen dashboard */
+.delivered-pill,
+.order-items .delivered-pill {
+  display: inline-block;
+  background: #9c27b0;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Ready pill - highlights items ready for delivery */
+.ready-pill,
+.order-items .ready-pill {
+  display: inline-block;
+  background: linear-gradient(
+    180deg,
+    #00bcd4 0%,
+    #00acc1 100%
+  ); /* teal gradient to differ from green deliver button */
+  color: #fff;
+  padding: 6px 10px; /* match delivered-pill padding */
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px; /* match delivered-pill font-size */
+  box-sizing: border-box;
+  text-align: center;
+}
+
 .elapsed-time {
   font-size: 0.8em;
   color: #666;
@@ -476,6 +546,8 @@
   .item {
     margin-bottom: 6px;
     padding: 4px 0;
+    display: block;
+    width: 100%;
   }
 
   .item-main {
@@ -516,6 +588,26 @@
     margin-top: 2px;
     line-height: 1.3;
   }
+
+  /* Make item-level actions (deliver button or pill) full width inside the card */
+  .item .item-actions {
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+  }
+
+  .item .item-actions .action-btn,
+  .item .item-actions .delivered-pill,
+  .item .item-actions .ready-pill {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  /* Add spacing between pill and the deliver button specifically inside item-actions */
+  .item .item-actions .action-btn.btn-deliver {
+    margin-top: 8px;
+  }
 }
 
 // Order Footer
@@ -553,7 +645,7 @@
 
 .order-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -586,8 +678,10 @@
 
   &.btn-deliver {
     background: #4caf50;
-    padding: 0.5rem;
+    padding: 0.75rem;
     color: white;
+    width: 100%;
+    display: block;
   }
 
   &.btn-cancel {

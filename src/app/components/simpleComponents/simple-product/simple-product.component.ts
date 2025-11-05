@@ -51,6 +51,7 @@ export class SimpleProductComponent {
         description: this.inputs.description,
         sizes: this.inputs.sizes,
         variations: this.inputs.variations,
+        productId: (this.inputs as any)._id || (this.inputs as any).id || undefined,
         onOrderSubmitted: order => this.handleOrder(order),
       });
     }
@@ -74,6 +75,8 @@ export class SimpleProductComponent {
     }
 
     this.cartService.addItem({
+      id: (this.inputs as any)._id || (this.inputs as any).id,
+      productId: (this.inputs as any)._id || (this.inputs as any).id,
       productName: this.inputs.productName,
       price: finalPrice,
       quantity: order.quantity,
