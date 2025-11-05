@@ -708,6 +708,10 @@
   .spacer {
     flex: 1;
   }
+  // Adiciona espaçamento extra no mobile para evitar sobreposição com a barra de navegação
+  @media (max-width: 768px) {
+    padding-bottom: 3.5rem;
+  }
 }
 
 // ==================== FORM ELEMENTS ====================
