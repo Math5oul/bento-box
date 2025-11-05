@@ -55,6 +55,7 @@ export interface OrderItem {
   notes?: string; // Observações do item (ex: "Sem cebola")
   selectedSize?: OrderItemSize; // Tamanho selecionado
   selectedVariation?: OrderItemVariation; // Variação selecionada
+  status?: OrderStatus;
 }
 
 /**
@@ -78,6 +79,8 @@ export interface CreateOrderDTO {
   clientId?: string;
   sessionToken?: string;
   clientName: string;
+  // Status opcional do pedido ao criar (ex: pending). Caso não enviado, backend define default.
+  status?: OrderStatus;
   items: CreateOrderItemDTO[];
   notes?: string;
 }
@@ -91,6 +94,7 @@ export interface CreateOrderItemDTO {
   productImage?: string;
   quantity: number;
   unitPrice: number;
+  status?: OrderStatus;
   notes?: string;
   selectedSize?: OrderItemSize; // Tamanho selecionado
   selectedVariation?: OrderItemVariation; // Variação selecionada

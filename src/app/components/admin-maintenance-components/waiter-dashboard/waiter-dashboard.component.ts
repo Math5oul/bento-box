@@ -32,6 +32,7 @@ interface WaiterOrder {
       image?: string;
       price: number;
     };
+    status?: string;
   }[];
   totalAmount: number;
   createdAt: string;
@@ -86,6 +87,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       image?: string;
       price: number;
     };
+    status?: string;
   }[] = [];
 
   // Filtros
@@ -521,6 +523,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         notes: item.notes,
         selectedSize: item.selectedSize,
         selectedVariation: item.selectedVariation,
+        status: item.status || 'pending',
       })),
       totalAmount: this.getEditingTotal(),
     };

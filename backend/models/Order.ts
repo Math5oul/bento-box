@@ -43,6 +43,7 @@ export interface IOrderItem {
   notes?: string;
   selectedSize?: IOrderItemSize;
   selectedVariation?: IOrderItemVariation;
+  status?: OrderStatus;
 }
 
 /**
@@ -74,6 +75,11 @@ const OrderItemSchema = new Schema<IOrderItem>({
   unitPrice: { type: Number, required: true, min: 0 },
   totalPrice: { type: Number, required: true, min: 0 },
   notes: String,
+  status: {
+    type: String,
+    enum: Object.values(OrderStatus),
+    default: OrderStatus.PENDING,
+  },
   selectedSize: {
     type: {
       name: { type: String, required: true },
@@ -173,6 +179,7 @@ OrderSchema.pre('save', function (next) {
       notes: item.notes,
       selectedSize: item.selectedSize,
       selectedVariation: item.selectedVariation,
+      status: item.status || OrderStatus.PENDING,
     }));
     this.totalAmount = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
   }

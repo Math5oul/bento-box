@@ -17,8 +17,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from './../../services/product-service/product.service';
-import { StorageService } from '../../services/storage-service/storage.service';
-import { Order, OrderItem, CreateOrderDTO } from '../../interfaces/order.interface';
+import { Order, OrderItem, CreateOrderDTO, OrderStatus } from '../../interfaces/order.interface';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { OrderService } from '../../services/order-service/order.service';
 import { CartService, CartItem, CartItemSize } from './../../services/cart-service/cart.service';
@@ -151,6 +150,7 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
         notes: item.observations,
         selectedSize: item.selectedSize,
         selectedVariation: item.selectedVariation,
+        status: OrderStatus.PENDING,
       }));
 
       let clientName = '';
@@ -169,6 +169,7 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
         tableId,
         items: orderItems,
         clientName,
+        status: OrderStatus.PENDING,
       };
 
       const response = await this.orderService.createOrder(orderData).toPromise();

@@ -18,11 +18,19 @@ router.post(
   runValidations([
     body('tableId').isMongoId().withMessage('ID da mesa inválido'),
     body('items').isArray({ min: 1 }).withMessage('Pedido deve ter pelo menos 1 item'),
+    body('status')
+      .optional()
+      .isIn(Object.values(OrderStatus))
+      .withMessage('Status do pedido inválido'),
     body('items.*.productId').notEmpty().withMessage('ID do produto é obrigatório'),
     body('items.*.productName').notEmpty().withMessage('Nome do produto é obrigatório'),
     body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantidade deve ser maior que 0'),
     body('items.*.unitPrice').isFloat({ min: 0 }).withMessage('Preço unitário inválido'),
     body('items.*.totalPrice').isFloat({ min: 0 }).withMessage('Preço total inválido'),
+    body('items.*.status')
+      .optional()
+      .isIn(Object.values(OrderStatus))
+      .withMessage('Status do item inválido'),
   ]),
   validate,
   async (req: Request, res: Response): Promise<void> => {
@@ -128,6 +136,7 @@ router.post(
         notes: item.notes,
         selectedSize: item.selectedSize,
         selectedVariation: item.selectedVariation,
+        status: item.status || OrderStatus.PENDING,
       }));
 
       const totalAmount = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -140,7 +149,7 @@ router.post(
         clientName,
         items: orderItems,
         totalAmount,
-        status: OrderStatus.PENDING,
+        status: req.body.status || OrderStatus.PENDING,
         notes,
       });
 
@@ -636,6 +645,10 @@ router.patch(
       .withMessage('Quantidade deve ser maior que 0'),
     body('items.*.unitPrice').optional().isFloat({ min: 0 }).withMessage('Preço unitário inválido'),
     body('items.*.totalPrice').optional().isFloat({ min: 0 }).withMessage('Preço total inválido'),
+    body('items.*.status')
+      .optional()
+      .isIn(Object.values(OrderStatus))
+      .withMessage('Status do item inválido'),
     body('totalAmount').optional().isFloat({ min: 0 }).withMessage('Total inválido'),
   ]),
   validate,
@@ -685,6 +698,7 @@ router.patch(
           notes: item.notes,
           selectedSize: item.selectedSize,
           selectedVariation: item.selectedVariation,
+          status: item.status || OrderStatus.PENDING,
         }));
       }
 
