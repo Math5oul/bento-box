@@ -195,19 +195,32 @@
                     @for (item of order.items; track i; let i = $index) {
                       <li class="item">
                         <div class="item-main">
-                          <span class="item-quantity">{{ item.quantity }}x</span>
-                          <span class="item-name">{{ item.productName }}</span>
-                          <span class="item-price">{{ formatCurrency(item.totalPrice) }}</span>
+                          <div class="item-line1">
+                            <div class="item-left">
+                              <span class="item-quantity">{{ item.quantity }}x</span>
+                              <span class="item-name">{{ item.productName }}</span>
+                            </div>
+                            <div class="item-price">{{ formatCurrency(item.totalPrice) }}</div>
+                          </div>
+
+                          <div class="item-line2">
+                            @if (item.selectedVariation) {
+                              <span class="item-variation"
+                                >🔸 {{ item.selectedVariation.title }}</span
+                              >
+                            }
+                            @if (item.selectedSize) {
+                              <span class="item-size">🔹 {{ item.selectedSize.abbreviation }}</span>
+                            }
+                          </div>
+
+                          @if (item.notes) {
+                            <div class="item-line3">
+                              <div class="item-notes">📋 {{ item.notes }}</div>
+                            </div>
+                          }
                         </div>
-                        @if (item.notes) {
-                          <div class="item-notes">📝 {{ item.notes }}</div>
-                        }
-                        @if (item.selectedSize) {
-                          <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
-                        }
-                        @if (item.selectedVariation) {
-                          <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
-                        }
+
                         <div class="item-actions">
                           @if ((item.status || 'pending') === 'ready') {
                             <span class="ready-pill">Pronto para entrega</span>

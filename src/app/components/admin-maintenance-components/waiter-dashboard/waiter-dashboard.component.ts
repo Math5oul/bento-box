@@ -91,8 +91,8 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }[] = [];
 
   // Filtros
-  // Padrão: 'ready' (Pronto)
-  filterStatus = 'ready';
+  // Padrão: '' (Todos) — show all items by default so pending tables appear
+  filterStatus = '';
   filterTable = 'all';
   searchTerm = '';
   activeTab: 'deliver' | 'tables' = 'deliver';
@@ -536,11 +536,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       const token = this.authService.getToken();
       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-      const itemIndex = order.items.findIndex(i => i === item);
-      if (itemIndex === -1) {
-        console.warn('Item não encontrado no pedido (local)');
-        return;
-      }
+      let itemIndex = order.items.findIndex(i => i === item);
 
       // Buscar o pedido completo no servidor para garantir campos (productId, preços, etc.)
       const getResp: any = await this.http.get(`/api/orders/${order.id}`, { headers }).toPromise();
@@ -551,6 +547,32 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
 
       const serverOrder = getResp.order as any;
       const serverItems = Array.isArray(serverOrder.items) ? serverOrder.items : [];
+
+      let serverItemIndex = -1;
+      if (itemIndex === -1) {
+        serverItemIndex = serverItems.findIndex((si: any) => {
+          if (item.productId && si.productId) {
+            return (
+              String(si.productId) === String(item.productId) &&
+              Number(si.quantity) === Number(item.quantity)
+            );
+          }
+          return (
+            si.productName === item.productName && Number(si.quantity) === Number(item.quantity)
+          );
+        });
+
+        if (serverItemIndex === -1) {
+          console.warn(
+            'Item não encontrado localmente nem no servidor para o pedido',
+            order.id,
+            item
+          );
+        } else {
+          // use serverItemIndex as the target when applying the status
+          itemIndex = serverItemIndex;
+        }
+      }
 
       const updatedItems = serverItems.map((it: any, idx: number) => {
         const normalized: any = {
@@ -572,9 +594,20 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         return normalized;
       });
 
-      // Envia PATCH para atualizar o pedido com os items modificados
+      const itemStatuses = updatedItems.map((it: any) => it.status || 'pending');
+      let aggregatedStatus = order.status || 'preparing';
+      if (itemStatuses.every((s: string) => s === 'delivered')) aggregatedStatus = 'delivered';
+      else if (itemStatuses.every((s: string) => s === 'ready')) aggregatedStatus = 'ready';
+      else if (itemStatuses.every((s: string) => s === 'pending')) aggregatedStatus = 'pending';
+      else if (itemStatuses.some((s: string) => s === 'preparing')) aggregatedStatus = 'preparing';
+
+      // Envia PATCH para atualizar o pedido com os items modificados e o status agregado
       const patchResp: any = await this.http
-        .patch(`/api/orders/${order.id}`, { items: updatedItems }, { headers })
+        .patch(
+          `/api/orders/${order.id}`,
+          { items: updatedItems, status: aggregatedStatus },
+          { headers }
+        )
         .toPromise();
 
       if (patchResp && patchResp.success) {
@@ -598,16 +631,20 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
           order.status = serverStatus;
         } else {
           const statuses = order.items.map(i => i.status || 'pending');
-          if (statuses.every(s => s === 'ready')) order.status = 'ready';
+          if (statuses.every(s => s === 'delivered')) order.status = 'delivered';
+          else if (statuses.every(s => s === 'ready')) order.status = 'ready';
           else if (statuses.every(s => s === 'pending')) order.status = 'pending';
           else if (statuses.some(s => s === 'preparing')) order.status = 'preparing';
           else order.status = order.status || 'preparing';
         }
 
+        // Move to history if order is now delivered or cancelled
         if (order.status === 'delivered' || order.status === 'cancelled') {
           this.orders = this.orders.filter(o => o.id !== order.id);
           this.historyOrders.unshift(order);
         }
+        this.applyFilters();
+        this.computeReadyView();
       } else {
         console.error('Falha ao atualizar item via PATCH /orders/:orderId', patchResp);
       }
@@ -715,11 +752,25 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       totalAmount: this.getEditingTotal(),
     };
 
+    const editingStatuses = updatedOrder.items.map((it: any) => it.status || 'pending');
+    let editedAggregatedStatus = this.editingOrder.status || 'preparing';
+    if (editingStatuses.every((s: string) => s === 'delivered'))
+      editedAggregatedStatus = 'delivered';
+    else if (editingStatuses.every((s: string) => s === 'ready')) editedAggregatedStatus = 'ready';
+    else if (editingStatuses.every((s: string) => s === 'pending'))
+      editedAggregatedStatus = 'pending';
+    else if (editingStatuses.some((s: string) => s === 'preparing'))
+      editedAggregatedStatus = 'preparing';
+
     this.http
       .patch<{
         message: string;
         order: WaiterOrder;
-      }>(`/api/orders/${this.editingOrder.id}`, updatedOrder, { headers })
+      }>(
+        `/api/orders/${this.editingOrder.id}`,
+        { ...updatedOrder, status: editedAggregatedStatus },
+        { headers }
+      )
       .subscribe({
         next: response => {
           console.log('✅ Pedido atualizado:', response.message);

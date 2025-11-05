@@ -607,42 +607,71 @@
   }
 
   .item-main {
+    display: block;
+    padding: 0.35rem;
+    background-color: rgba(255, 255, 255, 0.55);
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+  }
+
+  .item-line1 {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0.25rem;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .item-quantity {
-    font-weight: bold;
-    color: #4facfe;
-    min-width: 25px;
-    font-size: 0.9em;
+    font-weight: 700;
+    color: #1976d2;
+    min-width: 28px;
+    font-size: 0.95em;
   }
 
   .item-name {
-    flex: 1;
-    color: #333;
-    font-size: 0.9em;
+    color: #222;
+    font-size: 0.95em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .item-price {
-    font-weight: 600;
-    color: #4caf50;
-    font-size: 0.9em;
+    font-weight: 700;
+    color: #e91e63;
+    font-size: 0.95em;
+    margin-left: 12px;
+    white-space: nowrap;
   }
 
-  .item-notes,
+  .item-line2 {
+    margin-top: 6px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
   .item-size,
   .item-variation {
-    font-size: 0.8em;
+    font-size: 0.82em;
     color: #666;
-    padding-left: 31px;
-    margin-top: 2px;
-    line-height: 1.3;
+    line-height: 1.2;
+  }
+
+  .item-line3 {
+    margin-top: 6px;
+  }
+
+  .item-notes {
+    font-size: 0.82em;
+    color: #666;
+    line-height: 1.25;
   }
 
   /* Make item-level actions (deliver button or pill) full width inside the card */
