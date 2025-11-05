@@ -238,7 +238,7 @@
 
 // Order Card
 .order-card {
-  background: white;
+  background: rgb(233, 228, 228);
   border-radius: 12px;
   padding: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -259,25 +259,21 @@
   }
 
   &.status-pending {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
     &::before {
       background: #ff9800;
     }
   }
   &.status-preparing {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
     &::before {
       background: #2196f3;
     }
   }
   &.status-ready {
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
     &::before {
       background: #4caf50;
     }
   }
   &.status-delivered {
-    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
     opacity: 0.85;
     &::before {
       background: #9c27b0;
@@ -536,7 +532,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(215deg, #f0f9ff 0%, #e0f2fe 100%);
   border-radius: 6px;
   border-left: 3px solid #4facfe;
 
@@ -551,7 +547,7 @@
   .total-value {
     font-size: 1.2em;
     font-weight: 700;
-    color: #4facfe;
+    color: #e91e63;
   }
 }
 
@@ -584,17 +580,18 @@
   }
 
   &.btn-edit {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    background: #ffe0b2;
     color: #f57c00;
   }
 
   &.btn-deliver {
-    background: linear-gradient(135deg, #e8f5e9 0%, #aec2eb 100%);
-    color: #2b862f;
+    background: #4caf50;
+    padding: 0.5rem;
+    color: white;
   }
 
   &.btn-cancel {
-    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    background: #ffcdd2;
     color: #c62828;
   }
 

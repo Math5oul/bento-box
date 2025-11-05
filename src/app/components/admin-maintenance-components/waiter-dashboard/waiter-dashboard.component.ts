@@ -91,13 +91,14 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }[] = [];
 
   // Filtros
-  filterStatus = 'all';
+  filterStatus = 'ready';
   filterTable = 'all';
   searchTerm = '';
 
   // Listas de opções para filtros
   statuses = [
     { value: 'all', label: 'Todos' },
+    { value: 'kitchen', label: 'Na Cozinha' },
     { value: 'pending', label: 'Pendente' },
     { value: 'preparing', label: 'Preparando' },
     { value: 'ready', label: 'Pronto' },
@@ -192,7 +193,11 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
 
     // Filtro por status
     if (this.filterStatus !== 'all') {
-      filtered = filtered.filter(o => o.status === this.filterStatus);
+      if (this.filterStatus === 'kitchen') {
+        filtered = filtered.filter(o => o.status === 'pending' || o.status === 'preparing');
+      } else {
+        filtered = filtered.filter(o => o.status === this.filterStatus);
+      }
     }
 
     // Filtro por mesa

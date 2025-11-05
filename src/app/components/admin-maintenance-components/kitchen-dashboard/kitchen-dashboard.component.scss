@@ -494,54 +494,53 @@
 
 .action-btn {
   padding: 8px 16px;
-  border: 2px solid;
-  background: white;
   border-radius: 6px;
   font-size: 0.85em;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  border: none;
+  width: 110px;
 
-  &.btn-pending {
-    border-color: #ff9800;
-    color: #ff9800;
-    &:hover {
-      background: #ff9800;
-      color: white;
-    }
-  }
   &.btn-preparing {
-    border-color: #2196f3;
-    color: #2196f3;
+    background: #2196f3;
+    color: white;
+
     &:hover {
-      background: #2196f3;
-      color: white;
+      background: darken(#2196f3, 8%);
     }
   }
+
   &.btn-ready {
-    border-color: #4caf50;
-    color: #4caf50;
+    background: #4caf50;
+    color: white;
+
     &:hover {
-      background: #4caf50;
-      color: white;
+      background: darken(#4caf50, 8%);
     }
   }
+
   &.btn-delivered {
-    border-color: #9c27b0;
-    color: #9c27b0;
+    background: #9c27b0;
+    color: white;
+
     &:hover {
-      background: #9c27b0;
-      color: white;
+      background: darken(#9c27b0, 8%);
     }
   }
+
   &.btn-cancelled {
-    border-color: #f44336;
-    color: #f44336;
+    background: #f44336;
+    color: white;
+
     &:hover {
-      background: #f44336;
-      color: white;
+      background: darken(#f44336, 8%);
     }
+  }
+
+  &:hover {
+    transform: translateY(-1px);
   }
 }
 
