@@ -83,4 +83,12 @@ export const routes: Routes = [
       ).then(m => m.CategoriesManagementComponent),
     canActivate: [adminGuard],
   },
+  {
+    path: 'maintenance/checkout',
+    loadComponent: () =>
+      import('./components/admin-maintenance-components/checkout/checkout.component').then(
+        m => m.CheckoutComponent
+      ),
+    canActivate: [adminGuard],
+  },
 ];
