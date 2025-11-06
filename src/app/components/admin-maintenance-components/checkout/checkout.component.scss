@@ -1,0 +1,55 @@
+.checkout-page {
+  padding: 18px;
+}
+
+.content {
+  display: flex;
+  gap: 18px;
+}
+
+.clients-list {
+  width: 230px;
+  border-right: 1px solid #eee;
+  padding-right: 12px;
+}
+
+.clients-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.clients-list li {
+  padding: 8px 6px;
+  cursor: pointer;
+}
+
+.clients-list li.selected {
+  background: linear-gradient(90deg, #e6f4ff, #eaf8ff);
+  border-left: 3px solid #4facfe;
+}
+
+.orders-area {
+  flex: 1;
+}
+
+.orders-list {
+  list-style: none;
+  padding: 0;
+}
+
+.order-items {
+  margin: 6px 0 12px 18px;
+  color: #444;
+}
+
+.actions {
+  margin-top: 12px;
+}
+
+.action-btn {
+  background: #4facfe;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+}

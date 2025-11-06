@@ -1,0 +1,77 @@
+<div class="checkout-page">
+  <div class="page-header">
+    <h1>Checkout / Rachar Conta</h1>
+    <p class="subtitle">Selecione um cliente e escolha os pedidos para iniciar o pagamento</p>
+  </div>
+
+  <div class="content">
+    <aside class="clients-list">
+      <h3>Clientes</h3>
+      <div *ngIf="loading">Carregando...</div>
+      <div *ngIf="error" class="error">{{ error }}</div>
+      <ul>
+        <li
+          *ngFor="let c of clients"
+          (click)="selectClient(c)"
+          [class.selected]="selectedClient?.clientId === c.clientId"
+        >
+          {{ c.clientName }}
+        </li>
+      </ul>
+    </aside>
+
+    <main class="orders-area">
+      <div *ngIf="!selectedClient" class="empty-note">Selecione um cliente à esquerda</div>
+
+      <div *ngIf="selectedClient">
+        <h3>Pedidos abertos de {{ selectedClient.clientName }}</h3>
+        <div *ngIf="openOrders.length === 0">Nenhum pedido aberto para este cliente</div>
+
+        <ul class="orders-list">
+          <li *ngFor="let o of openOrders">
+            <div class="order-header-row">
+              <label>
+                <input type="checkbox" (change)="toggleSelectAllItemsForOrder(o)" />
+                <strong>Mesa {{ o.tableNumber }}</strong> — {{ o.items.length }} item(s)
+              </label>
+              <span class="order-status">{{ o.status }}</span>
+            </div>
+
+            <ul class="order-items">
+              <li *ngFor="let it of o.items">
+                <label>
+                  <input
+                    type="checkbox"
+                    [checked]="
+                      selectedItemIds.has(
+                        it._id || it.id || o.id + '-' + (it.productId || it.productName)
+                      )
+                    "
+                    (change)="
+                      toggleSelectOrderItem(
+                        o.id,
+                        it._id || it.id || o.id + '-' + (it.productId || it.productName)
+                      )
+                    "
+                  />
+                  {{ it.quantity }}x {{ it.productName }} —
+                  {{ it.totalPrice | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                </label>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="actions">
+          <button
+            class="action-btn"
+            (click)="startPayment()"
+            [disabled]="selectedItemIds.size === 0"
+          >
+            Iniciar Pagamento
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
