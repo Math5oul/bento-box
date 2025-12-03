@@ -6,37 +6,48 @@ import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { UserRole } from '../../../interfaces/user.interface';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { RoleService } from '../../../services/role.service';
+import { Role } from '../../../interfaces/role.interface';
+import { RolesManagementComponent } from '../roles-management/roles-management.component';
 
 interface User {
   _id: string;
   name: string;
   email: string;
-  role: string;
+  role: string; // Can be enum string or ObjectId string
+  roleDetails?: Role; // Populated role data
   createdAt: string;
 }
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AdminHeaderComponent,
+    RolesManagementComponent,
+  ],
   templateUrl: './users-management.component.html',
   styleUrl: './users-management.component.scss',
 })
 export class UsersManagementComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private roleService = inject(RoleService);
+
+  // Controle de abas
+  activeTab: 'users' | 'roles' = 'users';
 
   users: User[] = [];
+  roles: Role[] = [];
   loading = true;
+  loadingRoles = true;
   searchTerm = ''; // Filtro de pesquisa
 
-  // Array de roles disponíveis
-  availableRoles = [
-    { value: UserRole.CLIENT, label: 'Cliente' },
-    { value: UserRole.ADMIN, label: 'Administrador' },
-    { value: UserRole.KITCHEN, label: 'Cozinha' },
-    { value: UserRole.WAITER, label: 'Garçom' },
-  ];
+  // Array de roles disponíveis (carregado dinamicamente)
+  availableRoles: Array<{ value: string; label: string; clientLevel: number }> = [];
 
   // Modal de criação
   showCreateModal = false;
@@ -44,7 +55,7 @@ export class UsersManagementComponent implements OnInit {
     name: '',
     email: '',
     password: '',
-    role: UserRole.CLIENT,
+    role: '', // Will be set after roles are loaded
   };
 
   // Modal de edição
@@ -56,9 +67,46 @@ export class UsersManagementComponent implements OnInit {
   loginPassword = '';
   loginResult: any = null;
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadUsers();
+      await this.loadRoles();
+      await this.loadUsers();
+    }
+  }
+
+  /**
+   * Carrega roles disponíveis da API
+   */
+  async loadRoles(): Promise<void> {
+    this.loadingRoles = true;
+    try {
+      this.roles = await this.roleService.getRoles();
+
+      // Converte para formato de dropdown (ID do role ao invés de enum)
+      this.availableRoles = this.roles.map(role => ({
+        value: role._id, // Use ObjectId for new role system
+        label: `${role.name} ${role.clientLevel === 0 ? '(Staff)' : `(Nível ${role.clientLevel})`}`,
+        clientLevel: role.clientLevel,
+      }));
+
+      // Set default role (primeiro cliente ou primeiro role disponível)
+      const defaultClientRole = this.roles.find(r => r.clientLevel > 0);
+      this.newUser.role = defaultClientRole?._id || this.roles[0]?._id || '';
+
+      console.log('Roles carregados:', this.roles);
+    } catch (error) {
+      console.error('Erro ao carregar roles:', error);
+      alert('Erro ao carregar perfis. Usando perfis padrão.');
+      // Fallback para roles antigos se API falhar
+      this.availableRoles = [
+        { value: UserRole.CLIENT, label: 'Cliente (Legacy)', clientLevel: 1 },
+        { value: UserRole.ADMIN, label: 'Administrador (Legacy)', clientLevel: 0 },
+        { value: UserRole.KITCHEN, label: 'Cozinha (Legacy)', clientLevel: 0 },
+        { value: UserRole.WAITER, label: 'Garçom (Legacy)', clientLevel: 0 },
+      ];
+      this.newUser.role = UserRole.CLIENT;
+    } finally {
+      this.loadingRoles = false;
     }
   }
 
@@ -110,11 +158,15 @@ export class UsersManagementComponent implements OnInit {
    * Abre modal de criação
    */
   openCreateModal(): void {
+    // Use primeiro role de cliente ou primeiro disponível
+    const defaultClientRole = this.roles.find(r => r.clientLevel > 0);
+    const defaultRole = defaultClientRole?._id || this.roles[0]?._id || '';
+
     this.newUser = {
       name: '',
       email: '',
       password: '',
-      role: UserRole.CLIENT,
+      role: defaultRole,
     };
     this.showCreateModal = true;
   }
@@ -141,7 +193,7 @@ export class UsersManagementComponent implements OnInit {
           name: this.newUser.name,
           email: this.newUser.email,
           password: this.newUser.password,
-          role: this.newUser.role.toUpperCase(),
+          role: this.newUser.role, // Send ObjectId directly (or enum if fallback)
         })
         .toPromise();
 
@@ -263,11 +315,30 @@ export class UsersManagementComponent implements OnInit {
   }
 
   /**
-   * Retorna o label do role
+   * Retorna o label do role (suporta enum legacy e ObjectId)
    */
   getRoleLabel(role: string): string {
-    const found = this.availableRoles.find(r => r.value === role);
-    return found ? found.label : role;
+    // Tenta encontrar nos roles dinâmicos (ObjectId)
+    const foundDynamic = this.availableRoles.find(r => r.value === role);
+    if (foundDynamic) {
+      return foundDynamic.label;
+    }
+
+    // Tenta encontrar pelo nome do role (para roles populados)
+    const foundByName = this.roles.find(r => r._id === role);
+    if (foundByName) {
+      return `${foundByName.name} ${foundByName.clientLevel === 0 ? '(Staff)' : `(Nível ${foundByName.clientLevel})`}`;
+    }
+
+    // Fallback para enum legacy
+    const legacyLabels: Record<string, string> = {
+      [UserRole.ADMIN]: 'Administrador',
+      [UserRole.CLIENT]: 'Cliente',
+      [UserRole.KITCHEN]: 'Cozinha',
+      [UserRole.WAITER]: 'Garçom',
+    };
+
+    return legacyLabels[role.toLowerCase()] || legacyLabels[role] || role;
   }
 
   /**

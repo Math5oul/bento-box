@@ -166,6 +166,73 @@ router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<vo
 });
 
 /**
+ * PUT /api/categories/:id/discounts
+ * Atualiza descontos por nível de cliente de uma categoria
+ */
+router.put('/:id/discounts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const categoryId = req.params['id'];
+    const { discounts } = req.body; // Array de { clientLevel: number, discountPercent: number }
+
+    if (!Array.isArray(discounts)) {
+      res.status(400).json({
+        success: false,
+        message: 'Discounts deve ser um array',
+      });
+      return;
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+      res.status(404).json({
+        success: false,
+        message: 'Categoria não encontrada',
+      });
+      return;
+    }
+
+    // Validar descontos
+    for (const discount of discounts) {
+      if (typeof discount.clientLevel !== 'number' || discount.clientLevel < 1) {
+        res.status(400).json({
+          success: false,
+          message: 'Client level deve ser um número maior ou igual a 1',
+        });
+        return;
+      }
+      if (
+        typeof discount.discountPercent !== 'number' ||
+        discount.discountPercent < 0 ||
+        discount.discountPercent > 100
+      ) {
+        res.status(400).json({
+          success: false,
+          message: 'Discount percent deve ser um número entre 0 e 100',
+        });
+        return;
+      }
+    }
+
+    // Atualizar descontos
+    category.discounts = discounts;
+    await category.save();
+
+    res.json({
+      success: true,
+      data: category,
+      message: 'Descontos atualizados com sucesso',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: 'Erro ao atualizar descontos',
+      error: error.message,
+    });
+  }
+});
+
+/**
  * DELETE /api/categories/:id
  * Deleta categoria (somente se não houver produtos)
  */

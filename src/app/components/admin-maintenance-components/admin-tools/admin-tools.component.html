@@ -137,17 +137,19 @@
       </div>
     }
 
-    <!-- Card: Gerenciamento de Contas -->
+    <!-- Card: Gerenciamento de Usuários e Perfis -->
     @if (userRole === 'admin') {
       <div class="test-card">
         <div class="card-icon">👥</div>
-        <h3 class="card-title">Gerenciamento de Contas</h3>
-        <p class="card-description">Gerencie usuários e teste credenciais do sistema</p>
+        <h3 class="card-title">Gerenciamento de Usuários e Perfis</h3>
+        <p class="card-description">
+          Gerencie contas de usuários e configure perfis com permissões
+        </p>
         <ul class="card-features">
-          <li>Listar usuários</li>
-          <li>Criar/Editar contas</li>
-          <li>Alterar roles</li>
+          <li>Criar/Editar contas de usuários</li>
           <li>Testar credenciais</li>
+          <li>Criar perfis customizados</li>
+          <li>Configurar 14+ permissões</li>
         </ul>
         <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
       </div>

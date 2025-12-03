@@ -1,0 +1,326 @@
+<app-admin-header></app-admin-header>
+
+<div class="roles-management-container">
+  <div class="page-title">
+    <h1>👤 Gerenciamento de Perfis e Permissões</h1>
+    <p class="subtitle">Crie e gerencie perfis de usuários com permissões personalizadas</p>
+  </div>
+
+  <!-- Ações -->
+  <div class="actions-section">
+    <div class="search-bar">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="🔍 Pesquisar perfis..."
+        class="search-input"
+      />
+      @if (searchTerm) {
+        <button class="clear-search" (click)="searchTerm = ''">&times;</button>
+      }
+    </div>
+    <button class="create-button" (click)="openCreateModal()">➕ Criar Novo Perfil</button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Carregando perfis...</p>
+    </div>
+  }
+
+  <!-- Roles por Categoria -->
+  @if (!loading) {
+    <!-- Perfis de Staff -->
+    <div class="roles-section">
+      <h2>👥 Perfis de Staff (Equipe)</h2>
+      <div class="roles-grid">
+        @for (role of staffRoles; track role._id) {
+          <div class="role-card" [class.system]="role.isSystem">
+            <div class="role-header">
+              <div class="role-title">
+                <h3>{{ role.name }}</h3>
+                @if (role.isSystem) {
+                  <span class="system-badge">🔒 Sistema</span>
+                }
+              </div>
+              <span class="level-badge staff">Staff</span>
+            </div>
+
+            @if (role.description) {
+              <p class="role-description">{{ role.description }}</p>
+            }
+
+            <div class="role-meta">
+              <p>
+                <strong>Slug:</strong> <code>{{ role.slug }}</code>
+              </p>
+              <p>
+                <strong>Permissões Ativas:</strong> {{ getActivePermissionsCount(role) }}/{{
+                  permissionsList.length
+                }}
+              </p>
+            </div>
+
+            <div class="role-actions">
+              <button class="btn-permissions" (click)="openPermissionsModal(role)">
+                🔐 Permissões
+              </button>
+              @if (!role.isSystem) {
+                <button class="btn-edit" (click)="openEditModal(role)">✏️ Editar</button>
+                <button class="btn-delete" (click)="deleteRole(role)">🗑️ Deletar</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Perfis de Clientes -->
+    <div class="roles-section">
+      <h2>🎫 Perfis de Clientes</h2>
+      <div class="roles-grid">
+        @for (role of clientRoles; track role._id) {
+          <div class="role-card" [class.system]="role.isSystem">
+            <div class="role-header">
+              <div class="role-title">
+                <h3>{{ role.name }}</h3>
+                @if (role.isSystem) {
+                  <span class="system-badge">🔒 Sistema</span>
+                }
+              </div>
+              <span class="level-badge" [attr.data-level]="role.clientLevel">
+                {{ getRoleLevelLabel(role.clientLevel) }}
+              </span>
+            </div>
+
+            @if (role.description) {
+              <p class="role-description">{{ role.description }}</p>
+            }
+
+            <div class="role-meta">
+              <p>
+                <strong>Slug:</strong> <code>{{ role.slug }}</code>
+              </p>
+              <p>
+                <strong>Permissões Ativas:</strong> {{ getActivePermissionsCount(role) }}/{{
+                  permissionsList.length
+                }}
+              </p>
+            </div>
+
+            <div class="role-actions">
+              <button class="btn-permissions" (click)="openPermissionsModal(role)">
+                🔐 Permissões
+              </button>
+              @if (!role.isSystem) {
+                <button class="btn-edit" (click)="openEditModal(role)">✏️ Editar</button>
+                <button class="btn-delete" (click)="deleteRole(role)">🗑️ Deletar</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (roles.length === 0) {
+      <div class="empty-state">
+        <p>Nenhum perfil cadastrado</p>
+      </div>
+    }
+  }
+
+  <!-- Modal de Criação -->
+  @if (showCreateModal) {
+    <div class="modal active">
+      <div class="modal-overlay" (click)="closeCreateModal()"></div>
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>➕ Criar Novo Perfil</h3>
+          <button class="close-btn" (click)="closeCreateModal()">&times;</button>
+        </div>
+
+        <form (submit)="createRole(); $event.preventDefault()">
+          <div class="form-group">
+            <label>Nome do Perfil *</label>
+            <input
+              type="text"
+              [(ngModel)]="newRole.name"
+              name="name"
+              placeholder="Ex: Cliente Premium"
+              (blur)="generateSlug()"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Slug (Identificador Único) *</label>
+            <input
+              type="text"
+              [(ngModel)]="newRole.slug"
+              name="slug"
+              placeholder="cliente-premium"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Perfil</label>
+            <select [(ngModel)]="newRole.clientLevel" name="clientLevel">
+              <option [value]="0">Staff (Equipe)</option>
+              <option [value]="1">Cliente Nível 1 (Comum)</option>
+              <option [value]="2">Cliente Nível 2 (VIP)</option>
+              <option [value]="3">Cliente Nível 3</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Descrição</label>
+            <textarea
+              [(ngModel)]="newRole.description"
+              name="description"
+              placeholder="Descrição do perfil..."
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="info-box">
+            <p>ℹ️ Após criar o perfil, você poderá configurar as permissões específicas.</p>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="cancel-btn" (click)="closeCreateModal()">Cancelar</button>
+            <button type="submit" class="save-btn">✅ Criar Perfil</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Edição -->
+  @if (showEditModal) {
+    <div class="modal active">
+      <div class="modal-overlay" (click)="closeEditModal()"></div>
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>✏️ Editar Perfil</h3>
+          <button class="close-btn" (click)="closeEditModal()">&times;</button>
+        </div>
+
+        <form (submit)="updateRole(); $event.preventDefault()">
+          <div class="form-group">
+            <label>Nome do Perfil *</label>
+            <input type="text" [(ngModel)]="editingRole.name" name="name" required />
+          </div>
+
+          <div class="form-group">
+            <label>Slug *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingRole.slug"
+              name="slug"
+              [disabled]="editingRole.isSystem ?? false"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Perfil</label>
+            <select
+              [(ngModel)]="editingRole.clientLevel"
+              name="clientLevel"
+              [disabled]="editingRole.isSystem ?? false"
+            >
+              <option [value]="0">Staff (Equipe)</option>
+              <option [value]="1">Cliente Nível 1 (Comum)</option>
+              <option [value]="2">Cliente Nível 2 (VIP)</option>
+              <option [value]="3">Cliente Nível 3</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Descrição</label>
+            <textarea [(ngModel)]="editingRole.description" name="description" rows="3"></textarea>
+          </div>
+
+          @if (editingRole.isSystem) {
+            <div class="info-box warning">
+              <p>⚠️ Perfis do sistema têm restrições de edição para manter a integridade.</p>
+            </div>
+          }
+
+          <div class="modal-footer">
+            <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancelar</button>
+            <button type="submit" class="save-btn">✅ Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Permissões -->
+  @if (showPermissionsModal && selectedRole) {
+    <div class="modal active large">
+      <div class="modal-overlay" (click)="closePermissionsModal()"></div>
+      <div class="modal-content permissions-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>🔐 Permissões - {{ selectedRole.name }}</h3>
+          <button class="close-btn" (click)="closePermissionsModal()">&times;</button>
+        </div>
+
+        <div class="permissions-content">
+          <div class="permissions-header">
+            <p class="description">
+              Configure as permissões específicas deste perfil. Permissões controlam o que os
+              usuários podem fazer no sistema.
+            </p>
+            <div class="quick-actions">
+              <button class="btn-secondary" (click)="toggleAllPermissions(true)">
+                ✅ Selecionar Todas
+              </button>
+              <button class="btn-secondary" (click)="toggleAllPermissions(false)">
+                ❌ Desmarcar Todas
+              </button>
+            </div>
+          </div>
+
+          <div class="permissions-grid">
+            @for (category of getCategories(); track category) {
+              <div class="permission-category">
+                <h4>{{ category }}</h4>
+                <div class="permissions-list">
+                  @for (permission of getPermissionsByCategory(category); track permission.key) {
+                    <label class="permission-item">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="selectedRole.permissions[permission.key]"
+                      />
+                      <span>{{ permission.label }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="permissions-summary">
+            <p>
+              <strong>Total:</strong> {{ getActivePermissionsCount(selectedRole) }} de
+              {{ permissionsList.length }} permissões ativas
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="cancel-btn" (click)="closePermissionsModal()">
+            Cancelar
+          </button>
+          <button type="button" class="save-btn" (click)="savePermissions()">
+            ✅ Salvar Permissões
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

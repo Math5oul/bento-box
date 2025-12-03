@@ -60,6 +60,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'maintenance/roles',
+    loadComponent: () =>
+      import(
+        './components/admin-maintenance-components/roles-management/roles-management.component'
+      ).then(m => m.RolesManagementComponent),
+    canActivate: [adminGuard],
+  },
+  {
     path: 'maintenance/test-upload',
     loadComponent: () =>
       import('./components/admin-maintenance-components/test-upload/test-upload.component').then(
