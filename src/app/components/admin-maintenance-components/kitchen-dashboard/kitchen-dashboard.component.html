@@ -94,28 +94,43 @@
                       </div>
 
                       <div class="item-action">
-                        @if ((item.status || 'pending') === 'pending') {
-                          <button
-                            class="small-btn btn-preparing"
-                            (click)="updateItemStatus(order, item, 'preparing')"
-                            title="Marcar preparando"
-                          >
-                            Preparar
-                          </button>
-                        } @else if ((item.status || 'pending') === 'preparing') {
-                          <button
-                            class="small-btn btn-ready"
-                            (click)="updateItemStatus(order, item, 'ready')"
-                            title="Marcar pronto"
-                          >
-                            Pronto
-                          </button>
-                        } @else if ((item.status || 'pending') === 'ready') {
-                          <span class="ready-pill" title="Pronto para entrega"
-                            >Pronto para entrega ✓</span
-                          >
-                        } @else if ((item.status || 'pending') === 'delivered') {
-                          <span class="delivered-pill" title="Entregue">Entregue ✓</span>
+                        @if (canManageOrders) {
+                          @if ((item.status || 'pending') === 'pending') {
+                            <button
+                              class="small-btn btn-preparing"
+                              (click)="updateItemStatus(order, item, 'preparing')"
+                              title="Marcar preparando"
+                            >
+                              Preparar
+                            </button>
+                          } @else if ((item.status || 'pending') === 'preparing') {
+                            <button
+                              class="small-btn btn-ready"
+                              (click)="updateItemStatus(order, item, 'ready')"
+                              title="Marcar pronto"
+                            >
+                              Pronto
+                            </button>
+                          } @else if ((item.status || 'pending') === 'ready') {
+                            <span class="ready-pill" title="Pronto para entrega"
+                              >Pronto para entrega ✓</span
+                            >
+                          } @else if ((item.status || 'pending') === 'delivered') {
+                            <span class="delivered-pill" title="Entregue">Entregue ✓</span>
+                          }
+                        } @else {
+                          <!-- Usuário sem permissão apenas visualiza status -->
+                          @if ((item.status || 'pending') === 'pending') {
+                            <span class="status-badge">Pendente</span>
+                          } @else if ((item.status || 'pending') === 'preparing') {
+                            <span class="status-badge">Preparando</span>
+                          } @else if ((item.status || 'pending') === 'ready') {
+                            <span class="ready-pill" title="Pronto para entrega"
+                              >Pronto para entrega ✓</span
+                            >
+                          } @else if ((item.status || 'pending') === 'delivered') {
+                            <span class="delivered-pill" title="Entregue">Entregue ✓</span>
+                          }
                         }
                       </div>
                     </li>
@@ -123,17 +138,19 @@
                 </ul>
               </div>
 
-              <div class="order-actions">
-                <div class="actions-buttons">
-                  <button
-                    class="action-btn btn-cancelled"
-                    (click)="updateStatus(order, 'cancelled')"
-                    title="Cancelar pedido"
-                  >
-                    Cancelar
-                  </button>
+              @if (canCancelOrders) {
+                <div class="order-actions">
+                  <div class="actions-buttons">
+                    <button
+                      class="action-btn btn-cancelled"
+                      (click)="updateStatus(order, 'cancelled')"
+                      title="Cancelar pedido"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
           }
         </div>

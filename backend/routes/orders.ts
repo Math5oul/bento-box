@@ -471,12 +471,13 @@ router.get(
         return;
       }
 
-      // Verifica permissão: admin, dono do pedido (autenticado) ou sessão anônima
-      const isAdmin = req.user?.role === 'admin';
+      // Verifica permissão: admin/canViewOrders, dono do pedido (autenticado) ou sessão anônima
+      const canViewAnyOrder =
+        req.user?.role === 'admin' || req.user?.permissions?.canViewOrders === true;
       const isOwner = req.user && order.clientId && order.clientId.toString() === req.user.userId;
       const isAnonymousOwner = sessionToken && order.sessionToken === sessionToken;
 
-      if (!isAdmin && !isOwner && !isAnonymousOwner) {
+      if (!canViewAnyOrder && !isOwner && !isAnonymousOwner) {
         res.status(403).json({
           success: false,
           message: 'Acesso negado',
@@ -528,10 +529,20 @@ router.put(
         return;
       }
 
-      // Verifica permissão: admin, cozinha ou garçom
+      // Verifica permissão: canManageOrders (ou legacy admin/cozinha/garcom)
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'cozinha' && role !== 'garcom') {
-        res.status(403).json({ success: false, message: 'Permissão negada' });
+      const hasPermission = req.user?.permissions?.canManageOrders === true;
+      const hasLegacyRole = role === 'admin' || role === 'cozinha' || role === 'garcom';
+
+      console.log('[ORDER UPDATE] Permission check:', {
+        role,
+        hasPermission,
+        hasLegacyRole,
+        permissions: req.user?.permissions,
+      });
+
+      if (!hasPermission && !hasLegacyRole) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
         return;
       }
 
@@ -599,10 +610,13 @@ router.patch(
         return;
       }
 
-      // Verifica permissão: admin, cozinha ou garçom
+      // Verifica permissão: canManageOrders (ou legacy admin/cozinha/garcom)
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'cozinha' && role !== 'garcom') {
-        res.status(403).json({ success: false, message: 'Permissão negada' });
+      const hasPermission = req.user?.permissions?.canManageOrders === true;
+      const hasLegacyRole = role === 'admin' || role === 'cozinha' || role === 'garcom';
+
+      if (!hasPermission && !hasLegacyRole) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
         return;
       }
 
@@ -681,12 +695,15 @@ router.patch(
         return;
       }
 
-      // Verifica permissão: admin, garçom ou cozinha
+      // Verifica permissão: canManageOrders (ou legacy admin/garcom/cozinha)
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'garcom' && role !== 'cozinha') {
+      const hasPermission = req.user?.permissions?.canManageOrders === true;
+      const hasLegacyRole = role === 'admin' || role === 'garcom' || role === 'cozinha';
+
+      if (!hasPermission && !hasLegacyRole) {
         res.status(403).json({
           success: false,
-          message: 'Permissão negada. Apenas admin, garçom ou cozinha podem editar pedidos.',
+          message: 'Acesso negado',
         });
         return;
       }
@@ -807,11 +824,12 @@ router.delete(
       }
 
       // Verifica permissão
-      const isAdmin = req.user?.role === 'admin';
+      const canManageAnyOrder =
+        req.user?.role === 'admin' || req.user?.permissions?.canManageOrders === true;
       const isOwner = req.user && order.clientId && order.clientId.toString() === req.user.userId;
       const isAnonymousOwner = sessionToken && order.sessionToken === sessionToken;
 
-      if (!isAdmin && !isOwner && !isAnonymousOwner) {
+      if (!canManageAnyOrder && !isOwner && !isAnonymousOwner) {
         res.status(403).json({
           success: false,
           message: 'Acesso negado',
@@ -820,7 +838,7 @@ router.delete(
       }
 
       // Clientes só podem cancelar pedidos PENDING
-      if (!isAdmin && order.status !== OrderStatus.PENDING) {
+      if (!canManageAnyOrder && order.status !== OrderStatus.PENDING) {
         res.status(400).json({
           success: false,
           message: 'Pedido já em preparo, não pode ser cancelado',
@@ -941,10 +959,13 @@ router.patch(
         return;
       }
 
-      // Permissão: admin ou garçom ou cozinha
+      // Verifica permissão: canManageOrders (ou legacy admin/garcom/cozinha)
       const role = req.user?.role;
-      if (role !== 'admin' && role !== 'garcom' && role !== 'cozinha') {
-        res.status(403).json({ success: false, message: 'Permissão negada' });
+      const hasPermission = req.user?.permissions?.canManageOrders === true;
+      const hasLegacyRole = role === 'admin' || role === 'garcom' || role === 'cozinha';
+
+      if (!hasPermission && !hasLegacyRole) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
         return;
       }
 
