@@ -106,6 +106,15 @@
   &:hover {
     background: #f5f7ff;
   }
+
+  &.btn-clear {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+
+    &:hover {
+      background: #fff5f5;
+    }
+  }
 }
 
 .btn-success {
@@ -144,6 +153,17 @@
     &:hover {
       background: #ffe0e0;
       border-color: #ff9999;
+    }
+  }
+
+  &.undo {
+    background: #fff8e1;
+    border-color: #ffd54f;
+    color: #f57c00;
+
+    &:hover {
+      background: #ffecb3;
+      border-color: #ffb300;
     }
   }
 }
@@ -383,6 +403,18 @@
     background: #f5f7ff;
   }
 
+  // Estilo especial para subitens
+  &.subitem {
+    background: linear-gradient(135deg, #fff9f0 0%, #ffffff 100%);
+    border-left: 4px solid #667eea;
+    margin-left: 1rem;
+
+    &.selected {
+      background: linear-gradient(135deg, #f5f0ff 0%, #ffffff 100%);
+      border-left-color: #764ba2;
+    }
+  }
+
   .item-checkbox {
     flex: 1;
     display: flex;
@@ -413,10 +445,20 @@
         .split-badge {
           display: inline-block;
           padding: 0.2rem 0.5rem;
-          background: #fff3cd;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
           border-radius: 4px;
           font-size: 0.75rem;
           margin-left: 0.5rem;
+          font-weight: 600;
+        }
+
+        .split-info {
+          display: inline-block;
+          font-size: 0.75rem;
+          color: #999;
+          font-style: italic;
+          margin-left: 0.3rem;
         }
       }
 
@@ -453,6 +495,19 @@
   .item-actions {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
+
+    .parent-discount-badge {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid #c3e6cb;
+    }
   }
 }
 

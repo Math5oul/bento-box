@@ -37,6 +37,7 @@
       <div class="header-actions">
         <button class="btn-secondary" (click)="changeTable()">🔄 Trocar Mesa</button>
         <button class="btn-secondary" (click)="openHistoryModal()">📜 Ver Histórico</button>
+        <button class="btn-secondary btn-clear" (click)="clearTable()">🧹 Limpar Mesa</button>
       </div>
     </div>
 
@@ -69,7 +70,12 @@
         </div>
 
         <div class="items-list">
-          <div *ngFor="let item of group.items" class="item-card" [class.selected]="item.selected">
+          <div
+            *ngFor="let item of group.items"
+            class="item-card"
+            [class.selected]="item.selected"
+            [class.subitem]="item.isSplit"
+          >
             <label class="item-checkbox">
               <input
                 type="checkbox"
@@ -77,14 +83,19 @@
                 (change)="toggleItemSelection(item)"
               />
               <div class="item-details">
-                <h4 class="item-name">{{ item.productName }}</h4>
+                <h4 class="item-name">
+                  {{ item.productName }}
+                  <span *ngIf="item.isSplit" class="split-badge">
+                    ✂️ {{ item.splitIndex }}/{{ item.totalSplits }}
+                  </span>
+                </h4>
                 <p class="item-info">
                   Qtd: {{ item.quantity }}
-                  <span *ngIf="item.isSplit" class="split-badge">
-                    ✂️ Parte {{ item.splitIndex }}/{{ item.totalSplits }}
+                  <span *ngIf="item.isSplit && item.totalSplits" class="split-info">
+                    ({{ (item.quantity * item.totalSplits).toFixed(2) }} ÷ {{ item.totalSplits }})
                   </span>
                 </p>
-                <p class="item-price">
+                <p class="item-price" *ngIf="!item.isSplit">
                   Subtotal: R$ {{ item.subtotal.toFixed(2) }}
                   <span *ngIf="item.discount" class="discount-badge">
                     -{{
@@ -94,26 +105,56 @@
                     }}
                   </span>
                 </p>
-                <p class="item-final" [class.discounted]="item.discount">
-                  Total: R$ {{ item.finalPrice.toFixed(2) }}
+                <p class="item-final">
+                  <strong>Valor: R$ {{ item.finalPrice.toFixed(2) }}</strong>
                 </p>
               </div>
             </label>
             <div class="item-actions">
-              <button class="btn-icon" (click)="openSplitModal(item)" title="Dividir item">
+              <!-- Botões só aparecem para itens NÃO divididos -->
+              <button
+                *ngIf="!item.isSplit"
+                class="btn-icon"
+                (click)="openSplitModal(item)"
+                title="Dividir item"
+              >
                 ✂️
               </button>
-              <button class="btn-icon" (click)="openDiscountModal(item)" title="Aplicar desconto">
+              <button
+                *ngIf="!item.isSplit"
+                class="btn-icon"
+                (click)="openDiscountModal(item)"
+                title="Aplicar desconto"
+              >
                 💰
               </button>
               <button
-                *ngIf="item.discount"
+                *ngIf="item.discount && !item.isSplit"
                 class="btn-icon remove"
                 (click)="removeDiscount(item)"
                 title="Remover desconto"
               >
                 🗑️
               </button>
+
+              <!-- Botão para desfazer divisão (subitens) -->
+              <button
+                *ngIf="item.isSplit"
+                class="btn-icon undo"
+                (click)="undoSplit(item)"
+                title="Desfazer divisão (reunificar partes)"
+              >
+                ⟲
+              </button>
+
+              <!-- Badge informativo para subitens com desconto do pai -->
+              <span
+                *ngIf="item.isSplit && item.parentDiscount"
+                class="parent-discount-badge"
+                title="Desconto aplicado no item pai antes da divisão"
+              >
+                💰 Desconto herdado
+              </span>
             </div>
           </div>
         </div>
@@ -217,19 +258,18 @@
         <p>
           Item: <strong>{{ splitItem?.productName }}</strong>
         </p>
-        <p>Quantidade atual: {{ splitItem?.quantity }}</p>
+        <p>Quantidade atual: {{ splitItem?.quantity }} unidade(s)</p>
         <div class="form-group">
           <label for="splitQty">Dividir em quantas partes?</label>
-          <input
-            type="number"
-            id="splitQty"
-            [(ngModel)]="splitQuantity"
-            [min]="2"
-            [max]="splitItem ? splitItem.quantity : 999"
-          />
+          <input type="number" id="splitQty" [(ngModel)]="splitQuantity" [min]="2" [max]="99" />
         </div>
         <p class="help-text" *ngIf="splitItem && splitQuantity">
-          Cada parte terá aproximadamente {{ (splitItem.quantity / splitQuantity).toFixed(0) }} un.
+          Cada parte terá {{ (splitItem.quantity / splitQuantity).toFixed(2) }} unidade(s).
+          <br />
+          <small
+            >Exemplo: 1 porção ÷ {{ splitQuantity }} = {{ splitQuantity }} subitens de
+            {{ (1 / splitQuantity).toFixed(2) }} porção cada</small
+          >
         </p>
       </div>
       <div class="modal-footer">

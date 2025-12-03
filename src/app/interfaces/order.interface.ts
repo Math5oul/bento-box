@@ -57,6 +57,7 @@ export interface OrderItem {
   selectedSize?: OrderItemSize; // Tamanho selecionado
   selectedVariation?: OrderItemVariation; // Variação selecionada
   status?: OrderStatus;
+  paidQuantity?: number; // Quantidade já paga deste item
 }
 
 /**
