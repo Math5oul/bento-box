@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Category } from '../models/Category';
 import Product from '../models/Product';
-import { optionalAuth } from '../middleware/auth';
+import { optionalAuth, authenticate } from '../middleware/auth';
 
 const router = Router();
 
@@ -77,8 +77,17 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
  * POST /api/categories
  * Cria nova categoria
  */
-router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    // Verificar permissão: canManageCategories (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageCategories === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ success: false, message: 'Acesso negado' });
+      return;
+    }
+
     const { name, emoji, slug, index } = req.body;
 
     // Verifica se já existe categoria com esse nome ou slug
@@ -115,8 +124,17 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
  * PUT /api/categories/:id
  * Atualiza categoria (renomear)
  */
-router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+router.put('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    // Verificar permissão: canManageCategories (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageCategories === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ success: false, message: 'Acesso negado' });
+      return;
+    }
+
     const { name, emoji, slug, index } = req.body;
     const categoryId = req.params['id'];
 
@@ -170,8 +188,17 @@ router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<vo
  * PUT /api/categories/:id/discounts
  * Atualiza descontos por role de usuário de uma categoria
  */
-router.put('/:id/discounts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+router.put('/:id/discounts', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    // Verificar permissão: canManageCategories (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageCategories === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ success: false, message: 'Acesso negado' });
+      return;
+    }
+
     const categoryId = req.params['id'];
     const { discounts } = req.body; // Array de { roleId: string, discountPercent: number }
 
@@ -247,8 +274,17 @@ router.put('/:id/discounts', optionalAuth, async (req: Request, res: Response): 
  * DELETE /api/categories/:id
  * Deleta categoria (somente se não houver produtos)
  */
-router.delete('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    // Verificar permissão: canManageCategories (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageCategories === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ success: false, message: 'Acesso negado' });
+      return;
+    }
+
     const categoryId = req.params['id'];
 
     const category = await Category.findById(categoryId);

@@ -50,6 +50,27 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
     return this.authService.isAdmin();
   }
 
+  // Permission getters para controle de acesso aos botões
+  get canAccessAdminPanel(): boolean {
+    return this.authService.canAccessAdminPanel();
+  }
+
+  get canAccessWaiterPanel(): boolean {
+    return this.authService.canAccessWaiterPanel();
+  }
+
+  get canAccessKitchenPanel(): boolean {
+    return this.authService.canAccessKitchenPanel();
+  }
+
+  get canManageTables(): boolean {
+    return this.authService.canManageTables();
+  }
+
+  get canManagePayments(): boolean {
+    return this.authService.canManagePayments();
+  }
+
   get frontendUrl(): string {
     if (isPlatformBrowser(this.platformId)) {
       return window.location.origin;

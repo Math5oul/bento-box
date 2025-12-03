@@ -12,9 +12,12 @@ const router = Router();
  */
 router.get('/users', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    // Verificar se o usuário é admin
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ message: 'Acesso negado. Apenas administradores.' });
+    // Verificar permissão: canManageUsers (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageUsers === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ message: 'Acesso negado' });
       return;
     }
 
@@ -38,9 +41,13 @@ router.patch(
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // Verificar se o usuário é admin
-      if (req.user?.role !== 'admin') {
-        res.status(403).json({ message: 'Acesso negado. Apenas administradores.' });
+      // Verificar permissão: canManageUsers ou canManageRoles (ou legacy admin)
+      const canManageUsers = req.user?.permissions?.canManageUsers === true;
+      const canManageRoles = req.user?.permissions?.canManageRoles === true;
+      const isLegacyAdmin = req.user?.role === 'admin';
+
+      if (!canManageUsers && !canManageRoles && !isLegacyAdmin) {
+        res.status(403).json({ message: 'Acesso negado' });
         return;
       }
 
@@ -112,9 +119,12 @@ router.patch(
  */
 router.delete('/users/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    // Verificar se o usuário é admin
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ message: 'Acesso negado. Apenas administradores.' });
+    // Verificar permissão: canManageUsers (ou legacy admin)
+    const canManage = req.user?.permissions?.canManageUsers === true;
+    const isLegacyAdmin = req.user?.role === 'admin';
+
+    if (!canManage && !isLegacyAdmin) {
+      res.status(403).json({ message: 'Acesso negado' });
       return;
     }
 
