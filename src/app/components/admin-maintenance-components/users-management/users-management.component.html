@@ -2,245 +2,271 @@
 
 <div class="account-management-container">
   <div class="page-title">
-    <h1>👥 Gerenciamento de Contas</h1>
-    <p class="subtitle">Gerencie usuários e teste credenciais</p>
+    <h1>👥 Gerenciamento de Usuários e Perfis</h1>
+    <p class="subtitle">Gerencie contas de usuários e configure perfis com permissões</p>
   </div>
 
-  <!-- Seção de Teste de Login -->
-  <div class="login-test-section">
-    <h2>🔐 Teste de Credenciais</h2>
-    <p class="section-description">
-      Valide credenciais sem fazer login (você já está autenticado como admin)
-    </p>
+  <!-- Abas -->
+  <div class="tabs-container">
+    <button class="tab-button" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+      👥 Gerenciar Contas
+    </button>
+    <button class="tab-button" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">
+      🔐 Gerenciar Perfis
+    </button>
+  </div>
 
-    <div class="login-test-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="loginEmail" placeholder="usuario@email.com" />
-        </div>
-        <div class="form-group">
-          <label>Senha</label>
-          <input type="password" [(ngModel)]="loginPassword" placeholder="senha" />
-        </div>
-      </div>
+  <!-- Conteúdo da aba Contas -->
+  @if (activeTab === 'users') {
+    <div class="tab-content">
+      <!-- Seção de Teste de Login -->
+      <div class="login-test-section">
+        <h2>🔐 Teste de Credenciais</h2>
+        <p class="section-description">
+          Valide credenciais sem fazer login (você já está autenticado como admin)
+        </p>
 
-      <div class="form-actions">
-        <button class="btn-test" (click)="testLogin()">🔍 Testar Credenciais</button>
-        <button class="btn-clear" (click)="clearLoginTest()">🗑️ Limpar</button>
-      </div>
+        <div class="login-test-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="loginEmail" placeholder="usuario@email.com" />
+            </div>
+            <div class="form-group">
+              <label>Senha</label>
+              <input type="password" [(ngModel)]="loginPassword" placeholder="senha" />
+            </div>
+          </div>
 
-      @if (loginResult) {
-        <div
-          class="login-result"
-          [class.success]="loginResult.success"
-          [class.error]="!loginResult.success"
-        >
-          <p class="result-message">{{ loginResult.message }}</p>
+          <div class="form-actions">
+            <button class="btn-test" (click)="testLogin()">🔍 Testar Credenciais</button>
+            <button class="btn-clear" (click)="clearLoginTest()">🗑️ Limpar</button>
+          </div>
 
-          @if (loginResult.user) {
-            <div class="user-info">
-              <p><strong>Nome:</strong> {{ loginResult.user.name }}</p>
-              <p><strong>Email:</strong> {{ loginResult.user.email }}</p>
-              <p>
-                <strong>Role:</strong>
-                <span class="role-badge" [ngClass]="'role-' + loginResult.user.role">
-                  {{ getRoleLabel(loginResult.user.role) }}
-                </span>
-              </p>
-              <p>
-                <strong>Token:</strong> <code>{{ loginResult.tokenPreview }}</code>
-              </p>
+          @if (loginResult) {
+            <div
+              class="login-result"
+              [class.success]="loginResult.success"
+              [class.error]="!loginResult.success"
+            >
+              <p class="result-message">{{ loginResult.message }}</p>
+
+              @if (loginResult.user) {
+                <div class="user-info">
+                  <p><strong>Nome:</strong> {{ loginResult.user.name }}</p>
+                  <p><strong>Email:</strong> {{ loginResult.user.email }}</p>
+                  <p>
+                    <strong>Role:</strong>
+                    <span class="role-badge" [ngClass]="'role-' + loginResult.user.role">
+                      {{ getRoleLabel(loginResult.user.role) }}
+                    </span>
+                  </p>
+                  <p>
+                    <strong>Token:</strong> <code>{{ loginResult.tokenPreview }}</code>
+                  </p>
+                </div>
+              }
             </div>
           }
         </div>
-      }
-    </div>
-  </div>
-
-  <!-- Ações -->
-  <div class="actions-section">
-    <button class="create-button" (click)="openCreateModal()">➕ Criar Nova Conta</button>
-  </div>
-
-  <!-- Loading -->
-  @if (loading) {
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Carregando usuários...</p>
-    </div>
-  }
-
-  <!-- Lista de Usuários -->
-  @if (!loading) {
-    <div class="users-section">
-      <div class="section-header">
-        <h2>📋 Usuários Cadastrados ({{ filteredUsers.length }}/{{ users.length }})</h2>
-
-        <!-- Barra de Pesquisa -->
-        <div class="search-bar">
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            placeholder="🔍 Pesquisar por nome ou email..."
-            class="search-input"
-          />
-          @if (searchTerm) {
-            <button class="clear-search" (click)="searchTerm = ''">&times;</button>
-          }
-        </div>
       </div>
 
-      @if (filteredUsers.length === 0 && users.length > 0) {
-        <div class="empty-state">
-          <p>Nenhum usuário encontrado com "{{ searchTerm }}"</p>
+      <!-- Ações -->
+      <div class="actions-section">
+        <button class="create-button" (click)="openCreateModal()">➕ Criar Nova Conta</button>
+      </div>
+
+      <!-- Loading -->
+      @if (loading) {
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Carregando usuários...</p>
         </div>
       }
 
-      @if (users.length === 0) {
-        <div class="empty-state">
-          <p>Nenhum usuário cadastrado</p>
-        </div>
-      }
+      <!-- Lista de Usuários -->
+      @if (!loading) {
+        <div class="users-section">
+          <div class="section-header">
+            <h2>📋 Usuários Cadastrados ({{ filteredUsers.length }}/{{ users.length }})</h2>
 
-      <div class="users-grid">
-        @for (user of filteredUsers; track user._id) {
-          <div class="user-card">
-            <div class="user-header">
-              <div class="user-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
-              <div class="user-info">
-                <h3>{{ user.name }}</h3>
-                <p class="user-email">{{ user.email }}</p>
+            <!-- Barra de Pesquisa -->
+            <div class="search-bar">
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="🔍 Pesquisar por nome ou email..."
+                class="search-input"
+              />
+              @if (searchTerm) {
+                <button class="clear-search" (click)="searchTerm = ''">&times;</button>
+              }
+            </div>
+          </div>
+
+          @if (filteredUsers.length === 0 && users.length > 0) {
+            <div class="empty-state">
+              <p>Nenhum usuário encontrado com "{{ searchTerm }}"</p>
+            </div>
+          }
+
+          @if (users.length === 0) {
+            <div class="empty-state">
+              <p>Nenhum usuário cadastrado</p>
+            </div>
+          }
+
+          <div class="users-grid">
+            @for (user of filteredUsers; track user._id) {
+              <div class="user-card">
+                <div class="user-header">
+                  <div class="user-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+                  <div class="user-info">
+                    <h3>{{ user.name }}</h3>
+                    <p class="user-email">{{ user.email }}</p>
+                  </div>
+                  <span class="role-badge" [ngClass]="'role-' + user.role">
+                    {{ getRoleLabel(user.role) }}
+                  </span>
+                </div>
+
+                <div class="user-meta">
+                  <p>
+                    <strong>ID:</strong> <code>{{ user._id }}</code>
+                  </p>
+                  <p><strong>Criado em:</strong> {{ user.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+
+                <div class="user-actions">
+                  <button class="btn-edit" (click)="openEditModal(user)">✏️ Editar Role</button>
+                  <button class="btn-reset" (click)="sendPasswordReset(user.email, user.name)">
+                    🔑 Recuperar Senha -- a fazer
+                  </button>
+                  <button class="btn-delete" (click)="deleteUser(user._id, user.name)">
+                    🗑️ Deletar
+                  </button>
+                </div>
               </div>
-              <span class="role-badge" [ngClass]="'role-' + user.role">
-                {{ getRoleLabel(user.role) }}
-              </span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Modal de Criação -->
+      @if (showCreateModal) {
+        <div class="modal active">
+          <div class="modal-overlay" (click)="closeCreateModal()"></div>
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>➕ Criar Nova Conta</h3>
+              <button class="close-btn" (click)="closeCreateModal()">&times;</button>
             </div>
 
-            <div class="user-meta">
-              <p>
-                <strong>ID:</strong> <code>{{ user._id }}</code>
-              </p>
-              <p><strong>Criado em:</strong> {{ user.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <form (submit)="createUser(); $event.preventDefault()">
+              <div class="form-group">
+                <label>Nome *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="newUser.name"
+                  name="name"
+                  placeholder="Nome completo"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  [(ngModel)]="newUser.email"
+                  name="email"
+                  placeholder="email@exemplo.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Senha *</label>
+                <input
+                  type="password"
+                  [(ngModel)]="newUser.password"
+                  name="password"
+                  placeholder="Senha segura"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Tipo de Conta</label>
+                <select [(ngModel)]="newUser.role" name="role">
+                  @for (role of availableRoles; track role.value) {
+                    <option [value]="role.value">{{ role.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="closeCreateModal()">
+                  Cancelar
+                </button>
+                <button type="submit" class="save-btn">✅ Criar Conta</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- Modal de Edição -->
+      @if (showEditModal) {
+        <div class="modal active">
+          <div class="modal-overlay" (click)="closeEditModal()"></div>
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>✏️ Editar Role do Usuário</h3>
+              <button class="close-btn" (click)="closeEditModal()">&times;</button>
             </div>
 
-            <div class="user-actions">
-              <button class="btn-edit" (click)="openEditModal(user)">✏️ Editar Role</button>
-              <button class="btn-reset" (click)="sendPasswordReset(user.email, user.name)">
-                🔑 Recuperar Senha -- a fazer
-              </button>
-              <button class="btn-delete" (click)="deleteUser(user._id, user.name)">
-                🗑️ Deletar
-              </button>
+            <div class="edit-form">
+              <div class="user-summary">
+                <p><strong>Nome:</strong> {{ editingUser.name }}</p>
+                <p><strong>Email:</strong> {{ editingUser.email }}</p>
+              </div>
+
+              <div class="form-group">
+                <label>Role</label>
+                <select [(ngModel)]="editingUser.role">
+                  @for (role of availableRoles; track role.value) {
+                    <option [value]="role.value">{{ role.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="info-box">
+                <p>
+                  ⚠️ <strong>Atenção:</strong> Alterar o role de um usuário modifica suas permissões
+                  no sistema.
+                </p>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="closeEditModal()">
+                  Cancelar
+                </button>
+                <button type="button" class="save-btn" (click)="updateUser()">
+                  ✅ Salvar Alterações
+                </button>
+              </div>
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
     </div>
   }
 
-  <!-- Modal de Criação -->
-  @if (showCreateModal) {
-    <div class="modal active">
-      <div class="modal-overlay" (click)="closeCreateModal()"></div>
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>➕ Criar Nova Conta</h3>
-          <button class="close-btn" (click)="closeCreateModal()">&times;</button>
-        </div>
-
-        <form (submit)="createUser(); $event.preventDefault()">
-          <div class="form-group">
-            <label>Nome *</label>
-            <input
-              type="text"
-              [(ngModel)]="newUser.name"
-              name="name"
-              placeholder="Nome completo"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Email *</label>
-            <input
-              type="email"
-              [(ngModel)]="newUser.email"
-              name="email"
-              placeholder="email@exemplo.com"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Senha *</label>
-            <input
-              type="password"
-              [(ngModel)]="newUser.password"
-              name="password"
-              placeholder="Senha segura"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Tipo de Conta</label>
-            <select [(ngModel)]="newUser.role" name="role">
-              @for (role of availableRoles; track role.value) {
-                <option [value]="role.value">{{ role.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="cancel-btn" (click)="closeCreateModal()">Cancelar</button>
-            <button type="submit" class="save-btn">✅ Criar Conta</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  }
-
-  <!-- Modal de Edição -->
-  @if (showEditModal) {
-    <div class="modal active">
-      <div class="modal-overlay" (click)="closeEditModal()"></div>
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>✏️ Editar Role do Usuário</h3>
-          <button class="close-btn" (click)="closeEditModal()">&times;</button>
-        </div>
-
-        <div class="edit-form">
-          <div class="user-summary">
-            <p><strong>Nome:</strong> {{ editingUser.name }}</p>
-            <p><strong>Email:</strong> {{ editingUser.email }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>Role</label>
-            <select [(ngModel)]="editingUser.role">
-              @for (role of availableRoles; track role.value) {
-                <option [value]="role.value">{{ role.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="info-box">
-            <p>
-              ⚠️ <strong>Atenção:</strong> Alterar o role de um usuário modifica suas permissões no
-              sistema.
-            </p>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancelar</button>
-            <button type="button" class="save-btn" (click)="updateUser()">
-              ✅ Salvar Alterações
-            </button>
-          </div>
-        </div>
-      </div>
+  <!-- Conteúdo da aba Perfis -->
+  @if (activeTab === 'roles') {
+    <div class="tab-content roles-tab">
+      <app-roles-management></app-roles-management>
     </div>
   }
 </div>

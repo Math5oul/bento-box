@@ -1,6 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 /**
+ * Interface de Desconto por Nível de Cliente
+ */
+export interface ICategoryDiscount {
+  clientLevel: number; // 1 = cliente nível 1, 2 = cliente nível 2, etc
+  discountPercent: number; // 0-100
+}
+
+/**
  * Interface do Documento Category do MongoDB
  */
 export interface ICategory extends Document {
@@ -8,9 +16,31 @@ export interface ICategory extends Document {
   emoji: string;
   slug: string;
   index?: number;
+  discounts?: ICategoryDiscount[]; // Descontos por nível de cliente
   createdAt: Date;
   updatedAt: Date;
 }
+
+/**
+ * Schema de Desconto por Nível de Cliente
+ */
+const DiscountSchema = new Schema<ICategoryDiscount>(
+  {
+    clientLevel: {
+      type: Number,
+      required: true,
+      min: [1, 'Client level deve ser no mínimo 1'],
+      max: [10, 'Client level não pode ser maior que 10'],
+    },
+    discountPercent: {
+      type: Number,
+      required: true,
+      min: [0, 'Desconto não pode ser negativo'],
+      max: [100, 'Desconto não pode ser maior que 100%'],
+    },
+  },
+  { _id: false }
+);
 
 /**
  * Schema da Categoria
@@ -41,6 +71,10 @@ const CategorySchema: Schema = new Schema(
       required: false,
       default: 0,
       index: true,
+    },
+    discounts: {
+      type: [DiscountSchema],
+      default: [],
     },
   },
   {

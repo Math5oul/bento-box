@@ -1,4 +1,12 @@
 /**
+ * Interface de Desconto por Nível de Cliente
+ */
+export interface CategoryDiscount {
+  clientLevel: number;
+  discountPercent: number;
+}
+
+/**
  * Interface de Categoria
  */
 export interface Category {
@@ -8,6 +16,7 @@ export interface Category {
   slug: string;
   index?: number;
   productCount?: number;
+  discounts?: CategoryDiscount[];
   createdAt: Date;
   updatedAt: Date;
 }

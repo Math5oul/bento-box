@@ -33,7 +33,8 @@ export interface IUser extends Document {
   email?: string;
   password?: string;
   name: string;
-  role: UserRole;
+  role: UserRole | mongoose.Types.ObjectId; // Suporta enum legacy ou referência a Role
+  roleDetails?: any; // Populated role data
   isAnonymous: boolean;
   sessionToken?: string;
   sessionExpiry?: Date;
@@ -91,9 +92,19 @@ const UserSchema = new Schema<IUser>(
       trim: true,
     },
     role: {
-      type: String,
-      enum: Object.values(UserRole),
+      type: Schema.Types.Mixed, // Aceita String (enum legacy) ou ObjectId (novo Role)
       default: UserRole.CLIENT,
+      validate: {
+        validator: function (v: any) {
+          // Aceita enum values ou ObjectId
+          return (
+            Object.values(UserRole).includes(v) ||
+            v instanceof mongoose.Types.ObjectId ||
+            mongoose.Types.ObjectId.isValid(v)
+          );
+        },
+        message: 'Role deve ser um valor válido ou referência a um Role',
+      },
     },
     isAnonymous: {
       type: Boolean,

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JWTPayload } from '../utils/jwt';
 import { User, UserRole } from '../models/User';
+import mongoose from 'mongoose';
 
 declare global {
   namespace Express {
@@ -8,7 +9,7 @@ declare global {
       user?: {
         userId: string;
         email?: string;
-        role: UserRole;
+        role: UserRole | string; // Can be enum or ObjectId string
         isAnonymous: boolean;
       };
       sessionToken?: string;
@@ -61,9 +62,13 @@ export const authenticate = async (
         return;
       }
 
+      // Convert role to string (either enum value or ObjectId string)
+      const roleValue =
+        user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role;
+
       req.user = {
         userId: (user._id as any).toString(),
-        role: user.role,
+        role: roleValue,
         isAnonymous: true,
       };
       req.sessionToken = token;
@@ -92,7 +97,11 @@ export const authorize = (...allowedRoles: UserRole[]) => {
       return;
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    // Check if role matches any allowed role (handle both enum and string)
+    const userRole = req.user.role as string;
+    const allowedRoleStrings = allowedRoles.map(role => role as string);
+
+    if (!allowedRoleStrings.includes(userRole)) {
       res.status(403).json({
         success: false,
         message: 'Permissão negada',
@@ -142,9 +151,13 @@ export const optionalAuth = async (
       });
 
       if (user) {
+        // Convert role to string (either enum value or ObjectId string)
+        const roleValue =
+          user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role;
+
         req.user = {
           userId: (user._id as any).toString(),
-          role: user.role,
+          role: roleValue,
           isAnonymous: true,
         };
         req.sessionToken = token;

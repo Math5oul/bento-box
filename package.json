@@ -10,6 +10,7 @@
     "url": "https://github.com/Math5oul/bento-box"
   },
   "scripts": {
+    "seed:roles": "ts-node --project tsconfig.backend.json backend/scripts/seed-roles.ts",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
