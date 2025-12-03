@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { AuthService } from '../../../services/auth-service/auth.service';
 
 @Component({
   selector: 'app-admin-tools',
@@ -15,6 +16,7 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 export class AdminToolsComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private authService = inject(AuthService);
 
   currentToken: string | null = null;
   backendStatus = 'offline';
@@ -55,6 +57,35 @@ export class AdminToolsComponent implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  // Permission getters para controle de visibilidade dos cards
+  get canAccessKitchenPanel(): boolean {
+    return this.authService.canAccessKitchenPanel();
+  }
+
+  get canAccessWaiterPanel(): boolean {
+    return this.authService.canAccessWaiterPanel();
+  }
+
+  get canManageTables(): boolean {
+    return this.authService.canManageTables();
+  }
+
+  get canManageProducts(): boolean {
+    return this.authService.canManageProducts();
+  }
+
+  get canManageCategories(): boolean {
+    return this.authService.canManageCategories();
+  }
+
+  get canManageUsers(): boolean {
+    return this.authService.canManageUsers();
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   async checkBackendStatus(): Promise<void> {

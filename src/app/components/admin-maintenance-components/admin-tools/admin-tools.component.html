@@ -41,8 +41,8 @@
 
   <!-- Test Cards -->
   <div class="cards-grid">
-    <!-- Card Cozinha (visível para role cozinha ou admin) -->
-    @if (userRole === 'cozinha' || userRole === 'admin') {
+    <!-- Card Cozinha -->
+    @if (canAccessKitchenPanel) {
       <div class="test-card">
         <div class="card-icon">🍽️</div>
         <h3 class="card-title">Painel da Cozinha</h3>
@@ -57,8 +57,8 @@
       </div>
     }
 
-    <!-- Card Garçom (visível para role garcom ou admin) -->
-    @if (userRole === 'garcom' || userRole === 'admin') {
+    <!-- Card Garçom -->
+    @if (canAccessWaiterPanel) {
       <div class="test-card">
         <div class="card-icon">🧑‍🍳</div>
         <h3 class="card-title">Painel do Garçom</h3>
@@ -74,7 +74,7 @@
     }
 
     <!-- Card: Gerenciar Mesas e Reservas -->
-    @if (userRole === 'admin') {
+    @if (canManageTables) {
       <div class="test-card">
         <div class="card-icon">🪑</div>
         <h3 class="card-title">Gerenciar Mesas e Reservas</h3>
@@ -90,7 +90,7 @@
     }
 
     <!-- Card: Gerenciar Produtos -->
-    @if (userRole === 'admin') {
+    @if (canManageProducts) {
       <div class="test-card">
         <div class="card-icon">🍱</div>
         <h3 class="card-title">Gerenciar Produtos</h3>
@@ -106,7 +106,7 @@
     }
 
     <!-- Card: Gerenciar Categorias -->
-    @if (userRole === 'admin') {
+    @if (canManageCategories) {
       <div class="test-card">
         <div class="card-icon">📂</div>
         <h3 class="card-title">Gerenciar Categorias</h3>
@@ -122,7 +122,7 @@
     }
 
     <!-- Card: Filler Management -->
-    @if (userRole === 'admin') {
+    @if (isAdmin) {
       <div class="test-card">
         <div class="card-icon">🛸</div>
         <h3 class="card-title">Gerenciar Fillers</h3>
@@ -138,7 +138,7 @@
     }
 
     <!-- Card: Gerenciamento de Usuários e Perfis -->
-    @if (userRole === 'admin') {
+    @if (canManageUsers) {
       <div class="test-card">
         <div class="card-icon">👥</div>
         <h3 class="card-title">Gerenciamento de Usuários e Perfis</h3>
@@ -156,7 +156,7 @@
     }
 
     <!-- Card: Upload Tests -->
-    @if (userRole === 'admin') {
+    @if (isAdmin) {
       <div class="test-card">
         <div class="card-icon">📤</div>
         <h3 class="card-title">Teste de Upload</h3>
@@ -186,7 +186,7 @@
     </div>
 
     <!-- Card: MongoDB Compass -->
-    @if (userRole === 'admin') {
+    @if (isAdmin) {
       <div class="test-card">
         <div class="card-icon">🗄️</div>
         <h3 class="card-title">MongoDB Compass</h3>
@@ -202,7 +202,7 @@
     }
 
     <!-- Card: Documentation -->
-    @if (userRole === 'admin') {
+    @if (isAdmin) {
       <div class="test-card">
         <div class="card-icon">📚</div>
         <h3 class="card-title">Documentação</h3>
