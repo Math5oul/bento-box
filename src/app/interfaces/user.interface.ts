@@ -1,3 +1,5 @@
+import { Role, RolePermissions } from './role.interface';
+
 /**
  * Interface de Usuário do Sistema
  * Suporta usuários registrados e anônimos (via QR Code)
@@ -7,7 +9,9 @@ export interface User {
   email?: string; // Opcional para usuários anônimos
   password?: string; // Hash bcrypt, opcional para anônimos
   name: string;
-  role: UserRole;
+  role: UserRole | string; // Pode ser enum legacy ou ObjectId de Role
+  roleDetails?: Role; // Role populado com permissões (quando role é ObjectId)
+  permissions?: RolePermissions; // Permissões diretas para acesso rápido
   isAnonymous: boolean; // true se for cliente genérico via QR Code
   createdAt: Date;
   updatedAt: Date;

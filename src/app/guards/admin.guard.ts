@@ -2,13 +2,13 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth-service/auth.service';
 import { isPlatformBrowser } from '@angular/common';
+import { UserRole } from '../interfaces/user.interface';
 
 /**
  * Guard para proteger rotas que requerem privilégios de administrador
  * Redireciona para a página inicial se o usuário não for admin
  *
- * Verifica diretamente no localStorage para evitar problemas de timing
- * ao dar refresh na página
+ * Verifica permissões do sistema de roles dinâmico
  */
 export const adminGuard = () => {
   const authService = inject(AuthService);
@@ -26,7 +26,14 @@ export const adminGuard = () => {
   if (userStr) {
     try {
       const user = JSON.parse(userStr);
-      if (user?.role === 'admin') {
+
+      // Backward compatibility: aceita role string 'admin'
+      if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+        return true;
+      }
+
+      // Sistema de permissões: verifica accessAdminPanel
+      if (user?.permissions?.accessAdminPanel === true) {
         return true;
       }
     } catch (error) {
@@ -34,8 +41,8 @@ export const adminGuard = () => {
     }
   }
 
-  // Também verifica no AuthService (para casos normais de navegação)
-  if (authService.isAdmin()) {
+  // Também verifica no AuthService (usa lógica com backward compatibility)
+  if (authService.canAccessAdminPanel()) {
     return true;
   }
 

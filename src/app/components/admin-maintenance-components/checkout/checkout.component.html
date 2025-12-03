@@ -1,3 +1,5 @@
+<app-admin-header></app-admin-header>
+
 <div class="checkout-container">
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-state">
@@ -30,10 +32,12 @@
   <!-- Step 2: Select Items -->
   <div *ngIf="!loading && step === 'select-items'" class="step-container">
     <div class="page-header">
-      <h1>🍱 Selecione os Itens</h1>
+      <h1>Selecione os Itens</h1>
       <p class="subtitle">Mesa {{ selectedTable?.number }} - Marque os itens que serão pagos</p>
-      <button class="btn-secondary" (click)="changeTable()">🔄 Trocar Mesa</button>
-      <button class="btn-secondary" (click)="openHistoryModal()">📜 Ver Histórico</button>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="changeTable()">🔄 Trocar Mesa</button>
+        <button class="btn-secondary" (click)="openHistoryModal()">📜 Ver Histórico</button>
+      </div>
     </div>
 
     <div class="selection-controls">
