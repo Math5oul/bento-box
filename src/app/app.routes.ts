@@ -68,6 +68,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'maintenance/settings',
+    loadComponent: () =>
+      import('./components/admin-panel-components/settings/settings.component').then(
+        m => m.SettingsComponent
+      ),
+    canActivate: [adminGuard],
+  },
+  {
     path: 'maintenance/test-upload',
     loadComponent: () =>
       import('./components/admin-maintenance-components/test-upload/test-upload.component').then(

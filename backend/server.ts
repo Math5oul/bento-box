@@ -18,6 +18,7 @@ import adminRoutes from './routes/admin';
 import categoryRoutes from './routes/categories';
 import roleRoutes from './routes/roles';
 import billRoutes from './routes/bills';
+import settingsRoutes from './routes/settings';
 
 const app: Express = express();
 const PORT = process.env['PORT'] || 3001;
@@ -99,6 +100,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/bills', billRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

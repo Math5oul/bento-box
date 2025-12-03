@@ -29,6 +29,9 @@ export interface IRolePermissions {
   canManageUsers: boolean; // Pode gerenciar contas de usuários
   canManageRoles: boolean; // Pode gerenciar perfis e permissões
 
+  // Permissões de Sistema
+  canManageSystemSettings: boolean; // Pode gerenciar configurações do sistema
+
   // Permissões Financeiras
   canViewReports: boolean; // Pode ver relatórios financeiros
   canManagePayments: boolean; // Pode processar pagamentos
@@ -66,6 +69,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageCategories: true,
     canManageUsers: true,
     canManageRoles: true,
+    canManageSystemSettings: true,
     canViewReports: true,
     canManagePayments: true,
   },
@@ -83,6 +87,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageCategories: false,
     canManageUsers: false,
     canManageRoles: false,
+    canManageSystemSettings: false,
     canViewReports: false,
     canManagePayments: true,
   },
@@ -100,6 +105,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageCategories: false,
     canManageUsers: false,
     canManageRoles: false,
+    canManageSystemSettings: false,
     canViewReports: false,
     canManagePayments: false,
   },
@@ -117,6 +123,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageCategories: false,
     canManageUsers: false,
     canManageRoles: false,
+    canManageSystemSettings: false,
     canViewReports: false,
     canManagePayments: false,
   },
@@ -140,6 +147,7 @@ const PermissionsSchema = new Schema<IRolePermissions>(
     canManageCategories: { type: Boolean, default: false },
     canManageUsers: { type: Boolean, default: false },
     canManageRoles: { type: Boolean, default: false },
+    canManageSystemSettings: { type: Boolean, default: false },
     canViewReports: { type: Boolean, default: false },
     canManagePayments: { type: Boolean, default: false },
   },

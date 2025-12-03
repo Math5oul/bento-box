@@ -201,6 +201,22 @@
       </div>
     }
 
+    <!-- Card: System Settings -->
+    @if (canManageSystemSettings) {
+      <div class="test-card">
+        <div class="card-icon">⚙️</div>
+        <h3 class="card-title">Configurações do Sistema</h3>
+        <p class="card-description">Configure restaurante, pagamentos, e-mail e banco de dados</p>
+        <ul class="card-features">
+          <li>Dados do Restaurante</li>
+          <li>Gateways de Pagamento</li>
+          <li>Configuração SMTP</li>
+          <li>Backup do Banco</li>
+        </ul>
+        <a routerLink="/maintenance/settings" class="card-button">Configurar</a>
+      </div>
+    }
+
     <!-- Card: Documentation -->
     @if (isAdmin) {
       <div class="test-card">

@@ -65,6 +65,13 @@ export class RolesManagementComponent implements OnInit {
     { key: 'canManageUsers', label: 'Pode Gerenciar Usuários', category: 'Usuários' },
     { key: 'canManageRoles', label: 'Pode Gerenciar Perfis', category: 'Usuários' },
 
+    // Sistema
+    {
+      key: 'canManageSystemSettings',
+      label: 'Pode Gerenciar Configurações do Sistema',
+      category: 'Sistema',
+    },
+
     // Financeiro
     { key: 'canViewReports', label: 'Pode Ver Relatórios', category: 'Financeiro' },
     { key: 'canManagePayments', label: 'Pode Gerenciar Pagamentos', category: 'Financeiro' },
