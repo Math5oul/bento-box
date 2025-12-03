@@ -1,29 +1,22 @@
 .roles-management-container {
-  max-width: 1400px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+  padding: 0;
+  margin: 0;
+  background: transparent;
 
-  .page-title {
-    margin-bottom: 2rem;
-
-    h1 {
-      font-size: 2rem;
-      color: #2d3748;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      color: #718096;
-      font-size: 1rem;
-    }
+  // Esconde elementos desnecessários quando usado como aba
+  app-admin-header,
+  .page-title,
+  .search-bar {
+    display: none;
   }
 
   .actions-section {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
 
     .search-bar {
       flex: 1;
@@ -68,19 +61,26 @@
     }
 
     .create-button {
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
       color: white;
       border: none;
       border-radius: 8px;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s;
-      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+        transform: translateY(-1px);
       }
     }
   }
@@ -105,11 +105,10 @@
     margin-bottom: 3rem;
 
     h2 {
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
       font-size: 1.5rem;
-      color: #2d3748;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 1rem;
     }
 
     .roles-grid {
@@ -124,21 +123,25 @@
   }
 
   .role-card {
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      border-color: #cbd5e0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
     }
 
     &.system {
-      border-color: #f6ad55;
-      background: linear-gradient(135deg, #fff 0%, #fffaf0 100%);
+      border: 2px solid #f6ad55;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 250, 240, 0.95) 100%
+      );
     }
 
     .role-header {
@@ -405,6 +408,19 @@
       textarea {
         resize: vertical;
         font-family: inherit;
+      }
+
+      .field-hint {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #718096;
+        line-height: 1.5;
+
+        strong {
+          color: #4a5568;
+          font-weight: 600;
+        }
       }
     }
 

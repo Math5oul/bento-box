@@ -1,5 +1,3 @@
-<app-admin-header></app-admin-header>
-
 <div class="roles-management-container">
   <div class="page-title">
     <h1>👤 Gerenciamento de Perfis e Permissões</h1>
@@ -166,21 +164,11 @@
           </div>
 
           <div class="form-group">
-            <label>Tipo de Perfil</label>
-            <select [(ngModel)]="newRole.clientLevel" name="clientLevel">
-              <option [value]="0">Staff (Equipe)</option>
-              <option [value]="1">Cliente Nível 1 (Comum)</option>
-              <option [value]="2">Cliente Nível 2 (VIP)</option>
-              <option [value]="3">Cliente Nível 3</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label>Descrição</label>
             <textarea
               [(ngModel)]="newRole.description"
               name="description"
-              placeholder="Descrição do perfil..."
+              placeholder="Descrição do perfil e suas responsabilidades..."
               rows="3"
             ></textarea>
           </div>
@@ -223,20 +211,6 @@
               [disabled]="editingRole.isSystem ?? false"
               required
             />
-          </div>
-
-          <div class="form-group">
-            <label>Tipo de Perfil</label>
-            <select
-              [(ngModel)]="editingRole.clientLevel"
-              name="clientLevel"
-              [disabled]="editingRole.isSystem ?? false"
-            >
-              <option [value]="0">Staff (Equipe)</option>
-              <option [value]="1">Cliente Nível 1 (Comum)</option>
-              <option [value]="2">Cliente Nível 2 (VIP)</option>
-              <option [value]="3">Cliente Nível 3</option>
-            </select>
           </div>
 
           <div class="form-group">

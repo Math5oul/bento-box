@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { User } from '../models/User';
 import { authenticate } from '../middleware/auth';
 
@@ -46,18 +47,38 @@ router.patch(
       const { id } = req.params;
       const { role } = req.body;
 
-      // Validar role (aceita tanto "garçom" quanto "garcom")
-      const validRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
-      if (!role || !validRoles.includes(role)) {
-        res
-          .status(400)
-          .json({
-            message: 'Role inválida. Use "user", "admin", "cozinha", "garcom" ou "client".',
-          });
+      if (!role) {
+        res.status(400).json({
+          message: 'Role é obrigatória.',
+        });
         return;
       }
 
-      // Normalizar "garçom" para "garcom" (padrão do banco)
+      // Validar role: aceita enum antigo OU ObjectId de role novo
+      const validEnumRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
+      const isEnumRole = validEnumRoles.includes(role);
+      const isObjectId = mongoose.Types.ObjectId.isValid(role);
+
+      if (!isEnumRole && !isObjectId) {
+        res.status(400).json({
+          message: 'Role inválida. Use um dos valores enum ou um ID de role válido.',
+        });
+        return;
+      }
+
+      // Se for ObjectId, verificar se o role existe
+      if (isObjectId) {
+        const { Role } = await import('../models');
+        const roleExists = await Role.findById(role);
+        if (!roleExists) {
+          res.status(400).json({
+            message: 'Role não encontrada no sistema.',
+          });
+          return;
+        }
+      }
+
+      // Normalizar "garçom" para "garcom" se for enum (padrão do banco)
       const normalizedRole = role === 'garçom' ? 'garcom' : role;
 
       // Impedir que o admin altere sua própria role

@@ -73,194 +73,6 @@
 
 .tab-content {
   animation: fadeIn 0.3s ease-in;
-
-  &.roles-tab {
-    // Remove padding do componente filho pois já tem padding no container pai
-    ::ng-deep .roles-management-container {
-      padding: 0;
-      margin: 0;
-      background: transparent;
-    }
-
-    // Esconde o header duplicado do componente filho
-    ::ng-deep app-admin-header {
-      display: none;
-    }
-
-    // Esconde o título duplicado
-    ::ng-deep .page-title {
-      display: none;
-    }
-
-    // Esconde a barra de pesquisa na aba
-    ::ng-deep .search-bar {
-      display: none;
-    }
-
-    // Ajusta a seção de ações (apenas o botão de criar)
-    ::ng-deep .actions-section {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    // Botão de criar perfil com cor verde
-    ::ng-deep .create-button {
-      width: 100%;
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-      font-size: 1rem;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-
-      &:hover {
-        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
-        transform: translateY(-2px);
-      }
-
-      &:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
-      }
-    }
-
-    // Títulos das seções com texto branco e ícones coloridos
-    ::ng-deep .roles-section h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: white;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.3);
-      padding-bottom: 0.75rem;
-      margin-bottom: 1.5rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    // Cards de perfil com melhor contraste
-    ::ng-deep .role-card {
-      border: 2px solid #e2e8f0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-      &:hover {
-        border-color: #4f46e5;
-        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
-      }
-
-      &.system {
-        border-color: #f59e0b;
-        background: linear-gradient(135deg, #fff 0%, #fffbeb 100%);
-      }
-
-      .role-title h3 {
-        color: #0f172a;
-        font-weight: 700;
-        font-size: 1.35rem;
-      }
-
-      .system-badge {
-        background: #fef3c7;
-        color: #92400e;
-        font-weight: 700;
-        border: 1px solid #fbbf24;
-      }
-
-      // Badges de nível com cores mais vibrantes
-      .level-badge {
-        font-weight: 700;
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-        &.staff {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
-        }
-
-        &[data-level='1'] {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-        }
-
-        &[data-level='2'] {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          color: white;
-        }
-
-        &[data-level='3'] {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-        }
-      }
-
-      // Botões de ação com cores mais vibrantes
-      .btn-permissions {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-
-        &:hover {
-          box-shadow: 0 4px 16px rgba(79, 70, 229, 0.5);
-        }
-      }
-
-      .btn-edit {
-        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
-
-        &:hover {
-          box-shadow: 0 4px 16px rgba(20, 184, 166, 0.5);
-        }
-      }
-
-      .btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-
-        &:hover {
-          box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
-        }
-
-        &:disabled {
-          background: #cbd5e0;
-          color: #718096;
-          cursor: not-allowed;
-          box-shadow: none;
-
-          &:hover {
-            transform: none;
-          }
-        }
-      }
-    }
-
-    // Meta informações com melhor contraste
-    ::ng-deep .role-meta {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-
-      p {
-        color: #334155;
-        font-weight: 500;
-
-        strong {
-          color: #0f172a;
-          font-weight: 700;
-        }
-
-        code {
-          background: #e0e7ff;
-          color: #4f46e5;
-          font-weight: 600;
-          border: 1px solid #c7d2fe;
-        }
-      }
-    }
-  }
 }
 
 @keyframes fadeIn {
@@ -527,14 +339,47 @@
 .users-section {
   .section-header {
     margin-bottom: 25px;
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
   }
 
   h2 {
     color: white;
-    margin-bottom: 15px;
+    margin: 0;
     font-size: 1.8em;
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .migrate-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    white-space: nowrap;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 }
 
@@ -866,6 +711,14 @@
 
   select {
     cursor: pointer;
+  }
+
+  .error-hint {
+    display: block;
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
   }
 }
 

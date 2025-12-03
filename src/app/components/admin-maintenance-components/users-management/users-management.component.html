@@ -88,7 +88,21 @@
       @if (!loading) {
         <div class="users-section">
           <div class="section-header">
-            <h2>📋 Usuários Cadastrados ({{ filteredUsers.length }}/{{ users.length }})</h2>
+            <div class="header-title">
+              <h2>📋 Usuários Cadastrados ({{ filteredUsers.length }}/{{ users.length }})</h2>
+              @if (legacyUsersCount > 0) {
+                <button
+                  class="migrate-btn"
+                  (click)="migrateLegacyRoles()"
+                  title="Migrar usuários com perfis antigos"
+                >
+                  🔄 Migrar {{ legacyUsersCount }} perfil{{
+                    legacyUsersCount !== 1 ? 's' : ''
+                  }}
+                  legacy
+                </button>
+              }
+            </div>
 
             <!-- Barra de Pesquisa -->
             <div class="search-bar">
@@ -191,9 +205,28 @@
                   type="password"
                   [(ngModel)]="newUser.password"
                   name="password"
-                  placeholder="Senha segura"
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  minlength="6"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Confirmar Senha *</label>
+                <input
+                  type="password"
+                  [(ngModel)]="newUser.confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Digite a senha novamente"
                   required
                 />
+                @if (
+                  newUser.password &&
+                  newUser.confirmPassword &&
+                  newUser.password !== newUser.confirmPassword
+                ) {
+                  <small class="error-hint">⚠️ As senhas não conferem</small>
+                }
               </div>
 
               <div class="form-group">

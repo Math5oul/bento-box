@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { RoleService } from '../../../services/role.service';
 import { Role, CreateRoleDTO, RolePermissions } from '../../../interfaces/role.interface';
 
 @Component({
   selector: 'app-roles-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminHeaderComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './roles-management.component.html',
   styleUrls: ['./roles-management.component.scss'],
 })
