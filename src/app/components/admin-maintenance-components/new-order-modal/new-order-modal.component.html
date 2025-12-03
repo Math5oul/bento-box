@@ -18,6 +18,7 @@
         <span class="step-number">1</span>
         <span class="step-label">Mesa</span>
       </div>
+
       <div
         class="step"
         [class.active]="currentStep === 'client'"
@@ -26,18 +27,19 @@
         <span class="step-number">2</span>
         <span class="step-label">Cliente</span>
       </div>
+
       <div class="step" [class.active]="currentStep === 'products'">
         <span class="step-number">3</span>
         <span class="step-label">Produtos</span>
       </div>
     </div>
 
-    <!-- Error Message -->
+    <!-- Error -->
     @if (error) {
       <div class="error-message">{{ error }}</div>
     }
 
-    <!-- STEP 1: Seleção de Mesa -->
+    <!-- STEP 1 -->
     @if (currentStep === 'table') {
       <div class="modal-body">
         <h3>Selecione a Mesa</h3>
@@ -68,19 +70,19 @@
       </div>
     }
 
-    <!-- STEP 2: Seleção/Criação de Cliente -->
+    <!-- STEP 2 -->
     @if (currentStep === 'client') {
       <div class="modal-body">
         <h3>Selecione ou Crie um Cliente - Mesa {{ selectedTable?.number }}</h3>
 
         @if (!creatingNewClient) {
-          <!-- Lista de Clientes Existentes -->
           @if (clients.length > 0) {
             <div class="client-list">
               @for (client of clients; track client._id) {
                 <button class="client-card" (click)="selectClient(client)">
                   <span class="client-icon">👤</span>
                   <span class="client-name">{{ client.name }}</span>
+
                   @if (client.isAnonymous) {
                     <span class="badge anon">Anônimo</span>
                   }
@@ -89,17 +91,15 @@
             </div>
           }
 
-          <!-- Botão Criar Novo Cliente -->
           <button class="btn btn-secondary full-width" (click)="startCreateClient()">
             ➕ Criar Novo Cliente Anônimo
           </button>
         } @else {
-          <!-- Formulário de Novo Cliente -->
           <div class="new-client-form">
             <label for="clientName">Nome do Cliente:</label>
             <input
-              type="text"
               id="clientName"
+              type="text"
               [(ngModel)]="newClientName"
               placeholder="Digite o nome do cliente"
               class="form-input"
@@ -121,16 +121,16 @@
       </div>
     }
 
-    <!-- STEP 3: Seleção de Produtos -->
+    <!-- STEP 3 -->
     @if (currentStep === 'products') {
       <div class="modal-body products-step">
         <div class="products-header">
           <h3>Adicionar Produtos - {{ selectedClient?.name }}</h3>
 
-          <!-- Filtros -->
           <div class="filters">
             <select [(ngModel)]="selectedCategory" class="form-select">
               <option value="all">Todas as Categorias</option>
+
               @for (cat of categories; track cat) {
                 <option [value]="cat">{{ cat }}</option>
               }
@@ -146,7 +146,7 @@
         </div>
 
         <div class="products-container">
-          <!-- Lista de Produtos -->
+          <!-- Lista -->
           <div class="products-list" #productsList>
             @if (loadingProducts) {
               <div class="loading">Carregando produtos...</div>
@@ -161,7 +161,7 @@
                     } @else {
                       <div class="product-image-placeholder">📦</div>
                     }
-                    <!-- Ícone de variação -->
+
                     @if (product.variations && product.variations.length > 0) {
                       <span
                         style="
@@ -170,19 +170,20 @@
                           bottom: 4px;
                           font-size: 1.5em;
                           pointer-events: none;
-                          z-index: 2;
                         "
                         >🔸</span
                       >
                     }
+
                     <div class="product-info">
                       <div class="product-name">{{ product.name }}</div>
+
                       @if (product.sizes && product.sizes.length > 0) {
                         <div class="product-sizes">
                           @for (size of product.sizes; track size.abbreviation) {
-                            <span class="size-tag"
-                              >{{ size.abbreviation }}: {{ formatCurrency(size.price) }}</span
-                            >
+                            <span class="size-tag">
+                              {{ size.abbreviation }}: {{ formatCurrency(size.price) }}
+                            </span>
                           }
                         </div>
                       } @else {
@@ -195,7 +196,7 @@
             }
           </div>
 
-          <!-- Carrinho de Pedido -->
+          <!-- Carrinho -->
           <div class="order-cart" #orderCart>
             <h4>Itens do Pedido</h4>
 
@@ -212,9 +213,8 @@
                           <span class="size-badge">{{ item.selectedSize.abbreviation }}</span>
                         }
                       </span>
-                      <button class="remove-btn" (click)="removeItem(item)" title="Remover">
-                        ×
-                      </button>
+
+                      <button class="remove-btn" (click)="removeItem(item)">×</button>
                     </div>
 
                     <div class="item-controls">
@@ -250,19 +250,19 @@
             }
           </div>
         </div>
-        <!-- Botão Flutuante para Alternar entre Produtos e Carrinho -->
-        <button
-          class="floating-nav-btn"
-          (click)="scrollBetweenSections()"
-          [title]="isViewingCart ? 'Ver Produtos' : 'Ver Carrinho'"
-        >
-          <span *ngIf="isViewingCart">↑</span>
-          <span *ngIf="!isViewingCart">↓</span>
+
+        <button class="floating-nav-btn" (click)="scrollBetweenSections()">
+          @if (isViewingCart) {
+            <span>↑</span>
+          }
+          @if (!isViewingCart) {
+            <span>↓</span>
+          }
         </button>
       </div>
     }
 
-    <!-- Footer com Botões de Navegação -->
+    <!-- Footer -->
     <div class="modal-footer">
       @if (currentStep !== 'table') {
         <button class="btn btn-secondary" (click)="goBack()">← Voltar</button>
@@ -283,41 +283,27 @@
   </div>
 </div>
 
-<!-- Modal de Seleção de Tamanho/Variante -->
-<ng-container *ngIf="showSizeSelector && productForSize">
+<!-- Size Selector Modal -->
+
+@if (showSizeSelector && productForSize) {
   <div class="size-selector-overlay" (click)="closeSizeSelector()">
     <div class="size-selector-modal" (click)="$event.stopPropagation()">
       <div class="size-selector-header">
         <h3>
-          <ng-container
-            *ngIf="
-              productForSize.sizes &&
-              productForSize.sizes.length > 0 &&
-              productForSize.variations &&
-              productForSize.variations.length > 0
-            "
-          >
+          @if (
+            productForSize.sizes &&
+            productForSize.sizes.length > 0 &&
+            productForSize.variations &&
+            productForSize.variations.length > 0
+          ) {
             Escolha o tamanho e/ou variação
-          </ng-container>
-          <ng-container
-            *ngIf="
-              productForSize.sizes &&
-              productForSize.sizes.length > 0 &&
-              (!productForSize.variations || productForSize.variations.length === 0)
-            "
-          >
+          } @else if (productForSize.sizes && productForSize.sizes.length > 0) {
             Escolha o tamanho
-          </ng-container>
-          <ng-container
-            *ngIf="
-              (!productForSize.sizes || productForSize.sizes.length === 0) &&
-              productForSize.variations &&
-              productForSize.variations.length > 0
-            "
-          >
+          } @else if (productForSize.variations && productForSize.variations.length > 0) {
             Escolha a variação
-          </ng-container>
+          }
         </h3>
+
         <button class="close-btn" (click)="closeSizeSelector()">×</button>
       </div>
 
@@ -325,76 +311,69 @@
         <strong>{{ productForSize.name }}</strong>
       </div>
 
-      <!-- Variações -->
-      <ng-container *ngIf="productForSize.variations && productForSize.variations.length > 0">
+      @if (productForSize.variations && productForSize.variations.length > 0) {
         <div class="variation-options">
           <div class="variation-list">
-            <ng-container
-              *ngFor="let variation of productForSize.variations; trackBy: trackByVariation"
-            >
+            @for (variation of productForSize.variations; track variation.title) {
               <button
                 class="variation-option"
                 [class.selected]="selectedVariation?.title === variation.title"
                 (click)="selectVariation(variation)"
               >
-                <ng-container *ngIf="variation.image">
+                @if (variation.image) {
                   <img [src]="variation.image" alt="{{ variation.title }}" class="variation-img" />
-                </ng-container>
+                }
                 <div class="variation-info">
                   <span class="variation-title">{{ variation.title }}</span>
                 </div>
-                <span class="variation-price">{{ formatCurrency(variation.price) }}</span>
+                <span class="variation-price">
+                  {{ formatCurrency(variation.price) }}
+                </span>
               </button>
-            </ng-container>
+            }
           </div>
         </div>
-      </ng-container>
+      }
 
-      <!-- Divisória entre variações e tamanhos -->
-      <ng-container
-        *ngIf="
-          productForSize.variations &&
-          productForSize.variations.length > 0 &&
-          productForSize.sizes &&
-          productForSize.sizes.length > 0
-        "
-      >
+      @if (
+        productForSize.variations &&
+        productForSize.variations.length > 0 &&
+        productForSize.sizes &&
+        productForSize.sizes.length > 0
+      ) {
         <div class="divider"></div>
-      </ng-container>
+      }
 
-      <!-- Tamanhos -->
-      <ng-container *ngIf="productForSize.sizes && productForSize.sizes.length > 0">
+      @if (productForSize.sizes && productForSize.sizes.length > 0) {
         <div class="size-options">
-          <ng-container *ngFor="let size of productForSize.sizes; trackBy: trackBySize">
+          @for (size of productForSize.sizes; track size.abbreviation) {
             <button class="size-option box-style" (click)="selectSize(size)">
               <span class="size-name">{{ size.name }} ({{ size.abbreviation }})</span>
               <span class="size-price">{{ formatCurrency(size.price) }}</span>
-              <ng-container *ngIf="selectedVariation">
+
+              @if (selectedVariation) {
                 <span class="variation-badge">{{ selectedVariation.title }}</span>
-              </ng-container>
+              }
             </button>
-          </ng-container>
+          }
         </div>
-      </ng-container>
-      <ng-container
-        *ngIf="
-          (!productForSize.sizes || productForSize.sizes.length === 0) &&
-          productForSize.variations &&
-          productForSize.variations.length > 0
-        "
-      >
-        <!-- Se só tem variação, botão para confirmar -->
+      }
+
+      @if (
+        !(productForSize.sizes && productForSize.sizes.length > 0) &&
+        productForSize.variations &&
+        productForSize.variations.length > 0
+      ) {
         <div class="variation-confirm">
           <button
             class="confirm-btn"
             [disabled]="!selectedVariation"
             (click)="selectSize(undefined)"
           >
-            Adicionar
-            <ng-container *ngIf="selectedVariation">{{ selectedVariation.title }}</ng-container>
+            Adicionar {{ selectedVariation?.title }}
           </button>
         </div>
-      </ng-container>
+      }
     </div>
   </div>
-</ng-container>
+}
