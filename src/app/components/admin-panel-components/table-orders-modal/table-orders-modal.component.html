@@ -1,0 +1,111 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>📋 Pedidos da Mesa {{ tableNumber }}</h2>
+        <p class="order-count">
+          {{ orders.length }} {{ orders.length === 1 ? 'pedido ativo' : 'pedidos ativos' }}
+        </p>
+      </div>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      @if (orders.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">🍽️</span>
+          <p>Nenhum pedido ativo nesta mesa</p>
+        </div>
+      } @else {
+        <div class="orders-summary">
+          <div class="summary-item">
+            <span class="summary-label">Total de Pedidos:</span>
+            <span class="summary-value">{{ orders.length }}</span>
+          </div>
+          <div class="summary-item highlight">
+            <span class="summary-label">Consumo Total:</span>
+            <span class="summary-value">{{ formatCurrency(getTotalConsumption()) }}</span>
+          </div>
+        </div>
+
+        <div class="orders-list">
+          @for (order of orders; track order.id) {
+            <div class="order-card">
+              <div class="order-header">
+                <div class="order-info">
+                  <div class="client-avatar">{{ order.clientName.charAt(0).toUpperCase() }}</div>
+                  <div class="client-details">
+                    <h3 class="client-name">{{ order.clientName }}</h3>
+                    <div class="order-meta">
+                      <span class="order-id">ID: #{{ order.id.substring(0, 8) }}</span>
+                      <span class="order-time">⏰ {{ getOrderTime(order) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="order-status" [style.background]="getStatusColor(order.status)">
+                  {{ getStatusLabel(order.status) }}
+                </div>
+              </div>
+
+              <div class="order-items">
+                <h4 class="items-title">Itens do Pedido</h4>
+                <div class="items-list">
+                  @for (item of order.items; track $index) {
+                    <div class="item-row">
+                      <div class="item-main">
+                        <span class="item-quantity">{{ item.quantity }}x</span>
+                        <div class="item-details">
+                          <span class="item-name">{{ item.productName }}</span>
+                          @if (item.selectedSize) {
+                            <span class="item-badge size-badge">
+                              📏 {{ item.selectedSize.abbreviation }}
+                            </span>
+                          }
+                          @if (item.selectedVariation) {
+                            <span class="item-badge variation-badge">
+                              ✨ {{ item.selectedVariation.title }}
+                            </span>
+                          }
+                          @if (item.notes) {
+                            <div class="item-notes">
+                              <span class="notes-icon">📝</span>
+                              <span>{{ item.notes }}</span>
+                            </div>
+                          }
+                          @if (item.status && item.status !== 'pending') {
+                            <span
+                              class="item-status"
+                              [style.background]="getStatusColor(item.status)"
+                            >
+                              {{ getStatusLabel(item.status) }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="item-price">
+                        {{ formatCurrency(item.totalPrice) }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @if (order.notes) {
+                <div class="order-notes"><strong>Observações:</strong> {{ order.notes }}</div>
+              }
+
+              <div class="order-total">
+                <span class="total-label">Total do Pedido:</span>
+                <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-close" (click)="closeModal()">Fechar</button>
+    </div>
+  </div>
+</div>

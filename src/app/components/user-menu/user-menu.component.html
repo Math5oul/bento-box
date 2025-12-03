@@ -53,15 +53,10 @@
           <span>Painel do Garçom</span>
         </button>
 
-        <button class="menu-item admin-item" (click)="onAdminPanelClick()">
-          <span class="icon">🍽️</span>
-          <span>Status das Mesas</span>
-        </button>
-
         @if (isAdmin) {
           <button class="menu-item admin-item" (click)="onMaintenanceClick()">
             <span class="icon">⚙️</span>
-            <span>Configurações</span>
+            <span>Central Administrativa</span>
           </button>
         }
       }

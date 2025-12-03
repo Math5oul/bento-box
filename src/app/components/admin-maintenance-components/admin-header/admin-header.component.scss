@@ -9,35 +9,42 @@
   padding: 0;
   border-bottom: 3px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .header-content {
-  max-width: 1600px;
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  padding: 0.8rem 2.5rem;
+  padding: 0.8rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
+  gap: 0.8rem;
+  box-sizing: border-box;
 }
 
 .logo-section {
   cursor: pointer;
   transition: all 0.3s ease;
-  padding: 0.3rem 0.8rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 12px;
+  flex-shrink: 0;
+  min-width: 0;
 
   &:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     background: rgba(255, 255, 255, 0.1);
   }
 
   &:active {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
 
   .logo {
-    height: 40px;
+    height: 32px;
     width: auto;
     display: block;
     filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.3));
@@ -46,28 +53,43 @@
 
 .nav-buttons {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.5rem;
   align-items: center;
-  flex-wrap: wrap;
-  row-gap: 0.4rem;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+
+  // Esconde a barra de scroll mas mantém a funcionalidade
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 .nav-btn {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1.3rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border-radius: 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
   white-space: nowrap;
   text-decoration: none;
+  flex-shrink: 0;
+  box-sizing: border-box;
   // Compact header design, keeping color scheme
   .admin-header {
     background: #222;
@@ -125,6 +147,10 @@
         }
         .btn-hub {
           background: #444;
+        }
+        .btn-tables {
+          background: #667eea;
+          color: #fff;
         }
         .btn-waiter {
           background: #4caf50;
@@ -414,41 +440,60 @@
   }
 }
 
+// Tablet e telas médias
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0.7rem 1rem;
+    gap: 0.7rem;
+  }
+
+  .nav-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
+
+    .text {
+      font-size: 0.8rem;
+    }
+  }
+}
+
 @media (max-width: 480px) {
   .header-content {
-    padding: 0.6rem 0.8rem;
+    padding: 0.5rem 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .header-content {
+    padding: 0.5rem 0.8rem;
     gap: 0.5rem;
   }
 
   .logo-section {
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 0.4rem;
 
     .logo {
-      height: 32px;
+      height: 28px;
     }
   }
 
   .nav-buttons {
     gap: 0.3rem;
-    flex-wrap: wrap;
-    row-gap: 0.2rem;
-    justify-content: flex-end;
-    max-width: 100vw;
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 
   .nav-btn {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.85rem;
-    min-width: 32px;
-    max-width: 90vw;
-    flex: 1 1 32px;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.75rem;
+    gap: 0.3rem;
 
     .text {
       display: none;
     }
 
     .icon {
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
   }
 

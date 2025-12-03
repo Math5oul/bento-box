@@ -44,6 +44,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'maintenance/tables',
+    loadComponent: () =>
+      import('./components/admin-panel-components/admin-panel/admin-panel.component').then(
+        m => m.AdminPanelComponent
+      ),
+    canActivate: [adminGuard],
+  },
+  {
     path: 'maintenance/users',
     loadComponent: () =>
       import(

@@ -24,7 +24,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   @Output() openOrders = new EventEmitter<void>();
   @Output() openPayments = new EventEmitter<void>();
   @Output() openChangePassword = new EventEmitter<void>();
-  @Output() openAdminPanel = new EventEmitter<void>();
 
   authService = inject(AuthService);
   cartService = inject(CartService);
@@ -158,11 +157,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   onChangePasswordClick() {
     this.openChangePassword.emit();
-    this.closeMenu();
-  }
-
-  onAdminPanelClick() {
-    this.openAdminPanel.emit();
     this.closeMenu();
   }
 

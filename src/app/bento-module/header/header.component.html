@@ -14,7 +14,6 @@
         (openOrders)="onOpenOrders()"
         (openPayments)="onOpenPayments()"
         (openChangePassword)="onOpenChangePassword()"
-        (openAdminPanel)="onOpenAdminPanel()"
       ></app-user-menu>
     } @else {
       <button class="login-button" (click)="toggleLogin()" title="Login"><span>👤</span></button>
@@ -35,10 +34,6 @@
     (close)="toggleLogin()"
     (loginSuccess)="onLoginSuccess($event)"
   ></app-login-modal>
-}
-
-@if (isAdminPanelOpen) {
-  <app-admin-panel (close)="onCloseAdminPanel()"></app-admin-panel>
 }
 
 @if (isChangePasswordOpen) {
