@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { Category } from '../models/Category';
 import Product from '../models/Product';
 import { optionalAuth } from '../middleware/auth';
@@ -167,12 +168,12 @@ router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<vo
 
 /**
  * PUT /api/categories/:id/discounts
- * Atualiza descontos por nível de cliente de uma categoria
+ * Atualiza descontos por role de usuário de uma categoria
  */
 router.put('/:id/discounts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const categoryId = req.params['id'];
-    const { discounts } = req.body; // Array de { clientLevel: number, discountPercent: number }
+    const { discounts } = req.body; // Array de { roleId: string, discountPercent: number }
 
     if (!Array.isArray(discounts)) {
       res.status(400).json({
@@ -194,13 +195,23 @@ router.put('/:id/discounts', optionalAuth, async (req: Request, res: Response): 
 
     // Validar descontos
     for (const discount of discounts) {
-      if (typeof discount.clientLevel !== 'number' || discount.clientLevel < 1) {
+      if (!discount.roleId || typeof discount.roleId !== 'string') {
         res.status(400).json({
           success: false,
-          message: 'Client level deve ser um número maior ou igual a 1',
+          message: 'roleId é obrigatório e deve ser uma string',
         });
         return;
       }
+
+      // Validar se o roleId é um ObjectId válido
+      if (!mongoose.Types.ObjectId.isValid(discount.roleId)) {
+        res.status(400).json({
+          success: false,
+          message: 'roleId deve ser um ObjectId válido',
+        });
+        return;
+      }
+
       if (
         typeof discount.discountPercent !== 'number' ||
         discount.discountPercent < 0 ||

@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 /**
- * Interface de Desconto por Nível de Cliente
+ * Interface de Desconto por Role de Usuário
  */
 export interface ICategoryDiscount {
-  clientLevel: number; // 1 = cliente nível 1, 2 = cliente nível 2, etc
+  roleId: mongoose.Types.ObjectId; // ID do role
   discountPercent: number; // 0-100
 }
 
@@ -22,15 +22,14 @@ export interface ICategory extends Document {
 }
 
 /**
- * Schema de Desconto por Nível de Cliente
+ * Schema de Desconto por Role de Usuário
  */
 const DiscountSchema = new Schema<ICategoryDiscount>(
   {
-    clientLevel: {
-      type: Number,
+    roleId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Role',
       required: true,
-      min: [1, 'Client level deve ser no mínimo 1'],
-      max: [10, 'Client level não pode ser maior que 10'],
     },
     discountPercent: {
       type: Number,

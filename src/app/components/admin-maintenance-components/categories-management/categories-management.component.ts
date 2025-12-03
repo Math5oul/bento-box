@@ -10,7 +10,7 @@ import {
 } from '../../../interfaces/category.interface';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { RoleService } from '../../../services/role.service';
-import { ClientLevel } from '../../../interfaces/role.interface';
+import { Role } from '../../../interfaces/role.interface';
 
 @Component({
   selector: 'app-categories-management',
@@ -509,8 +509,8 @@ export class CategoriesManagementComponent implements OnInit {
 
   showDiscountsModal = false;
   discountsCategory: Category | null = null;
-  discounts: { clientLevel: number; discountPercent: number }[] = [];
-  availableClientLevels: { value: number; label: string }[] = [];
+  discounts: { roleId: string; roleName?: string; discountPercent: number }[] = [];
+  availableRoles: Role[] = [];
 
   /**
    * Abre modal de descontos
@@ -518,7 +518,7 @@ export class CategoriesManagementComponent implements OnInit {
   openDiscountsModal(category: Category): void {
     this.discountsCategory = category;
     this.discounts = category.discounts ? [...category.discounts] : [];
-    this.loadClientLevels();
+    this.loadRoles();
     this.showDiscountsModal = true;
   }
 
@@ -529,27 +529,20 @@ export class CategoriesManagementComponent implements OnInit {
     this.showDiscountsModal = false;
     this.discountsCategory = null;
     this.discounts = [];
-    this.availableClientLevels = [];
+    this.availableRoles = [];
   }
 
   /**
-   * Carrega os níveis de cliente disponíveis
+   * Carrega os roles disponíveis (apenas clientes)
    */
-  private async loadClientLevels(): Promise<void> {
+  private async loadRoles(): Promise<void> {
     try {
-      const clientLevels = await this.roleService.getClientLevels();
-      this.availableClientLevels = clientLevels.map((level: ClientLevel) => ({
-        value: level.level,
-        label: level.name,
-      }));
+      const roles = await this.roleService.getRoles();
+      // Filtra apenas roles de clientes (clientLevel > 0)
+      this.availableRoles = roles.filter(role => role.clientLevel > 0);
     } catch (error) {
-      console.error('Erro ao carregar níveis de cliente:', error);
-      // Fallback com níveis padrão
-      this.availableClientLevels = [
-        { value: 1, label: 'Cliente' },
-        { value: 2, label: 'Cliente VIP' },
-        { value: 3, label: 'Cliente Premium' },
-      ];
+      console.error('Erro ao carregar roles:', error);
+      this.availableRoles = [];
     }
   }
 
@@ -557,17 +550,18 @@ export class CategoriesManagementComponent implements OnInit {
    * Adiciona novo desconto
    */
   addDiscount(): void {
-    // Encontra o próximo nível disponível
-    const usedLevels = this.discounts.map(d => d.clientLevel);
-    const nextLevel = this.availableClientLevels.find(level => !usedLevels.includes(level.value));
+    // Encontra o próximo role disponível
+    const usedRoleIds = this.discounts.map(d => d.roleId);
+    const nextRole = this.availableRoles.find(role => !usedRoleIds.includes(role._id));
 
-    if (nextLevel) {
+    if (nextRole) {
       this.discounts.push({
-        clientLevel: nextLevel.value,
+        roleId: nextRole._id,
+        roleName: nextRole.name,
         discountPercent: 0,
       });
     } else {
-      alert('⚠️ Todos os níveis de cliente já possuem descontos configurados');
+      alert('⚠️ Todos os perfis de cliente já possuem descontos configurados');
     }
   }
 
@@ -579,11 +573,11 @@ export class CategoriesManagementComponent implements OnInit {
   }
 
   /**
-   * Obtém o label de um nível de cliente
+   * Obtém o nome de um role pelo ID
    */
-  getClientLevelLabel(level: number): string {
-    const found = this.availableClientLevels.find(l => l.value === level);
-    return found ? found.label : `Nível ${level}`;
+  getRoleName(roleId: string): string {
+    const found = this.availableRoles.find(r => r._id === roleId);
+    return found ? found.name : 'Perfil desconhecido';
   }
 
   /**
@@ -601,8 +595,14 @@ export class CategoriesManagementComponent implements OnInit {
     }
 
     try {
+      // Remove o campo roleName antes de enviar (não é necessário no backend)
+      const discountsToSave = this.discounts.map(({ roleId, discountPercent }) => ({
+        roleId,
+        discountPercent,
+      }));
+
       const response = await this.categoryService
-        .updateDiscounts(this.discountsCategory._id, this.discounts)
+        .updateDiscounts(this.discountsCategory._id, discountsToSave)
         .toPromise();
 
       if (response && response.success) {
@@ -617,13 +617,13 @@ export class CategoriesManagementComponent implements OnInit {
   }
 
   /**
-   * Retorna os níveis disponíveis para seleção
+   * Retorna os roles disponíveis para seleção (excluindo já usados)
    */
-  getAvailableLevelsForSelect(currentLevel: number): { value: number; label: string }[] {
-    const usedLevels = this.discounts
-      .map(d => d.clientLevel)
-      .filter(level => level !== currentLevel);
+  getAvailableRolesForSelect(currentRoleId: string): Role[] {
+    const usedRoleIds = this.discounts
+      .map(d => d.roleId)
+      .filter(roleId => roleId !== currentRoleId);
 
-    return this.availableClientLevels.filter(level => !usedLevels.includes(level.value));
+    return this.availableRoles.filter(role => !usedRoleIds.includes(role._id));
   }
 }

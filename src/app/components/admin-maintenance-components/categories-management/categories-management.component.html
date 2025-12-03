@@ -306,10 +306,10 @@
         <div class="modal-body">
           <div class="discount-category-info">
             <span class="category-emoji-large">{{ discountsCategory.emoji }}</span>
-            <h3>{{ discountsCategory.name }}</h3>
-            <p class="category-desc">
-              Configure descontos percentuais para diferentes níveis de clientes nesta categoria
-            </p>
+            <div>
+              <h3>{{ discountsCategory.name }}</h3>
+              <p class="category-desc">Configure descontos para perfis de clientes</p>
+            </div>
           </div>
 
           <!-- Lista de Descontos -->
@@ -324,13 +324,10 @@
               @for (discount of discounts; track $index) {
                 <div class="discount-item">
                   <div class="discount-field">
-                    <label>Nível de Cliente</label>
-                    <select [(ngModel)]="discount.clientLevel">
-                      @for (
-                        level of getAvailableLevelsForSelect(discount.clientLevel);
-                        track level.value
-                      ) {
-                        <option [value]="level.value">{{ level.label }}</option>
+                    <label>Perfil de Cliente</label>
+                    <select [(ngModel)]="discount.roleId">
+                      @for (role of getAvailableRolesForSelect(discount.roleId); track role._id) {
+                        <option [value]="role._id">{{ role.name }}</option>
                       }
                     </select>
                   </div>
@@ -363,16 +360,14 @@
           <button
             class="add-discount-btn"
             (click)="addDiscount()"
-            [disabled]="discounts.length >= availableClientLevels.length"
+            [disabled]="discounts.length >= availableRoles.length"
           >
             ➕ Adicionar Desconto
           </button>
 
-          @if (
-            discounts.length >= availableClientLevels.length && availableClientLevels.length > 0
-          ) {
+          @if (discounts.length >= availableRoles.length && availableRoles.length > 0) {
             <p class="hint-text">
-              ⚠️ Todos os níveis de cliente disponíveis já possuem descontos configurados
+              ⚠️ Todos os perfis de cliente disponíveis já possuem descontos configurados
             </p>
           }
         </div>
