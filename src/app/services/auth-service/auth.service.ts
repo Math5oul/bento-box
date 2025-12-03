@@ -302,6 +302,17 @@ export class AuthService {
   }
 
   /**
+   * Verifica se o usuário pode gerenciar configurações do sistema
+   */
+  canManageSystemSettings(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageSystemSettings');
+  }
+
+  /**
    * Verifica se o usuário pode visualizar relatórios
    */
   canViewReports(): boolean {

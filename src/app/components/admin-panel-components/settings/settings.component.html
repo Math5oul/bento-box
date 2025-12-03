@@ -1,0 +1,439 @@
+<app-admin-header></app-admin-header>
+
+<div class="settings-container">
+  <div class="page-header">
+    <h1>⚙️ Bento Tools - Configurações do Sistema</h1>
+    <p class="subtitle">Configure seu restaurante, pagamentos, email e banco de dados</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <p>⏳ Carregando configurações...</p>
+  </div>
+
+  <div *ngIf="!loading" class="settings-content">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'restaurant'"
+        (click)="activeTab = 'restaurant'"
+      >
+        🏪 Restaurante
+      </button>
+      <button class="tab" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">
+        💳 Pagamentos
+      </button>
+      <button class="tab" [class.active]="activeTab === 'email'" (click)="activeTab = 'email'">
+        📧 Email
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'database'"
+        (click)="activeTab = 'database'"
+      >
+        🗄️ Database
+      </button>
+    </div>
+
+    <!-- Tab: Restaurante -->
+    <div *ngIf="activeTab === 'restaurant'" class="tab-content">
+      <div class="section-header">
+        <h2>🏪 Informações do Restaurante</h2>
+        <p>Dados básicos do seu estabelecimento</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="restaurantName">Nome do Restaurante *</label>
+          <input
+            type="text"
+            id="restaurantName"
+            [(ngModel)]="config.restaurant.name"
+            placeholder="Meu Restaurante"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="cnpj">CNPJ</label>
+          <input
+            type="text"
+            id="cnpj"
+            [(ngModel)]="config.restaurant.cnpj"
+            (input)="onCNPJInput($event)"
+            placeholder="00.000.000/0000-00"
+            class="form-control"
+            maxlength="18"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Telefone</label>
+          <input
+            type="text"
+            id="phone"
+            [(ngModel)]="config.restaurant.phone"
+            (input)="onPhoneInput($event)"
+            placeholder="(00) 00000-0000"
+            class="form-control"
+            maxlength="15"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="email">Email de Contato</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="config.restaurant.email"
+            placeholder="contato@restaurante.com"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Endereço Completo</label>
+          <textarea
+            id="address"
+            [(ngModel)]="config.restaurant.address"
+            placeholder="Rua Exemplo, 123 - Bairro - Cidade/UF"
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Pagamentos -->
+    <div *ngIf="activeTab === 'payment'" class="tab-content">
+      <div class="section-header">
+        <h2>💳 Pagamentos Online</h2>
+        <p>Configure o gateway de pagamento para aceitar PIX e cartões</p>
+      </div>
+
+      <!-- Habilitar Pagamentos -->
+      <div class="toggle-section">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="config.payment.enabled" />
+          <span>Habilitar pagamentos online</span>
+        </label>
+      </div>
+
+      <div *ngIf="config.payment.enabled">
+        <!-- Seleção do Gateway -->
+        <div class="form-section">
+          <h3>🏦 Gateway de Pagamento</h3>
+          <div class="provider-selector">
+            <label
+              *ngFor="let provider of paymentProviders"
+              class="provider-option"
+              [class.disabled]="provider.value === 'none'"
+            >
+              <input
+                type="radio"
+                [(ngModel)]="config.payment.provider"
+                [value]="provider.value"
+                [disabled]="provider.value === 'none'"
+              />
+              <div class="provider-card">
+                <span class="icon">{{ provider.icon }}</span>
+                <span class="label">{{ provider.label }}</span>
+              </div>
+            </label>
+          </div>
+          <a
+            *ngIf="config.payment.provider !== 'none'"
+            [href]="getProviderDocs(config.payment.provider)"
+            target="_blank"
+            class="docs-link"
+          >
+            📚 Ver documentação do {{ config.payment.provider }}
+          </a>
+        </div>
+
+        <!-- Credenciais -->
+        <div class="form-section" *ngIf="config.payment.provider !== 'none'">
+          <h3>🔑 Credenciais do Gateway</h3>
+          <div class="alert alert-info">
+            <p><strong>ℹ️ Como obter as credenciais:</strong></p>
+            <ol>
+              <li>Acesse o painel do {{ config.payment.provider }}</li>
+              <li>Vá em "Suas integrações" → "Credenciais"</li>
+              <li>Copie a <strong>Public Key</strong> e o <strong>Access Token</strong></li>
+              <li>Cole abaixo e clique em "Testar Conexão"</li>
+            </ol>
+          </div>
+
+          <div class="form-group">
+            <label for="publicKey">Public Key (Chave Pública) *</label>
+            <input
+              type="text"
+              id="publicKey"
+              [(ngModel)]="config.payment.publicKey"
+              placeholder="APP_USR-xxxxxxxx-xxxxxxxx"
+              class="form-control"
+            />
+            <small>Usada no frontend para tokenizar cartões</small>
+          </div>
+
+          <div class="form-group">
+            <label for="accessToken">Access Token (Chave Secreta) *</label>
+            <input
+              type="password"
+              id="accessToken"
+              [(ngModel)]="config.payment.accessToken"
+              placeholder="APP_USR-xxxxxxxx-xxxxxxxx-xxxxxxxx"
+              class="form-control"
+            />
+            <small>⚠️ Mantenha este token em segredo</small>
+          </div>
+
+          <div class="form-group">
+            <label for="webhookUrl">Webhook URL</label>
+            <input
+              type="url"
+              id="webhookUrl"
+              [(ngModel)]="config.payment.webhookUrl"
+              placeholder="http://seu-ip-publico:4200/api/payments/webhook"
+              class="form-control"
+            />
+            <small
+              >URL pública para receber notificações de pagamento (deixe vazio se não for
+              usar)</small
+            >
+          </div>
+
+          <button class="btn-secondary" (click)="testPaymentConnection()">
+            🔌 Testar Conexão com Gateway
+          </button>
+        </div>
+
+        <!-- Métodos de Pagamento -->
+        <div class="form-section" *ngIf="config.payment.provider !== 'none'">
+          <h3>💰 Métodos Disponíveis</h3>
+
+          <label class="checkbox-option">
+            <input type="checkbox" [(ngModel)]="config.payment.pixEnabled" />
+            <div class="option-content">
+              <span class="option-icon">📱</span>
+              <div class="option-text">
+                <strong>PIX</strong>
+                <small>Pagamento instantâneo via QR Code</small>
+              </div>
+              <span class="option-fee">~0.99%</span>
+            </div>
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" [(ngModel)]="config.payment.creditCardEnabled" />
+            <div class="option-content">
+              <span class="option-icon">💳</span>
+              <div class="option-text">
+                <strong>Cartão de Crédito</strong>
+                <small>Visa, Mastercard, Elo, etc</small>
+              </div>
+              <span class="option-fee">~4.99%</span>
+            </div>
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" [(ngModel)]="config.payment.debitCardEnabled" />
+            <div class="option-content">
+              <span class="option-icon">💳</span>
+              <div class="option-text">
+                <strong>Cartão de Débito</strong>
+                <small>Débito online</small>
+              </div>
+              <span class="option-fee">~2.99%</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Email -->
+    <div *ngIf="activeTab === 'email'" class="tab-content">
+      <div class="section-header">
+        <h2>📧 Configuração de Email (SMTP)</h2>
+        <p>Configure o servidor SMTP para enviar emails de recuperação de senha e promoções</p>
+      </div>
+
+      <!-- Habilitar Email -->
+      <div class="toggle-section">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="config.email.enabled" />
+          <span>Habilitar envio de emails</span>
+        </label>
+      </div>
+
+      <div *ngIf="config.email.enabled">
+        <!-- Quick Select Provider -->
+        <div class="form-section">
+          <h3>🚀 Provedor SMTP (Atalho)</h3>
+          <div class="provider-quick-select">
+            <button
+              *ngFor="let provider of emailProviders"
+              class="provider-btn"
+              (click)="selectEmailProvider(provider)"
+            >
+              {{ provider.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Configurações SMTP -->
+        <div class="form-section">
+          <h3>⚙️ Configurações do Servidor SMTP</h3>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="emailHost">Host SMTP *</label>
+              <input
+                type="text"
+                id="emailHost"
+                [(ngModel)]="config.email.host"
+                placeholder="smtp.gmail.com"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="emailPort">Porta *</label>
+              <input
+                type="number"
+                id="emailPort"
+                [(ngModel)]="config.email.port"
+                placeholder="587"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="emailUser">Usuário / Email *</label>
+              <input
+                type="email"
+                id="emailUser"
+                [(ngModel)]="config.email.user"
+                placeholder="seu-email@gmail.com"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="emailPassword">Senha / Senha de App *</label>
+              <input
+                type="password"
+                id="emailPassword"
+                [(ngModel)]="config.email.password"
+                placeholder="••••••••••••••••"
+                class="form-control"
+              />
+              <small
+                >⚠️ Para Gmail, use "Senha de App":
+                <a href="https://myaccount.google.com/apppasswords" target="_blank"
+                  >Gerar aqui</a
+                ></small
+              >
+            </div>
+
+            <div class="form-group full-width">
+              <label for="emailFrom">Remetente (Nome e Email) *</label>
+              <input
+                type="text"
+                id="emailFrom"
+                [(ngModel)]="config.email.from"
+                placeholder="Meu Restaurante <noreply@restaurante.com>"
+                class="form-control"
+              />
+              <small>Formato: Nome &lt;email&#64;dominio.com&gt;</small>
+            </div>
+          </div>
+
+          <button class="btn-secondary" (click)="testEmailConnection()">
+            📧 Enviar Email de Teste
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Database -->
+    <div *ngIf="activeTab === 'database'" class="tab-content">
+      <div class="section-header">
+        <h2>🗄️ Banco de Dados</h2>
+        <p>Configurações de conexão e backup</p>
+      </div>
+
+      <!-- Informações de Conexão -->
+      <div class="form-section">
+        <h3>🔌 Conexão MongoDB</h3>
+        <div class="alert alert-warning">
+          <p><strong>⚠️ Atenção:</strong></p>
+          <p>A string de conexão do MongoDB é configurada no arquivo <code>.env</code>.</p>
+          <p>Para alterá-la, edite o arquivo <code>.env</code> e reinicie o servidor.</p>
+        </div>
+
+        <div class="db-info">
+          <div class="info-item">
+            <span class="label">String de Conexão:</span>
+            <code class="value">{{ config.database.uri || 'Não configurado' }}</code>
+          </div>
+        </div>
+
+        <button class="btn-secondary" (click)="testDatabaseConnection()">
+          🔌 Testar Conexão com Banco
+        </button>
+      </div>
+
+      <!-- Backup -->
+      <div class="form-section">
+        <h3>💾 Backup Automático</h3>
+
+        <div class="toggle-section">
+          <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="config.database.backupEnabled" />
+            <span>Habilitar backup automático diário</span>
+          </label>
+        </div>
+
+        <div *ngIf="config.database.backupEnabled" class="form-group">
+          <label for="backupRetention">Retenção de Backups (dias)</label>
+          <input
+            type="number"
+            id="backupRetention"
+            [(ngModel)]="config.database.backupRetentionDays"
+            min="1"
+            max="30"
+            class="form-control"
+          />
+          <small>Backups mais antigos que este período serão deletados automaticamente</small>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>ℹ️ Backup Automático:</strong></p>
+          <ul>
+            <li>Executado diariamente às 03:00</li>
+            <li>Armazenado em: <code>./backup/</code></li>
+            <li>Formato: <code>backup-YYYY-MM-DD_HH-MM-SS.json</code></li>
+          </ul>
+        </div>
+
+        <button class="btn-primary" (click)="createBackup()">💾 Criar Backup Manual Agora</button>
+      </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="loadConfig()">↺ Recarregar</button>
+      <button class="btn-primary" (click)="saveConfig()" [disabled]="saving">
+        {{ saving ? '⏳ Salvando...' : '💾 Salvar Configurações' }}
+      </button>
+    </div>
+
+    <div class="alert alert-warning restart-warning">
+      <p>
+        <strong>⚠️ Atenção:</strong> Após salvar as configurações, é necessário
+        <strong>reiniciar o servidor</strong> para aplicar as mudanças.
+      </p>
+    </div>
+  </div>
+</div>

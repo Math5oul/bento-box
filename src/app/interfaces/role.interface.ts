@@ -27,6 +27,9 @@ export interface RolePermissions {
   canManageUsers: boolean;
   canManageRoles: boolean;
 
+  // Permissões de Sistema
+  canManageSystemSettings: boolean;
+
   // Permissões Financeiras
   canViewReports: boolean;
   canManagePayments: boolean;
