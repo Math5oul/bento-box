@@ -353,8 +353,11 @@
       line-height: 1.2;
     }
 
-    .product-count {
+    .category-badges {
       margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
 
       .count-badge {
         display: inline-block;
@@ -369,6 +372,17 @@
           background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
           color: white;
         }
+      }
+
+      .discount-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
       }
     }
   }
@@ -386,6 +400,16 @@
       font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.2s;
+
+      &.discount-btn {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+
+        &:hover {
+          transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+        }
+      }
 
       &.edit-btn {
         background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
@@ -689,6 +713,192 @@
   }
 }
 
+// ============================================
+// MODAL DE DESCONTOS
+// ============================================
+
+.discount-category-info {
+  text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+
+  .category-emoji-large {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .category-desc {
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+.discounts-list {
+  margin-bottom: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+
+    &:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-text {
+      color: #6c757d;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-hint {
+      color: #adb5bd;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.discount-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #4caf50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+  }
+
+  .discount-field {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    select,
+    input {
+      padding: 0.75rem;
+      border: 2px solid #ced4da;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border 0.3s;
+
+      &:focus {
+        outline: none;
+        border-color: #4caf50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+      }
+    }
+
+    input[type='number'] {
+      font-weight: 600;
+      text-align: center;
+    }
+  }
+
+  .remove-discount-btn {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 46px;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+.add-discount-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #ced4da;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.hint-text {
+  text-align: center;
+  color: #f59e0b;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
 // Responsivo
 @media (max-width: 768px) {
   .categories-management-container {
@@ -714,6 +924,25 @@
 
     .selected-emoji {
       width: 100%;
+    }
+  }
+
+  .discount-item {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    .remove-discount-btn {
+      width: 100%;
+    }
+  }
+
+  .discount-category-info {
+    .category-emoji-large {
+      font-size: 3rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
     }
   }
 }

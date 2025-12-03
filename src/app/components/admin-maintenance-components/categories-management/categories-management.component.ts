@@ -9,6 +9,8 @@ import {
   UpdateCategoryDTO,
 } from '../../../interfaces/category.interface';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { RoleService } from '../../../services/role.service';
+import { ClientLevel } from '../../../interfaces/role.interface';
 
 @Component({
   selector: 'app-categories-management',
@@ -19,6 +21,7 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 })
 export class CategoriesManagementComponent implements OnInit {
   private categoryService = inject(CategoryService);
+  private roleService = inject(RoleService);
 
   categories: Category[] = [];
   loading = true;
@@ -498,5 +501,129 @@ export class CategoriesManagementComponent implements OnInit {
       alert('❌ Erro ao salvar a nova ordem. Recarregando...');
       this.loadCategories();
     }
+  }
+
+  // ============================================
+  // GERENCIAMENTO DE DESCONTOS
+  // ============================================
+
+  showDiscountsModal = false;
+  discountsCategory: Category | null = null;
+  discounts: { clientLevel: number; discountPercent: number }[] = [];
+  availableClientLevels: { value: number; label: string }[] = [];
+
+  /**
+   * Abre modal de descontos
+   */
+  openDiscountsModal(category: Category): void {
+    this.discountsCategory = category;
+    this.discounts = category.discounts ? [...category.discounts] : [];
+    this.loadClientLevels();
+    this.showDiscountsModal = true;
+  }
+
+  /**
+   * Fecha modal de descontos
+   */
+  closeDiscountsModal(): void {
+    this.showDiscountsModal = false;
+    this.discountsCategory = null;
+    this.discounts = [];
+    this.availableClientLevels = [];
+  }
+
+  /**
+   * Carrega os níveis de cliente disponíveis
+   */
+  private async loadClientLevels(): Promise<void> {
+    try {
+      const clientLevels = await this.roleService.getClientLevels();
+      this.availableClientLevels = clientLevels.map((level: ClientLevel) => ({
+        value: level.level,
+        label: level.name,
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar níveis de cliente:', error);
+      // Fallback com níveis padrão
+      this.availableClientLevels = [
+        { value: 1, label: 'Cliente' },
+        { value: 2, label: 'Cliente VIP' },
+        { value: 3, label: 'Cliente Premium' },
+      ];
+    }
+  }
+
+  /**
+   * Adiciona novo desconto
+   */
+  addDiscount(): void {
+    // Encontra o próximo nível disponível
+    const usedLevels = this.discounts.map(d => d.clientLevel);
+    const nextLevel = this.availableClientLevels.find(level => !usedLevels.includes(level.value));
+
+    if (nextLevel) {
+      this.discounts.push({
+        clientLevel: nextLevel.value,
+        discountPercent: 0,
+      });
+    } else {
+      alert('⚠️ Todos os níveis de cliente já possuem descontos configurados');
+    }
+  }
+
+  /**
+   * Remove desconto
+   */
+  removeDiscount(index: number): void {
+    this.discounts.splice(index, 1);
+  }
+
+  /**
+   * Obtém o label de um nível de cliente
+   */
+  getClientLevelLabel(level: number): string {
+    const found = this.availableClientLevels.find(l => l.value === level);
+    return found ? found.label : `Nível ${level}`;
+  }
+
+  /**
+   * Salva os descontos da categoria
+   */
+  async saveDiscounts(): Promise<void> {
+    if (!this.discountsCategory) return;
+
+    // Validação
+    for (const discount of this.discounts) {
+      if (discount.discountPercent < 0 || discount.discountPercent > 100) {
+        alert('⚠️ O desconto deve estar entre 0% e 100%');
+        return;
+      }
+    }
+
+    try {
+      const response = await this.categoryService
+        .updateDiscounts(this.discountsCategory._id, this.discounts)
+        .toPromise();
+
+      if (response && response.success) {
+        alert('✅ Descontos salvos com sucesso!');
+        this.closeDiscountsModal();
+        this.loadCategories();
+      }
+    } catch (error) {
+      console.error('Erro ao salvar descontos:', error);
+      alert('❌ Erro ao salvar descontos');
+    }
+  }
+
+  /**
+   * Retorna os níveis disponíveis para seleção
+   */
+  getAvailableLevelsForSelect(currentLevel: number): { value: number; label: string }[] {
+    const usedLevels = this.discounts
+      .map(d => d.clientLevel)
+      .filter(level => level !== currentLevel);
+
+    return this.availableClientLevels.filter(level => !usedLevels.includes(level.value));
   }
 }
