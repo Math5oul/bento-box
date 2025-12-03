@@ -1,77 +1,334 @@
-<div class="checkout-page">
-  <div class="page-header">
-    <h1>Checkout / Rachar Conta</h1>
-    <p class="subtitle">Selecione um cliente e escolha os pedidos para iniciar o pagamento</p>
+<div class="checkout-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>⏳ Carregando...</p>
   </div>
 
-  <div class="content">
-    <aside class="clients-list">
-      <h3>Clientes</h3>
-      <div *ngIf="loading">Carregando...</div>
-      <div *ngIf="error" class="error">{{ error }}</div>
-      <ul>
-        <li
-          *ngFor="let c of clients"
-          (click)="selectClient(c)"
-          [class.selected]="selectedClient?.clientId === c.clientId"
-        >
-          {{ c.clientName }}
-        </li>
-      </ul>
-    </aside>
+  <!-- Step 1: Select Table -->
+  <div *ngIf="!loading && step === 'select-table'" class="step-container">
+    <div class="page-header">
+      <h1>💳 Checkout - Selecione a Mesa</h1>
+      <p class="subtitle">Escolha qual mesa deseja processar o pagamento</p>
+    </div>
 
-    <main class="orders-area">
-      <div *ngIf="!selectedClient" class="empty-note">Selecione um cliente à esquerda</div>
+    <div class="tables-grid">
+      <div
+        *ngFor="let table of tables"
+        class="table-card"
+        [class.available]="table.status === 'available'"
+        [class.occupied]="table.status === 'occupied'"
+        [class.closed]="table.status === 'closed'"
+        (click)="table.status !== 'available' && selectTable(table)"
+      >
+        <div class="table-number">Mesa {{ table.number }}</div>
+        <div class="table-capacity">👥 {{ table.capacity }} pessoas</div>
+        <div class="table-status">{{ table.status }}</div>
+      </div>
+    </div>
+  </div>
 
-      <div *ngIf="selectedClient">
-        <h3>Pedidos abertos de {{ selectedClient.clientName }}</h3>
-        <div *ngIf="openOrders.length === 0">Nenhum pedido aberto para este cliente</div>
+  <!-- Step 2: Select Items -->
+  <div *ngIf="!loading && step === 'select-items'" class="step-container">
+    <div class="page-header">
+      <h1>🍱 Selecione os Itens</h1>
+      <p class="subtitle">Mesa {{ selectedTable?.number }} - Marque os itens que serão pagos</p>
+      <button class="btn-secondary" (click)="changeTable()">🔄 Trocar Mesa</button>
+      <button class="btn-secondary" (click)="openHistoryModal()">📜 Ver Histórico</button>
+    </div>
 
-        <ul class="orders-list">
-          <li *ngFor="let o of openOrders">
-            <div class="order-header-row">
-              <label>
-                <input type="checkbox" (change)="toggleSelectAllItemsForOrder(o)" />
-                <strong>Mesa {{ o.tableNumber }}</strong> — {{ o.items.length }} item(s)
-              </label>
-              <span class="order-status">{{ o.status }}</span>
+    <div class="selection-controls">
+      <button class="btn-small" (click)="selectAllItems()">✅ Selecionar Todos</button>
+      <button class="btn-small" (click)="deselectAllItems()">❌ Desmarcar Todos</button>
+      <span class="selected-count">{{ selectedItems.length }} item(ns) selecionado(s)</span>
+    </div>
+
+    <!-- Itens agrupados por cliente -->
+    <div class="client-groups">
+      <div *ngFor="let group of clientGroups" class="client-group">
+        <div class="client-group-header">
+          <label class="client-group-checkbox">
+            <input
+              type="checkbox"
+              [checked]="group.allSelected"
+              (change)="toggleClientGroup(group)"
+            />
+            <h3 class="client-name">
+              👤 {{ group.clientName }}
+              <span class="client-item-count">
+                {{ group.items.length }} item{{ group.items.length !== 1 ? 's' : '' }}
+                <span *ngIf="group.orderCount && group.orderCount > 1" class="order-count">
+                  • {{ group.orderCount }} pedidos
+                </span>
+              </span>
+            </h3>
+          </label>
+        </div>
+
+        <div class="items-list">
+          <div *ngFor="let item of group.items" class="item-card" [class.selected]="item.selected">
+            <label class="item-checkbox">
+              <input
+                type="checkbox"
+                [checked]="item.selected"
+                (change)="toggleItemSelection(item)"
+              />
+              <div class="item-details">
+                <h4 class="item-name">{{ item.productName }}</h4>
+                <p class="item-info">
+                  Qtd: {{ item.quantity }}
+                  <span *ngIf="item.isSplit" class="split-badge">
+                    ✂️ Parte {{ item.splitIndex }}/{{ item.totalSplits }}
+                  </span>
+                </p>
+                <p class="item-price">
+                  Subtotal: R$ {{ item.subtotal.toFixed(2) }}
+                  <span *ngIf="item.discount" class="discount-badge">
+                    -{{
+                      item.discount.type === 'percentage'
+                        ? item.discount.value + '%'
+                        : 'R$ ' + item.discount.value.toFixed(2)
+                    }}
+                  </span>
+                </p>
+                <p class="item-final" [class.discounted]="item.discount">
+                  Total: R$ {{ item.finalPrice.toFixed(2) }}
+                </p>
+              </div>
+            </label>
+            <div class="item-actions">
+              <button class="btn-icon" (click)="openSplitModal(item)" title="Dividir item">
+                ✂️
+              </button>
+              <button class="btn-icon" (click)="openDiscountModal(item)" title="Aplicar desconto">
+                💰
+              </button>
+              <button
+                *ngIf="item.discount"
+                class="btn-icon remove"
+                (click)="removeDiscount(item)"
+                title="Remover desconto"
+              >
+                🗑️
+              </button>
             </div>
-
-            <ul class="order-items">
-              <li *ngFor="let it of o.items">
-                <label>
-                  <input
-                    type="checkbox"
-                    [checked]="
-                      selectedItemIds.has(
-                        it._id || it.id || o.id + '-' + (it.productId || it.productName)
-                      )
-                    "
-                    (change)="
-                      toggleSelectOrderItem(
-                        o.id,
-                        it._id || it.id || o.id + '-' + (it.productId || it.productName)
-                      )
-                    "
-                  />
-                  {{ it.quantity }}x {{ it.productName }} —
-                  {{ it.totalPrice | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                </label>
-              </li>
-            </ul>
-          </li>
-        </ul>
-
-        <div class="actions">
-          <button
-            class="action-btn"
-            (click)="startPayment()"
-            [disabled]="selectedItemIds.size === 0"
-          >
-            Iniciar Pagamento
-          </button>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
+
+    <div class="summary-card">
+      <h3>Resumo</h3>
+      <div class="summary-line">
+        <span>Subtotal:</span>
+        <span>R$ {{ subtotal.toFixed(2) }}</span>
+      </div>
+      <div class="summary-line discount" *ngIf="totalDiscount > 0">
+        <span>Descontos:</span>
+        <span>-R$ {{ totalDiscount.toFixed(2) }}</span>
+      </div>
+      <div class="summary-line total">
+        <span><strong>Total:</strong></span>
+        <span
+          ><strong>R$ {{ total.toFixed(2) }}</strong></span
+        >
+      </div>
+      <button class="btn-primary btn-block" [disabled]="!hasSelectedItems" (click)="goToPayment()">
+        Continuar para Pagamento
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Payment -->
+  <div *ngIf="!loading && step === 'payment'" class="step-container">
+    <div class="page-header">
+      <h1>💳 Finalizar Pagamento</h1>
+      <p class="subtitle">Mesa {{ selectedTable?.number }} - Confirme os dados</p>
+      <button class="btn-secondary" (click)="backToItems()">⬅️ Voltar</button>
+    </div>
+
+    <div class="payment-review">
+      <h3>Itens Selecionados</h3>
+      <ul class="review-list">
+        <li *ngFor="let item of selectedItems">
+          <span class="review-name">{{ item.productName }} (x{{ item.quantity }})</span>
+          <span class="review-price">R$ {{ item.finalPrice.toFixed(2) }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="payment-form">
+      <h3>Método de Pagamento</h3>
+      <div class="payment-methods">
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'cash'" />
+          💵 Dinheiro
+        </label>
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'credit'" />
+          💳 Crédito
+        </label>
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'debit'" />
+          💳 Débito
+        </label>
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'pix'" />
+          📱 PIX
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Observações (opcional)</label>
+        <textarea
+          id="notes"
+          [(ngModel)]="paymentNotes"
+          rows="3"
+          placeholder="Ex: Gorjeta incluída, pagamento dividido..."
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h3>Total a Pagar</h3>
+      <div class="summary-line total-large">
+        <span><strong>TOTAL:</strong></span>
+        <span
+          ><strong>R$ {{ total.toFixed(2) }}</strong></span
+        >
+      </div>
+      <button class="btn-success btn-block" (click)="processPayment()">
+        ✅ Confirmar Pagamento
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Split Item -->
+  <div *ngIf="showSplitModal" class="modal-overlay" (click)="closeSplitModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✂️ Dividir Item</h3>
+        <button class="btn-close" (click)="closeSplitModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Item: <strong>{{ splitItem?.productName }}</strong>
+        </p>
+        <p>Quantidade atual: {{ splitItem?.quantity }}</p>
+        <div class="form-group">
+          <label for="splitQty">Dividir em quantas partes?</label>
+          <input
+            type="number"
+            id="splitQty"
+            [(ngModel)]="splitQuantity"
+            [min]="2"
+            [max]="splitItem ? splitItem.quantity : 999"
+          />
+        </div>
+        <p class="help-text" *ngIf="splitItem && splitQuantity">
+          Cada parte terá aproximadamente {{ (splitItem.quantity / splitQuantity).toFixed(0) }} un.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeSplitModal()">Cancelar</button>
+        <button class="btn-primary" (click)="confirmSplit()">Confirmar Divisão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Discount -->
+  <div *ngIf="showDiscountModal" class="modal-overlay" (click)="closeDiscountModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>💰 Aplicar Desconto</h3>
+        <button class="btn-close" (click)="closeDiscountModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="discountItem">
+          Item: <strong>{{ discountItem.productName }}</strong>
+        </p>
+        <p *ngIf="discountItem">Subtotal: R$ {{ discountItem.subtotal.toFixed(2) }}</p>
+
+        <div class="form-group">
+          <label>Tipo de Desconto</label>
+          <div class="discount-types">
+            <label class="discount-type-option">
+              <input type="radio" [(ngModel)]="discountType" [value]="'percentage'" />
+              Percentual (%)
+            </label>
+            <label class="discount-type-option">
+              <input type="radio" [(ngModel)]="discountType" [value]="'fixed'" />
+              Valor Fixo (R$)
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="discountValue">Valor do Desconto</label>
+          <input
+            type="number"
+            id="discountValue"
+            [(ngModel)]="discountValue"
+            [min]="0"
+            [max]="
+              discountType === 'percentage' ? 100 : discountItem ? discountItem.subtotal : 99999
+            "
+            step="0.01"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="discountDesc">Motivo (opcional)</label>
+          <input
+            type="text"
+            id="discountDesc"
+            [(ngModel)]="discountDescription"
+            placeholder="Ex: Desconto promocional, cortesia..."
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeDiscountModal()">Cancelar</button>
+        <button class="btn-primary" (click)="confirmDiscount()">Aplicar Desconto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Bill History -->
+  <div *ngIf="showHistoryModal" class="modal-overlay" (click)="closeHistoryModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📜 Histórico de Pagamentos</h3>
+        <button class="btn-close" (click)="closeHistoryModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Mesa: <strong>{{ selectedTable?.number }}</strong>
+        </p>
+        <p>
+          Total já pago: <strong>R$ {{ getTotalPaid().toFixed(2) }}</strong>
+        </p>
+
+        <div *ngIf="billHistory.length === 0" class="empty-note">
+          Nenhum pagamento registrado ainda
+        </div>
+
+        <ul class="history-list">
+          <li *ngFor="let bill of billHistory" class="history-item">
+            <div class="history-header">
+              <span class="history-status" [class]="bill.status">{{ bill.status }}</span>
+              <span class="history-date">{{ bill.createdAt | date: 'short' }}</span>
+            </div>
+            <div class="history-details">
+              <p>{{ bill.items.length }} item(ns)</p>
+              <p class="history-amount">R$ {{ bill.finalTotal.toFixed(2) }}</p>
+              <p class="history-method">{{ bill.paymentMethod }}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="closeHistoryModal()">Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
