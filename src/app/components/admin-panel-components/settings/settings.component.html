@@ -21,7 +21,10 @@
         🏪 Restaurante
       </button>
       <button class="tab" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">
-        💳 Pagamentos
+        💳 Pagamentos Online
+      </button>
+      <button class="tab" [class.active]="activeTab === 'pos'" (click)="activeTab = 'pos'">
+        🖥️ Maquininha (POS)
       </button>
       <button class="tab" [class.active]="activeTab === 'email'" (click)="activeTab = 'email'">
         📧 Email
@@ -247,6 +250,174 @@
               <span class="option-fee">~2.99%</span>
             </div>
           </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: POS Terminal (Maquininha) -->
+    <div *ngIf="activeTab === 'pos'" class="tab-content">
+      <div class="section-header">
+        <h2>🖥️ Maquininha de Cartão (POS Terminal)</h2>
+        <p>Configure sua maquininha para aceitar pagamentos com cartão físico e PIX local</p>
+      </div>
+
+      <!-- Habilitar POS -->
+      <div class="toggle-section">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="config.posTerminal.enabled" />
+          <span>Habilitar Maquininha de Cartão</span>
+        </label>
+        <p class="toggle-description">
+          ⚠️ Quando habilitado, o checkout mostrará opção de "Enviar para Maquininha"
+        </p>
+      </div>
+
+      <div *ngIf="config.posTerminal.enabled">
+        <!-- Seleção do Terminal -->
+        <div class="form-section">
+          <h3>🏪 Tipo de Terminal</h3>
+          <div class="provider-grid">
+            <label
+              *ngFor="let terminal of posTerminals"
+              class="provider-card"
+              [class.active]="config.posTerminal.terminalType === terminal.value"
+            >
+              <input
+                type="radio"
+                name="terminalType"
+                [value]="terminal.value"
+                [(ngModel)]="config.posTerminal.terminalType"
+              />
+              <span class="provider-icon">{{ terminal.icon }}</span>
+              <span class="provider-name">{{ terminal.label }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div *ngIf="config.posTerminal.terminalType !== 'none'">
+          <!-- Tipo de Conexão -->
+          <div class="form-section">
+            <h3>🔌 Tipo de Conexão</h3>
+            <div class="connection-types">
+              <label
+                *ngFor="let conn of connectionTypes"
+                class="connection-card"
+                [class.active]="config.posTerminal.connectionType === conn.value"
+              >
+                <input
+                  type="radio"
+                  name="connectionType"
+                  [value]="conn.value"
+                  [(ngModel)]="config.posTerminal.connectionType"
+                />
+                <span class="conn-icon">{{ conn.icon }}</span>
+                <div class="conn-text">
+                  <strong>{{ conn.label }}</strong>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Configurações de Rede (WiFi) -->
+          <div *ngIf="config.posTerminal.connectionType === 'wifi'" class="form-grid">
+            <div class="form-group">
+              <label for="posIp">Endereço IP da Maquininha *</label>
+              <input
+                type="text"
+                id="posIp"
+                [(ngModel)]="config.posTerminal.ipAddress"
+                placeholder="192.168.1.100"
+                class="form-control"
+              />
+              <small>Encontre o IP no menu de configurações da maquininha</small>
+            </div>
+
+            <div class="form-group">
+              <label for="posPort">Porta</label>
+              <input
+                type="number"
+                id="posPort"
+                [(ngModel)]="config.posTerminal.port"
+                placeholder="8080"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <!-- Configurações Bluetooth -->
+          <div *ngIf="config.posTerminal.connectionType === 'bluetooth'" class="form-grid">
+            <div class="form-group full-width">
+              <label for="deviceId">ID do Dispositivo Bluetooth</label>
+              <input
+                type="text"
+                id="deviceId"
+                [(ngModel)]="config.posTerminal.deviceId"
+                placeholder="00:11:22:33:44:55"
+                class="form-control"
+              />
+              <small>Pareie a maquininha primeiro no menu Bluetooth do sistema</small>
+            </div>
+          </div>
+
+          <!-- Configurações USB -->
+          <div *ngIf="config.posTerminal.connectionType === 'usb'" class="alert alert-info">
+            <strong>ℹ️ Conexão USB</strong>
+            <p>
+              Conecte a maquininha via cabo USB. A detecção será automática após salvar as
+              configurações.
+            </p>
+          </div>
+
+          <!-- Configurações específicas por terminal -->
+          <div class="form-grid" *ngIf="config.posTerminal.terminalType === 'stone'">
+            <div class="form-group">
+              <label for="stoneCode">Stone Code *</label>
+              <input
+                type="text"
+                id="stoneCode"
+                [(ngModel)]="config.posTerminal.stoneCode"
+                placeholder="999999999"
+                class="form-control"
+              />
+              <small>Código Stone de 9 dígitos (encontrado no verso da maquininha)</small>
+            </div>
+          </div>
+
+          <!-- Serial Number (todos os terminais) -->
+          <div class="form-group full-width">
+            <label for="serialNumber">Número de Série</label>
+            <input
+              type="text"
+              id="serialNumber"
+              [(ngModel)]="config.posTerminal.serialNumber"
+              placeholder="SN123456789"
+              class="form-control"
+            />
+            <small
+              >Opcional - útil para identificação em estabelecimentos com múltiplos terminais</small
+            >
+          </div>
+
+          <!-- Confirmação Automática -->
+          <div class="toggle-section">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="config.posTerminal.autoConfirm" />
+              <span>Confirmação Automática</span>
+            </label>
+            <p class="toggle-description">
+              Quando ativado, a comanda será marcada como paga automaticamente após aprovação na
+              maquininha
+            </p>
+          </div>
+
+          <!-- Botão de Teste -->
+          <div class="test-section">
+            <button class="btn-test" (click)="testPOSConnection()" [disabled]="testingPOS">
+              <span *ngIf="!testingPOS">🔌 Testar Conexão com Maquininha</span>
+              <span *ngIf="testingPOS">⏳ Testando...</span>
+            </button>
+            <p class="test-note">Certifique-se que a maquininha está ligada e conectada</p>
+          </div>
         </div>
       </div>
     </div>

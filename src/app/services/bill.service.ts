@@ -148,4 +148,34 @@ export class BillService {
       status: BillStatus.CANCELLED,
     });
   }
+
+  /**
+   * Inicia um pagamento online (PIX ou Cartão)
+   */
+  initiateOnlinePayment(
+    id: string,
+    paymentData: {
+      method: 'pix' | 'credit' | 'debit';
+      cardToken?: string; // Token do cartão (se for cartão)
+      email?: string; // Email do cliente
+    }
+  ): Observable<{ success: boolean; data: Bill; message: string }> {
+    const headers = this.getHeaders();
+    return this.http.post<{ success: boolean; data: Bill; message: string }>(
+      `${this.apiUrl}/${id}/initiate-payment`,
+      paymentData,
+      { headers }
+    );
+  }
+
+  /**
+   * Verifica o status de um pagamento online
+   */
+  checkPaymentStatus(id: string): Observable<{ success: boolean; data: Bill; message: string }> {
+    const headers = this.getHeaders();
+    return this.http.get<{ success: boolean; data: Bill; message: string }>(
+      `${this.apiUrl}/${id}/payment-status`,
+      { headers }
+    );
+  }
 }

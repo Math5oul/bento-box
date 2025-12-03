@@ -201,7 +201,42 @@
       </ul>
     </div>
 
-    <div class="payment-form">
+    <!-- Modo de Pagamento -->
+    <div class="payment-mode-selector">
+      <h3>🎯 Como deseja processar o pagamento?</h3>
+      <div class="mode-grid">
+        <!-- Pagamento Manual (sempre disponível) -->
+        <label class="mode-card" [class.active]="paymentMode === 'manual'">
+          <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="manual" />
+          <div class="mode-icon">💵</div>
+          <div class="mode-title">Pagamento Manual</div>
+          <div class="mode-desc">Dinheiro, cartão físico ou PIX manual</div>
+        </label>
+
+        <!-- Maquininha (se habilitado) -->
+        <label *ngIf="posEnabled" class="mode-card" [class.active]="paymentMode === 'pos'">
+          <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="pos" />
+          <div class="mode-icon">🖥️</div>
+          <div class="mode-title">Maquininha (POS)</div>
+          <div class="mode-desc">Cliente passa cartão ou paga PIX na maquininha</div>
+        </label>
+
+        <!-- Pagamento Online (se habilitado) -->
+        <label
+          *ngIf="paymentGatewayEnabled"
+          class="mode-card"
+          [class.active]="paymentMode === 'online'"
+        >
+          <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="online" />
+          <div class="mode-icon">🌐</div>
+          <div class="mode-title">Pagamento Online</div>
+          <div class="mode-desc">QR Code PIX ou link de pagamento</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Formulário de Pagamento Manual -->
+    <div *ngIf="paymentMode === 'manual'" class="payment-form">
       <h3>Método de Pagamento</h3>
       <div class="payment-methods">
         <label class="payment-option">
@@ -209,11 +244,11 @@
           💵 Dinheiro
         </label>
         <label class="payment-option">
-          <input type="radio" [(ngModel)]="paymentMethod" [value]="'credit'" />
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'credit_card'" />
           💳 Crédito
         </label>
         <label class="payment-option">
-          <input type="radio" [(ngModel)]="paymentMethod" [value]="'debit'" />
+          <input type="radio" [(ngModel)]="paymentMethod" [value]="'debit_card'" />
           💳 Débito
         </label>
         <label class="payment-option">
@@ -233,6 +268,46 @@
       </div>
     </div>
 
+    <!-- Formulário de Pagamento via POS -->
+    <div *ngIf="paymentMode === 'pos'" class="payment-form">
+      <h3>Tipo de Pagamento na Maquininha</h3>
+      <div class="payment-methods">
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="posPaymentType" value="credit" />
+          💳 Cartão de Crédito
+        </label>
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="posPaymentType" value="debit" />
+          💳 Cartão de Débito
+        </label>
+        <label class="payment-option">
+          <input type="radio" [(ngModel)]="posPaymentType" value="pix" />
+          📱 PIX
+        </label>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>ℹ️ Como funciona:</strong>
+        <ol>
+          <li>Clique em "Enviar para Maquininha"</li>
+          <li>Peça ao cliente para passar o cartão ou escanear QR Code PIX</li>
+          <li>Aguarde a confirmação automática do pagamento</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Formulário de Pagamento Online -->
+    <div *ngIf="paymentMode === 'online'" class="payment-form">
+      <h3>Método de Pagamento Online</h3>
+      <div class="alert alert-info">
+        <strong>🚧 Em desenvolvimento</strong>
+        <p>
+          Pagamento online via QR Code PIX ou link de cartão será implementado em breve. Use a
+          maquininha ou pagamento manual por enquanto.
+        </p>
+      </div>
+    </div>
+
     <div class="summary-card">
       <h3>Total a Pagar</h3>
       <div class="summary-line total-large">
@@ -241,8 +316,35 @@
           ><strong>R$ {{ total.toFixed(2) }}</strong></span
         >
       </div>
-      <button class="btn-success btn-block" (click)="processPayment()">
-        ✅ Confirmar Pagamento
+
+      <!-- Botões condicionais baseados no modo -->
+      <button
+        *ngIf="paymentMode === 'manual'"
+        class="btn-success btn-block"
+        (click)="processPayment()"
+        [disabled]="loading"
+      >
+        <span *ngIf="!loading">✅ Confirmar Pagamento</span>
+        <span *ngIf="loading">⏳ Processando...</span>
+      </button>
+
+      <button
+        *ngIf="paymentMode === 'pos'"
+        class="btn-primary btn-block"
+        (click)="sendToPOS()"
+        [disabled]="sendingToPOS"
+      >
+        <span *ngIf="!sendingToPOS">🖥️ Enviar para Maquininha</span>
+        <span *ngIf="sendingToPOS">⏳ Aguardando pagamento...</span>
+      </button>
+
+      <button
+        *ngIf="paymentMode === 'online'"
+        class="btn-success btn-block"
+        disabled
+        title="Em desenvolvimento"
+      >
+        🌐 Gerar Pagamento Online (Em breve)
       </button>
     </div>
   </div>

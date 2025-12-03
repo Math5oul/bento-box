@@ -380,4 +380,385 @@ router.delete('/:id', authenticate, async (req: Request, res: Response): Promise
   }
 });
 
+/**
+ * POST /api/bills/:id/initiate-payment
+ * Inicia um pagamento online via gateway
+ */
+router.post(
+  '/:id/initiate-payment',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { method, cardToken, email } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID da bill inválido',
+        });
+        return;
+      }
+
+      const bill = await Bill.findById(id);
+
+      if (!bill) {
+        res.status(404).json({
+          success: false,
+          message: 'Bill não encontrada',
+        });
+        return;
+      }
+
+      if (bill.status !== BillStatus.PENDING) {
+        res.status(400).json({
+          success: false,
+          message: 'Esta bill não pode receber pagamento',
+        });
+        return;
+      }
+
+      // Importar PaymentService
+      const { PaymentService, createPaymentService } = await import('../services/payment.service');
+      const paymentService = createPaymentService();
+
+      if (!paymentService) {
+        res.status(500).json({
+          success: false,
+          message: 'Serviço de pagamento não configurado',
+        });
+        return;
+      }
+
+      let paymentResult;
+      let paymentMethodEnum: PaymentMethod;
+
+      // Processar pagamento de acordo com o método
+      if (method === 'pix') {
+        paymentMethodEnum = PaymentMethod.ONLINE_PIX;
+        paymentResult = await paymentService.createPixPayment(
+          bill.finalTotal,
+          `Pagamento Mesa ${bill.tableNumber} - Bill #${bill._id}`,
+          email || 'cliente@bentobox.com'
+        );
+      } else if (method === 'credit' || method === 'debit') {
+        paymentMethodEnum =
+          method === 'credit' ? PaymentMethod.ONLINE_CREDIT : PaymentMethod.ONLINE_DEBIT;
+
+        if (!cardToken) {
+          res.status(400).json({
+            success: false,
+            message: 'Token do cartão é obrigatório',
+          });
+          return;
+        }
+
+        paymentResult = await paymentService.createCardPayment(
+          bill.finalTotal,
+          `Pagamento Mesa ${bill.tableNumber} - Bill #${bill._id}`,
+          cardToken,
+          email || 'cliente@bentobox.com'
+        );
+      } else {
+        res.status(400).json({
+          success: false,
+          message: 'Método de pagamento inválido',
+        });
+        return;
+      }
+
+      if (!paymentResult.success) {
+        res.status(400).json({
+          success: false,
+          message: paymentResult.message || 'Erro ao processar pagamento',
+        });
+        return;
+      }
+
+      // Atualizar bill com dados do pagamento
+      bill.paymentMethod = paymentMethodEnum;
+      bill.status = BillStatus.PENDING_PAYMENT;
+      bill.paymentData = {
+        provider: paymentResult.provider,
+        transactionId: paymentResult.transactionId,
+        paymentId: paymentResult.paymentId,
+        qrCode: paymentResult.qrCode,
+        qrCodeText: paymentResult.qrCodeText,
+        paymentUrl: paymentResult.paymentUrl,
+        expiresAt: paymentResult.expiresAt,
+        webhookReceived: false,
+      };
+
+      await bill.save();
+
+      res.json({
+        success: true,
+        data: bill,
+        message: 'Pagamento iniciado com sucesso',
+      });
+    } catch (error: any) {
+      console.error('Erro ao iniciar pagamento:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao iniciar pagamento',
+        error: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/bills/:id/payment-status
+ * Verifica o status de um pagamento online
+ */
+router.get(
+  '/:id/payment-status',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID da bill inválido',
+        });
+        return;
+      }
+
+      const bill = await Bill.findById(id);
+
+      if (!bill) {
+        res.status(404).json({
+          success: false,
+          message: 'Bill não encontrada',
+        });
+        return;
+      }
+
+      // Se já foi pago, retornar sucesso
+      if (bill.status === BillStatus.PAID) {
+        res.json({
+          success: true,
+          data: bill,
+          message: 'Pagamento confirmado',
+        });
+        return;
+      }
+
+      // Se não tem dados de pagamento, retornar erro
+      if (!bill.paymentData?.paymentId) {
+        res.status(400).json({
+          success: false,
+          message: 'Nenhum pagamento iniciado para esta bill',
+        });
+        return;
+      }
+
+      // TODO: Aqui você pode consultar o gateway para verificar o status
+      // Por enquanto, apenas retornar o status atual da bill
+
+      res.json({
+        success: true,
+        data: bill,
+        message: 'Status do pagamento',
+      });
+    } catch (error: any) {
+      console.error('Erro ao verificar status do pagamento:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao verificar status do pagamento',
+        error: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/bills/:id/send-to-pos
+ * Envia pagamento para maquininha (POS Terminal)
+ */
+router.post(
+  '/:id/send-to-pos',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { paymentType } = req.body; // 'credit', 'debit', 'pix'
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID da bill inválido',
+        });
+        return;
+      }
+
+      const bill = await Bill.findById(id);
+
+      if (!bill) {
+        res.status(404).json({
+          success: false,
+          message: 'Bill não encontrada',
+        });
+        return;
+      }
+
+      if (bill.status !== BillStatus.PENDING) {
+        res.status(400).json({
+          success: false,
+          message: 'Esta bill não pode receber pagamento',
+        });
+        return;
+      }
+
+      // Importar serviço de POS
+      const { createPOSTerminalService } = await import('../services/pos-terminal.service');
+      const posService = createPOSTerminalService();
+
+      if (!posService) {
+        res.status(500).json({
+          success: false,
+          message: 'Maquininha não configurada. Configure no painel de admin.',
+        });
+        return;
+      }
+
+      // Enviar pagamento para maquininha
+      const paymentRequest = {
+        amount: Math.round(bill.finalTotal * 100), // Converter para centavos
+        description: `Mesa ${bill.tableNumber} - Bill #${bill._id.toString().substring(0, 8)}`,
+        billId: bill._id.toString(),
+        paymentType: paymentType || 'credit',
+      };
+
+      const result = await posService.sendPayment(paymentRequest);
+
+      if (result.success && result.approved) {
+        // Pagamento aprovado - atualizar bill
+        bill.status = BillStatus.PAID;
+        bill.paidAt = new Date();
+        bill.paymentData = {
+          provider: 'pos_terminal',
+          transactionId: result.transactionId,
+          webhookReceived: true,
+        };
+
+        await bill.save();
+
+        res.json({
+          success: true,
+          data: bill,
+          message: result.message || 'Pagamento aprovado na maquininha!',
+          receiptText: result.receiptText,
+        });
+      } else {
+        // Pagamento recusado ou erro
+        res.status(400).json({
+          success: false,
+          message: result.message || 'Pagamento recusado pela maquininha',
+          error: result.error,
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao enviar pagamento para POS:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao processar pagamento na maquininha',
+        error: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/bills/:id/pos-status
+ * Verifica status de pagamento na maquininha
+ */
+router.get('/:id/pos-status', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        success: false,
+        message: 'ID da bill inválido',
+      });
+      return;
+    }
+
+    const bill = await Bill.findById(id);
+
+    if (!bill) {
+      res.status(404).json({
+        success: false,
+        message: 'Bill não encontrada',
+      });
+      return;
+    }
+
+    // Se já foi pago, retornar sucesso
+    if (bill.status === BillStatus.PAID) {
+      res.json({
+        success: true,
+        data: bill,
+        message: 'Pagamento confirmado',
+        approved: true,
+      });
+      return;
+    }
+
+    // Se não tem transactionId, ainda não foi enviado
+    if (!bill.paymentData?.transactionId) {
+      res.json({
+        success: true,
+        data: bill,
+        message: 'Aguardando envio para maquininha',
+        approved: false,
+      });
+      return;
+    }
+
+    // Consultar status na maquininha
+    const { createPOSTerminalService } = await import('../services/pos-terminal.service');
+    const posService = createPOSTerminalService();
+
+    if (posService) {
+      const result = await posService.checkPaymentStatus(bill.paymentData.transactionId);
+
+      // Recarregar bill do banco para ter tipo completo
+      const currentBill = await Bill.findById(bill._id);
+      if (result.approved && currentBill && currentBill.status !== BillStatus.PAID) {
+        // Atualizar para pago se confirmado
+        currentBill.status = BillStatus.PAID;
+        currentBill.paidAt = new Date();
+        await currentBill.save();
+      }
+
+      res.json({
+        success: true,
+        data: currentBill || bill,
+        message: result.message,
+        approved: result.approved,
+      });
+    } else {
+      // Recarregar bill do banco para ter tipo completo
+      const currentBill = await Bill.findById(bill._id);
+      res.json({
+        success: true,
+        data: currentBill || bill,
+        message: 'Status atual da bill',
+        approved: currentBill ? currentBill.status === BillStatus.PAID : false,
+      });
+    }
+  } catch (error: any) {
+    console.error('Erro ao verificar status POS:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao verificar status na maquininha',
+      error: error.message,
+    });
+  }
+});
+
 export default router;

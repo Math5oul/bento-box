@@ -3,8 +3,11 @@
  */
 export enum BillStatus {
   PENDING = 'pending',
+  PENDING_PAYMENT = 'pending_payment', // Aguardando pagamento online
+  PROCESSING = 'processing', // Processando pagamento
   PAID = 'paid',
   CANCELLED = 'cancelled',
+  FAILED = 'failed', // Pagamento falhou
 }
 
 export enum PaymentMethod {
@@ -12,6 +15,9 @@ export enum PaymentMethod {
   CREDIT_CARD = 'credit_card',
   DEBIT_CARD = 'debit_card',
   PIX = 'pix',
+  ONLINE_CREDIT = 'online_credit', // Cartão online via gateway
+  ONLINE_DEBIT = 'online_debit', // Débito online via gateway
+  ONLINE_PIX = 'online_pix', // PIX via gateway
   OTHER = 'other',
 }
 
@@ -49,6 +55,21 @@ export interface BillItem {
 }
 
 /**
+ * Interface de dados de pagamento online
+ */
+export interface PaymentData {
+  provider?: string; // mercadopago, stripe, pagseguro, asaas
+  transactionId?: string; // ID da transação no gateway
+  paymentId?: string; // ID do pagamento no gateway
+  qrCode?: string; // QR Code PIX (base64 ou URL)
+  qrCodeText?: string; // Código PIX copia e cola
+  paymentUrl?: string; // URL de pagamento (cartão)
+  expiresAt?: Date; // Data de expiração do pagamento
+  webhookReceived?: boolean; // Se recebeu callback do gateway
+  webhookData?: any; // Dados do webhook
+}
+
+/**
  * Interface da Bill
  */
 export interface Bill {
@@ -65,6 +86,8 @@ export interface Bill {
   paidAt?: Date;
   paidBy?: string; // Usuário que fez o pagamento
   notes?: string;
+  // Campos para pagamento online
+  paymentData?: PaymentData;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,13 +133,19 @@ export const PaymentMethodLabels: Record<PaymentMethod, string> = {
   [PaymentMethod.CREDIT_CARD]: 'Cartão de Crédito',
   [PaymentMethod.DEBIT_CARD]: 'Cartão de Débito',
   [PaymentMethod.PIX]: 'PIX',
+  [PaymentMethod.ONLINE_CREDIT]: 'Cartão de Crédito Online',
+  [PaymentMethod.ONLINE_DEBIT]: 'Cartão de Débito Online',
+  [PaymentMethod.ONLINE_PIX]: 'PIX Online',
   [PaymentMethod.OTHER]: 'Outro',
 };
 
 export const BillStatusLabels: Record<BillStatus, string> = {
   [BillStatus.PENDING]: 'Pendente',
+  [BillStatus.PENDING_PAYMENT]: 'Aguardando Pagamento',
+  [BillStatus.PROCESSING]: 'Processando',
   [BillStatus.PAID]: 'Pago',
   [BillStatus.CANCELLED]: 'Cancelado',
+  [BillStatus.FAILED]: 'Falhou',
 };
 
 export const DiscountTypeLabels: Record<DiscountType, string> = {
