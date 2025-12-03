@@ -7,7 +7,6 @@ import { LoginModalComponent } from '../../components/login-modal/login-modal.co
 import { UserMenuComponent } from '../../components/user-menu/user-menu.component';
 import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 import { OrderHistoryComponent } from '../../components/order-history/order-history.component';
-import { AdminPanelComponent } from '../../components/admin-panel-components/admin-panel/admin-panel.component';
 
 @Component({
   selector: 'app-header',
@@ -17,7 +16,6 @@ import { AdminPanelComponent } from '../../components/admin-panel-components/adm
     CommonModule,
     LoginModalComponent,
     UserMenuComponent,
-    AdminPanelComponent,
     ChangePasswordModalComponent,
     OrderHistoryComponent,
   ],
@@ -27,7 +25,6 @@ import { AdminPanelComponent } from '../../components/admin-panel-components/adm
 export class HeaderComponent {
   isCartOpen = false;
   isLoginOpen = false;
-  isAdminPanelOpen = false;
   isChangePasswordOpen = false;
   isOrderHistoryOpen = false;
 
@@ -73,14 +70,6 @@ export class HeaderComponent {
 
   onCloseChangePassword() {
     this.isChangePasswordOpen = false;
-  }
-
-  onOpenAdminPanel() {
-    this.isAdminPanelOpen = true;
-  }
-
-  onCloseAdminPanel() {
-    this.isAdminPanelOpen = false;
   }
 
   onSearchInput(value: string) {

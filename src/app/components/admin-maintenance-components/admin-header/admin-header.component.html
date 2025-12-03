@@ -7,24 +7,38 @@
 
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
-      <!-- User Info / Login -->
+      @if (shouldShowButton('/maintenance/admin-tools')) {
+        <button
+          class="nav-btn btn-hub compact"
+          routerLink="/maintenance/admin-tools"
+          [disabled]="!isAdmin"
+        >
+          <span class="icon">🏠</span>
+          <span class="text">Hub</span>
+        </button>
+      }
 
-      <button
-        class="nav-btn btn-hub compact"
-        routerLink="/maintenance/admin-tools"
-        [disabled]="!isAdmin"
-      >
-        <span class="icon">🏠</span>
-        <span class="text">Hub</span>
-      </button>
-      <button class="nav-btn btn-waiter compact" routerLink="/maintenance/waiter">
-        <span class="icon">🧑‍🍳</span>
-        <span class="text">Garçom</span>
-      </button>
-      <button class="nav-btn btn-kitchen compact" routerLink="/maintenance/kitchen">
-        <span class="icon">🍳</span>
-        <span class="text">Cozinha</span>
-      </button>
+      @if (shouldShowButton('/maintenance/tables') && isAdmin) {
+        <button class="nav-btn btn-tables compact" routerLink="/maintenance/tables">
+          <span class="icon">🪑</span>
+          <span class="text">Mesas</span>
+        </button>
+      }
+
+      @if (shouldShowButton('/maintenance/waiter')) {
+        <button class="nav-btn btn-waiter compact" routerLink="/maintenance/waiter">
+          <span class="icon">🧑‍🍳</span>
+          <span class="text">Garçom</span>
+        </button>
+      }
+
+      @if (shouldShowButton('/maintenance/kitchen')) {
+        <button class="nav-btn btn-kitchen compact" routerLink="/maintenance/kitchen">
+          <span class="icon">🍳</span>
+          <span class="text">Cozinha</span>
+        </button>
+      }
+
       <button class="nav-btn btn-app compact" (click)="goToApp()">
         <span class="icon">📋</span>
         <span class="text">Cardápio</span>

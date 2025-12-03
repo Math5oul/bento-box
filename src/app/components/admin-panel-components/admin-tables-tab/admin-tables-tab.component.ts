@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Table, TableStatus } from '../../../interfaces';
 import { TableService } from '../../../services/table-service/table.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { TableOrdersModalComponent } from '../table-orders-modal/table-orders-modal.component';
 
 interface ReservationInfo {
   clientName: string;
@@ -36,13 +37,11 @@ interface TableWithDetails extends Table {
 @Component({
   selector: 'app-admin-tables-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TableOrdersModalComponent],
   templateUrl: './admin-tables-tab.component.html',
   styleUrl: './admin-tables-tab.component.scss',
 })
 export class AdminTablesTabComponent implements OnInit, OnDestroy {
-  @Output() viewOrders = new EventEmitter<number>();
-
   tableService = inject(TableService);
 
   tables: TableWithDetails[] = [];
@@ -51,6 +50,11 @@ export class AdminTablesTabComponent implements OnInit, OnDestroy {
   showCreateModal = false;
   showQRCode = false;
   qrCodeImage = '';
+
+  // Modal de pedidos
+  showOrdersModal = false;
+  selectedTableOrders: any[] = [];
+  selectedTableNumber: number = 0;
 
   // Polling para atualização em tempo real
   private pollingSubscription?: Subscription;
@@ -198,9 +202,44 @@ export class AdminTablesTabComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewTableOrders(table: TableWithDetails) {
-    // Emite evento para o componente pai abrir a aba de pedidos
-    this.viewOrders.emit(table.number);
+  async viewTableOrders(table: TableWithDetails) {
+    console.log('🔍 Abrindo pedidos da mesa:', table.number, 'ID:', table.id);
+    console.log('📊 CurrentOrders:', table.currentOrders);
+    this.selectedTableNumber = table.number;
+
+    // Verifica se há pedidos antes de fazer a requisição
+    if (!table.currentOrders || table.currentOrders.length === 0) {
+      console.log('⚠️ Mesa sem pedidos ativos');
+      alert('Esta mesa não possui pedidos ativos no momento.');
+      return;
+    }
+
+    // Busca os pedidos da mesa no backend
+    try {
+      console.log('📡 Buscando pedidos da API...');
+      const orders = await this.tableService.getTableOrders(table.id);
+      console.log('✅ Pedidos recebidos:', orders);
+
+      if (!orders || orders.length === 0) {
+        console.log('⚠️ Nenhum pedido retornado pela API');
+        alert('Não foi possível carregar os pedidos da mesa.');
+        return;
+      }
+
+      this.selectedTableOrders = orders;
+      this.showOrdersModal = true;
+      console.log('🎯 Modal deve abrir agora. showOrdersModal:', this.showOrdersModal);
+      console.log('📋 Pedidos para o modal:', this.selectedTableOrders);
+    } catch (error) {
+      console.error('❌ Erro ao buscar pedidos da mesa:', error);
+      alert('Erro ao carregar pedidos da mesa. Verifique o console para mais detalhes.');
+    }
+  }
+
+  closeOrdersModal() {
+    this.showOrdersModal = false;
+    this.selectedTableOrders = [];
+    this.selectedTableNumber = 0;
   }
 
   /**

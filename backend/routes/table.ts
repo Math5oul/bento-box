@@ -483,9 +483,15 @@ router.get(
         _id: { $in: table.currentOrders },
       }).populate('clientId', 'name email');
 
+      // Formata os pedidos para o frontend
+      const ordersFormatted = orders.map(order => ({
+        ...order.toObject(),
+        id: (order._id as any).toString(),
+      }));
+
       res.json({
         success: true,
-        orders,
+        orders: ordersFormatted,
       });
     } catch (error) {
       console.error('Erro ao listar pedidos:', error);

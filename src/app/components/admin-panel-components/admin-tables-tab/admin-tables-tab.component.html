@@ -57,14 +57,8 @@
           <button
             class="btn-action btn-orders"
             (click)="viewTableOrders(table)"
-            [disabled]="
-              !(table.currentOrders && table.currentOrders.length > 0) &&
-              !(table.ordersDetails && table.ordersDetails.length > 0)
-            "
-            [class.is-disabled]="
-              !(table.currentOrders && table.currentOrders.length > 0) &&
-              !(table.ordersDetails && table.ordersDetails.length > 0)
-            "
+            [disabled]="!(table.currentOrders && table.currentOrders.length > 0)"
+            [class.is-disabled]="!(table.currentOrders && table.currentOrders.length > 0)"
           >
             📋 Pedidos
           </button>
@@ -132,4 +126,13 @@
       }
     </div>
   </div>
+}
+
+<!-- Modal: Pedidos da Mesa -->
+@if (showOrdersModal) {
+  <app-table-orders-modal
+    [tableNumber]="selectedTableNumber"
+    [orders]="selectedTableOrders"
+    (close)="closeOrdersModal()"
+  ></app-table-orders-modal>
 }

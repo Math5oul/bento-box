@@ -73,6 +73,22 @@
       </div>
     }
 
+    <!-- Card: Gerenciar Mesas e Reservas -->
+    @if (userRole === 'admin') {
+      <div class="test-card">
+        <div class="card-icon">🪑</div>
+        <h3 class="card-title">Gerenciar Mesas e Reservas</h3>
+        <p class="card-description">Central de gerenciamento de mesas e sistema de reservas</p>
+        <ul class="card-features">
+          <li>Visualizar Status das Mesas</li>
+          <li>Criar e Gerenciar Reservas</li>
+          <li>Liberar/Ocupar Mesas</li>
+          <li>Acompanhamento em Tempo Real</li>
+        </ul>
+        <a routerLink="/maintenance/tables" class="card-button">Acessar Central</a>
+      </div>
+    }
+
     <!-- Card: Gerenciar Produtos -->
     @if (userRole === 'admin') {
       <div class="test-card">

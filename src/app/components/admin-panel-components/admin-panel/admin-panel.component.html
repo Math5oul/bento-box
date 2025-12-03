@@ -1,65 +1,36 @@
-<div class="admin-panel-overlay" (click)="closePanel()">
-  <div class="admin-panel-container" (click)="$event.stopPropagation()">
-    <div class="panel-header">
-      <div>
-        <h2>⚙️ Painel Administrativo</h2>
-        <span class="live-indicator">
-          <span class="pulse"></span>
-          Atualização automática
-        </span>
-      </div>
-      <button class="close-btn" (click)="closePanel()">×</button>
-    </div>
+<app-admin-header></app-admin-header>
 
-    <div class="panel-tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'tables'"
-        (click)="activeTab = 'tables'"
-      >
-        🪑 Mesas
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'reservations'"
-        (click)="activeTab = 'reservations'"
-      >
-        📅 Reservas
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'orders'"
-        (click)="activeTab = 'orders'"
-      >
-        📦 Pedidos
-      </button>
-      <button class="tab-btn" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">
-        📊 Estatísticas
-      </button>
-    </div>
+<div class="admin-panel-page">
+  <div class="page-header">
+    <h1>🪑 Gerenciamento de Mesas e Reservas</h1>
+    <span class="live-indicator">
+      <span class="pulse"></span>
+      Atualização automática
+    </span>
+  </div>
 
-    <div class="panel-content">
-      <!-- Tab: Mesas -->
-      @if (activeTab === 'tables') {
-        <app-admin-tables-tab (viewOrders)="viewTableOrders($event)"></app-admin-tables-tab>
-      }
+  <div class="panel-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'tables'" (click)="activeTab = 'tables'">
+      🪑 Mesas
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'reservations'"
+      (click)="activeTab = 'reservations'"
+    >
+      📅 Reservas
+    </button>
+  </div>
 
-      <!-- Tab: Reservas -->
-      @if (activeTab === 'reservations') {
-        <app-admin-reservations-tab></app-admin-reservations-tab>
-      }
+  <div class="panel-content">
+    <!-- Tab: Mesas -->
+    @if (activeTab === 'tables') {
+      <app-admin-tables-tab></app-admin-tables-tab>
+    }
 
-      <!-- Tab: Pedidos -->
-      @if (activeTab === 'orders') {
-        <div class="orders-section">
-          <app-admin-orders></app-admin-orders>
-        </div>
-      }
-
-      <!-- Tab: Estatísticas -->
-      @if (activeTab === 'stats') {
-        <app-admin-stats-tab></app-admin-stats-tab>
-      }
-    </div>
+    <!-- Tab: Reservas -->
+    @if (activeTab === 'reservations') {
+      <app-admin-reservations-tab></app-admin-reservations-tab>
+    }
   </div>
 </div>
