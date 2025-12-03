@@ -1,8 +1,9 @@
 /**
- * Interface de Desconto por Nível de Cliente
+ * Interface de Desconto por Role de Usuário
  */
 export interface CategoryDiscount {
-  clientLevel: number;
+  roleId: string; // ID do role (ex: ObjectId do role)
+  roleName?: string; // Nome do role (para exibição)
   discountPercent: number;
 }
 

@@ -104,7 +104,7 @@ export class CategoryService {
    */
   updateDiscounts(
     categoryId: string,
-    discounts: { clientLevel: number; discountPercent: number }[]
+    discounts: { roleId: string; discountPercent: number }[]
   ): Observable<{ success: boolean; data: Category; message: string }> {
     return this.http
       .put<{
