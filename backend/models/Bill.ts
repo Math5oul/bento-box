@@ -5,8 +5,11 @@ import mongoose, { Schema, Document } from 'mongoose';
  */
 export enum BillStatus {
   PENDING = 'pending',
+  PENDING_PAYMENT = 'pending_payment', // Aguardando pagamento online
+  PROCESSING = 'processing', // Processando pagamento
   PAID = 'paid',
   CANCELLED = 'cancelled',
+  FAILED = 'failed', // Pagamento falhou
 }
 
 export enum PaymentMethod {
@@ -14,6 +17,9 @@ export enum PaymentMethod {
   CREDIT_CARD = 'credit_card',
   DEBIT_CARD = 'debit_card',
   PIX = 'pix',
+  ONLINE_CREDIT = 'online_credit', // Cartão online via gateway
+  ONLINE_DEBIT = 'online_debit', // Débito online via gateway
+  ONLINE_PIX = 'online_pix', // PIX via gateway
   OTHER = 'other',
 }
 
@@ -51,6 +57,21 @@ export interface IBillItem {
 }
 
 /**
+ * Interface de dados de pagamento online
+ */
+export interface IPaymentData {
+  provider?: string; // mercadopago, stripe, pagseguro, asaas
+  transactionId?: string; // ID da transação no gateway
+  paymentId?: string; // ID do pagamento no gateway
+  qrCode?: string; // QR Code PIX (base64 ou URL)
+  qrCodeText?: string; // Código PIX copia e cola
+  paymentUrl?: string; // URL de pagamento (cartão)
+  expiresAt?: Date; // Data de expiração do pagamento
+  webhookReceived?: boolean; // Se recebeu callback do gateway
+  webhookData?: any; // Dados do webhook
+}
+
+/**
  * Interface do Documento Bill do MongoDB
  */
 export interface IBill extends Document {
@@ -66,6 +87,8 @@ export interface IBill extends Document {
   paidAt?: Date;
   paidBy?: mongoose.Types.ObjectId; // Usuário que fez o pagamento (se houver)
   notes?: string;
+  // Campos para pagamento online
+  paymentData?: IPaymentData;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -224,6 +247,23 @@ const BillSchema: Schema = new Schema(
     notes: {
       type: String,
       maxlength: 500,
+    },
+    paymentData: {
+      provider: {
+        type: String,
+        enum: ['mercadopago', 'stripe', 'pagseguro', 'asaas'],
+      },
+      transactionId: String,
+      paymentId: String,
+      qrCode: String,
+      qrCodeText: String,
+      paymentUrl: String,
+      expiresAt: Date,
+      webhookReceived: {
+        type: Boolean,
+        default: false,
+      },
+      webhookData: Schema.Types.Mixed,
     },
   },
   {

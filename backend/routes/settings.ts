@@ -126,6 +126,21 @@ async function writeEnvFile(env: Record<string, string>): Promise<void> {
   lines.push(`PAYMENT_WEBHOOK_URL=${env.PAYMENT_WEBHOOK_URL || ''}`);
   lines.push('');
 
+  // POS Terminal
+  lines.push('# ============================================');
+  lines.push('# POS TERMINAL (MAQUININHA)');
+  lines.push('# ============================================');
+  lines.push(`POS_ENABLED=${env.POS_ENABLED || 'false'}`);
+  lines.push(`POS_TERMINAL_TYPE=${env.POS_TERMINAL_TYPE || 'none'}`);
+  lines.push(`POS_CONNECTION_TYPE=${env.POS_CONNECTION_TYPE || 'wifi'}`);
+  lines.push(`POS_IP_ADDRESS=${env.POS_IP_ADDRESS || ''}`);
+  lines.push(`POS_PORT=${env.POS_PORT || '8080'}`);
+  lines.push(`POS_DEVICE_ID=${env.POS_DEVICE_ID || ''}`);
+  lines.push(`POS_STONE_CODE=${env.POS_STONE_CODE || ''}`);
+  lines.push(`POS_SERIAL_NUMBER=${env.POS_SERIAL_NUMBER || ''}`);
+  lines.push(`POS_AUTO_CONFIRM=${env.POS_AUTO_CONFIRM || 'true'}`);
+  lines.push('');
+
   // Email
   lines.push('# ============================================');
   lines.push('# EMAIL (SMTP)');
@@ -183,6 +198,17 @@ router.get('/', authenticate, canManageSettings, async (req, res) => {
         debitCardEnabled: env.PAYMENT_DEBIT_CARD_ENABLED === 'true',
         webhookUrl: env.PAYMENT_WEBHOOK_URL || '',
       },
+      posTerminal: {
+        enabled: env.POS_ENABLED === 'true',
+        terminalType: env.POS_TERMINAL_TYPE || 'none',
+        connectionType: env.POS_CONNECTION_TYPE || 'wifi',
+        ipAddress: env.POS_IP_ADDRESS || '',
+        port: parseInt(env.POS_PORT || '8080'),
+        deviceId: env.POS_DEVICE_ID || '',
+        stoneCode: env.POS_STONE_CODE || '',
+        serialNumber: env.POS_SERIAL_NUMBER || '',
+        autoConfirm: env.POS_AUTO_CONFIRM === 'true',
+      },
       email: {
         enabled: env.EMAIL_ENABLED === 'true',
         host: env.EMAIL_HOST || 'smtp.gmail.com',
@@ -212,7 +238,7 @@ router.get('/', authenticate, canManageSettings, async (req, res) => {
  */
 router.put('/', authenticate, canManageSettings, async (req, res) => {
   try {
-    const { restaurant, payment, email, database } = req.body;
+    const { restaurant, payment, posTerminal, email, database } = req.body;
 
     // Ler .env atual
     const env = await readEnvFile();
@@ -243,6 +269,19 @@ router.put('/', authenticate, canManageSettings, async (req, res) => {
       env.PAYMENT_CREDIT_CARD_ENABLED = payment.creditCardEnabled ? 'true' : 'false';
       env.PAYMENT_DEBIT_CARD_ENABLED = payment.debitCardEnabled ? 'true' : 'false';
       env.PAYMENT_WEBHOOK_URL = payment.webhookUrl || '';
+    }
+
+    // Atualizar valores de POS Terminal
+    if (posTerminal) {
+      env.POS_ENABLED = posTerminal.enabled ? 'true' : 'false';
+      env.POS_TERMINAL_TYPE = posTerminal.terminalType || 'none';
+      env.POS_CONNECTION_TYPE = posTerminal.connectionType || 'wifi';
+      env.POS_IP_ADDRESS = posTerminal.ipAddress || '';
+      env.POS_PORT = String(posTerminal.port || 8080);
+      env.POS_DEVICE_ID = posTerminal.deviceId || '';
+      env.POS_STONE_CODE = posTerminal.stoneCode || '';
+      env.POS_SERIAL_NUMBER = posTerminal.serialNumber || '';
+      env.POS_AUTO_CONFIRM = posTerminal.autoConfirm ? 'true' : 'false';
     }
 
     // Atualizar valores de email
@@ -286,10 +325,8 @@ router.put('/', authenticate, canManageSettings, async (req, res) => {
  */
 router.post('/test-payment', authenticate, canManageSettings, async (req, res) => {
   try {
-    const { provider, publicKey, accessToken } = req.body;
-
-    // TODO: Implementar teste real com o gateway
-    // Por enquanto, apenas validação básica
+    const { provider, publicKey, accessToken, pixEnabled, creditCardEnabled, debitCardEnabled } =
+      req.body;
 
     if (!publicKey || !accessToken) {
       return res.json({
@@ -298,16 +335,66 @@ router.post('/test-payment', authenticate, canManageSettings, async (req, res) =
       });
     }
 
-    // Simular teste
-    res.json({
-      success: true,
-      message: `Conexão com ${provider} OK`,
+    // Importar serviço de pagamento
+    const { PaymentService } = await import('../services/payment.service');
+
+    const paymentService = new PaymentService({
+      provider,
+      publicKey,
+      accessToken,
+      pixEnabled: pixEnabled || false,
+      creditCardEnabled: creditCardEnabled || false,
+      debitCardEnabled: debitCardEnabled || false,
+      webhookUrl: '',
     });
-  } catch (error) {
+
+    const result = await paymentService.testConnection();
+    res.json(result);
+  } catch (error: any) {
     console.error('Erro ao testar pagamento:', error);
     res.json({
       success: false,
-      message: 'Erro ao testar conexão',
+      message: error.message || 'Erro ao testar conexão',
+    });
+  }
+});
+
+/**
+ * POST /api/settings/test-pos
+ * Testar conexão com maquininha (POS Terminal)
+ */
+router.post('/test-pos', authenticate, canManageSettings, async (req, res) => {
+  try {
+    const { terminalType, connectionType, ipAddress, port, deviceId, stoneCode } = req.body;
+
+    if (terminalType === 'none') {
+      return res.json({
+        success: false,
+        message: 'Tipo de terminal não selecionado',
+      });
+    }
+
+    // Importar serviço de POS
+    const { POSTerminalService } = await import('../services/pos-terminal.service');
+
+    const posService = new POSTerminalService({
+      terminalType,
+      connectionType,
+      ipAddress: ipAddress || '',
+      port: port || 8080,
+      deviceId: deviceId || '',
+      stoneCode: stoneCode || '',
+      serialNumber: '',
+      autoConfirm: true,
+    });
+
+    const result = await posService.testConnection();
+    res.json(result);
+  } catch (error: any) {
+    console.error('Erro ao testar POS:', error);
+    res.json({
+      success: false,
+      message: error.message || 'Erro ao testar conexão com maquininha',
     });
   }
 });

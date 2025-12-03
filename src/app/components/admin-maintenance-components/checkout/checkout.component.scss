@@ -925,3 +925,146 @@
     }
   }
 }
+
+// =============================================
+// PAYMENT MODE SELECTOR
+// =============================================
+.payment-mode-selector {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.4rem;
+    color: #333;
+    font-weight: 700;
+  }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .mode-card {
+    position: relative;
+    padding: 1.5rem;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+
+    input[type='radio'] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mode-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mode-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.3rem;
+    }
+
+    .mode-desc {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    &:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+
+      .mode-title,
+      .mode-desc {
+        color: white;
+      }
+
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+  }
+}
+
+// Alert Info
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+
+  &.alert-info {
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+
+    strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    ol {
+      margin: 0.5rem 0 0 1.5rem;
+      padding: 0;
+
+      li {
+        margin-bottom: 0.3rem;
+      }
+    }
+
+    p {
+      margin: 0.5rem 0 0 0;
+    }
+  }
+}
+
+// Button Primary (para POS)
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .mode-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

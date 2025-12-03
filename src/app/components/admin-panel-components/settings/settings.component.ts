@@ -26,6 +26,24 @@ interface PaymentConfig {
   webhookUrl: string;
 }
 
+interface POSTerminalConfig {
+  enabled: boolean;
+  terminalType:
+    | 'stone'
+    | 'pagseguro_moderninha'
+    | 'mercadopago_point'
+    | 'cielo_lio'
+    | 'getnet'
+    | 'none';
+  connectionType: 'wifi' | 'bluetooth' | 'usb';
+  ipAddress: string;
+  port: number;
+  deviceId: string;
+  stoneCode: string; // Para Stone
+  serialNumber: string;
+  autoConfirm: boolean; // Confirma automaticamente quando POS aprovar
+}
+
 interface EmailConfig {
   enabled: boolean;
   host: string;
@@ -45,6 +63,7 @@ interface DatabaseConfig {
 interface SystemConfig {
   restaurant: RestaurantConfig;
   payment: PaymentConfig;
+  posTerminal: POSTerminalConfig;
   email: EmailConfig;
   database: DatabaseConfig;
 }
@@ -63,7 +82,8 @@ export class SettingsComponent implements OnInit {
 
   loading = false;
   saving = false;
-  activeTab: 'restaurant' | 'payment' | 'email' | 'database' = 'restaurant';
+  testingPOS = false;
+  activeTab: 'restaurant' | 'payment' | 'pos' | 'email' | 'database' = 'restaurant';
 
   config: SystemConfig = {
     restaurant: {
@@ -82,6 +102,17 @@ export class SettingsComponent implements OnInit {
       creditCardEnabled: false,
       debitCardEnabled: false,
       webhookUrl: '',
+    },
+    posTerminal: {
+      enabled: false,
+      terminalType: 'none',
+      connectionType: 'wifi',
+      ipAddress: '',
+      port: 8080,
+      deviceId: '',
+      stoneCode: '',
+      serialNumber: '',
+      autoConfirm: true,
     },
     email: {
       enabled: false,
@@ -106,6 +137,22 @@ export class SettingsComponent implements OnInit {
     { value: 'stripe', label: 'Stripe', icon: '💳' },
     { value: 'pagseguro', label: 'PagSeguro', icon: '💳' },
     { value: 'asaas', label: 'Asaas', icon: '💳' },
+  ];
+
+  // POS Terminals disponíveis
+  posTerminals = [
+    { value: 'none', label: 'Desabilitado', icon: '🚫' },
+    { value: 'stone', label: 'Stone (Ton)', icon: '💳' },
+    { value: 'pagseguro_moderninha', label: 'PagSeguro Moderninha', icon: '💳' },
+    { value: 'mercadopago_point', label: 'Mercado Pago Point', icon: '💳' },
+    { value: 'cielo_lio', label: 'Cielo LIO', icon: '💳' },
+    { value: 'getnet', label: 'GetNet', icon: '💳' },
+  ];
+
+  connectionTypes = [
+    { value: 'wifi', label: 'WiFi (Rede Local)', icon: '📡' },
+    { value: 'bluetooth', label: 'Bluetooth', icon: '📲' },
+    { value: 'usb', label: 'USB', icon: '🔌' },
   ];
 
   // SMTP Providers
@@ -233,6 +280,52 @@ export class SettingsComponent implements OnInit {
     } catch (error) {
       console.error('Erro ao testar conexão:', error);
       alert('❌ Erro ao testar conexão com o gateway');
+    }
+  }
+
+  async testPOSConnection() {
+    if (this.config.posTerminal.terminalType === 'none') {
+      alert('⚠️ Selecione um tipo de terminal primeiro');
+      return;
+    }
+
+    if (this.config.posTerminal.connectionType === 'wifi' && !this.config.posTerminal.ipAddress) {
+      alert('⚠️ Preencha o endereço IP da maquininha');
+      return;
+    }
+
+    this.testingPOS = true;
+    try {
+      const token = localStorage.getItem('auth_token');
+      const result = await this.http
+        .post<any>(
+          `${environment.apiUrl}/settings/test-pos`,
+          {
+            terminalType: this.config.posTerminal.terminalType,
+            connectionType: this.config.posTerminal.connectionType,
+            ipAddress: this.config.posTerminal.ipAddress,
+            port: this.config.posTerminal.port,
+            deviceId: this.config.posTerminal.deviceId,
+            stoneCode: this.config.posTerminal.stoneCode,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .toPromise();
+
+      if (result?.success) {
+        alert('✅ Conexão com maquininha testada com sucesso!\n\n' + result.message);
+      } else {
+        alert(
+          '❌ Erro na conexão: ' + (result?.message || 'Não foi possível conectar à maquininha')
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao testar conexão POS:', error);
+      alert('❌ Erro ao testar conexão com a maquininha');
+    } finally {
+      this.testingPOS = false;
     }
   }
 
