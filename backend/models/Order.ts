@@ -44,6 +44,7 @@ export interface IOrderItem {
   selectedSize?: IOrderItemSize;
   selectedVariation?: IOrderItemVariation;
   status?: OrderStatus;
+  paidQuantity?: number; // Quantidade já paga deste item
 }
 
 /**
@@ -75,6 +76,7 @@ const OrderItemSchema = new Schema<IOrderItem>({
   unitPrice: { type: Number, required: true, min: 0 },
   totalPrice: { type: Number, required: true, min: 0 },
   notes: String,
+  paidQuantity: { type: Number, default: 0, min: 0 },
   status: {
     type: String,
     enum: Object.values(OrderStatus),

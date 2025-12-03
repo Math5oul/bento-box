@@ -23,6 +23,9 @@ interface CheckoutItem extends BillItem {
   clientName?: string;
   clientId?: string;
   sessionToken?: string;
+  parentItemId?: string; // ID do item pai (se for subitem)
+  isParentItem?: boolean; // Se é um item pai que foi dividido
+  parentDiscount?: { type: DiscountType; value: number; description?: string }; // Desconto do item pai (para referência)
 }
 
 interface ClientGroup {
@@ -137,23 +140,30 @@ export class CheckoutComponent implements OnInit {
         }
 
         order.items.forEach((orderItem, index) => {
-          this.items.push({
-            selected: false,
-            editing: false,
-            orderId: order.id,
-            orderItemId: `${order.id}-${index}`,
-            productId: String(orderItem.productId || ''),
-            productName: orderItem.productName,
-            quantity: orderItem.quantity,
-            originalQuantity: orderItem.quantity,
-            unitPrice: orderItem.unitPrice,
-            subtotal: orderItem.quantity * orderItem.unitPrice,
-            finalPrice: orderItem.quantity * orderItem.unitPrice,
-            isSplit: false,
-            clientName: order.clientName,
-            clientId: clientId, // Usa o ID extraído corretamente
-            sessionToken: order.sessionToken,
-          });
+          // Calcula a quantidade não paga
+          const paidQty = orderItem.paidQuantity || 0;
+          const remainingQty = orderItem.quantity - paidQty;
+
+          // Só adiciona se ainda houver quantidade não paga
+          if (remainingQty > 0) {
+            this.items.push({
+              selected: false,
+              editing: false,
+              orderId: order.id,
+              orderItemId: `${order.id}-${index}`,
+              productId: String(orderItem.productId || ''),
+              productName: orderItem.productName,
+              quantity: remainingQty, // Usa apenas a quantidade não paga
+              originalQuantity: orderItem.quantity, // Mantém a quantidade original
+              unitPrice: orderItem.unitPrice,
+              subtotal: remainingQty * orderItem.unitPrice,
+              finalPrice: remainingQty * orderItem.unitPrice,
+              isSplit: false,
+              clientName: order.clientName,
+              clientId: clientId, // Usa o ID extraído corretamente
+              sessionToken: order.sessionToken,
+            });
+          }
         });
       });
       this.groupItemsByClient();
@@ -291,6 +301,12 @@ export class CheckoutComponent implements OnInit {
   }
 
   openSplitModal(item: CheckoutItem) {
+    // Não permite dividir um item que já é um subitem
+    if (item.isSplit) {
+      alert('⚠️ Este item já está dividido. Para dividir novamente, primeiro remova a divisão.');
+      return;
+    }
+
     this.splitItem = item;
     this.splitQuantity = 2;
     this.showSplitModal = true;
@@ -302,55 +318,120 @@ export class CheckoutComponent implements OnInit {
     this.splitQuantity = 2;
   }
 
+  // Função para desfazer a divisão de um item (reunificar subitens)
+  undoSplit(item: CheckoutItem) {
+    if (!item.isSplit || !item.parentItemId) return;
+
+    // Encontra todos os subitens do mesmo pai
+    const siblings = this.items.filter(i => i.parentItemId === item.parentItemId);
+
+    if (siblings.length === 0) return;
+
+    // Reconstrói o item original
+    const totalQuantity = siblings.reduce((sum, sibling) => sum + sibling.quantity, 0);
+    const firstSibling = siblings[0];
+
+    const reunifiedItem: CheckoutItem = {
+      ...firstSibling,
+      quantity: totalQuantity,
+      subtotal: totalQuantity * firstSibling.unitPrice,
+      finalPrice: totalQuantity * firstSibling.unitPrice,
+      discount: firstSibling.parentDiscount ? { ...firstSibling.parentDiscount } : undefined,
+      parentDiscount: undefined,
+      isSplit: false,
+      splitIndex: undefined,
+      totalSplits: undefined,
+      parentItemId: undefined,
+      isParentItem: false,
+      selected: false,
+    };
+
+    // Recalcula o finalPrice com o desconto
+    if (reunifiedItem.discount) {
+      if (reunifiedItem.discount.type === DiscountType.PERCENTAGE) {
+        reunifiedItem.finalPrice =
+          reunifiedItem.subtotal * (1 - reunifiedItem.discount.value / 100);
+      } else {
+        reunifiedItem.finalPrice = reunifiedItem.subtotal - reunifiedItem.discount.value;
+      }
+      reunifiedItem.finalPrice = Math.max(0, Math.round(reunifiedItem.finalPrice * 100) / 100);
+    }
+
+    // Remove todos os subitens
+    siblings.forEach(sibling => {
+      const idx = this.items.indexOf(sibling);
+      if (idx > -1) {
+        this.items.splice(idx, 1);
+      }
+    });
+
+    // Adiciona o item reunificado
+    this.items.push(reunifiedItem);
+    this.groupItemsByClient();
+  }
+
   confirmSplit() {
-    if (!this.splitItem || this.splitQuantity < 2 || this.splitQuantity > this.splitItem.quantity) {
-      alert('⚠️ Quantidade inválida para divisão');
+    if (!this.splitItem || this.splitQuantity < 2) {
+      alert('⚠️ Quantidade inválida para divisão. Mínimo: 2 partes');
       return;
     }
     const originalItem = this.splitItem;
-    const qtyPerSplit = Math.floor(originalItem.quantity / this.splitQuantity);
-    const remainder = originalItem.quantity % this.splitQuantity;
+
+    // Calcula o valor final do item pai (após descontos)
+    const parentFinalPrice = originalItem.finalPrice;
+
+    // Calcula o valor de cada subparte
+    const pricePerPart = parentFinalPrice / this.splitQuantity;
+
+    // Calcula a quantidade de cada subparte
+    const qtyPerSplit = originalItem.quantity / this.splitQuantity;
+
+    // Gera um ID único para o item pai
+    const parentId = `parent-${originalItem.orderItemId}-${Date.now()}`;
+
+    // Marca o item original como pai e remove da seleção
     const itemIndex = this.items.indexOf(originalItem);
     this.items.splice(itemIndex, 1);
+
+    // Cria os subitens
     for (let i = 0; i < this.splitQuantity; i++) {
-      const splitQty = i === 0 ? qtyPerSplit + remainder : qtyPerSplit;
-      const splitSubtotal = splitQty * originalItem.unitPrice;
-      let splitDiscount = originalItem.discount ? { ...originalItem.discount } : undefined;
-      if (splitDiscount) {
-        if (splitDiscount.type === DiscountType.PERCENTAGE) {
-          // Mantém mesma %
-        } else {
-          // Desconto fixo proporcional
-          const proportion = splitQty / originalItem.quantity;
-          splitDiscount.value = Math.round(splitDiscount.value * proportion * 100) / 100;
-        }
-      }
-      const splitFinalPrice = splitDiscount
-        ? splitDiscount.type === DiscountType.PERCENTAGE
-          ? splitSubtotal * (1 - splitDiscount.value / 100)
-          : splitSubtotal - splitDiscount.value
-        : splitSubtotal;
+      // Cada subitem recebe uma parte igual do valor final
+      const splitFinalPrice = Math.round(pricePerPart * 100) / 100;
+      const splitSubtotal = Math.round(qtyPerSplit * originalItem.unitPrice * 100) / 100;
+
       this.items.push({
         ...originalItem,
-        quantity: splitQty,
+        quantity: Math.round(qtyPerSplit * 100) / 100, // Arredonda para 2 casas decimais
         subtotal: splitSubtotal,
         finalPrice: splitFinalPrice,
-        discount: splitDiscount,
+        discount: undefined, // Subitens não têm desconto próprio
+        parentDiscount: originalItem.discount ? { ...originalItem.discount } : undefined, // Guarda desconto do pai
         isSplit: true,
         splitIndex: i + 1,
         totalSplits: this.splitQuantity,
         selected: false,
+        parentItemId: parentId,
+        isParentItem: false,
       });
     }
+
     this.groupItemsByClient();
     this.closeSplitModal();
   }
 
   openDiscountModal(item: CheckoutItem) {
+    // Não permite aplicar desconto em subitens
+    if (item.isSplit) {
+      alert(
+        '⚠️ Não é possível aplicar desconto em itens divididos. O desconto deve ser aplicado antes da divisão.'
+      );
+      return;
+    }
+
     this.discountItem = item;
-    this.discountType = DiscountType.PERCENTAGE;
-    this.discountValue = 0;
-    this.discountDescription = '';
+    this.discountType = item.discount?.type || DiscountType.PERCENTAGE;
+    this.discountValue = item.discount?.value || 0;
+    this.discountDescription = item.discount?.description || '';
     this.showDiscountModal = true;
   }
 
@@ -435,6 +516,10 @@ export class CheckoutComponent implements OnInit {
     }
     this.loading = true;
     try {
+      // Calcula subtotal e total final
+      const subtotal = this.selectedItems.reduce((sum, item) => sum + item.subtotal, 0);
+      const finalTotal = this.selectedItems.reduce((sum, item) => sum + item.finalPrice, 0);
+
       const billData: CreateBillDTO = {
         tableId: this.selectedTable.id,
         tableNumber: this.selectedTable.number,
@@ -454,6 +539,8 @@ export class CheckoutComponent implements OnInit {
           splitIndex: item.splitIndex,
           totalSplits: item.totalSplits,
         })),
+        subtotal: subtotal,
+        finalTotal: finalTotal,
         paymentMethod: this.paymentMethod,
         notes: this.paymentNotes || undefined,
       };
@@ -461,10 +548,29 @@ export class CheckoutComponent implements OnInit {
       if (response?.success && response.data._id) {
         await this.billService.markAsPaid(response.data._id, this.paymentMethod).toPromise();
         alert('✅ Pagamento processado com sucesso!');
-        const paidItemIds = new Set(this.selectedItems.map(item => item.orderItemId));
-        this.items = this.items.filter(item => !paidItemIds.has(item.orderItemId));
+
+        // Remove ou atualiza itens pagos
+        this.selectedItems.forEach(paidItem => {
+          const itemIndex = this.items.findIndex(item => item.orderItemId === paidItem.orderItemId);
+          if (itemIndex !== -1) {
+            const currentItem = this.items[itemIndex];
+
+            // Se a quantidade paga é igual à quantidade atual, remove completamente
+            if (paidItem.quantity >= currentItem.quantity) {
+              this.items.splice(itemIndex, 1);
+            } else {
+              // Se foi pago parcialmente, reduz a quantidade restante
+              currentItem.quantity -= paidItem.quantity;
+              currentItem.subtotal = currentItem.quantity * currentItem.unitPrice;
+              currentItem.finalPrice = currentItem.subtotal;
+              currentItem.selected = false; // Desmarca para não pagar novamente
+            }
+          }
+        });
+
         this.paymentMethod = PaymentMethod.CASH;
         this.paymentNotes = '';
+        this.groupItemsByClient(); // Reagrupa após atualizar quantidades
         this.items.length > 0 ? (this.step = 'select-items') : this.resetCheckout();
         this.loadBillHistory();
       }
@@ -489,6 +595,31 @@ export class CheckoutComponent implements OnInit {
   changeTable() {
     if (confirm('Deseja trocar de mesa? Os itens selecionados serão perdidos.')) {
       this.resetCheckout();
+    }
+  }
+
+  async clearTable() {
+    if (!this.selectedTable) {
+      return;
+    }
+
+    if (
+      confirm(
+        `Deseja limpar a mesa ${this.selectedTable.number}? Isso irá liberar a mesa e limpar todos os dados. Esta ação não pode ser desfeita.`
+      )
+    ) {
+      try {
+        this.loading = true;
+        await this.tableService.clearTable(this.selectedTable.id);
+        alert('✅ Mesa limpa com sucesso!');
+        this.resetCheckout();
+        await this.loadTables();
+      } catch (error) {
+        console.error('Erro ao limpar mesa:', error);
+        alert('❌ Erro ao limpar mesa.');
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }

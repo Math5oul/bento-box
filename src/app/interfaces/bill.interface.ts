@@ -77,6 +77,8 @@ export interface CreateBillDTO {
   tableNumber: number;
   orderIds: string[];
   items: BillItem[];
+  subtotal: number;
+  finalTotal: number;
   paymentMethod?: PaymentMethod;
   notes?: string;
 }

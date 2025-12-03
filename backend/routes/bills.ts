@@ -12,7 +12,8 @@ const router = Router();
  */
 router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { tableId, tableNumber, orderIds, items, paymentMethod, notes } = req.body;
+    const { tableId, tableNumber, orderIds, items, subtotal, finalTotal, paymentMethod, notes } =
+      req.body;
 
     // Validações básicas
     if (!tableId || !tableNumber || !items || items.length === 0) {
@@ -73,6 +74,8 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
       tableNumber,
       orderIds: orderIds || [],
       items: processedItems,
+      subtotal: subtotal,
+      finalTotal: finalTotal,
       paymentMethod,
       status: BillStatus.PENDING,
       paidBy: (req as any).user?.userId,
@@ -80,6 +83,31 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
     });
 
     await bill.save();
+
+    // Atualizar paidQuantity nos orders originais
+    for (const item of processedItems) {
+      if (item.orderId && item.quantity) {
+        try {
+          const order = await Order.findById(item.orderId);
+          if (order) {
+            // Encontra o item no order usando o orderItemId
+            const orderItemIndex = order.items.findIndex(
+              (oi: any, idx: number) => `${item.orderId}-${idx}` === item.orderItemId
+            );
+
+            if (orderItemIndex !== -1) {
+              const orderItem = order.items[orderItemIndex];
+              // Incrementa a quantidade paga
+              orderItem.paidQuantity = (orderItem.paidQuantity || 0) + item.quantity;
+              await order.save();
+            }
+          }
+        } catch (orderError) {
+          console.error(`Erro ao atualizar order ${item.orderId}:`, orderError);
+          // Não falha a operação toda se um order falhar
+        }
+      }
+    }
 
     res.status(201).json({
       success: true,
