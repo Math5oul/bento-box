@@ -373,22 +373,23 @@
                       Cada variação pode ter título, descrição, foto e preço adicional.
                     </p>
 
-                    <div
-                      *ngIf="!editMode"
-                      class="variant-warning"
-                      style="
-                        color: #b00;
-                        background: #fff3f3;
-                        border: 1px solid #fbb;
-                        padding: 10px;
-                        border-radius: 6px;
-                        margin-bottom: 1rem;
-                      "
-                    >
-                      ⚠️ Salve o produto antes de adicionar variações.
-                    </div>
+                    @if (!editMode) {
+                      <div
+                        class="variant-warning"
+                        style="
+                          color: #b00;
+                          background: #fff3f3;
+                          border: 1px solid #fbb;
+                          padding: 10px;
+                          border-radius: 6px;
+                          margin-bottom: 1rem;
+                        "
+                      >
+                        ⚠️ Salve o produto antes de adicionar variações.
+                      </div>
+                    }
 
-                    <ng-container *ngIf="editMode">
+                    @if (editMode) {
                       <!-- Lista de variantes existentes -->
                       <div class="variants-list">
                         @for (variant of variations; track $index) {
@@ -528,7 +529,7 @@
                           }
                         </div>
                       </div>
-                    </ng-container>
+                    }
                   </div>
                 }
 
