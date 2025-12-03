@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body } from 'express-validator';
+import mongoose from 'mongoose';
 import { User, UserRole } from '../models/User';
 import { Table } from '../models/Table';
 import { Order } from '../models/Order';
@@ -29,7 +30,7 @@ router.post(
   validate,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, role } = req.body;
 
       // Verifica se email já existe
       const existingUser = await User.findOne({ email });
@@ -41,12 +42,31 @@ router.post(
         return;
       }
 
+      // Se role foi fornecido, validar (aceita enum ou ObjectId)
+      let userRole = UserRole.CLIENT; // Default
+      if (role) {
+        const validEnumRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
+        const isEnumRole = validEnumRoles.includes(role);
+        const isObjectId = mongoose.Types.ObjectId.isValid(role);
+
+        if (isEnumRole) {
+          userRole = role === 'garçom' ? 'garcom' : role;
+        } else if (isObjectId) {
+          // Verificar se o role existe
+          const { Role } = await import('../models');
+          const roleExists = await Role.findById(role);
+          if (roleExists) {
+            userRole = role; // Use ObjectId directly
+          }
+        }
+      }
+
       // Cria novo usuário
       const user = new User({
         name,
         email,
         password,
-        role: UserRole.CLIENT,
+        role: userRole,
         isAnonymous: false,
       });
 
