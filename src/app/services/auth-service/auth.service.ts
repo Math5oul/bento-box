@@ -2,13 +2,8 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin' | 'cozinha' | 'garcom' | 'client';
-}
+import { User, UserRole } from '../../interfaces/user.interface';
+import { RolePermissions } from '../../interfaces/role.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -125,22 +120,207 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'admin';
+    // Backward compatibility: check role string OR permissions
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return user?.permissions?.accessAdminPanel ?? false;
   }
 
   isKitchen(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'cozinha';
+    // Backward compatibility: check role string OR permissions
+    if (user?.role === UserRole.KITCHEN || user?.role === 'cozinha') {
+      return true;
+    }
+    return user?.permissions?.accessKitchenPanel ?? false;
   }
 
   isWaiter(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'garcom';
+    // Backward compatibility: check role string OR permissions
+    if (user?.role === UserRole.WAITER || user?.role === 'garcom') {
+      return true;
+    }
+    return user?.permissions?.accessWaiterPanel ?? false;
   }
 
   isClient(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'client';
+    // Backward compatibility: check role string OR permissions
+    if (user?.role === UserRole.CLIENT || user?.role === 'client') {
+      return true;
+    }
+    // Clientes são usuários que podem fazer pedidos mas não têm acesso a painéis de staff
+    return user?.permissions?.canOrder ?? false;
+  }
+
+  /**
+   * Verifica se o usuário tem uma permissão específica
+   */
+  hasPermission(permission: keyof RolePermissions): boolean {
+    const user = this.getCurrentUser();
+    return user?.permissions?.[permission] ?? false;
+  }
+
+  /**
+   * Verifica se o usuário tem acesso ao painel de administração
+   */
+  canAccessAdminPanel(): boolean {
+    const user = this.getCurrentUser();
+
+    // Admin legacy tem acesso a tudo
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+
+    // Se role é um ObjectId (string longa) mas não temos permissions, precisa relogar
+    if (
+      user?.role &&
+      typeof user.role === 'string' &&
+      user.role.length === 24 &&
+      !user.permissions
+    ) {
+      return false;
+    }
+
+    return this.hasPermission('accessAdminPanel');
+  }
+
+  /**
+   * Verifica se o usuário tem acesso ao painel da cozinha
+   */
+  canAccessKitchenPanel(): boolean {
+    const user = this.getCurrentUser();
+
+    // Admin legacy tem acesso a tudo
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+
+    // Se role é ObjectId mas sem permissions, bloqueia
+    if (
+      user?.role &&
+      typeof user.role === 'string' &&
+      user.role.length === 24 &&
+      !user.permissions
+    ) {
+      return false;
+    }
+
+    return this.hasPermission('accessKitchenPanel');
+  }
+
+  /**
+   * Verifica se o usuário tem acesso ao painel do garçom
+   */
+  canAccessWaiterPanel(): boolean {
+    const user = this.getCurrentUser();
+
+    // Admin legacy tem acesso a tudo
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+
+    // Se role é ObjectId mas sem permissions, bloqueia
+    if (
+      user?.role &&
+      typeof user.role === 'string' &&
+      user.role.length === 24 &&
+      !user.permissions
+    ) {
+      return false;
+    }
+
+    return this.hasPermission('accessWaiterPanel');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar pedidos
+   */
+  canManageOrders(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageOrders');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar mesas
+   */
+  canManageTables(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageTables');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar produtos
+   */
+  canManageProducts(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageProducts');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar categorias
+   */
+  canManageCategories(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageCategories');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar usuários
+   */
+  canManageUsers(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageUsers');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar roles
+   */
+  canManageRoles(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageRoles');
+  }
+
+  /**
+   * Verifica se o usuário pode visualizar relatórios
+   */
+  canViewReports(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canViewReports');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar pagamentos
+   */
+  canManagePayments(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManagePayments');
   }
 
   getToken(): string | null {

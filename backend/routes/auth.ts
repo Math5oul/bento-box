@@ -72,12 +72,33 @@ router.post(
 
       await user.save();
 
+      // Popular roleDetails se role for ObjectId
+      let populatedUser: any = user;
+      if (mongoose.Types.ObjectId.isValid(user.role)) {
+        const populated = await User.findById(user._id).populate('role').lean();
+        if (populated) {
+          populatedUser = populated;
+        }
+      }
+
       // Gera token JWT
       const token = generateToken(user);
 
       // Remove senha da resposta
-      const userResponse = user.toObject();
+      const userResponse: any = populatedUser?.toObject
+        ? populatedUser.toObject()
+        : { ...populatedUser };
       delete userResponse.password;
+
+      // Adicionar permissions para acesso rápido no frontend
+      if (
+        userResponse.role &&
+        typeof userResponse.role === 'object' &&
+        'permissions' in userResponse.role
+      ) {
+        userResponse.roleDetails = userResponse.role;
+        userResponse.permissions = userResponse.role.permissions;
+      }
 
       res.status(201).json({
         success: true,
@@ -132,12 +153,47 @@ router.post(
         return;
       }
 
+      // Popular roleDetails se role for ObjectId
+      let populatedUser: any = user;
+      console.log(
+        '[Login] User role:',
+        user.role,
+        'isObjectId:',
+        mongoose.Types.ObjectId.isValid(user.role)
+      );
+
+      if (mongoose.Types.ObjectId.isValid(user.role)) {
+        const populated = await User.findById(user._id).select('+password').populate('role').lean();
+        console.log('[Login] Populated user:', JSON.stringify(populated, null, 2));
+        if (populated) {
+          populatedUser = populated;
+        }
+      }
+
       // Gera token JWT
       const token = generateToken(user);
 
       // Remove senha da resposta
-      const userResponse = user.toObject();
+      const userResponse: any = populatedUser?.toObject
+        ? populatedUser.toObject()
+        : { ...populatedUser };
       delete userResponse.password;
+
+      console.log('[Login] userResponse.role type:', typeof userResponse.role);
+      console.log('[Login] userResponse.role:', userResponse.role);
+
+      // Adicionar permissions para acesso rápido no frontend
+      if (
+        userResponse.role &&
+        typeof userResponse.role === 'object' &&
+        'permissions' in userResponse.role
+      ) {
+        console.log('[Login] Adding permissions to response');
+        userResponse.roleDetails = userResponse.role;
+        userResponse.permissions = userResponse.role.permissions;
+      } else {
+        console.log('[Login] NOT adding permissions - role is not object or no permissions field');
+      }
 
       res.json({
         success: true,

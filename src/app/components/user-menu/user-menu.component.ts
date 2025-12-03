@@ -73,6 +73,27 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     return this.authService.isClient();
   }
 
+  // Novos getters baseados em permissões
+  get canAccessAdminPanel() {
+    return this.authService.canAccessAdminPanel();
+  }
+
+  get canAccessKitchenPanel() {
+    return this.authService.canAccessKitchenPanel();
+  }
+
+  get canAccessWaiterPanel() {
+    return this.authService.canAccessWaiterPanel();
+  }
+
+  get canViewReports() {
+    return this.authService.canViewReports();
+  }
+
+  get canManagePayments() {
+    return this.authService.canManagePayments();
+  }
+
   get userInitial(): string {
     return this.user?.name?.charAt(0).toUpperCase() || '?';
   }

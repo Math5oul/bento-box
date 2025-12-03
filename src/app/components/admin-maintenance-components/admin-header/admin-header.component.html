@@ -39,6 +39,13 @@
         </button>
       }
 
+      @if (shouldShowButton('/maintenance/checkout') && isAdmin) {
+        <button class="nav-btn btn-checkout compact" routerLink="/maintenance/checkout">
+          <span class="icon">💳</span>
+          <span class="text">Checkout</span>
+        </button>
+      }
+
       <button class="nav-btn btn-app compact" (click)="goToApp()">
         <span class="icon">📋</span>
         <span class="text">Cardápio</span>

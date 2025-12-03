@@ -93,6 +93,7 @@ const UserSchema = new Schema<IUser>(
     },
     role: {
       type: Schema.Types.Mixed, // Aceita String (enum legacy) ou ObjectId (novo Role)
+      ref: 'Role', // Referência para popular
       default: UserRole.CLIENT,
       validate: {
         validator: function (v: any) {
