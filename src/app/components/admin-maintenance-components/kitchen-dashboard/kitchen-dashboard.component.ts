@@ -379,4 +379,19 @@ export class KitchenDashboardComponent implements OnInit {
   trackById(index: number, order: KitchenOrder) {
     return order.id;
   }
+
+  /**
+   * Verifica se o usuário tem permissão para gerenciar pedidos
+   */
+  get canManageOrders(): boolean {
+    return this.authService.canManageOrders();
+  }
+
+  /**
+   * Verifica se o usuário tem permissão para cancelar pedidos
+   */
+  get canCancelOrders(): boolean {
+    // Permite cancelamento se pode gerenciar pedidos
+    return this.authService.canManageOrders();
+  }
 }

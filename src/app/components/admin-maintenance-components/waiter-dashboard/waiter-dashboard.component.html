@@ -98,12 +98,16 @@
                 </div>
                 <div class="ready-item-actions">
                   <div class="ready-item-client-right">{{ rv.clientName || 'Cliente' }}</div>
-                  <button
-                    class="action-btn btn-deliver"
-                    (click)="deliverSingleItem(rv.orderId, rv.item)"
-                  >
-                    Entregar
-                  </button>
+                  @if (canDeliverOrders) {
+                    <button
+                      class="action-btn btn-deliver"
+                      (click)="deliverSingleItem(rv.orderId, rv.item)"
+                    >
+                      Entregar
+                    </button>
+                  } @else {
+                    <span class="status-badge">Pronto</span>
+                  }
                 </div>
               </div>
             }
@@ -224,13 +228,15 @@
                         <div class="item-actions">
                           @if ((item.status || 'pending') === 'ready') {
                             <span class="ready-pill">Pronto para entrega</span>
-                            <button
-                              class="action-btn btn-deliver"
-                              (click)="updateItemStatus(order, item, 'delivered')"
-                              title="Marcar item como entregue"
-                            >
-                              Entregar item
-                            </button>
+                            @if (canDeliverOrders) {
+                              <button
+                                class="action-btn btn-deliver"
+                                (click)="updateItemStatus(order, item, 'delivered')"
+                                title="Marcar item como entregue"
+                              >
+                                Entregar item
+                              </button>
+                            }
                           } @else if ((item.status || 'pending') === 'delivered') {
                             <span class="delivered-pill">Entregue</span>
                           }
@@ -249,7 +255,7 @@
                 </div>
 
                 <div class="order-actions">
-                  @if (canEdit(order)) {
+                  @if (canManageOrders && canEdit(order)) {
                     <button
                       class="action-btn btn-edit"
                       (click)="openEditModal(order)"
@@ -259,13 +265,15 @@
                     </button>
                   }
 
-                  <button
-                    class="action-btn btn-cancel"
-                    (click)="cancelOrder(order)"
-                    title="Cancelar pedido"
-                  >
-                    ❌ Cancelar
-                  </button>
+                  @if (canCancelOrders) {
+                    <button
+                      class="action-btn btn-cancel"
+                      (click)="cancelOrder(order)"
+                      title="Cancelar pedido"
+                    >
+                      ❌ Cancelar
+                    </button>
+                  }
                 </div>
               </div>
             </div>

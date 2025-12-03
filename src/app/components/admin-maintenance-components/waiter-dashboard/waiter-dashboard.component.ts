@@ -874,4 +874,25 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     this.showNewOrderModal = false;
     this.loadOrders(true);
   }
+
+  /**
+   * Verifica se o usuário tem permissão para gerenciar pedidos
+   */
+  get canManageOrders(): boolean {
+    return this.authService.canManageOrders();
+  }
+
+  /**
+   * Verifica se o usuário pode entregar pedidos
+   */
+  get canDeliverOrders(): boolean {
+    return this.authService.canManageOrders();
+  }
+
+  /**
+   * Verifica se o usuário pode cancelar pedidos
+   */
+  get canCancelOrders(): boolean {
+    return this.authService.canManageOrders();
+  }
 }
