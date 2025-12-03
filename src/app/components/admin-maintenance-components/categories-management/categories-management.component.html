@@ -90,16 +90,33 @@
           <div class="category-info">
             <h3>{{ category.name }}</h3>
 
-            @if (category.productCount !== undefined) {
-              <div class="product-count">
+            <div class="category-badges">
+              @if (category.productCount !== undefined) {
                 <span class="count-badge" [class.has-products]="category.productCount > 0">
                   {{ category.productCount }} produto{{ category.productCount !== 1 ? 's' : '' }}
                 </span>
-              </div>
-            }
+              }
+              @if (category.discounts && category.discounts.length > 0) {
+                <span
+                  class="discount-badge"
+                  title="Possui {{ category.discounts.length }} desconto(s) configurado(s)"
+                >
+                  💰 {{ category.discounts.length }} desconto{{
+                    category.discounts.length !== 1 ? 's' : ''
+                  }}
+                </span>
+              }
+            </div>
           </div>
 
           <div class="category-actions">
+            <button
+              class="discount-btn"
+              (click)="openDiscountsModal(category)"
+              title="Gerenciar descontos"
+            >
+              💰
+            </button>
             <button class="edit-btn" (click)="openEditModal(category)" title="Editar categoria">
               ✏️
             </button>
@@ -272,6 +289,97 @@
         <div class="modal-footer">
           <button class="cancel-btn" (click)="closeEditModal()">Cancelar</button>
           <button class="save-btn" (click)="updateCategory()">✅ Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Descontos -->
+  @if (showDiscountsModal && discountsCategory) {
+    <div class="modal-overlay" (click)="closeDiscountsModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>💰 Descontos por Perfil de Cliente</h2>
+          <button class="close-btn" (click)="closeDiscountsModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="discount-category-info">
+            <span class="category-emoji-large">{{ discountsCategory.emoji }}</span>
+            <h3>{{ discountsCategory.name }}</h3>
+            <p class="category-desc">
+              Configure descontos percentuais para diferentes níveis de clientes nesta categoria
+            </p>
+          </div>
+
+          <!-- Lista de Descontos -->
+          <div class="discounts-list">
+            @if (discounts.length === 0) {
+              <div class="empty-state">
+                <p class="empty-icon">📊</p>
+                <p class="empty-text">Nenhum desconto configurado</p>
+                <p class="empty-hint">Clique em "Adicionar Desconto" para começar</p>
+              </div>
+            } @else {
+              @for (discount of discounts; track $index) {
+                <div class="discount-item">
+                  <div class="discount-field">
+                    <label>Nível de Cliente</label>
+                    <select [(ngModel)]="discount.clientLevel">
+                      @for (
+                        level of getAvailableLevelsForSelect(discount.clientLevel);
+                        track level.value
+                      ) {
+                        <option [value]="level.value">{{ level.label }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="discount-field">
+                    <label>Desconto (%)</label>
+                    <input
+                      type="number"
+                      [(ngModel)]="discount.discountPercent"
+                      min="0"
+                      max="100"
+                      step="1"
+                      placeholder="Ex: 10"
+                    />
+                  </div>
+
+                  <button
+                    class="remove-discount-btn"
+                    (click)="removeDiscount($index)"
+                    title="Remover desconto"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Botão Adicionar Desconto -->
+          <button
+            class="add-discount-btn"
+            (click)="addDiscount()"
+            [disabled]="discounts.length >= availableClientLevels.length"
+          >
+            ➕ Adicionar Desconto
+          </button>
+
+          @if (
+            discounts.length >= availableClientLevels.length && availableClientLevels.length > 0
+          ) {
+            <p class="hint-text">
+              ⚠️ Todos os níveis de cliente disponíveis já possuem descontos configurados
+            </p>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeDiscountsModal()">Cancelar</button>
+          <button class="save-btn" (click)="saveDiscounts()">💾 Salvar Descontos</button>
         </div>
       </div>
     </div>

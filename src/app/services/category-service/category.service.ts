@@ -98,4 +98,27 @@ export class CategoryService {
   getCurrentCategories(): Category[] {
     return this.categoriesSubject.value;
   }
+
+  /**
+   * Atualiza descontos de uma categoria
+   */
+  updateDiscounts(
+    categoryId: string,
+    discounts: { clientLevel: number; discountPercent: number }[]
+  ): Observable<{ success: boolean; data: Category; message: string }> {
+    return this.http
+      .put<{
+        success: boolean;
+        data: Category;
+        message: string;
+      }>(`${this.apiUrl}/${categoryId}/discounts`, { discounts })
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            // Recarrega a lista de categorias
+            this.getCategories().subscribe();
+          }
+        })
+      );
+  }
 }
