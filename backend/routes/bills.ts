@@ -627,8 +627,8 @@ router.post(
       // Enviar pagamento para maquininha
       const paymentRequest = {
         amount: Math.round(bill.finalTotal * 100), // Converter para centavos
-        description: `Mesa ${bill.tableNumber} - Bill #${bill._id.toString().substring(0, 8)}`,
-        billId: bill._id.toString(),
+        description: `Mesa ${bill.tableNumber} - Bill #${(bill._id as any).toString().substring(0, 8)}`,
+        billId: (bill._id as any).toString(),
         paymentType: paymentType || 'credit',
       };
 
