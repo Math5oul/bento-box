@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { CategoryService } from '../../../services/category-service/category.service';
+import { StorageService } from '../../../services/storage-service/storage.service';
 import { Category } from '../../../interfaces/category.interface';
 import { Product } from '../../../interfaces/product.interface';
 import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-modal.component';
@@ -29,6 +30,7 @@ export class ProductsManagementComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private categoryService = inject(CategoryService);
+  private storageService = inject(StorageService);
 
   products: Product[] = [];
   categories: Category[] = [];
@@ -154,7 +156,11 @@ export class ProductsManagementComponent implements OnInit {
         category: product.category,
         format: product.format || '1x1',
         colorMode: product.colorMode || 'light',
+        variations: product.variations || [], // ✅ Incluir variações
       },
+      // Também incluir no nível raiz para compatibilidade
+      variations: product.variations || [],
+      sizes: product.sizes || [],
     };
 
     this.modalItemToEdit = gridItem;
@@ -183,6 +189,7 @@ export class ProductsManagementComponent implements OnInit {
       description: gridItem.inputs.description,
       price: gridItem.inputs.price,
       sizes: gridItem.inputs.sizes,
+      variations: gridItem.inputs.variations, // ✅ Adicionado!
       images: gridItem.inputs.images,
       category: gridItem.inputs.category,
       format: gridItem.inputs.format,
@@ -199,7 +206,24 @@ export class ProductsManagementComponent implements OnInit {
         alert('✅ Produto atualizado com sucesso!');
       } else {
         // Criar novo produto
-        await this.http.post(`${environment.apiUrl}/products`, product).toPromise();
+        const response: any = await this.http
+          .post(`${environment.apiUrl}/products`, product)
+          .toPromise();
+
+        // Se há um tempId (pasta temporária de imagens), renomeia para o ID real
+        if (gridItem.tempId && response.data?._id) {
+          try {
+            const renameResponse: any = await this.storageService
+              .renameProductFolder(gridItem.tempId, response.data._id)
+              .toPromise();
+
+            console.log('📁 Pasta renomeada:', renameResponse);
+          } catch (renameError) {
+            console.error('⚠️ Erro ao renomear pasta de imagens:', renameError);
+            // Não falha a operação se não conseguir renomear
+          }
+        }
+
         alert('✅ Produto criado com sucesso!');
       }
 

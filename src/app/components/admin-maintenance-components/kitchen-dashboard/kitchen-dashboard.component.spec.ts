@@ -3,33 +3,22 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { KitchenDashboardComponent } from './kitchen-dashboard.component';
 import { AuthService } from '../../../services/auth-service/auth.service';
-
-class MockAuthService {
-  getToken() {
-    return 'fake-token';
-  }
-  isAdmin() {
-    return false;
-  }
-  isKitchen() {
-    return true;
-  }
-  isWaiter() {
-    return false;
-  }
-  getCurrentUser() {
-    return { id: 1, name: 'Test' };
-  }
-}
+import { createCustomAuthServiceMock } from '../../../testing/auth-service.mock';
 
 describe('KitchenDashboardComponent', () => {
   let component: KitchenDashboardComponent;
   let fixture: ComponentFixture<KitchenDashboardComponent>;
 
   beforeEach(async () => {
+    const authServiceMock = createCustomAuthServiceMock({
+      isKitchen: true,
+      canAccessKitchenPanel: true,
+      canManageOrders: true,
+    });
+
     await TestBed.configureTestingModule({
       imports: [KitchenDashboardComponent, HttpClientTestingModule, RouterTestingModule],
-      providers: [{ provide: AuthService, useClass: MockAuthService }],
+      providers: [{ provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(KitchenDashboardComponent);

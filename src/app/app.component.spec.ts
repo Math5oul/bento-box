@@ -1,10 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AuthService } from './services/auth-service/auth.service';
+import { createCustomAuthServiceMock } from './testing/auth-service.mock';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
+    const authServiceMock = createCustomAuthServiceMock();
+
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, HttpClientTestingModule, RouterTestingModule],
+      providers: [{ provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
   });
 

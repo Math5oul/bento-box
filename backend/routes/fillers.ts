@@ -4,6 +4,19 @@ import Filler from '../models/Filler';
 const router = Router();
 
 /**
+ * Converte formato (ex: "2x1") para rowSpan/colSpan
+ */
+function getSpansFromFormat(format: string): { rowSpan: number; colSpan: number } {
+  const match = format.match(/^(\d+)x(\d+)$/);
+  if (match) {
+    const colSpan = parseInt(match[1]);
+    const rowSpan = parseInt(match[2]);
+    return { rowSpan, colSpan };
+  }
+  return { rowSpan: 1, colSpan: 1 };
+}
+
+/**
  * GET /api/fillers
  * Lista todos os fillers ativos
  */
@@ -39,8 +52,29 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
  */
 router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
-    const filler = new Filler(req.body);
+    const fillerData = { ...req.body };
+
+    // Se o filler tem formatos, usar o primeiro para calcular gridPosition
+    if (fillerData.formats && fillerData.formats.length > 0) {
+      const primaryFormat = fillerData.formats[0];
+      const spans = getSpansFromFormat(primaryFormat);
+
+      if (!fillerData.gridPosition) {
+        fillerData.gridPosition = {};
+      }
+      fillerData.gridPosition.rowSpan = spans.rowSpan;
+      fillerData.gridPosition.colSpan = spans.colSpan;
+
+      console.log(
+        `📐 Filler formato primário '${primaryFormat}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+      );
+    }
+
+    const filler = new Filler(fillerData);
     const savedFiller = await filler.save();
+
+    console.log('✅ Filler salvo:', JSON.stringify(savedFiller.toObject(), null, 2));
+
     res.status(201).json(savedFiller);
   } catch (error: any) {
     console.error('❌ Erro ao criar filler:', error);
@@ -54,7 +88,25 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
  */
 router.put('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    const filler = await Filler.findByIdAndUpdate(req.params['id'], req.body, {
+    const updateData = { ...req.body };
+
+    // Se os formatos forem alterados, atualizar gridPosition baseado no primeiro formato
+    if (updateData.formats && updateData.formats.length > 0) {
+      const primaryFormat = updateData.formats[0];
+      const spans = getSpansFromFormat(primaryFormat);
+
+      if (!updateData.gridPosition) {
+        updateData.gridPosition = {};
+      }
+      updateData.gridPosition.rowSpan = spans.rowSpan;
+      updateData.gridPosition.colSpan = spans.colSpan;
+
+      console.log(
+        `🔧 Filler atualizado - formato primário '${primaryFormat}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+      );
+    }
+
+    const filler = await Filler.findByIdAndUpdate(req.params['id'], updateData, {
       new: true,
       runValidators: true,
     });

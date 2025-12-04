@@ -83,12 +83,14 @@ export const COMPONENT_INPUTS_MAP: Map<Type<any>, ComponentConfig> = new Map<
           name: 'description',
           label: 'Descrição',
           type: 'richtext',
+          required: true,
         },
         {
           name: 'price',
           label: 'Preço Base',
           type: 'number',
           step: 0.01,
+          required: true,
         },
         {
           name: 'sizes',
