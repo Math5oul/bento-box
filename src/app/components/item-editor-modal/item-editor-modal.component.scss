@@ -290,9 +290,12 @@
           }
         }
 
-        /* Preço igual ao size-price-input */
+        /* Preço com largura adequada para valores monetários */
         .variant-price-input {
-          width: 40px;
+          width: 80px;
+          min-width: 80px;
+          text-align: right;
+          padding-right: 8px;
         }
 
         /* Descrição ocupa linha inteira */
@@ -542,7 +545,10 @@
         }
 
         .size-price-input {
-          width: 40px;
+          width: 80px;
+          min-width: 80px;
+          text-align: right;
+          padding-right: 8px;
         }
       }
     }
@@ -1348,4 +1354,25 @@
       font-weight: 500;
     }
   }
+}
+
+/* Estilos para campos obrigatórios */
+
+label span.required-asterisk {
+  display: inline;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Estilos para campos com erro - aplicado apenas quando há erro visível */
+.field-error input,
+.field-error select,
+.field-error .richtext-editor {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
 }

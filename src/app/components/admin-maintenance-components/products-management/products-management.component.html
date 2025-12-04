@@ -147,6 +147,7 @@
       [mode]="'product'"
       [editMode]="modalEditMode"
       [itemToEdit]="modalItemToEdit"
+      [productId]="currentProductId"
       (itemCreated)="onItemCreated($event)"
       (modalClosed)="closeModal()"
     ></app-item-editor-modal>

@@ -3,18 +3,7 @@ import { WaiterDashboardComponent } from './waiter-dashboard.component';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../services/auth-service/auth.service';
-
-class MockAuthService {
-  getToken() {
-    return 'fake-token';
-  }
-  isAdmin() {
-    return false;
-  }
-  getCurrentUser() {
-    return { id: 1, name: 'Test' };
-  }
-}
+import { createCustomAuthServiceMock } from '../../../testing/auth-service.mock';
 
 describe('WaiterDashboardComponent', () => {
   let component: WaiterDashboardComponent;
@@ -22,9 +11,15 @@ describe('WaiterDashboardComponent', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
+    const authServiceMock = createCustomAuthServiceMock({
+      isWaiter: true,
+      canAccessWaiterPanel: true,
+      canManageOrders: true,
+    });
+
     await TestBed.configureTestingModule({
       imports: [WaiterDashboardComponent, HttpClientTestingModule],
-      providers: [provideRouter([]), { provide: AuthService, useClass: MockAuthService }],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WaiterDashboardComponent);

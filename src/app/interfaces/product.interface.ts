@@ -1,10 +1,12 @@
 export interface ProductSize {
+  _id?: string;
   name: string;
   abbreviation: string;
   price: number;
 }
 
 export interface ProductVariation {
+  _id?: string;
   title: string;
   description?: string;
   image?: string;

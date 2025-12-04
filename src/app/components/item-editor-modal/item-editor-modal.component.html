@@ -85,9 +85,9 @@
                   (input.type === 'text' || input.type === 'number' || input.type === 'color') &&
                   !(supportsImageUpload() && (input.name === 'url' || input.name === 'images'))
                 ) {
-                  <div>
-                    <label>
-                      {{ input.label }}:
+                  <div [class.field-error]="hasFieldError(input.name)">
+                    <label
+                      >{{ input.label }}
                       @if (input.type === 'color') {
                         <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px">
                           <input
@@ -152,14 +152,17 @@
                         />
                       }
                     </label>
+                    @if (hasFieldError(input.name)) {
+                      <div class="error-message">{{ getFieldError(input.name) }}</div>
+                    }
                   </div>
                 }
 
                 <!-- Rich Text Editor with toolbar -->
                 @if (input.type === 'richtext') {
-                  <div>
-                    <label>
-                      {{ input.label }}:
+                  <div [class.field-error]="hasFieldError(input.name)">
+                    <label
+                      >{{ input.label }}
 
                       <!-- Toolbar - prevent mousedown to keep editor focus -->
                       <div
@@ -268,14 +271,17 @@
                         #richtextEditor
                       ></div>
                     </label>
+                    @if (hasFieldError(input.name)) {
+                      <div class="error-message">{{ getFieldError(input.name) }}</div>
+                    }
                   </div>
                 }
 
                 <!-- Select -->
                 @if (input.type === 'select') {
-                  <div>
-                    <label>
-                      {{ input.label }}:
+                  <div [class.field-error]="hasFieldError(input.name)">
+                    <label
+                      >{{ input.label }}
                       <select [formControlName]="input.name" [required]="input.required || false">
                         @for (option of input.options; track $index) {
                           <option [value]="option">
@@ -290,13 +296,16 @@
                         }
                       </select>
                     </label>
+                    @if (hasFieldError(input.name)) {
+                      <div class="error-message">{{ getFieldError(input.name) }}</div>
+                    }
                   </div>
                 }
 
                 <!-- Multi-Select -->
                 @if (input.type === 'multi-select') {
-                  <div>
-                    <label>{{ input.label }}:</label>
+                  <div [class.field-error]="hasFieldError(input.name)">
+                    <label>{{ input.label }}</label>
                     <div class="multi-select-container">
                       @for (option of input.options; track $index) {
                         <label class="multi-select-option">
@@ -321,16 +330,22 @@
                         {{ componentForm.get(['inputs', input.name])?.value?.length }} categoria(s)
                       </p>
                     }
+                    @if (hasFieldError(input.name)) {
+                      <div class="error-message">{{ getFieldError(input.name) }}</div>
+                    }
                   </div>
                 }
 
                 <!-- Checkbox -->
                 @if (input.type === 'checkbox') {
-                  <div>
+                  <div [class.field-error]="hasFieldError(input.name)">
                     <label class="checkbox">
                       <input type="checkbox" [formControlName]="input.name" />
                       {{ input.label }}
                     </label>
+                    @if (hasFieldError(input.name)) {
+                      <div class="error-message">{{ getFieldError(input.name) }}</div>
+                    }
                   </div>
                 }
 
@@ -372,6 +387,25 @@
                       🔀 Adicione variações como ponto da carne, tipo (vegano, tradicional...), etc.
                       Cada variação pode ter título, descrição, foto e preço adicional.
                     </p>
+
+                    <!-- Debug temporário -->
+                    @if (editMode) {
+                      <div
+                        style="
+                          background: #f0f8ff;
+                          padding: 10px;
+                          margin: 10px 0;
+                          border-left: 4px solid #007acc;
+                          font-size: 12px;
+                        "
+                      >
+                        🐛 <strong>Debug:</strong> {{ variations.length }} variação(ões)
+                        carregada(s)
+                        @if (variations.length > 0) {
+                          <br />Primeira variação: {{ variations[0].title }}
+                        }
+                      </div>
+                    }
 
                     @if (!editMode) {
                       <div

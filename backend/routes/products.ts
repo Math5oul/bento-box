@@ -125,22 +125,24 @@ router.get('/categories', optionalAuth, async (req: Request, res: Response) => {
  * GET /api/products/:id
  * Busca produto por ID
  */
-router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
+router.get('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params['id'];
     // Verifica se o id é um ObjectId válido
     if (!id || !id.match(/^[a-fA-F0-9]{24}$/)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID de produto inválido',
       });
+      return;
     }
     const product = await Product.findById(id);
     if (!product) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Produto não encontrado',
       });
+      return;
     }
     res.json({
       success: true,
@@ -156,6 +158,20 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
 });
 
 /**
+ * Converte formato (ex: '2x1') para rowSpan e colSpan
+ */
+function getSpansFromFormat(format: string): { rowSpan: number; colSpan: number } {
+  const match = format.match(/(\d+)x(\d+)/);
+  if (match) {
+    return {
+      colSpan: parseInt(match[1]), // primeiro número = colunas
+      rowSpan: parseInt(match[2]), // segundo número = linhas
+    };
+  }
+  return { rowSpan: 1, colSpan: 1 }; // fallback para 1x1
+}
+
+/**
  * POST /api/products
  * Cria novo produto
  */
@@ -165,6 +181,21 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
 
     console.log('📦 Recebendo produto:', JSON.stringify(productData, null, 2));
     console.log('📏 Tamanhos recebidos:', productData.sizes);
+
+    // Calcula rowSpan e colSpan baseado no formato
+    const format = productData.format || '1x1';
+    const spans = getSpansFromFormat(format);
+
+    // Garante que gridPosition existe e tem os spans corretos
+    if (!productData.gridPosition) {
+      productData.gridPosition = {};
+    }
+    productData.gridPosition.rowSpan = spans.rowSpan;
+    productData.gridPosition.colSpan = spans.colSpan;
+
+    console.log(
+      `📐 Formato '${format}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+    );
 
     const newProduct = new Product(productData);
 
@@ -195,7 +226,23 @@ router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void
  */
 router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params['id'], req.body, {
+    const updateData = { ...req.body };
+
+    // Se o formato for alterado, atualizar gridPosition automaticamente
+    if (updateData.format) {
+      const spans = getSpansFromFormat(updateData.format);
+      if (!updateData.gridPosition) {
+        updateData.gridPosition = {};
+      }
+      updateData.gridPosition.rowSpan = spans.rowSpan;
+      updateData.gridPosition.colSpan = spans.colSpan;
+
+      console.log(
+        `🔧 Atualizando formato '${updateData.format}' para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+      );
+    }
+
+    const product = await Product.findByIdAndUpdate(req.params['id'], updateData, {
       new: true,
       runValidators: true,
     });
@@ -318,11 +365,12 @@ router.patch(
 
 /**
  * DELETE /api/products/:id
- * Deleta produto
+ * Deleta produto e suas imagens
  */
 router.delete('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await Product.findByIdAndDelete(req.params['id']);
+    const productId = req.params['id'];
+    const product = await Product.findByIdAndDelete(productId);
 
     if (!product) {
       res.status(404).json({
@@ -332,9 +380,25 @@ router.delete('/:id', optionalAuth, async (req: Request, res: Response): Promise
       return;
     }
 
+    // Deleta também a pasta de imagens do produto
+    try {
+      const path = require('path');
+      const fs = require('fs');
+      const IMAGES_BASE_PATH = path.join(__dirname, '..', '..', 'src', 'assets', 'images');
+      const productImageFolder = path.join(IMAGES_BASE_PATH, productId);
+
+      if (fs.existsSync(productImageFolder)) {
+        fs.rmSync(productImageFolder, { recursive: true, force: true });
+        console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
+      }
+    } catch (imageError: any) {
+      console.error('⚠️ Erro ao deletar pasta de imagens:', imageError);
+      // Não falha a operação se não conseguir deletar as imagens
+    }
+
     res.json({
       success: true,
-      message: 'Produto deletado com sucesso',
+      message: 'Produto e imagens deletados com sucesso',
       data: product,
     });
   } catch (error: any) {

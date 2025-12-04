@@ -14,6 +14,7 @@ import {
   FormBuilder,
   FormGroup,
   FormArray,
+  Validators,
 } from '@angular/forms';
 import { COMPONENT_INPUTS_MAP } from './Components_Inputs_map';
 import { Product, ProductSize, ProductVariation } from '../../interfaces/product.interface';
@@ -141,9 +142,14 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
       type: 'image/jpeg',
     });
     this.isUploadingVariationImage = true;
-    // Usa o mesmo id temporário do produto, se existir, senão gera um
-    const uploadId = this.currentTempId || this.generateTempProductId();
-    this.currentTempId = uploadId;
+    // Se estamos editando um produto existente, usa seu ID, senão usa/gera um temporário
+    let uploadId: string;
+    if (this.editMode && this.productId) {
+      uploadId = this.productId;
+    } else {
+      uploadId = this.currentTempId || this.generateTempProductId();
+      this.currentTempId = uploadId;
+    }
     this.imageUploadService.uploadImages(uploadId, [croppedFile]).subscribe({
       next: paths => {
         this.variationImagePreview = paths[0];
@@ -176,6 +182,7 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   }
   @Input() editMode = false;
   @Input() itemToEdit: GridItem | null = null;
+  @Input() productId: string | null = null; // ID do produto para uploads de imagens
   @Input() mode: 'product' | 'filler' | 'grid' = 'grid'; // Controla quais componentes são exibidos
 
   @Output() itemCreated = new EventEmitter<any>();
@@ -267,6 +274,89 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
   hasSizes(): boolean {
     const sizes = this.getProductSizes();
     return Array.isArray(sizes) && sizes.length > 0;
+  }
+
+  /**
+   * Marca todos os campos do formulário como 'touched' para exibir erros de validação
+   */
+  markAllFieldsAsTouched() {
+    this.componentForm.markAllAsTouched();
+  }
+
+  /**
+   * Mostra erros de validação para o usuário
+   */
+  showValidationErrors() {
+    const errors = this.getFormValidationErrors();
+    if (errors.length > 0) {
+      const errorMessage =
+        'Por favor, preencha os seguintes campos obrigatórios:\n\n' +
+        errors.map(error => `• ${error.field}: ${error.error}`).join('\n');
+      alert(errorMessage);
+    }
+  }
+
+  /**
+   * Obtém todos os erros de validação do formulário
+   */
+  getFormValidationErrors() {
+    const errors: { field: string; error: string }[] = [];
+    const inputsGroup = this.componentForm.get('inputs') as FormGroup;
+
+    if (inputsGroup) {
+      Object.keys(inputsGroup.controls).forEach(key => {
+        const control = inputsGroup.get(key);
+        if (control && control.invalid && control.errors) {
+          const inputConfig = this.selectedComponent?.inputsConfig?.find(
+            (input: any) => input.name === key
+          );
+          const fieldLabel = inputConfig?.label || key;
+
+          if (control.errors['required']) {
+            errors.push({
+              field: fieldLabel,
+              error: 'Este campo é obrigatório',
+            });
+          }
+        }
+      });
+    }
+
+    return errors;
+  }
+
+  /**
+   * Verifica se um campo específico tem erro
+   */
+  hasFieldError(fieldName: string): boolean {
+    const control = this.componentForm.get(['inputs', fieldName]);
+    // Só mostra erro se o campo for obrigatório, inválido e foi tocado
+    if (!control || !control.invalid || !control.touched) {
+      return false;
+    }
+
+    // Verifica se o campo é obrigatório na configuração
+    const inputConfig = this.selectedComponent?.inputsConfig?.find(
+      (input: any) => input.name === fieldName
+    );
+    return !!inputConfig?.required;
+  }
+
+  /**
+   * Obtém a mensagem de erro para um campo específico
+   */
+  getFieldError(fieldName: string): string {
+    const control = this.componentForm.get(['inputs', fieldName]);
+    if (control && control.errors && control.touched) {
+      // Verifica se o campo é obrigatório na configuração
+      const inputConfig = this.selectedComponent?.inputsConfig?.find(
+        (input: any) => input.name === fieldName
+      );
+      if (inputConfig?.required && control.errors['required']) {
+        return 'Este campo é obrigatório';
+      }
+    }
+    return '';
   }
 
   /**
@@ -566,10 +656,32 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
           }
         });
         // Preenche o array de variações para o formulário de variações
-        if (Array.isArray(this.itemToEdit.inputs.variations)) {
+        // Primeiro tenta buscar em 'variations' (novo formato), depois em 'inputs.variations' (antigo)
+        if (Array.isArray(this.itemToEdit.variations)) {
+          this.variations = [...this.itemToEdit.variations];
+        } else if (Array.isArray(this.itemToEdit.inputs.variations)) {
           this.variations = [...this.itemToEdit.inputs.variations];
         } else {
           this.variations = [];
+        }
+
+        console.log('🔍 Variações carregadas:', this.variations);
+
+        // Carregar tamanhos (sizes) se existirem no produto
+        if (Array.isArray(this.itemToEdit.sizes)) {
+          // Atualizar o form control de sizes
+          const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+          if (sizesControl) {
+            sizesControl.setValue([...this.itemToEdit.sizes]);
+            console.log('🔍 Tamanhos carregados:', this.itemToEdit.sizes);
+          }
+        } else if (Array.isArray(this.itemToEdit.inputs?.sizes)) {
+          // Fallback para o formato antigo
+          const sizesControl = this.componentForm.get(['inputs', 'sizes']);
+          if (sizesControl) {
+            sizesControl.setValue([...this.itemToEdit.inputs.sizes]);
+            console.log('🔍 Tamanhos carregados (formato antigo):', this.itemToEdit.inputs.sizes);
+          }
         }
       }
 
@@ -601,17 +713,23 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
     const inputsGroup = this.fb.group({});
 
     inputsConfig.forEach(input => {
+      // Define validadores baseados na configuração do input
+      const validators: any[] = [];
+      if (input.required) {
+        validators.push(Validators.required);
+      }
+
       if (input.type === 'multiple-text') {
         const arrayControls = input.defaultValue.map((defaultVal: string) =>
-          this.fb.control(defaultVal)
+          this.fb.control(defaultVal, validators)
         );
         inputsGroup.addControl(input.name, this.fb.array(arrayControls));
       } else if (input.type === 'multi-select') {
-        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || []));
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || [], validators));
       } else if (input.type === 'product-sizes') {
-        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || []));
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || [], validators));
       } else {
-        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || ''));
+        inputsGroup.addControl(input.name, this.fb.control(input.defaultValue || '', validators));
       }
     });
 
@@ -710,13 +828,20 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
    * Cria um novo item com base nos valores do formulário
    */
   createItem() {
+    // Validar formulário antes de continuar
+    if (this.componentForm.invalid) {
+      this.markAllFieldsAsTouched();
+      this.showValidationErrors();
+      return;
+    }
+
     if (this.selectedFiles.length > 0) {
       this.isUploading = true;
 
       // In edit mode, use the existing product ID; otherwise generate a temp ID
       let uploadId: string;
-      if (this.editMode && this.itemToEdit) {
-        uploadId = String(this.itemToEdit.id);
+      if (this.editMode && this.productId) {
+        uploadId = this.productId;
       } else {
         uploadId = this.currentTempId || this.generateTempProductId();
         this.currentTempId = uploadId;
@@ -787,7 +912,6 @@ export class ItemEditorModalComponent implements OnInit, AfterViewChecked {
       inputs: inputs,
       tempId: this.uploadedImagePaths.length > 0 ? this.currentTempId : null,
     };
-
     this.itemCreated.emit(newItem);
     this.closeModal();
   }
