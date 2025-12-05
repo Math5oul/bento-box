@@ -86,8 +86,8 @@ async function seedRoles() {
       const existingRole = await Role.findOne({ slug: roleData.slug });
 
       if (existingRole) {
-        // Atualizar role existente (apenas se for do sistema)
-        if (existingRole.isSystem) {
+        // Atualizar role existente (se for do sistema OU se for Cliente VIP)
+        if (existingRole.isSystem || roleData.slug === 'cliente-vip') {
           await Role.updateOne(
             { slug: roleData.slug },
             {

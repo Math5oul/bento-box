@@ -3,6 +3,7 @@ import { param, body } from 'express-validator';
 import { User, UserRole } from '../models/User';
 import { Table, TableStatus } from '../models/Table';
 import { Order } from '../models/Order';
+import { Role } from '../models/Role';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { validate, runValidations } from '../middleware/validate';
 import QRCode from 'qrcode';
@@ -17,26 +18,73 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
   try {
     const tables = await Table.find()
       .sort({ number: 1 })
-      .populate('clients', '_id name email isAnonymous');
+      .populate('clients', '_id name email isAnonymous role');
 
     // Transformar _id em id para compatibilidade com frontend
     const tablesFormatted = await Promise.all(
       tables.map(async table => {
         const tableObj = table.toObject();
 
+        // Popular roles dos clientes registrados
+        if (tableObj.clients && Array.isArray(tableObj.clients)) {
+          tableObj.clients = await Promise.all(
+            tableObj.clients.map(async (client: any) => {
+              // Se role é ObjectId (string), busca os detalhes
+              if (client.role && typeof client.role === 'string') {
+                try {
+                  const roleDoc = await Role.findById(client.role)
+                    .select('name slug isSystem')
+                    .lean();
+                  if (roleDoc) {
+                    client.role = roleDoc;
+                  }
+                } catch (err) {
+                  console.log('Não foi possível popular role do cliente:', err);
+                }
+              }
+              return client;
+            })
+          );
+        }
+
         // Para cada sessão anônima, buscar os dados do usuário
         const anonymousClientsWithData = await Promise.all(
           (tableObj.anonymousClients || []).map(async (anonSession: any) => {
-            const user = await User.findById(anonSession.sessionId).select('_id name isAnonymous');
+            const user = await User.findById(anonSession.sessionId).select(
+              '_id name isAnonymous role'
+            );
+
+            if (user) {
+              const userData: any = {
+                _id: user._id,
+                name: user.name,
+                isAnonymous: user.isAnonymous,
+                role: user.role,
+              };
+
+              // Popular role do usuário anônimo também
+              if (userData.role && typeof userData.role === 'string') {
+                try {
+                  const roleDoc = await Role.findById(userData.role)
+                    .select('name slug isSystem')
+                    .lean();
+                  if (roleDoc) {
+                    userData.role = roleDoc;
+                  }
+                } catch (err) {
+                  console.log('Não foi possível popular role do anônimo:', err);
+                }
+              }
+
+              return {
+                ...anonSession,
+                userData,
+              };
+            }
+
             return {
               ...anonSession,
-              userData: user
-                ? {
-                    _id: user._id,
-                    name: user.name,
-                    isAnonymous: user.isAnonymous,
-                  }
-                : null,
+              userData: null,
             };
           })
         );
@@ -298,7 +346,43 @@ router.post(
         return;
       }
 
-      console.log('📋 Mesa encontrada:', { number: table.number, status: table.status });
+      console.log('📋 Mesa encontrada:', {
+        number: table.number,
+        status: table.status,
+        clients: table.clients,
+        anonymousClients: table.anonymousClients,
+        anonymousClientsLength: table.anonymousClients?.length,
+      });
+
+      // Deletar clientes anônimos do banco de dados
+      if (table.anonymousClients && table.anonymousClients.length > 0) {
+        console.log('🗑️ Removendo clientes anônimos do banco:', table.anonymousClients.length);
+        console.log('📋 IDs dos clientes anônimos:', table.anonymousClients);
+
+        // Extrair os sessionIds dos objetos anonymousClients
+        const sessionIds = table.anonymousClients.map((client: any) => client.sessionId);
+        console.log('🔑 SessionIds extraídos:', sessionIds);
+
+        // Verificar se os usuários existem antes de deletar
+        const usersToDelete = await User.find({
+          _id: { $in: sessionIds },
+          isAnonymous: true,
+        });
+        console.log('👥 Usuários anônimos encontrados no banco:', usersToDelete.length);
+        usersToDelete.forEach(u => console.log('  -', u._id, u.name, u.sessionToken));
+
+        const deleteResult = await User.deleteMany({
+          _id: { $in: sessionIds },
+          isAnonymous: true, // Segurança adicional para garantir que só deleta anônimos
+        });
+
+        console.log('✅ Resultado da deleção:', {
+          deletedCount: deleteResult.deletedCount,
+          acknowledged: deleteResult.acknowledged,
+        });
+      } else {
+        console.log('ℹ️ Nenhum cliente anônimo para remover');
+      }
 
       // Limpa a mesa e volta para disponível
       table.status = TableStatus.AVAILABLE;
@@ -513,11 +597,12 @@ router.post(
   runValidations([
     body('tableId').isMongoId().withMessage('ID da mesa inválido'),
     body('clientName').notEmpty().withMessage('Nome do cliente é obrigatório'),
+    body('roleId').optional().isMongoId().withMessage('ID do role inválido'),
   ]),
   validate,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { tableId, clientName } = req.body;
+      const { tableId, clientName, roleId } = req.body;
 
       // Busca mesa
       const table = await Table.findById(tableId);
@@ -542,7 +627,7 @@ router.post(
       // Cria usuário anônimo com nome personalizado
       const anonymousUser = new User({
         name: clientName,
-        role: UserRole.CLIENT,
+        role: roleId || UserRole.CLIENT, // Usa roleId se fornecido, senão usa CLIENT padrão
         isAnonymous: true,
         currentTableId: table._id,
       });

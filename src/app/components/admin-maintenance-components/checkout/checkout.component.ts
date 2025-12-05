@@ -27,6 +27,7 @@ interface CheckoutItem extends BillItem {
   parentItemId?: string; // ID do item pai (se for subitem)
   isParentItem?: boolean; // Se é um item pai que foi dividido
   parentDiscount?: { type: DiscountType; value: number; description?: string }; // Desconto do item pai (para referência)
+  clientRole?: any; // Role do cliente para verificar se é VIP
 }
 
 interface ClientGroup {
@@ -35,6 +36,7 @@ interface ClientGroup {
   items: CheckoutItem[];
   allSelected: boolean;
   orderCount?: number; // Quantidade de orders diferentes
+  customRoleName?: string | null; // Nome da role customizada (se tiver)
 }
 
 @Component({
@@ -152,12 +154,22 @@ export class CheckoutComponent implements OnInit {
       this.orders.forEach(order => {
         // Extrai o clientId corretamente (pode vir como string ou como objeto populado)
         let clientId: string | undefined;
+        let clientRole: any;
         if (order.clientId) {
           if (typeof order.clientId === 'string') {
             clientId = order.clientId;
+            // Busca o role do cliente na mesa (clients pode ser array de objetos ou strings)
+            const client = this.selectedTable?.clients?.find((c: any) => {
+              if (typeof c === 'string') return c === clientId;
+              return (c._id || c.id) === clientId;
+            });
+            if (client && typeof client === 'object') {
+              clientRole = (client as any).role;
+            }
           } else if (typeof order.clientId === 'object') {
-            // ClientId foi populado pelo backend, pega o _id ou id
+            // ClientId foi populado pelo backend, pega o _id ou id e role
             clientId = (order.clientId as any)._id || (order.clientId as any).id;
+            clientRole = (order.clientId as any).role;
           }
         }
 
@@ -184,6 +196,7 @@ export class CheckoutComponent implements OnInit {
               clientName: order.clientName,
               clientId: clientId, // Usa o ID extraído corretamente
               sessionToken: order.sessionToken,
+              clientRole: clientRole, // Adiciona o role do cliente
             });
           }
         });
@@ -246,16 +259,28 @@ export class CheckoutComponent implements OnInit {
           items: [],
           allSelected: false,
           orderCount: 0,
+          customRoleName: null,
         });
       }
 
       groupMap.get(clientKey)!.items.push(item);
     });
 
-    // Calcula quantos orders diferentes cada grupo tem
+    // Calcula quantos orders diferentes cada grupo tem e verifica se tem role customizada
     groupMap.forEach(group => {
       const uniqueOrderIds = new Set(group.items.map(item => item.orderId));
       group.orderCount = uniqueOrderIds.size;
+
+      // Verifica se algum item do grupo tem role customizada (isSystem = false)
+      const customRole = group.items.find(item => {
+        if (item.clientRole) {
+          const role = item.clientRole;
+          return role.isSystem === false;
+        }
+        return false;
+      })?.clientRole;
+
+      group.customRoleName = customRole?.name || null;
     });
 
     // Ordena grupos: primeiro clientes registrados, depois anônimos com sessão, depois sem identificação

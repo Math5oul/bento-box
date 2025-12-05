@@ -13,7 +13,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth-service/auth.service';
+import { DiscountService } from '../../../services/discount-service/discount.service';
 import { Product, ProductSize, ProductVariation } from '../../../interfaces/product.interface';
+import { Category } from '../../../interfaces/category.interface';
 
 interface Table {
   _id: string;
@@ -27,6 +29,7 @@ interface Client {
   _id: string;
   name: string;
   isAnonymous: boolean;
+  role?: string | { _id: string; name: string; slug?: string; isSystem?: boolean }; // Role pode ser ID ou objeto populado
 }
 
 interface OrderItem {
@@ -179,12 +182,16 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
   // Step 2: Seleção/criação de cliente
   clients: Client[] = [];
   selectedClient: Client | null = null;
+  selectedClientRoleId: string | null = null; // RoleId do cliente selecionado (para descontos)
   creatingNewClient = false;
   newClientName = '';
+  clientRoles: any[] = [];
+  selectedClientRole: string = ''; // ID do role selecionado ao criar novo cliente
 
   // Step 3: Seleção de produtos
   products: Product[] = [];
   categories: string[] = [];
+  categoryObjects: Map<string, Category> = new Map(); // Mapa de categoryId -> Category object
   selectedCategory = 'all';
   searchTerm = '';
   orderItems: OrderItem[] = [];
@@ -195,11 +202,13 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit() {
     this.loadTables();
+    this.loadClientRoles();
   }
 
   /**
@@ -210,6 +219,31 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  /**
+   * Carrega os roles de cliente disponíveis
+   */
+  loadClientRoles() {
+    this.http
+      .get<{ success: boolean; roles: any[] }>('/api/roles', { headers: this.getHeaders() })
+      .subscribe({
+        next: response => {
+          // Filtrar apenas roles de cliente (clientLevel > 0)
+          this.clientRoles = response.roles
+            .filter(role => role.clientLevel && role.clientLevel > 0)
+            .sort((a, b) => a.clientLevel - b.clientLevel);
+
+          // Definir o role padrão (clientLevel = 1 - Cliente Básico)
+          const basicRole = this.clientRoles.find(role => role.clientLevel === 1);
+          if (basicRole) {
+            this.selectedClientRole = basicRole._id;
+          }
+        },
+        error: err => {
+          console.error('Erro ao carregar roles:', err);
+        },
+      });
   }
 
   // ==================== STEP 1: MESA ====================
@@ -261,6 +295,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
           _id: client._id,
           name: client.name || 'Cliente',
           isAnonymous: client.isAnonymous || false,
+          role: client.role, // Preservar role para descontos
         });
       });
     }
@@ -273,6 +308,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
             _id: anonClient.userData._id,
             name: anonClient.userData.name || `Anônimo ${anonClient.sessionId.substring(0, 8)}`,
             isAnonymous: true,
+            role: anonClient.userData.role, // Preservar role para descontos
           });
         }
       });
@@ -281,6 +317,25 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   selectClient(client: Client) {
     this.selectedClient = client;
+
+    // Extrair roleId do cliente
+    // O cliente pode ter role como string (ID) ou objeto populated
+    if ((client as any).role) {
+      const role = (client as any).role;
+      this.selectedClientRoleId = typeof role === 'string' ? role : role._id;
+    } else {
+      // Se não tem role no objeto, buscar na tabela original
+      const originalClient = this.selectedTable?.clients?.find((c: any) => c._id === client._id);
+      if (originalClient && originalClient.role) {
+        const role = originalClient.role;
+        this.selectedClientRoleId = typeof role === 'string' ? role : role._id;
+      } else {
+        this.selectedClientRoleId = null;
+      }
+    }
+
+    console.log('👤 Cliente selecionado:', client.name, '- RoleId:', this.selectedClientRoleId);
+
     this.currentStep = 'products';
     this.loadProducts();
   }
@@ -288,6 +343,11 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
   startCreateClient() {
     this.creatingNewClient = true;
     this.newClientName = '';
+    // Resetar para o role padrão (Cliente Básico)
+    const basicRole = this.clientRoles.find(role => role.clientLevel === 1);
+    if (basicRole) {
+      this.selectedClientRole = basicRole._id;
+    }
   }
 
   cancelCreateClient() {
@@ -303,6 +363,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     const body = {
       tableId: this.selectedTable._id,
       clientName: this.newClientName.trim(),
+      roleId: this.selectedClientRole || undefined, // Incluir roleId se selecionado
     };
 
     this.http
@@ -312,6 +373,10 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       .subscribe({
         next: response => {
           this.selectedClient = response.client;
+          // Armazenar o roleId que acabamos de criar
+          this.selectedClientRoleId = this.selectedClientRole || null;
+          console.log('✅ Cliente anônimo criado - RoleId:', this.selectedClientRoleId);
+
           this.creatingNewClient = false;
           this.newClientName = '';
           this.currentStep = 'products';
@@ -330,18 +395,63 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.loadingProducts = true;
     this.error = '';
 
+    // Usar /api/products/menu para obter produtos com categorias que incluem descontos
     this.http
-      .get<{ success: boolean; data: Product[] }>('/api/products', { headers: this.getHeaders() })
+      .get<{
+        success: boolean;
+        data: { items: any[] };
+      }>('/api/products/menu', { headers: this.getHeaders() })
       .subscribe({
         next: response => {
-          this.products = response.data || [];
+          console.log('📦 Resposta do /api/products/menu:', response);
 
-          // Extrair categorias únicas
+          // Extrair produtos do formato do menu (cada item tem um objeto 'inputs')
+          const menuItems = response.data?.items || [];
+          console.log('📋 Menu items:', menuItems.length);
+
+          this.products = menuItems.map((item: any) => {
+            const inputs = item.inputs || {};
+            return {
+              _id: item.id,
+              name: inputs.productName || inputs.name, // Normalizar nome
+              description: inputs.description,
+              price: inputs.price,
+              images: inputs.images,
+              sizes: inputs.sizes,
+              variations: inputs.variations,
+              category: inputs.category,
+              format: inputs.format,
+              colorMode: inputs.colorMode,
+              available: true, // Produtos do menu sempre disponíveis
+            } as Product;
+          });
+
+          console.log('✅ Produtos mapeados:', this.products.length);
+          if (this.products.length > 0) {
+            console.log('🔍 Primeiro produto:', this.products[0]);
+          }
+
+          // Extrair categorias únicas e armazenar objetos de categoria
           const cats = new Set<string>();
+          this.categoryObjects.clear();
+
           this.products.forEach(p => {
-            if (p.category) cats.add(p.category);
+            if (p.category) {
+              // category pode ser string (ID) ou objeto
+              const categoryId =
+                typeof p.category === 'string' ? p.category : (p.category as any)._id;
+              cats.add(categoryId);
+
+              // Se category é objeto, armazenar no mapa
+              if (typeof p.category === 'object' && (p.category as any)._id) {
+                this.categoryObjects.set(categoryId, p.category as Category);
+              }
+            }
           });
           this.categories = Array.from(cats).sort();
+
+          console.log('📂 Categorias encontradas:', this.categories);
+          console.log('🗺️ Category objects map:', this.categoryObjects);
 
           this.loadingProducts = false;
         },
@@ -357,12 +467,17 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     let filtered = [...this.products];
 
     if (this.selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === this.selectedCategory);
+      filtered = filtered.filter(p => {
+        if (!p.category) return false;
+        // Comparar o ID da categoria (category pode ser string ou objeto)
+        const categoryId = typeof p.category === 'string' ? p.category : (p.category as any)._id;
+        return categoryId === this.selectedCategory;
+      });
     }
 
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
+      filtered = filtered.filter(p => p.name?.toLowerCase().includes(term));
     }
 
     return filtered;
@@ -455,13 +570,88 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  /**
+   * Obtém o objeto Category de um produto
+   */
+  getProductCategory(product: Product): Category | null {
+    if (!product.category) return null;
+
+    const categoryId =
+      typeof product.category === 'string' ? product.category : (product.category as any)._id;
+    return this.categoryObjects.get(categoryId) || null;
+  }
+
+  /**
+   * Obtém o nome da categoria pelo ID
+   */
+  getCategoryName(categoryId: string): string {
+    const category = this.categoryObjects.get(categoryId);
+    return category?.name || categoryId;
+  }
+
+  /**
+   * Calcula o preço base (produto + tamanho) com desconto
+   */
+  getBasePriceWithDiscount(product: Product, size?: ProductSize): number {
+    const basePrice = size?.price || product.price;
+    const category = this.getProductCategory(product);
+
+    if (!category) {
+      return basePrice;
+    }
+
+    // Usar roleId do cliente selecionado
+    const calc = this.discountService.calculatePriceWithRole(
+      basePrice,
+      category,
+      this.selectedClientRoleId
+    );
+    return calc.finalPrice;
+  }
+
+  /**
+   * Calcula o preço de um tamanho com desconto
+   */
+  getSizePriceWithDiscount(product: Product, size: ProductSize): number {
+    const category = this.getProductCategory(product);
+
+    if (!category) return size.price;
+
+    // Usar roleId do cliente selecionado
+    const calc = this.discountService.calculatePriceWithRole(
+      size.price,
+      category,
+      this.selectedClientRoleId
+    );
+    return calc.finalPrice;
+  }
+
+  /**
+   * Calcula o preço total de um item do pedido (com desconto no base, sem desconto na variação)
+   */
+  getItemPrice(item: OrderItem): number {
+    const basePrice = item.selectedSize?.price || item.product.price;
+    const variationPrice = item.selectedVariation?.price || 0;
+    const category = this.getProductCategory(item.product);
+
+    if (!category) {
+      return basePrice + variationPrice;
+    }
+
+    // Usar roleId do cliente selecionado
+    const calc = this.discountService.calculateFullItemPriceWithRole(
+      basePrice,
+      variationPrice,
+      category,
+      this.selectedClientRoleId
+    );
+    return calc.finalTotalPrice;
+  }
+
   getTotalAmount(): number {
     return this.orderItems.reduce((sum, item) => {
-      let price = item.selectedSize?.price || item.product.price;
-      if (item.selectedVariation) {
-        price = item.selectedVariation.price;
-      }
-      return sum + price * item.quantity;
+      const itemPrice = this.getItemPrice(item);
+      return sum + itemPrice * item.quantity;
     }, 0);
   }
 
@@ -524,13 +714,24 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       return;
     }
 
+    console.log('📤 Enviando pedido...');
+    console.log('🛒 Order items:', this.orderItems);
+
     const body = {
       tableId: this.selectedTable._id,
       clientId: this.selectedClient._id,
       isClientAnonymous: this.selectedClient.isAnonymous,
       items: this.orderItems.map(item => {
-        const unitPrice = item.selectedSize?.price || item.product.price;
+        // Calcula o preço unitário com desconto
+        const unitPrice = this.getItemPrice(item);
         const totalPrice = unitPrice * item.quantity;
+
+        console.log('📦 Mapeando item:', {
+          productId: item.product._id,
+          productName: item.product.name,
+          unitPrice,
+          totalPrice,
+        });
 
         return {
           productId: item.product._id,
@@ -560,15 +761,38 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       totalAmount: this.getTotalAmount(),
     };
 
+    console.log('📋 Body final do pedido:', JSON.stringify(body, null, 2));
+
     this.http.post('/api/orders', body, { headers: this.getHeaders() }).subscribe({
       next: () => {
+        console.log('✅ Pedido criado com sucesso!');
         this.orderCreated.emit();
         this.closeModal();
       },
       error: err => {
-        console.error('Erro ao criar pedido:', err);
-        this.error = err.error?.message || 'Erro ao criar pedido';
+        console.error('❌ Erro ao criar pedido:', err);
+        console.error('📄 Detalhes do erro:', err.error);
+        this.error = err.error?.message || err.error?.errors?.[0]?.msg || 'Erro ao criar pedido';
       },
     });
+  }
+
+  /**
+   * Retorna o nome da role customizada do cliente (se tiver)
+   * Retorna null se for role de sistema (admin, garçom, cozinha, cliente padrão)
+   */
+  getClientCustomRoleName(client: Client): string | null {
+    if (!client.role) {
+      return null;
+    }
+
+    if (typeof client.role === 'object') {
+      // Se isSystem é false, é uma role customizada
+      if (client.role.isSystem === false) {
+        return client.role.name;
+      }
+    }
+
+    return null;
   }
 }
