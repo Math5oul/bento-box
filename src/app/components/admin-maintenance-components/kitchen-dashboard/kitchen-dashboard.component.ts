@@ -291,6 +291,8 @@ export class KitchenDashboardComponent implements OnInit {
           selectedSize: it.selectedSize,
           selectedVariation: it.selectedVariation,
           status: it.status || 'pending',
+          paidQuantity:
+            typeof it.paidQuantity === 'number' ? it.paidQuantity : Number(it.paidQuantity) || 0,
         } as any;
 
         if (idx === itemIndex) {

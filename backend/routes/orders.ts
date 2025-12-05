@@ -760,6 +760,7 @@ router.patch(
           selectedSize: item.selectedSize,
           selectedVariation: item.selectedVariation,
           status: item.status || OrderStatus.PENDING,
+          paidQuantity: item.paidQuantity || 0,
         }));
       }
 
