@@ -72,7 +72,7 @@
                 [class.reserved]="table.status === 'reserved'"
                 (click)="selectTable(table)"
               >
-                <div class="table-number">Mesa {{ table.number }}</div>
+                <div class="table-number">{{ getTableDisplayName(table) }}</div>
                 <div class="table-status">{{ getTableStatusLabel(table.status) }}</div>
                 <div class="table-clients">
                   {{ (table.clients.length || 0) + (table.anonymousClients.length || 0) }}
@@ -90,7 +90,7 @@
       <div class="modal-body">
         <h3>
           Selecione ou Crie um Cliente -
-          {{ isCounterOrder ? 'Balcão' : 'Mesa ' + selectedTable?.number }}
+          {{ isCounterOrder ? 'Balcão' : getTableDisplayName(selectedTable!) }}
         </h3>
 
         @if (!creatingNewClient) {
