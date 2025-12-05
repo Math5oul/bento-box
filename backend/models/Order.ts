@@ -182,6 +182,7 @@ OrderSchema.pre('save', function (next) {
       selectedSize: item.selectedSize,
       selectedVariation: item.selectedVariation,
       status: item.status || OrderStatus.PENDING,
+      paidQuantity: item.paidQuantity || 0,
     }));
     this.totalAmount = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
   }
