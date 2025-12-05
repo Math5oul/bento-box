@@ -20,6 +20,7 @@ import { Category } from '../../../interfaces/category.interface';
 interface Table {
   _id: string;
   number: number;
+  name?: string; // Nome customizado da mesa
   status: string;
   clients: any[];
   anonymousClients: any[];
@@ -373,6 +374,16 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       reserved: 'Reservada',
     };
     return labels[status] || status;
+  }
+
+  /**
+   * Retorna o nome formatado da mesa (nome se houver, senão "Mesa X")
+   */
+  getTableDisplayName(table: Table): string {
+    if (table.name) {
+      return table.name;
+    }
+    return `Mesa ${table.number}`;
   }
 
   // ==================== STEP 2: CLIENTE ====================

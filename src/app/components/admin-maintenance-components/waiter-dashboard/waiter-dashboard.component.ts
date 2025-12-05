@@ -228,6 +228,14 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       (order.items || []).forEach((it, idx) => {
         const status = it.status || 'pending';
         if (status === 'ready') {
+          console.log(
+            '🔍 Item pronto - orderId:',
+            order.id,
+            'tableNumber:',
+            order.tableNumber,
+            'tipo:',
+            typeof order.tableNumber
+          );
           items.push({
             orderId: order.id,
             tableNumber: order.tableNumber,
@@ -246,6 +254,8 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       const tb = new Date(b.order?.createdAt || 0).getTime();
       return tb - ta;
     });
+
+    console.log('🔍 readyViewItems depois do sort:', this.readyViewItems);
   }
 
   /**
@@ -939,13 +949,21 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   /**
    * Retorna o nome formatado da mesa (nome se houver, senão "Mesa X")
    */
-  getTableDisplayName(tableNumber: string): string {
-    const table = this.tablesMap.get(String(tableNumber));
+  getTableDisplayName(tableNumber: string | number): string {
+    // Garante que sempre comparamos como string
+    const tableNumberStr = String(tableNumber);
+    const table = this.tablesMap.get(tableNumberStr);
+
+    console.log('🔍 getTableDisplayName chamado:');
+    console.log('  - input:', tableNumber, '(tipo:', typeof tableNumber, ')');
+    console.log('  - tableNumberStr:', tableNumberStr);
+    console.log('  - table encontrada:', table);
+    console.log('  - table.name:', table?.name);
 
     if (table?.name) {
       return table.name;
     }
-    return `Mesa ${tableNumber}`;
+    return `Mesa ${tableNumberStr}`;
   }
 
   /**

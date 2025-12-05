@@ -33,7 +33,7 @@
         <select [(ngModel)]="filterTable" (change)="applyFilters()" class="filter-select">
           <option value="all">Todas</option>
           @for (table of tables; track table) {
-            <option [value]="table">Mesa {{ table }}</option>
+            <option [value]="table">{{ getTableDisplayName(table) }}</option>
           }
         </select>
       </div>
@@ -87,11 +87,11 @@
           </div>
         } @else {
           <div class="ready-items-list">
-            @for (rv of readyViewItems; track i; let i = $index) {
+            @for (rv of readyViewItems; track rv.orderId + '-' + rv.itemIndex; let i = $index) {
               <div class="ready-item">
                 <div class="ready-item-info">
                   <div class="ready-item-meta">
-                    <div class="ready-item-table">Mesa {{ rv.tableNumber }}</div>
+                    <div class="ready-item-table">{{ getTableDisplayName(rv.tableNumber) }}</div>
                   </div>
                   <div class="ready-item-name">
                     <span class="ready-item-quantity">{{ rv.item.quantity }}x </span>
