@@ -173,6 +173,78 @@ router.post(
 );
 
 /**
+ * PUT /api/tables/:tableId
+ * Atualiza uma mesa (Admin)
+ */
+router.put(
+  '/:tableId',
+  authenticate,
+  runValidations([
+    param('tableId').isMongoId().withMessage('ID da mesa inválido'),
+    body('number').optional().isInt({ min: 1 }).withMessage('Número da mesa deve ser maior que 0'),
+    body('name').optional().isString().trim().withMessage('Nome deve ser texto'),
+    body('capacity').optional().isInt({ min: 1, max: 20 }).withMessage('Capacidade inválida'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tableId } = req.params;
+      const { number, name, capacity } = req.body;
+
+      const table = await Table.findById(tableId);
+
+      if (!table) {
+        res.status(404).json({
+          success: false,
+          message: 'Mesa não encontrada',
+        });
+        return;
+      }
+
+      // Se número mudou, verifica se já existe outra mesa com esse número
+      if (number !== undefined && number !== table.number) {
+        const existingTable = await Table.findOne({ number, _id: { $ne: tableId } });
+        if (existingTable) {
+          res.status(409).json({
+            success: false,
+            message: 'Já existe uma mesa com este número',
+          });
+          return;
+        }
+        table.number = number;
+      }
+
+      // Atualiza nome (pode ser undefined para remover)
+      if (name !== undefined) {
+        table.name = name || undefined;
+      }
+
+      // Atualiza capacidade
+      if (capacity !== undefined) {
+        table.capacity = capacity;
+      }
+
+      await table.save();
+
+      res.json({
+        success: true,
+        message: 'Mesa atualizada com sucesso',
+        table: {
+          ...table.toObject(),
+          id: (table._id as any).toString(),
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar mesa:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao atualizar mesa',
+      });
+    }
+  }
+);
+
+/**
  * DELETE /api/tables/:tableId
  * Exclui uma mesa (Admin)
  */

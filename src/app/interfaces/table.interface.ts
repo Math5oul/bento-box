@@ -5,6 +5,7 @@
 export interface Table {
   id: string;
   number: number; // Número da mesa (1, 2, 3...)
+  name?: string; // Nome customizado da mesa (ex: "Varanda", "Salão Principal")
   status: TableStatus;
   capacity: number; // Quantas pessoas cabem
 
@@ -55,6 +56,7 @@ export enum TableStatus {
  */
 export interface CreateTableDTO {
   number: number;
+  name?: string;
   capacity: number;
 }
 
@@ -63,6 +65,7 @@ export interface CreateTableDTO {
  */
 export interface UpdateTableDTO {
   number?: number;
+  name?: string;
   capacity?: number;
   status?: TableStatus;
 }

@@ -488,6 +488,24 @@
   font-size: 1em;
   font-weight: 700;
   color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #667eea;
+
+    .edit-icon {
+      opacity: 1;
+    }
+  }
+
+  .edit-icon {
+    font-size: 0.85em;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
 }
 
 .order-time {

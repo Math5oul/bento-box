@@ -38,6 +38,7 @@ export interface IReservationInfo {
  */
 export interface ITable extends Document {
   number: number;
+  name?: string;
   status: TableStatus;
   capacity: number;
   qrCode: string;
@@ -89,6 +90,10 @@ const TableSchema = new Schema<ITable>(
       type: Number,
       required: true,
       unique: true,
+    },
+    name: {
+      type: String,
+      trim: true,
     },
     status: {
       type: String,

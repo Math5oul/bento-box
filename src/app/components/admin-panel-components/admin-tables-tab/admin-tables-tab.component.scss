@@ -46,9 +46,22 @@
 }
 
 .table-number {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .table-number-main {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  .table-name {
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: #666;
+    font-style: italic;
+  }
 }
 
 .table-status {

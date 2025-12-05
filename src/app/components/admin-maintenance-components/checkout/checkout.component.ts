@@ -133,6 +133,13 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
+  /**
+   * Retorna o nome ou número da mesa
+   */
+  getTableDisplayName(table: Table): string {
+    return table.name || `Mesa ${table.number}`;
+  }
+
   async selectTable(table: Table) {
     this.selectedTable = table;
     this.loading = true;
