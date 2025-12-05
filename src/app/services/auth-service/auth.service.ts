@@ -120,39 +120,66 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    // Backward compatibility: check role string OR permissions
+
+    // Legacy: Verifica se o role é string 'admin'
     if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
       return true;
     }
-    return user?.permissions?.accessAdminPanel ?? false;
+
+    // Novo formato: Verifica se roleDetails.slug é 'admin'
+    if (user?.roleDetails?.slug === 'admin') {
+      return true;
+    }
+
+    return false;
   }
 
   isKitchen(): boolean {
     const user = this.getCurrentUser();
-    // Backward compatibility: check role string OR permissions
+
+    // Legacy: Verifica se o role é string 'cozinha'
     if (user?.role === UserRole.KITCHEN || user?.role === 'cozinha') {
       return true;
     }
-    return user?.permissions?.accessKitchenPanel ?? false;
+
+    // Novo formato: Verifica se roleDetails.slug é 'cozinha'
+    if (user?.roleDetails?.slug === 'cozinha') {
+      return true;
+    }
+
+    return false;
   }
 
   isWaiter(): boolean {
     const user = this.getCurrentUser();
-    // Backward compatibility: check role string OR permissions
+
+    // Legacy: Verifica se o role é string 'garcom'
     if (user?.role === UserRole.WAITER || user?.role === 'garcom') {
       return true;
     }
-    return user?.permissions?.accessWaiterPanel ?? false;
+
+    // Novo formato: Verifica se roleDetails.slug é 'garcom'
+    if (user?.roleDetails?.slug === 'garcom') {
+      return true;
+    }
+
+    return false;
   }
 
   isClient(): boolean {
     const user = this.getCurrentUser();
-    // Backward compatibility: check role string OR permissions
+
+    // Legacy: Verifica se o role é string 'client'
     if (user?.role === UserRole.CLIENT || user?.role === 'client') {
       return true;
     }
-    // Clientes são usuários que podem fazer pedidos mas não têm acesso a painéis de staff
-    return user?.permissions?.canOrder ?? false;
+
+    // Novo formato: Verifica se roleDetails.slug é 'client'
+    if (user?.roleDetails?.slug === 'client') {
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -266,6 +293,17 @@ export class AuthService {
       return true;
     }
     return this.hasPermission('canManageProducts');
+  }
+
+  /**
+   * Verifica se o usuário pode gerenciar fillers
+   */
+  canManageFillers(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canManageFillers');
   }
 
   /**

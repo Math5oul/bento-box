@@ -11,8 +11,11 @@
         <div class="user-details">
           <div class="name">{{ user?.name }}</div>
           <div class="email">{{ user?.email }}</div>
-          @if (canAccessAdminPanel) {
+          @if (isAdmin) {
             <span class="admin-badge">Admin</span>
+          }
+          @if (isStaff) {
+            <span class="staff-badge">Staff</span>
           }
         </div>
       </div>

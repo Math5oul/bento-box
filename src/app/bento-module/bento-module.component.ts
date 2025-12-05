@@ -99,7 +99,6 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     private storageService: StorageService,
     private fillerService: FillerService,
     private authService: AuthService,
-    private tableService: TableService,
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,

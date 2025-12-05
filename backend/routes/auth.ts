@@ -10,6 +10,125 @@ import { validate, runValidations } from '../middleware/validate';
 
 const router = Router();
 
+// Sistema de controle de tentativas de login
+interface LoginAttempt {
+  count: number;
+  firstAttempt: Date;
+  lastAttempt: Date;
+  blockedUntil?: Date;
+}
+
+const loginAttempts = new Map<string, LoginAttempt>();
+
+// Configurações de rate limiting
+const MAX_LOGIN_ATTEMPTS = 5; // Máximo de tentativas
+const ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutos em ms
+const BLOCK_DURATION = 30 * 60 * 1000; // 30 minutos de bloqueio
+
+/**
+ * Verifica se o IP está bloqueado
+ */
+function isBlocked(ip: string): { blocked: boolean; remainingTime?: number } {
+  const attempt = loginAttempts.get(ip);
+
+  if (!attempt || !attempt.blockedUntil) {
+    return { blocked: false };
+  }
+
+  const now = new Date();
+  if (now < attempt.blockedUntil) {
+    const remainingTime = Math.ceil((attempt.blockedUntil.getTime() - now.getTime()) / 1000 / 60);
+    return { blocked: true, remainingTime };
+  }
+
+  // Bloqueio expirou, limpa os dados
+  loginAttempts.delete(ip);
+  return { blocked: false };
+}
+
+/**
+ * Registra uma tentativa de login
+ */
+function recordLoginAttempt(ip: string, success: boolean): void {
+  const now = new Date();
+  const attempt = loginAttempts.get(ip);
+
+  if (success) {
+    // Login bem-sucedido, limpa as tentativas
+    loginAttempts.delete(ip);
+    return;
+  }
+
+  if (!attempt) {
+    // Primeira tentativa falha
+    loginAttempts.set(ip, {
+      count: 1,
+      firstAttempt: now,
+      lastAttempt: now,
+    });
+    return;
+  }
+
+  // Verifica se está dentro da janela de tempo
+  const timeSinceFirst = now.getTime() - attempt.firstAttempt.getTime();
+
+  if (timeSinceFirst > ATTEMPT_WINDOW) {
+    // Janela de tempo expirou, reinicia contagem
+    loginAttempts.set(ip, {
+      count: 1,
+      firstAttempt: now,
+      lastAttempt: now,
+    });
+    return;
+  }
+
+  // Incrementa contador
+  attempt.count++;
+  attempt.lastAttempt = now;
+
+  // Bloqueia se excedeu o limite
+  if (attempt.count >= MAX_LOGIN_ATTEMPTS) {
+    attempt.blockedUntil = new Date(now.getTime() + BLOCK_DURATION);
+    console.log(
+      `🚫 IP ${ip} bloqueado por ${BLOCK_DURATION / 1000 / 60} minutos após ${attempt.count} tentativas falhas`
+    );
+  }
+
+  loginAttempts.set(ip, attempt);
+}
+
+/**
+ * Obtém tentativas restantes
+ */
+function getRemainingAttempts(ip: string): number {
+  const attempt = loginAttempts.get(ip);
+  if (!attempt) return MAX_LOGIN_ATTEMPTS;
+
+  const timeSinceFirst = new Date().getTime() - attempt.firstAttempt.getTime();
+  if (timeSinceFirst > ATTEMPT_WINDOW) {
+    return MAX_LOGIN_ATTEMPTS;
+  }
+
+  return Math.max(0, MAX_LOGIN_ATTEMPTS - attempt.count);
+}
+
+// Limpa tentativas antigas a cada 1 hora
+setInterval(
+  () => {
+    const now = new Date();
+    for (const [ip, attempt] of loginAttempts.entries()) {
+      const timeSinceFirst = now.getTime() - attempt.firstAttempt.getTime();
+      const isExpired = timeSinceFirst > ATTEMPT_WINDOW;
+      const blockExpired = attempt.blockedUntil && now > attempt.blockedUntil;
+
+      if (isExpired || blockExpired) {
+        loginAttempts.delete(ip);
+      }
+    }
+  },
+  60 * 60 * 1000
+); // A cada 1 hora
+
 /**
  * POST /api/auth/register
  * Registra um novo usuário
@@ -130,14 +249,33 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
+        req.socket.remoteAddress ||
+        'unknown';
+
+      // Verifica se o IP está bloqueado
+      const blockStatus = isBlocked(clientIp);
+      if (blockStatus.blocked) {
+        res.status(429).json({
+          success: false,
+          message: `Muitas tentativas de login falhas. Tente novamente em ${blockStatus.remainingTime} minutos.`,
+          remainingTime: blockStatus.remainingTime,
+          blockedUntil: loginAttempts.get(clientIp)?.blockedUntil,
+        });
+        return;
+      }
 
       // Busca usuário com senha (select: false por padrão)
       const user = await User.findOne({ email }).select('+password');
 
       if (!user) {
+        recordLoginAttempt(clientIp, false);
+        const remaining = getRemainingAttempts(clientIp);
         res.status(401).json({
           success: false,
           message: 'Email ou senha incorretos',
+          remainingAttempts: remaining,
         });
         return;
       }
@@ -146,12 +284,18 @@ router.post(
       const isPasswordValid = await user.comparePassword(password);
 
       if (!isPasswordValid) {
+        recordLoginAttempt(clientIp, false);
+        const remaining = getRemainingAttempts(clientIp);
         res.status(401).json({
           success: false,
           message: 'Email ou senha incorretos',
+          remainingAttempts: remaining,
         });
         return;
       }
+
+      // Login bem-sucedido - limpa tentativas
+      recordLoginAttempt(clientIp, true);
 
       // Popular roleDetails se role for ObjectId
       let populatedUser: any = user;

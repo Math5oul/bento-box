@@ -19,6 +19,7 @@ export interface RolePermissions {
   // Permissões de Produtos
   canManageProducts: boolean;
   canViewProducts: boolean;
+  canManageFillers: boolean;
 
   // Permissões de Categorias
   canManageCategories: boolean;

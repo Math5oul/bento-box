@@ -35,6 +35,9 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   successMessage = '';
   hasAnonymousSession = false;
   anonymousTableNumber = '';
+  remainingAttempts: number | null = null;
+  isBlocked = false;
+  blockedUntilTime: string | null = null;
 
   formData = {
     name: '',
@@ -159,12 +162,49 @@ export class LoginModalComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('Erro no login/registro:', error);
 
-      if (error.error?.errors && Array.isArray(error.error.errors)) {
-        this.errorMessage = error.error.errors.map((err: any) => err.message || err.msg).join(', ');
-      } else if (error.error?.message) {
-        this.errorMessage = error.error.message;
+      // Verifica se é um erro de bloqueio (status 429)
+      if (error.status === 429) {
+        this.isBlocked = true;
+        this.remainingAttempts = null;
+
+        if (error.error?.remainingTime) {
+          this.errorMessage =
+            error.error.message ||
+            `Muitas tentativas falhas. Aguarde ${error.error.remainingTime} minutos.`;
+        } else {
+          this.errorMessage =
+            error.error?.message ||
+            'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.';
+        }
       } else {
-        this.errorMessage = 'Erro ao processar requisição. Tente novamente.';
+        this.isBlocked = false;
+
+        // Verifica se há informação de tentativas restantes
+        if (
+          error.error?.remainingAttempts !== undefined &&
+          error.error?.remainingAttempts !== null
+        ) {
+          const attempts = error.error.remainingAttempts;
+          this.remainingAttempts = attempts;
+
+          if (attempts === 0) {
+            this.errorMessage = 'Limite de tentativas atingido. Aguarde alguns minutos.';
+          } else if (attempts > 0 && attempts <= 2) {
+            this.errorMessage =
+              (error.error?.message || 'Email ou senha incorretos') +
+              ` (${attempts} tentativa${attempts > 1 ? 's' : ''} restante${attempts > 1 ? 's' : ''})`;
+          } else {
+            this.errorMessage = error.error?.message || 'Email ou senha incorretos';
+          }
+        } else if (error.error?.errors && Array.isArray(error.error.errors)) {
+          this.errorMessage = error.error.errors
+            .map((err: any) => err.message || err.msg)
+            .join(', ');
+        } else if (error.error?.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Erro ao processar requisição. Tente novamente.';
+        }
       }
     } finally {
       this.isLoading = false;
