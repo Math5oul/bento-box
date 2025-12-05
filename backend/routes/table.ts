@@ -665,12 +665,13 @@ router.get(
 /**
  * POST /api/table/create-anonymous-client
  * Cria um cliente anônimo e vincula à mesa (Waiter/Admin)
+ * Se tableId não for fornecido, cria um cliente para pedido de balcão
  */
 router.post(
   '/create-anonymous-client',
   authenticate,
   runValidations([
-    body('tableId').isMongoId().withMessage('ID da mesa inválido'),
+    body('tableId').optional().isMongoId().withMessage('ID da mesa inválido'),
     body('clientName').notEmpty().withMessage('Nome do cliente é obrigatório'),
     body('roleId').optional().isMongoId().withMessage('ID do role inválido'),
   ]),
@@ -679,24 +680,28 @@ router.post(
     try {
       const { tableId, clientName, roleId } = req.body;
 
-      // Busca mesa
-      const table = await Table.findById(tableId);
+      let table = null;
 
-      if (!table) {
-        res.status(404).json({
-          success: false,
-          message: 'Mesa não encontrada',
-        });
-        return;
-      }
+      // Se tableId for fornecido, busca a mesa
+      if (tableId) {
+        table = await Table.findById(tableId);
 
-      // Verifica se mesa está fechada
-      if (table.status === TableStatus.CLOSED) {
-        res.status(400).json({
-          success: false,
-          message: 'Mesa fechada para novos clientes',
-        });
-        return;
+        if (!table) {
+          res.status(404).json({
+            success: false,
+            message: 'Mesa não encontrada',
+          });
+          return;
+        }
+
+        // Verifica se mesa está fechada
+        if (table.status === TableStatus.CLOSED) {
+          res.status(400).json({
+            success: false,
+            message: 'Mesa fechada para novos clientes',
+          });
+          return;
+        }
       }
 
       // Cria usuário anônimo com nome personalizado
@@ -704,27 +709,29 @@ router.post(
         name: clientName,
         role: roleId || UserRole.CLIENT, // Usa roleId se fornecido, senão usa CLIENT padrão
         isAnonymous: true,
-        currentTableId: table._id,
+        currentTableId: table ? table._id : undefined, // Apenas vincula se houver mesa
       });
 
       // Gera session token
       const sessionToken = anonymousUser.generateSessionToken();
       await anonymousUser.save();
 
-      // Adiciona sessão anônima à mesa
-      table.anonymousClients.push({
-        sessionId: (anonymousUser._id as any).toString(),
-        sessionToken,
-        joinedAt: new Date(),
-        expiresAt: anonymousUser.sessionExpiry!,
-      });
+      // Se houver mesa, adiciona sessão anônima à mesa
+      if (table) {
+        table.anonymousClients.push({
+          sessionId: (anonymousUser._id as any).toString(),
+          sessionToken,
+          joinedAt: new Date(),
+          expiresAt: anonymousUser.sessionExpiry!,
+        });
 
-      // Atualiza status da mesa se estava disponível
-      if (table.status === TableStatus.AVAILABLE) {
-        table.status = TableStatus.OCCUPIED;
+        // Atualiza status da mesa se estava disponível
+        if (table.status === TableStatus.AVAILABLE) {
+          table.status = TableStatus.OCCUPIED;
+        }
+
+        await table.save();
       }
-
-      await table.save();
 
       res.json({
         success: true,
