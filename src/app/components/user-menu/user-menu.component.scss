@@ -114,6 +114,18 @@
     white-space: nowrap;
   }
 
+  .custom-role-badge {
+    display: inline-block;
+    background: #ff9800;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
   .admin-badge {
     display: inline-block;
     background: #ffd700;

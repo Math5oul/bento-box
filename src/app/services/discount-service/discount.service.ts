@@ -197,6 +197,68 @@ export class DiscountService {
   }
 
   /**
+   * Calcula o preço com desconto usando roleId específico (para admin criando pedidos)
+   */
+  calculatePriceWithRole(
+    price: number,
+    category: Category | null,
+    roleId: string | null
+  ): DiscountCalculation {
+    const result: DiscountCalculation = {
+      originalPrice: price,
+      discountPercent: 0,
+      discountAmount: 0,
+      finalPrice: price,
+      hasDiscount: false,
+    };
+
+    // Se não tem categoria, descontos ou roleId, retorna preço original
+    if (!category || !category.discounts || category.discounts.length === 0 || !roleId) {
+      return result;
+    }
+
+    // Busca desconto para o role fornecido
+    const discount = category.discounts.find(d => d.roleId === roleId);
+
+    if (discount && discount.discountPercent > 0) {
+      result.discountPercent = discount.discountPercent;
+      result.discountAmount = (price * discount.discountPercent) / 100;
+      result.finalPrice = price - result.discountAmount;
+      result.hasDiscount = true;
+    }
+
+    return result;
+  }
+
+  /**
+   * Calcula preço completo com roleId específico
+   */
+  calculateFullItemPriceWithRole(
+    basePrice: number,
+    variationPrice: number,
+    category: Category | null,
+    roleId: string | null
+  ): DetailedPriceCalculation {
+    const basePriceCalc = this.calculatePriceWithRole(basePrice, category, roleId);
+
+    const result: DetailedPriceCalculation = {
+      basePriceOriginal: basePrice,
+      basePriceWithDiscount: basePriceCalc.finalPrice,
+      baseDiscountPercent: basePriceCalc.discountPercent,
+      baseDiscountAmount: basePriceCalc.discountAmount,
+
+      variationPrice: variationPrice,
+
+      originalTotalPrice: basePrice + variationPrice,
+      finalTotalPrice: basePriceCalc.finalPrice + variationPrice,
+      totalDiscount: basePriceCalc.discountAmount,
+      hasDiscount: basePriceCalc.hasDiscount,
+    };
+
+    return result;
+  }
+
+  /**
    * Formata preço em BRL
    */
   formatPrice(price: number): string {

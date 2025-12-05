@@ -64,6 +64,9 @@
 
                 <h3 class="client-name">
                   👤 {{ group.clientName }}
+                  @if (group.customRoleName) {
+                    <span class="custom-role-badge">{{ group.customRoleName }}</span>
+                  }
                   <span class="client-item-count">
                     {{ group.items.length }} item{{ group.items.length !== 1 ? 's' : '' }}
 

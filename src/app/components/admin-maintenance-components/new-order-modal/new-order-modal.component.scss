@@ -393,6 +393,13 @@
       font-size: 0.8rem;
       font-weight: 500;
 
+      &.custom-role {
+        background: #ff9800;
+        color: white;
+        font-weight: 600;
+        margin-right: 0.5rem;
+      }
+
       &.anon {
         background: #e3f2fd;
         color: #1976d2;
@@ -411,6 +418,15 @@
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: #333;
+  }
+
+  .help-text {
+    display: block;
+    margin-top: 0.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: #718096;
+    font-style: italic;
   }
 
   .form-actions {

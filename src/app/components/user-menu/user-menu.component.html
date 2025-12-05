@@ -11,6 +11,9 @@
         <div class="user-details">
           <div class="name">{{ user?.name }}</div>
           <div class="email">{{ user?.email }}</div>
+          @if (customRoleName; as roleName) {
+            <span class="custom-role-badge">{{ roleName }}</span>
+          }
           @if (isAdmin) {
             <span class="admin-badge">Admin</span>
           }

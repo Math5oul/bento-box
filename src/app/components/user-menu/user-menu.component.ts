@@ -102,6 +102,25 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     return this.user?.name?.charAt(0).toUpperCase() || '?';
   }
 
+  get customRoleName(): string | null {
+    const user = this.user;
+
+    // Verifica roleDetails primeiro
+    if (user?.roleDetails && user.roleDetails.isSystem === false) {
+      return user.roleDetails.name;
+    }
+
+    // Se roleDetails não existe, tenta verificar role diretamente
+    if (user?.role && typeof user.role === 'object') {
+      const role = user.role as any;
+      if (role.isSystem === false) {
+        return role.name;
+      }
+    }
+
+    return null;
+  }
+
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
 

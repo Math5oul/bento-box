@@ -3,6 +3,7 @@ import { body, param } from 'express-validator';
 import { Order, OrderStatus, IOrderItem } from '../models/Order';
 import { Table, TableStatus } from '../models/Table';
 import { User } from '../models/User';
+import { Role } from '../models/Role';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { validate, runValidations } from '../middleware/validate';
 
@@ -253,11 +254,40 @@ router.get(
 
       const orders = await Order.find({ tableId })
         .sort({ createdAt: -1 })
-        .populate('clientId', 'name email');
+        .populate('clientId', 'name email role');
 
-      const ordersFormatted = orders.map(order => ({
-        ...order.toObject(),
-        id: (order._id as any).toString(),
+      // Popular roles manualmente para os clientes que têm roleId
+      const ordersWithRoles = await Promise.all(
+        orders.map(async order => {
+          const orderObj = order.toObject();
+
+          // Se clientId existe e está populado, tenta popular o role
+          if (orderObj.clientId && typeof orderObj.clientId === 'object') {
+            const clientObj = orderObj.clientId as any;
+
+            // Se o role é um ObjectId (string), busca os detalhes do role
+            if (clientObj.role && typeof clientObj.role === 'string') {
+              try {
+                const roleDoc = await Role.findById(clientObj.role)
+                  .select('name slug isSystem')
+                  .lean();
+                if (roleDoc) {
+                  clientObj.role = roleDoc;
+                }
+              } catch (err) {
+                // Ignora erros ao buscar role
+                console.log('Não foi possível popular role:', err);
+              }
+            }
+          }
+
+          return orderObj;
+        })
+      );
+
+      const ordersFormatted = ordersWithRoles.map(obj => ({
+        ...obj,
+        id: (obj._id as any).toString(),
       }));
 
       res.json({
@@ -894,11 +924,38 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     const orders = await Order.find(query)
       .sort({ createdAt: -1 })
       .populate('tableId', 'number')
-      // popula isAnonymous para identificar clientes anônimos
-      .populate('clientId', 'name email isAnonymous');
+      .populate('clientId', 'name email isAnonymous role');
 
-    const ordersFormatted = orders.map(order => {
-      const obj = order.toObject();
+    // Popular roles manualmente para os clientes que têm roleId
+    const ordersWithRoles = await Promise.all(
+      orders.map(async order => {
+        const orderObj = order.toObject();
+
+        // Se clientId existe e está populado, tenta popular o role
+        if (orderObj.clientId && typeof orderObj.clientId === 'object') {
+          const clientObj = orderObj.clientId as any;
+
+          // Se o role é um ObjectId (string), busca os detalhes do role
+          if (clientObj.role && typeof clientObj.role === 'string') {
+            try {
+              const roleDoc = await Role.findById(clientObj.role)
+                .select('name slug isSystem')
+                .lean();
+              if (roleDoc) {
+                clientObj.role = roleDoc;
+              }
+            } catch (err) {
+              // Ignora erros ao buscar role
+              console.log('Não foi possível popular role:', err);
+            }
+          }
+        }
+
+        return orderObj;
+      })
+    );
+
+    const ordersFormatted = ordersWithRoles.map(obj => {
       // Se tableId está populado, pega o número
       let tableNumber = undefined;
       if (obj.tableId && typeof obj.tableId === 'object' && 'number' in obj.tableId) {
@@ -916,7 +973,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
 
       return {
         ...obj,
-        id: (order._id as any).toString(),
+        id: (obj._id as any).toString(),
         tableNumber,
         isClientAnonymous,
         clientName, // Garante que usa o clientName original salvo no pedido

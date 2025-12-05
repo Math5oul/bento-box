@@ -83,6 +83,10 @@
                   <span class="client-icon">👤</span>
                   <span class="client-name">{{ client.name }}</span>
 
+                  @if (getClientCustomRoleName(client); as roleName) {
+                    <span class="badge custom-role">{{ roleName }}</span>
+                  }
+
                   @if (client.isAnonymous) {
                     <span class="badge anon">Anônimo</span>
                   }
@@ -105,6 +109,21 @@
               class="form-input"
               (keyup.enter)="createAnonymousClient()"
             />
+
+            <label for="clientRole">Tipo de Cliente:</label>
+            <select id="clientRole" [(ngModel)]="selectedClientRole" class="form-select">
+              @for (role of clientRoles; track role._id) {
+                <option [value]="role._id">
+                  {{ role.name }}
+                  @if (role.clientLevel === 1) {
+                    <span>(Padrão)</span>
+                  }
+                </option>
+              }
+            </select>
+            <small class="help-text"
+              >O tipo de cliente define os descontos que serão aplicados</small
+            >
 
             <div class="form-actions">
               <button class="btn btn-secondary" (click)="cancelCreateClient()">Cancelar</button>
@@ -132,7 +151,7 @@
               <option value="all">Todas as Categorias</option>
 
               @for (cat of categories; track cat) {
-                <option [value]="cat">{{ cat }}</option>
+                <option [value]="cat">{{ getCategoryName(cat) }}</option>
               }
             </select>
 
@@ -182,12 +201,15 @@
                         <div class="product-sizes">
                           @for (size of product.sizes; track size.abbreviation) {
                             <span class="size-tag">
-                              {{ size.abbreviation }}: {{ formatCurrency(size.price) }}
+                              {{ size.abbreviation }}:
+                              {{ formatCurrency(getSizePriceWithDiscount(product, size)) }}
                             </span>
                           }
                         </div>
                       } @else {
-                        <div class="product-price">{{ formatCurrency(product.price) }}</div>
+                        <div class="product-price">
+                          {{ formatCurrency(getBasePriceWithDiscount(product)) }}
+                        </div>
                       }
                     </div>
                   </div>
@@ -225,11 +247,7 @@
                       </div>
 
                       <span class="item-total">
-                        {{
-                          formatCurrency(
-                            (item.selectedSize?.price || item.product.price) * item.quantity
-                          )
-                        }}
+                        {{ formatCurrency(getItemPrice(item) * item.quantity) }}
                       </span>
                     </div>
 
@@ -349,7 +367,9 @@
           @for (size of productForSize.sizes; track size.abbreviation) {
             <button class="size-option box-style" (click)="selectSize(size)">
               <span class="size-name">{{ size.name }} ({{ size.abbreviation }})</span>
-              <span class="size-price">{{ formatCurrency(size.price) }}</span>
+              <span class="size-price">{{
+                formatCurrency(getSizePriceWithDiscount(productForSize, size))
+              }}</span>
 
               @if (selectedVariation) {
                 <span class="variation-badge">{{ selectedVariation.title }}</span>
