@@ -17,11 +17,12 @@ import {
   CategorySalesData,
   ProductSalesData,
 } from '../../../interfaces/report.interface';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminHeaderComponent],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.scss'],
 })
