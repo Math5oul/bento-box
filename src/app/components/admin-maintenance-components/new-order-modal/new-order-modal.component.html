@@ -42,7 +42,22 @@
     <!-- STEP 1 -->
     @if (currentStep === 'table') {
       <div class="modal-body">
-        <h3>Selecione a Mesa</h3>
+        <h3>Selecione a Mesa ou Balcão</h3>
+
+        <!-- Botão de Balcão -->
+        <div class="counter-option">
+          <button class="counter-btn" (click)="selectCounter()">
+            <span class="counter-icon">🏪</span>
+            <div class="counter-text">
+              <strong>Pedido de Balcão</strong>
+              <small>Para clientes sem mesa</small>
+            </div>
+          </button>
+        </div>
+
+        <div class="divider">
+          <span>OU</span>
+        </div>
 
         @if (loadingTables) {
           <div class="loading">Carregando mesas...</div>
@@ -73,31 +88,100 @@
     <!-- STEP 2 -->
     @if (currentStep === 'client') {
       <div class="modal-body">
-        <h3>Selecione ou Crie um Cliente - Mesa {{ selectedTable?.number }}</h3>
+        <h3>
+          Selecione ou Crie um Cliente -
+          {{ isCounterOrder ? 'Balcão' : 'Mesa ' + selectedTable?.number }}
+        </h3>
 
         @if (!creatingNewClient) {
-          @if (clients.length > 0) {
-            <div class="client-list">
-              @for (client of clients; track client._id) {
-                <button class="client-card" (click)="selectClient(client)">
-                  <span class="client-icon">👤</span>
-                  <span class="client-name">{{ client.name }}</span>
+          <!-- Botão de criar novo cliente no topo -->
+          <button class="btn btn-secondary full-width" (click)="startCreateClient()">
+            ➕ {{ isCounterOrder ? 'Criar Novo Cliente' : 'Criar Novo Cliente Anônimo' }}
+          </button>
 
-                  @if (getClientCustomRoleName(client); as roleName) {
-                    <span class="badge custom-role">{{ roleName }}</span>
-                  }
-
-                  @if (client.isAnonymous) {
-                    <span class="badge anon">Anônimo</span>
-                  }
+          @if (isCounterOrder) {
+            <!-- BALCÃO: Barra de pesquisa e lista completa de clientes registrados -->
+            <div class="search-bar">
+              <input
+                type="text"
+                [(ngModel)]="clientSearchTerm"
+                (input)="filterClients()"
+                placeholder="🔍 Buscar por nome ou email..."
+                class="search-input"
+              />
+              @if (clientSearchTerm) {
+                <button class="clear-search" (click)="clientSearchTerm = ''; filterClients()">
+                  ✕
                 </button>
               }
             </div>
-          }
 
-          <button class="btn btn-secondary full-width" (click)="startCreateClient()">
-            ➕ Criar Novo Cliente Anônimo
-          </button>
+            @if (loadingClients) {
+              <div class="loading">Carregando clientes...</div>
+            } @else {
+              @if (filteredClients.length > 0) {
+                <div class="client-list">
+                  @for (client of filteredClients; track client._id) {
+                    <button class="client-card" (click)="selectClient(client)">
+                      <div class="client-main-info">
+                        <span class="client-icon">👤</span>
+                        <div class="client-details">
+                          <span class="client-name">{{ client.name }}</span>
+                          @if (client.email) {
+                            <span class="client-email">{{ client.email }}</span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="client-badges">
+                        @if (getClientCustomRoleName(client); as roleName) {
+                          <span class="badge custom-role">{{ roleName }}</span>
+                        }
+
+                        @if (client.isAnonymous) {
+                          <span class="badge anon">Anônimo</span>
+                        }
+                      </div>
+                    </button>
+                  }
+                </div>
+              } @else if (clientSearchTerm) {
+                <p class="empty-state">Nenhum cliente encontrado com "{{ clientSearchTerm }}"</p>
+              } @else {
+                <p class="empty-state">Nenhum cliente registrado encontrado</p>
+              }
+            }
+          } @else {
+            <!-- MESA: Apenas clientes já conectados à mesa -->
+            @if (clients.length > 0) {
+              <div class="client-list">
+                @for (client of clients; track client._id) {
+                  <button class="client-card" (click)="selectClient(client)">
+                    <div class="client-main-info">
+                      <span class="client-icon">👤</span>
+                      <div class="client-details">
+                        <span class="client-name">{{ client.name }}</span>
+                      </div>
+                    </div>
+
+                    <div class="client-badges">
+                      @if (getClientCustomRoleName(client); as roleName) {
+                        <span class="badge custom-role">{{ roleName }}</span>
+                      }
+
+                      @if (client.isAnonymous) {
+                        <span class="badge anon">Anônimo</span>
+                      }
+                    </div>
+                  </button>
+                }
+              </div>
+            } @else {
+              <p class="empty-state">
+                Nenhum cliente na mesa ainda. Crie um novo cliente para começar.
+              </p>
+            }
+          }
         } @else {
           <div class="new-client-form">
             <label for="clientName">Nome do Cliente:</label>

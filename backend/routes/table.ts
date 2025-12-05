@@ -113,18 +113,20 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
 /**
  * POST /api/tables
  * Cria uma nova mesa (Admin)
+ * Número 0 é reservado para mesa de balcão
  */
 router.post(
   '/',
   authenticate,
   runValidations([
-    body('number').isInt({ min: 1 }).withMessage('Número da mesa deve ser maior que 0'),
+    body('number').isInt({ min: 0 }).withMessage('Número da mesa inválido'),
     body('capacity').optional().isInt({ min: 1, max: 20 }).withMessage('Capacidade inválida'),
+    body('name').optional().isString().trim().withMessage('Nome da mesa inválido'),
   ]),
   validate,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { number, capacity = 4 } = req.body;
+      const { number, capacity = 4, name } = req.body;
 
       // Verifica se mesa já existe
       const existingTable = await Table.findOne({ number });
@@ -140,6 +142,7 @@ router.post(
       const table = new Table({
         number,
         capacity,
+        name: name || undefined, // Nome opcional
         status: TableStatus.AVAILABLE,
         qrCode: `/table/${number}/join`, // Será atualizado após criar
         clients: [],

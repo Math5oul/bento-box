@@ -15,8 +15,14 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
     const { tableId, tableNumber, orderIds, items, subtotal, finalTotal, paymentMethod, notes } =
       req.body;
 
-    // Validações básicas
-    if (!tableId || !tableNumber || !items || items.length === 0) {
+    // Validações básicas (tableNumber pode ser 0 para balcão)
+    if (
+      !tableId ||
+      tableNumber === undefined ||
+      tableNumber === null ||
+      !items ||
+      items.length === 0
+    ) {
       res.status(400).json({
         success: false,
         message: 'Dados obrigatórios faltando: tableId, tableNumber e items são necessários',

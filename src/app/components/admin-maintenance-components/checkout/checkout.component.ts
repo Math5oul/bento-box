@@ -625,6 +625,22 @@ export class CheckoutComponent implements OnInit {
       alert('⚠️ Dados incompletos');
       return;
     }
+
+    console.log('🔍 selectedTable:', this.selectedTable);
+    console.log('🔍 tableId:', this.selectedTable.id);
+    console.log('🔍 tableNumber:', this.selectedTable.number);
+
+    // Validação adicional para garantir que tableId e tableNumber existem
+    if (
+      !this.selectedTable.id ||
+      this.selectedTable.number === undefined ||
+      this.selectedTable.number === null
+    ) {
+      console.error('❌ Mesa inválida:', this.selectedTable);
+      alert('❌ Erro: Mesa não possui ID ou número válido');
+      return;
+    }
+
     this.loading = true;
     try {
       // Calcula subtotal e total final
@@ -655,6 +671,9 @@ export class CheckoutComponent implements OnInit {
         paymentMethod: this.paymentMethod,
         notes: this.paymentNotes || undefined,
       };
+
+      console.log('📦 billData sendo enviado:', billData);
+
       const response = await this.billService.createBill(billData).toPromise();
       if (response?.success && response.data._id) {
         await this.billService.markAsPaid(response.data._id, this.paymentMethod).toPromise();

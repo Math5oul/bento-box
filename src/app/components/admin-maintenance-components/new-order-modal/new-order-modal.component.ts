@@ -28,6 +28,7 @@ interface Table {
 interface Client {
   _id: string;
   name: string;
+  email?: string; // Email opcional para busca
   isAnonymous: boolean;
   role?: string | { _id: string; name: string; slug?: string; isSystem?: boolean }; // Role pode ser ID ou objeto populado
 }
@@ -178,15 +179,19 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   selectedTable: Table | null = null;
   loadingTables = false;
+  isCounterOrder = false; // Indica se é pedido de balcão
 
   // Step 2: Seleção/criação de cliente
   clients: Client[] = [];
+  filteredClients: Client[] = []; // Clientes filtrados pela busca
   selectedClient: Client | null = null;
   selectedClientRoleId: string | null = null; // RoleId do cliente selecionado (para descontos)
   creatingNewClient = false;
   newClientName = '';
   clientRoles: any[] = [];
   selectedClientRole: string = ''; // ID do role selecionado ao criar novo cliente
+  loadingClients = false; // Loading state para clientes
+  clientSearchTerm = ''; // Termo de busca para clientes
 
   // Step 3: Seleção de produtos
   products: Product[] = [];
@@ -270,8 +275,95 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   selectTable(table: Table) {
     this.selectedTable = table;
+    this.isCounterOrder = false;
     this.currentStep = 'client';
     this.loadClientsForTable(table);
+  }
+
+  /**
+   * Seleciona pedido de balcão (sem mesa)
+   */
+  selectCounter() {
+    console.log('🟢 selectCounter() chamado');
+    this.selectedTable = null;
+    this.isCounterOrder = true;
+    this.currentStep = 'client';
+    console.log('🟢 isCounterOrder:', this.isCounterOrder);
+    console.log('🟢 currentStep:', this.currentStep);
+    this.loadAllRegisteredClients();
+  }
+
+  /**
+   * Carrega todos os clientes registrados (não anônimos) para pedidos de balcão
+   */
+  loadAllRegisteredClients() {
+    console.log('🔵 loadAllRegisteredClients() chamado');
+    this.loadingClients = true;
+    this.error = '';
+    this.clientSearchTerm = '';
+
+    this.http
+      .get<any[]>('/api/admin/users', {
+        headers: this.getHeaders(),
+      })
+      .subscribe({
+        next: users => {
+          console.log('🔵 Usuários recebidos da API:', users.length);
+          // Filtrar apenas clientes registrados (não anônimos e não staff)
+          this.clients = users
+            .filter(user => {
+              // Não anônimos
+              if (user.isAnonymous) return false;
+
+              // Se role é objeto populated, verificar clientLevel
+              if (user.role && typeof user.role === 'object' && 'clientLevel' in user.role) {
+                return user.role.clientLevel > 0; // clientLevel > 0 = cliente, 0 = staff
+              }
+
+              // Se não tem informação de role, incluir (pode ser cliente legacy)
+              return true;
+            })
+            .map(user => ({
+              _id: user._id,
+              name: user.name,
+              email: user.email || '', // Inclui email para busca
+              isAnonymous: false,
+              role: user.role,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name)); // Ordena por nome
+
+          this.filteredClients = [...this.clients];
+          console.log('✅ Clientes (não-staff) carregados:', this.clients.length);
+          console.log('✅ filteredClients:', this.filteredClients.length);
+          console.log('✅ Lista de clientes:', this.clients);
+          this.loadingClients = false;
+        },
+        error: err => {
+          console.error('❌ Erro ao carregar clientes:', err);
+          this.error = 'Erro ao carregar lista de clientes';
+          this.clients = [];
+          this.filteredClients = [];
+          this.loadingClients = false;
+        },
+      });
+  }
+
+  /**
+   * Filtra clientes pela busca (nome ou email)
+   */
+  filterClients() {
+    const term = this.clientSearchTerm.toLowerCase().trim();
+
+    if (!term) {
+      this.filteredClients = [...this.clients];
+      return;
+    }
+
+    this.filteredClients = this.clients.filter(client => {
+      const matchName = client.name.toLowerCase().includes(term);
+      const matchEmail = client.email?.toLowerCase().includes(term) || false;
+      return matchName || matchEmail;
+    });
   }
 
   getTableStatusLabel(status: string): string {
@@ -356,15 +448,19 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   async createAnonymousClient() {
-    if (!this.selectedTable || !this.newClientName.trim()) {
+    if ((!this.selectedTable && !this.isCounterOrder) || !this.newClientName.trim()) {
       return;
     }
 
-    const body = {
-      tableId: this.selectedTable._id,
+    const body: any = {
       clientName: this.newClientName.trim(),
       roleId: this.selectedClientRole || undefined, // Incluir roleId se selecionado
     };
+
+    // Adiciona tableId apenas se não for pedido de balcão
+    if (this.selectedTable) {
+      body.tableId = this.selectedTable._id;
+    }
 
     this.http
       .post<{ client: Client }>('/api/table/create-anonymous-client', body, {
@@ -707,18 +803,74 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.close.emit();
   }
 
+  // ==================== MESA DE BALCÃO ====================
+
+  /**
+   * Busca ou cria uma mesa especial para pedidos de balcão
+   */
+  async getOrCreateCounterTable(): Promise<string> {
+    try {
+      // Buscar mesa com número 0 (convenção para balcão)
+      const response = await this.http
+        .get<{ tables: Table[] }>('/api/table', { headers: this.getHeaders() })
+        .toPromise();
+
+      const counterTable = response?.tables.find(t => t.number === 0);
+
+      if (counterTable) {
+        return counterTable._id;
+      }
+
+      // Se não existir, criar mesa de balcão
+      const createResponse = await this.http
+        .post<{ table: Table }>(
+          '/api/table',
+          {
+            number: 0,
+            capacity: 1,
+            name: 'Balcão',
+          },
+          { headers: this.getHeaders() }
+        )
+        .toPromise();
+
+      return createResponse!.table._id;
+    } catch (error) {
+      console.error('Erro ao obter/criar mesa de balcão:', error);
+      throw error;
+    }
+  }
+
   // ==================== FINALIZAR PEDIDO ====================
 
   async submitOrder() {
-    if (!this.selectedTable || !this.selectedClient || this.orderItems.length === 0) {
+    if (
+      (!this.selectedTable && !this.isCounterOrder) ||
+      !this.selectedClient ||
+      this.orderItems.length === 0
+    ) {
       return;
     }
 
     console.log('📤 Enviando pedido...');
     console.log('🛒 Order items:', this.orderItems);
 
+    // Se for pedido de balcão, buscar ou criar mesa "Balcão"
+    let tableId: string;
+    if (this.isCounterOrder) {
+      try {
+        tableId = await this.getOrCreateCounterTable();
+      } catch (error) {
+        console.error('Erro ao obter mesa de balcão:', error);
+        alert('❌ Erro ao criar pedido de balcão');
+        return;
+      }
+    } else {
+      tableId = this.selectedTable!._id;
+    }
+
     const body = {
-      tableId: this.selectedTable._id,
+      tableId: tableId,
       clientId: this.selectedClient._id,
       isClientAnonymous: this.selectedClient.isAnonymous,
       items: this.orderItems.map(item => {
