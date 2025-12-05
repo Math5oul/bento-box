@@ -9,6 +9,15 @@
 
   <!-- Mensagens de erro e sucesso -->
   <div class="messages">
+    @if (hasUncategorizedProducts) {
+      <div class="alert alert-warning">
+        <span class="icon">⚠️</span>
+        <span>
+          <strong>Atenção!</strong> Há {{ uncategorizedProducts.length }} produto(s) sem categoria
+          fiscal. Acesse a aba "Categorias Fiscais" para categorizá-los.
+        </span>
+      </div>
+    }
     @if (error) {
       <div class="alert alert-error">
         <span class="icon">⚠️</span>
@@ -569,14 +578,6 @@
                 [class.selected]="product._id && isProductInCategory(product._id)"
                 (click)="product._id && toggleProductInCategory(product._id)"
               >
-                <div class="product-checkbox">
-                  <input
-                    type="checkbox"
-                    [checked]="product._id && isProductInCategory(product._id)"
-                    (click)="$event.stopPropagation()"
-                  />
-                </div>
-
                 @if (product.images && product.images.length > 0) {
                   <div class="product-image">
                     <img [src]="product.images[0]" [alt]="product.name" />
@@ -610,8 +611,25 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="closeProductsModal()">
-          ✓ Concluído
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeProductsModal()"
+          [disabled]="isLoading"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveProductChanges()"
+          [disabled]="isLoading || pendingProductChanges.size === 0"
+        >
+          @if (pendingProductChanges.size > 0) {
+            ✓ Salvar Alterações ({{ pendingProductChanges.size }})
+          } @else {
+            ✓ Concluído
+          }
         </button>
       </div>
     </div>
