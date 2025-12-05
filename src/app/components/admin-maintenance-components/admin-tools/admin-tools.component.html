@@ -122,7 +122,7 @@
     }
 
     <!-- Card: Filler Management -->
-    @if (isAdmin) {
+    @if (canManageFillers) {
       <div class="test-card">
         <div class="card-icon">🛸</div>
         <h3 class="card-title">Gerenciar Fillers</h3>
@@ -152,52 +152,6 @@
           <li>Configurar 14+ permissões</li>
         </ul>
         <a routerLink="/maintenance/users" class="card-button">Abrir Gerenciamento</a>
-      </div>
-    }
-
-    <!-- Card: Upload Tests -->
-    @if (isAdmin) {
-      <div class="test-card">
-        <div class="card-icon">📤</div>
-        <h3 class="card-title">Teste de Upload</h3>
-        <p class="card-description">Sistema de upload e gerenciamento de imagens</p>
-        <ul class="card-features">
-          <li>Upload de Imagens</li>
-          <li>Preview em Tempo Real</li>
-          <li>Validação de Formatos</li>
-          <li>Gestão de Assets</li>
-        </ul>
-        <a routerLink="/maintenance/test-upload" class="card-button">Testar Upload</a>
-      </div>
-    }
-
-    <!-- Card: Frontend App -->
-    <div class="test-card">
-      <div class="card-icon">🎨</div>
-      <h3 class="card-title">Aplicação Frontend</h3>
-      <p class="card-description">Interface principal do sistema Bento Box</p>
-      <ul class="card-features">
-        <li>Grid Dinâmico</li>
-        <li>Carrinho de Pedidos</li>
-        <li>Modo Admin</li>
-        <li>QR Code Mesa</li>
-      </ul>
-      <a [href]="frontendUrl" class="card-button">Abrir App</a>
-    </div>
-
-    <!-- Card: MongoDB Compass -->
-    @if (isAdmin) {
-      <div class="test-card">
-        <div class="card-icon">🗄️</div>
-        <h3 class="card-title">MongoDB Compass</h3>
-        <p class="card-description">Conectar ao banco de dados via Compass</p>
-        <ul class="card-features">
-          <li>Visualizar Collections</li>
-          <li>Editar Documentos</li>
-          <li>Queries Avançadas</li>
-          <li>Backup e Restore</li>
-        </ul>
-        <button class="card-button" (click)="copyMongoURL()">Copiar URL</button>
       </div>
     }
 
@@ -234,20 +188,18 @@
     }
 
     <!-- Card: Documentation -->
-    @if (isAdmin) {
-      <div class="test-card">
-        <div class="card-icon">📚</div>
-        <h3 class="card-title">Documentação</h3>
-        <p class="card-description">Guia completo do sistema</p>
-        <ul class="card-features">
-          <li>Como Usar</li>
-          <li>Arquitetura</li>
-          <li>API Reference</li>
-          <li>Exemplos</li>
-        </ul>
-        <a routerLink="/maintenance/docs" class="card-button">Ver Docs</a>
-      </div>
-    }
+    <div class="test-card">
+      <div class="card-icon">📚</div>
+      <h3 class="card-title">Documentação</h3>
+      <p class="card-description">Guia completo do sistema</p>
+      <ul class="card-features">
+        <li>Como Usar</li>
+        <li>Arquitetura</li>
+        <li>API Reference</li>
+        <li>Exemplos</li>
+      </ul>
+      <a routerLink="/maintenance/docs" class="card-button">Ver Docs</a>
+    </div>
   </div>
 
   <!-- Info Section -->

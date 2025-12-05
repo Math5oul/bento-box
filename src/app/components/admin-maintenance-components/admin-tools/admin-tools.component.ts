@@ -84,12 +84,11 @@ export class AdminToolsComponent implements OnInit {
     return this.authService.canManageUsers();
   }
 
+  get canManageFillers(): boolean {
+    return this.authService.canManageFillers();
+  }
+
   get canManageSystemSettings(): boolean {
-    // Admins sempre têm acesso
-    if (this.authService.isAdmin()) {
-      return true;
-    }
-    // Outros usuários precisam da permissão específica
     return this.authService.canManageSystemSettings();
   }
 

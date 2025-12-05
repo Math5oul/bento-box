@@ -6,17 +6,21 @@
   </div>
 
   <!-- Mensagens de erro e sucesso -->
-  <div class="messages" *ngIf="error || success">
-    <div class="alert alert-error" *ngIf="error">
-      <span class="icon">⚠️</span>
-      <span>{{ error }}</span>
-      <button class="close-btn" (click)="clearMessages()">×</button>
-    </div>
-    <div class="alert alert-success" *ngIf="success">
-      <span class="icon">✓</span>
-      <span>{{ success }}</span>
-      <button class="close-btn" (click)="clearMessages()">×</button>
-    </div>
+  <div class="messages">
+    @if (error) {
+      <div class="alert alert-error">
+        <span class="icon">⚠️</span>
+        <span>{{ error }}</span>
+        <button class="close-btn" (click)="clearMessages()">×</button>
+      </div>
+    }
+    @if (success) {
+      <div class="alert alert-success">
+        <span class="icon">✓</span>
+        <span>{{ success }}</span>
+        <button class="close-btn" (click)="clearMessages()">×</button>
+      </div>
+    }
   </div>
 
   <!-- Tabs de navegação -->
@@ -41,486 +45,573 @@
   </div>
 
   <!-- Loading -->
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="spinner"></div>
-  </div>
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
 
   <!-- Conteúdo das abas -->
   <div class="tab-content">
     <!-- ABA: Relatórios de Vendas -->
-    <div class="tab-panel" *ngIf="activeTab === 'sales'">
-      <div class="report-section">
-        <!-- Filtros -->
-        <div class="filters-card">
-          <h2>Filtros de Período</h2>
-          <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="startDate">Data Inicial</label>
-                <input
-                  type="date"
-                  id="startDate"
-                  formControlName="startDate"
-                  class="form-control"
-                />
-              </div>
+    @if (activeTab === 'sales') {
+      <div class="tab-panel">
+        <div class="report-section">
+          <!-- Filtros -->
+          <div class="filters-card">
+            <h2>Filtros de Período</h2>
+            <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="startDate">Data Inicial</label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    formControlName="startDate"
+                    class="form-control"
+                  />
+                </div>
 
-              <div class="form-group">
-                <label for="endDate">Data Final</label>
-                <input type="date" id="endDate" formControlName="endDate" class="form-control" />
-              </div>
+                <div class="form-group">
+                  <label for="endDate">Data Final</label>
+                  <input type="date" id="endDate" formControlName="endDate" class="form-control" />
+                </div>
 
-              <div class="form-group full-width">
-                <label>Métodos de Pagamento</label>
-                <div class="checkbox-group">
-                  <label *ngFor="let method of availablePaymentMethods" class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      [value]="method.value"
-                      [checked]="reportForm.value.paymentMethods?.includes(method.value)"
-                      (change)="
-                        $event.target.checked
-                          ? reportForm.value.paymentMethods.push(method.value)
-                          : reportForm.value.paymentMethods.splice(
-                              reportForm.value.paymentMethods.indexOf(method.value),
-                              1
-                            )
-                      "
-                    />
-                    {{ method.label }}
-                  </label>
+                <div class="form-group full-width">
+                  <label>Métodos de Pagamento</label>
+                  <div class="checkbox-group">
+                    @for (method of availablePaymentMethods; track method.value) {
+                      <label class="checkbox-label">
+                        <input
+                          type="checkbox"
+                          [value]="method.value"
+                          [checked]="reportForm.value.paymentMethods?.includes(method.value)"
+                          (change)="
+                            $event.target.checked
+                              ? reportForm.value.paymentMethods.push(method.value)
+                              : reportForm.value.paymentMethods.splice(
+                                  reportForm.value.paymentMethods.indexOf(method.value),
+                                  1
+                                )
+                          "
+                        />
+                        {{ method.label }}
+                      </label>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="form-actions">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="reportForm.invalid || isLoadingReport"
-              >
-                <span *ngIf="!isLoadingReport">🔍 Gerar Relatório</span>
-                <span *ngIf="isLoadingReport">⏳ Gerando...</span>
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                (click)="exportReport()"
-                [disabled]="!salesReport"
-              >
-                📥 Exportar CSV
-              </button>
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="reportForm.invalid || isLoadingReport"
+                >
+                  @if (!isLoadingReport) {
+                    <span>🔍 Gerar Relatório</span>
+                  }
+                  @if (isLoadingReport) {
+                    <span>⏳ Gerando...</span>
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  (click)="exportReport()"
+                  [disabled]="!salesReport"
+                >
+                  📥 Exportar CSV
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Resultados do Relatório -->
+          @if (salesReport) {
+            <div class="report-results">
+              <!-- Cards de Resumo -->
+              <div class="summary-cards">
+                <div class="summary-card">
+                  <div class="card-icon">🛒</div>
+                  <div class="card-content">
+                    <h3>Total de Vendas</h3>
+                    <p class="value">{{ salesReport.totalSales }}</p>
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="card-icon">💰</div>
+                  <div class="card-content">
+                    <h3>Receita Total</h3>
+                    <p class="value">{{ formatCurrency(salesReport.totalRevenue) }}</p>
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="card-icon">📅</div>
+                  <div class="card-content">
+                    <h3>Período</h3>
+                    <p class="value-small">
+                      {{ formatDate(salesReport.startDate) }} -
+                      {{ formatDate(salesReport.endDate) }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="card-icon">📊</div>
+                  <div class="card-content">
+                    <h3>Ticket Médio</h3>
+                    <p class="value">
+                      {{ formatCurrency(salesReport.totalRevenue / salesReport.totalSales) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vendas por Método de Pagamento -->
+              @if (salesReport.salesByPaymentMethod.length > 0) {
+                <div class="data-section">
+                  <h3>💳 Vendas por Método de Pagamento</h3>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Método</th>
+                          <th class="text-right">Quantidade</th>
+                          <th class="text-right">Receita</th>
+                          <th class="text-right">Percentual</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (method of salesReport.salesByPaymentMethod; track method.method) {
+                          <tr>
+                            <td>{{ getPaymentMethodLabel(method.method) }}</td>
+                            <td class="text-right">{{ method.count }}</td>
+                            <td class="text-right">{{ formatCurrency(method.revenue) }}</td>
+                            <td class="text-right">
+                              <span class="percentage-badge"
+                                >{{ method.percentage.toFixed(1) }}%</span
+                              >
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+
+              <!-- Vendas por Categoria -->
+              @if (salesReport.salesByCategory.length > 0) {
+                <div class="data-section">
+                  <h3>🏷️ Vendas por Categoria Fiscal</h3>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Categoria</th>
+                          <th class="text-right">Quantidade</th>
+                          <th class="text-right">Receita</th>
+                          <th class="text-right">Percentual</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (category of salesReport.salesByCategory; track category.categoryId) {
+                          <tr>
+                            <td>
+                              <span
+                                class="category-badge"
+                                [style.background-color]="category.color"
+                              >
+                                {{ category.categoryName }}
+                              </span>
+                            </td>
+                            <td class="text-right">{{ category.quantity }}</td>
+                            <td class="text-right">{{ formatCurrency(category.revenue) }}</td>
+                            <td class="text-right">
+                              <span class="percentage-badge"
+                                >{{ category.percentage.toFixed(1) }}%</span
+                              >
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+
+              <!-- Top Produtos -->
+              @if (salesReport.salesByProduct.length > 0) {
+                <div class="data-section">
+                  <div class="section-header">
+                    <h3>🏆 Produtos Mais Vendidos</h3>
+                    <button
+                      type="button"
+                      class="btn-secondary btn-sm"
+                      (click)="toggleShowAllProducts()"
+                    >
+                      @if (showAllProducts) {
+                        <span>📊 Mostrar Top 10</span>
+                      } @else {
+                        <span>📋 Mostrar Todos ({{ salesReport.salesByProduct.length }})</span>
+                      }
+                    </button>
+                  </div>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Produto</th>
+                          <th class="text-right">Quantidade</th>
+                          <th class="text-right">Receita</th>
+                          <th class="text-right">Preço Médio</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (
+                          product of getDisplayedProducts();
+                          track product.productId;
+                          let i = $index
+                        ) {
+                          <tr>
+                            <td class="text-muted">{{ i + 1 }}</td>
+                            <td>{{ product.productName }}</td>
+                            <td class="text-right">{{ product.quantity }}</td>
+                            <td class="text-right">{{ formatCurrency(product.revenue) }}</td>
+                            <td class="text-right">{{ formatCurrency(product.averagePrice) }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
             </div>
-          </form>
+          }
+
+          <!-- Tabela CSV Completa -->
+          @if (salesReport) {
+            <div class="data-section">
+              <div class="section-header">
+                <h3>📋 Dados Completos do Relatório</h3>
+                <button type="button" class="btn-secondary btn-sm" (click)="toggleCsvTable()">
+                  @if (showCsvTable) {
+                    <span>🔼 Ocultar Tabela</span>
+                  } @else {
+                    <span>🔽 Mostrar Tabela Completa</span>
+                  }
+                </button>
+              </div>
+
+              @if (showCsvTable && csvTableData.length > 0) {
+                <div class="table-container">
+                  <table class="data-table csv-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Nome</th>
+                        <th class="text-right">Quantidade</th>
+                        <th class="text-right">Receita</th>
+                        <th class="text-right">Percentual</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of csvTableData; track row.name + row.type; let i = $index) {
+                        <tr>
+                          <td class="text-muted">{{ i + 1 }}</td>
+                          <td>
+                            <span
+                              class="type-badge"
+                              [class]="'badge-' + row.type.toLowerCase().replace(' ', '-')"
+                            >
+                              {{ row.type }}
+                            </span>
+                          </td>
+                          <td>{{ row.name }}</td>
+                          <td class="text-right">{{ row.quantity }}</td>
+                          <td class="text-right">{{ formatCurrency(row.revenue) }}</td>
+                          <td class="text-right">
+                            {{ row.percentage !== null ? row.percentage.toFixed(2) + '%' : '-' }}
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                  <div class="table-footer">
+                    <p class="text-muted">Total de {{ csvTableData.length }} registros</p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Sem dados -->
+          @if (!salesReport && !isLoadingReport) {
+            <div class="empty-state">
+              <div class="empty-icon">📊</div>
+              <h3>Nenhum relatório gerado</h3>
+              <p>Selecione os filtros acima e clique em "Gerar Relatório"</p>
+            </div>
+          }
         </div>
+      </div>
+    }
 
-        <!-- Resultados do Relatório -->
-        <div class="report-results" *ngIf="salesReport">
-          <!-- Cards de Resumo -->
-          <div class="summary-cards">
-            <div class="summary-card">
-              <div class="card-icon">🛒</div>
-              <div class="card-content">
-                <h3>Total de Vendas</h3>
-                <p class="value">{{ salesReport.totalSales }}</p>
-              </div>
-            </div>
-
-            <div class="summary-card">
-              <div class="card-icon">💰</div>
-              <div class="card-content">
-                <h3>Receita Total</h3>
-                <p class="value">{{ formatCurrency(salesReport.totalRevenue) }}</p>
-              </div>
-            </div>
-
-            <div class="summary-card">
-              <div class="card-icon">📅</div>
-              <div class="card-content">
-                <h3>Período</h3>
-                <p class="value-small">
-                  {{ formatDate(salesReport.startDate) }} - {{ formatDate(salesReport.endDate) }}
-                </p>
-              </div>
-            </div>
-
-            <div class="summary-card">
-              <div class="card-icon">📊</div>
-              <div class="card-content">
-                <h3>Ticket Médio</h3>
-                <p class="value">
-                  {{ formatCurrency(salesReport.totalRevenue / salesReport.totalSales) }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Vendas por Método de Pagamento -->
-          <div class="data-section" *ngIf="salesReport.salesByPaymentMethod.length > 0">
-            <h3>💳 Vendas por Método de Pagamento</h3>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Método</th>
-                    <th class="text-right">Quantidade</th>
-                    <th class="text-right">Receita</th>
-                    <th class="text-right">Percentual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let method of salesReport.salesByPaymentMethod">
-                    <td>{{ getPaymentMethodLabel(method.method) }}</td>
-                    <td class="text-right">{{ method.count }}</td>
-                    <td class="text-right">{{ formatCurrency(method.revenue) }}</td>
-                    <td class="text-right">
-                      <span class="percentage-badge">{{ method.percentage.toFixed(1) }}%</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Vendas por Categoria -->
-          <div class="data-section" *ngIf="salesReport.salesByCategory.length > 0">
-            <h3>🏷️ Vendas por Categoria Fiscal</h3>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Categoria</th>
-                    <th class="text-right">Quantidade</th>
-                    <th class="text-right">Receita</th>
-                    <th class="text-right">Percentual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let category of salesReport.salesByCategory">
-                    <td>
-                      <span class="category-badge" [style.background-color]="category.color">
-                        {{ category.categoryName }}
-                      </span>
-                    </td>
-                    <td class="text-right">{{ category.quantity }}</td>
-                    <td class="text-right">{{ formatCurrency(category.revenue) }}</td>
-                    <td class="text-right">
-                      <span class="percentage-badge">{{ category.percentage.toFixed(1) }}%</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Top Produtos -->
-          <div class="data-section" *ngIf="salesReport.salesByProduct.length > 0">
-            <div class="section-header">
-              <h3>🏆 Produtos Mais Vendidos</h3>
-              <button type="button" class="btn-secondary btn-sm" (click)="toggleShowAllProducts()">
-                {{
-                  showAllProducts
-                    ? '📊 Mostrar Top 10'
-                    : '📋 Mostrar Todos (' + salesReport.salesByProduct.length + ')'
-                }}
-              </button>
-            </div>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Produto</th>
-                    <th class="text-right">Quantidade</th>
-                    <th class="text-right">Receita</th>
-                    <th class="text-right">Preço Médio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let product of getDisplayedProducts(); let i = index">
-                    <td class="text-muted">{{ i + 1 }}</td>
-                    <td>{{ product.productName }}</td>
-                    <td class="text-right">{{ product.quantity }}</td>
-                    <td class="text-right">{{ formatCurrency(product.revenue) }}</td>
-                    <td class="text-right">{{ formatCurrency(product.averagePrice) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tabela CSV Completa -->
-        <div class="data-section" *ngIf="salesReport">
+    <!-- ABA: Categorias Fiscais -->
+    @if (activeTab === 'categories') {
+      <div class="tab-panel">
+        <div class="categories-section">
           <div class="section-header">
-            <h3>📋 Dados Completos do Relatório</h3>
-            <button type="button" class="btn-secondary btn-sm" (click)="toggleCsvTable()">
-              {{ showCsvTable ? '🔼 Ocultar Tabela' : '🔽 Mostrar Tabela Completa' }}
+            <h2>Gestão de Categorias Fiscais</h2>
+            <button class="btn btn-primary" (click)="openCreateCategoryModal()">
+              ➕ Nova Categoria
             </button>
           </div>
 
-          <div class="table-container" *ngIf="showCsvTable && csvTableData.length > 0">
-            <table class="data-table csv-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Tipo</th>
-                  <th>Nome</th>
-                  <th class="text-right">Quantidade</th>
-                  <th class="text-right">Receita</th>
-                  <th class="text-right">Percentual</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let row of csvTableData; let i = index">
-                  <td class="text-muted">{{ i + 1 }}</td>
-                  <td>
+          @if (categories.length > 0) {
+            <div class="categories-grid">
+              @for (category of categories; track category._id) {
+                <div class="category-card">
+                  <div class="category-header" [style.border-left-color]="category.color">
+                    <h3>{{ category.name }}</h3>
+                    <div class="category-actions">
+                      <button
+                        class="btn-icon"
+                        (click)="openProductsModal(category)"
+                        title="Gerenciar Produtos"
+                      >
+                        📦
+                      </button>
+                      <button
+                        class="btn-icon"
+                        (click)="openEditCategoryModal(category)"
+                        title="Editar"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        class="btn-icon danger"
+                        (click)="deleteCategory(category)"
+                        title="Deletar"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                  @if (category.description) {
+                    <p class="category-description">
+                      {{ category.description }}
+                    </p>
+                  }
+                  <div class="category-footer">
+                    <span class="color-indicator" [style.background-color]="category.color"></span>
                     <span
-                      class="type-badge"
-                      [class]="'badge-' + row.type.toLowerCase().replace(' ', '-')"
+                      class="product-count"
+                      (click)="openProductsModal(category)"
+                      style="cursor: pointer"
                     >
-                      {{ row.type }}
+                      📦 {{ category.productIds.length }} produtos
                     </span>
-                  </td>
-                  <td>{{ row.name }}</td>
-                  <td class="text-right">{{ row.quantity }}</td>
-                  <td class="text-right">{{ formatCurrency(row.revenue) }}</td>
-                  <td class="text-right">
-                    {{ row.percentage !== null ? row.percentage.toFixed(2) + '%' : '-' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="table-footer">
-              <p class="text-muted">Total de {{ csvTableData.length }} registros</p>
+                  </div>
+                </div>
+              }
             </div>
-          </div>
-        </div>
+          }
 
-        <!-- Sem dados -->
-        <div class="empty-state" *ngIf="!salesReport && !isLoadingReport">
-          <div class="empty-icon">📊</div>
-          <h3>Nenhum relatório gerado</h3>
-          <p>Selecione os filtros acima e clique em "Gerar Relatório"</p>
+          @if (categories.length === 0 && !isLoading) {
+            <div class="empty-state">
+              <div class="empty-icon">🏷️</div>
+              <h3>Nenhuma categoria criada</h3>
+              <p>Crie categorias fiscais para organizar seus produtos nos relatórios</p>
+              <button class="btn btn-primary" (click)="openCreateCategoryModal()">
+                ➕ Criar Primeira Categoria
+              </button>
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
 
-    <!-- ABA: Categorias Fiscais -->
-    <div class="tab-panel" *ngIf="activeTab === 'categories'">
-      <div class="categories-section">
-        <div class="section-header">
-          <h2>Gestão de Categorias Fiscais</h2>
-          <button class="btn btn-primary" (click)="openCreateCategoryModal()">
-            ➕ Nova Categoria
-          </button>
+    <!-- ABA: Análise por Categoria -->
+    @if (activeTab === 'analysis') {
+      <div class="tab-panel">
+        <div class="analysis-section">
+          <h2>📊 Análise Detalhada por Categoria</h2>
+          <p class="coming-soon">Em breve: Gráficos detalhados e comparativos entre categorias</p>
         </div>
+      </div>
+    }
+  </div>
+</div>
 
-        <div class="categories-grid" *ngIf="categories.length > 0">
-          <div class="category-card" *ngFor="let category of categories">
-            <div class="category-header" [style.border-left-color]="category.color">
-              <h3>{{ category.name }}</h3>
-              <div class="category-actions">
-                <button
-                  class="btn-icon"
-                  (click)="openProductsModal(category)"
-                  title="Gerenciar Produtos"
-                >
-                  📦
-                </button>
-                <button class="btn-icon" (click)="openEditCategoryModal(category)" title="Editar">
-                  ✏️
-                </button>
-                <button class="btn-icon danger" (click)="deleteCategory(category)" title="Deletar">
-                  🗑️
-                </button>
-              </div>
-            </div>
-            <p class="category-description" *ngIf="category.description">
-              {{ category.description }}
-            </p>
-            <div class="category-footer">
-              <span class="color-indicator" [style.background-color]="category.color"></span>
+<!-- Modal de Categoria -->
+@if (showCategoryModal) {
+  <div class="modal-overlay" (click)="closeCategoryModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditingCategory ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
+        <button class="close-btn" (click)="closeCategoryModal()">×</button>
+      </div>
+
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="categoryName">Nome *</label>
+            <input
+              type="text"
+              id="categoryName"
+              formControlName="name"
+              class="form-control"
+              placeholder="Ex: Bebidas, Alimentação, etc"
+            />
+            @if (categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched) {
+              <span class="error-message"> Nome deve ter no mínimo 3 caracteres </span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="categoryDescription">Descrição</label>
+            <textarea
+              id="categoryDescription"
+              formControlName="description"
+              class="form-control"
+              rows="3"
+              placeholder="Descrição opcional da categoria"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="categoryColor">Cor</label>
+            <div class="color-picker-container">
+              <input type="color" id="categoryColor" formControlName="color" class="color-picker" />
               <span
-                class="product-count"
-                (click)="openProductsModal(category)"
-                style="cursor: pointer"
+                class="color-preview"
+                [style.background-color]="categoryForm.get('color')?.value"
               >
-                📦 {{ category.productIds.length }} produtos
+                {{ categoryForm.get('color')?.value }}
               </span>
             </div>
           </div>
         </div>
 
-        <div class="empty-state" *ngIf="categories.length === 0 && !isLoading">
-          <div class="empty-icon">🏷️</div>
-          <h3>Nenhuma categoria criada</h3>
-          <p>Crie categorias fiscais para organizar seus produtos nos relatórios</p>
-          <button class="btn btn-primary" (click)="openCreateCategoryModal()">
-            ➕ Criar Primeira Categoria
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCategoryModal()">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="categoryForm.invalid || isLoading"
+          >
+            @if (!isLoading) {
+              <span>{{ isEditingCategory ? '💾 Salvar' : '➕ Criar' }}</span>
+            }
+            @if (isLoading) {
+              <span>⏳ Salvando...</span>
+            }
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- ABA: Análise por Categoria -->
-    <div class="tab-panel" *ngIf="activeTab === 'analysis'">
-      <div class="analysis-section">
-        <h2>📊 Análise Detalhada por Categoria</h2>
-        <p class="coming-soon">Em breve: Gráficos detalhados e comparativos entre categorias</p>
-      </div>
+      </form>
     </div>
   </div>
-</div>
+}
 
-<!-- Modal de Categoria -->
-<div class="modal-overlay" *ngIf="showCategoryModal" (click)="closeCategoryModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ isEditingCategory ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
-      <button class="close-btn" (click)="closeCategoryModal()">×</button>
-    </div>
+<!-- Modal de Gerenciar Produtos -->
+@if (showProductsModal) {
+  <div class="modal-overlay" (click)="closeProductsModal()">
+    <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📦 Gerenciar Produtos - {{ selectedCategoryForProducts?.name }}</h2>
+        <button class="close-btn" (click)="closeProductsModal()">×</button>
+      </div>
 
-    <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
       <div class="modal-body">
-        <div class="form-group">
-          <label for="categoryName">Nome *</label>
+        <!-- Barra de busca -->
+        <div class="search-bar">
           <input
             type="text"
-            id="categoryName"
-            formControlName="name"
             class="form-control"
-            placeholder="Ex: Bebidas, Alimentação, etc"
+            placeholder="🔍 Buscar produtos..."
+            [(ngModel)]="productSearchTerm"
           />
-          <span
-            class="error-message"
-            *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
-          >
-            Nome deve ter no mínimo 3 caracteres
-          </span>
         </div>
 
-        <div class="form-group">
-          <label for="categoryDescription">Descrição</label>
-          <textarea
-            id="categoryDescription"
-            formControlName="description"
-            class="form-control"
-            rows="3"
-            placeholder="Descrição opcional da categoria"
-          ></textarea>
+        <!-- Informações -->
+        <div class="products-info">
+          <p>
+            <strong>{{ selectedCategoryForProducts?.productIds?.length || 0 }}</strong> produtos
+            selecionados
+          </p>
+          <p class="info-text">ℹ️ Clique nos produtos para adicionar ou remover da categoria</p>
         </div>
 
-        <div class="form-group">
-          <label for="categoryColor">Cor</label>
-          <div class="color-picker-container">
-            <input type="color" id="categoryColor" formControlName="color" class="color-picker" />
-            <span class="color-preview" [style.background-color]="categoryForm.get('color')?.value">
-              {{ categoryForm.get('color')?.value }}
-            </span>
+        <!-- Loading -->
+        @if (isLoading) {
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Atualizando...</p>
           </div>
-        </div>
+        }
+
+        <!-- Lista de produtos -->
+        @if (!isLoading) {
+          <div class="products-list">
+            @for (product of filteredProducts; track product._id) {
+              <div
+                class="product-item"
+                [class.selected]="product._id && isProductInCategory(product._id)"
+                (click)="product._id && toggleProductInCategory(product._id)"
+              >
+                <div class="product-checkbox">
+                  <input
+                    type="checkbox"
+                    [checked]="product._id && isProductInCategory(product._id)"
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+
+                @if (product.images && product.images.length > 0) {
+                  <div class="product-image">
+                    <img [src]="product.images[0]" [alt]="product.name" />
+                  </div>
+                } @else {
+                  <div class="product-image placeholder">🍱</div>
+                }
+
+                <div class="product-info">
+                  <h4>{{ product.name }}</h4>
+                  @if (product.description) {
+                    <p class="product-description">{{ product.description }}</p>
+                  }
+                  <p class="product-price">R$ {{ product.price.toFixed(2) }}</p>
+                </div>
+
+                @if (product._id && isProductInCategory(product._id)) {
+                  <div class="product-badge">✓ Selecionado</div>
+                }
+              </div>
+            }
+
+            <!-- Sem produtos -->
+            @if (filteredProducts.length === 0) {
+              <div class="empty-state-small">
+                <p>Nenhum produto encontrado</p>
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeCategoryModal()">
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="categoryForm.invalid || isLoading"
-        >
-          <span *ngIf="!isLoading">{{ isEditingCategory ? '💾 Salvar' : '➕ Criar' }}</span>
-          <span *ngIf="isLoading">⏳ Salvando...</span>
+        <button type="button" class="btn btn-primary" (click)="closeProductsModal()">
+          ✓ Concluído
         </button>
       </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal de Gerenciar Produtos -->
-<div class="modal-overlay" *ngIf="showProductsModal" (click)="closeProductsModal()">
-  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>📦 Gerenciar Produtos - {{ selectedCategoryForProducts?.name }}</h2>
-      <button class="close-btn" (click)="closeProductsModal()">×</button>
-    </div>
-
-    <div class="modal-body">
-      <!-- Barra de busca -->
-      <div class="search-bar">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="🔍 Buscar produtos..."
-          [(ngModel)]="productSearchTerm"
-        />
-      </div>
-
-      <!-- Informações -->
-      <div class="products-info">
-        <p>
-          <strong>{{ selectedCategoryForProducts?.productIds?.length || 0 }}</strong> produtos
-          selecionados
-        </p>
-        <p class="info-text">ℹ️ Clique nos produtos para adicionar ou remover da categoria</p>
-      </div>
-
-      <!-- Loading -->
-      <div class="loading-spinner" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <p>Atualizando...</p>
-      </div>
-
-      <!-- Lista de produtos -->
-      <div class="products-list" *ngIf="!isLoading">
-        <div
-          class="product-item"
-          *ngFor="let product of filteredProducts"
-          [class.selected]="product._id && isProductInCategory(product._id)"
-          (click)="product._id && toggleProductInCategory(product._id)"
-        >
-          <div class="product-checkbox">
-            <input
-              type="checkbox"
-              [checked]="product._id && isProductInCategory(product._id)"
-              (click)="$event.stopPropagation()"
-            />
-          </div>
-
-          <div class="product-image" *ngIf="product.images && product.images.length > 0">
-            <img [src]="product.images[0]" [alt]="product.name" />
-          </div>
-          <div
-            class="product-image placeholder"
-            *ngIf="!product.images || product.images.length === 0"
-          >
-            🍱
-          </div>
-
-          <div class="product-info">
-            <h4>{{ product.name }}</h4>
-            <p class="product-description" *ngIf="product.description">{{ product.description }}</p>
-            <p class="product-price">R$ {{ product.price.toFixed(2) }}</p>
-          </div>
-
-          <div class="product-badge" *ngIf="product._id && isProductInCategory(product._id)">
-            ✓ Selecionado
-          </div>
-        </div>
-
-        <!-- Sem produtos -->
-        <div class="empty-state-small" *ngIf="filteredProducts.length === 0">
-          <p>Nenhum produto encontrado</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="closeProductsModal()">
-        ✓ Concluído
-      </button>
     </div>
   </div>
-</div>
+}

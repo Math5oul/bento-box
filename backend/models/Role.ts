@@ -21,6 +21,7 @@ export interface IRolePermissions {
   // Permissões de Produtos
   canManageProducts: boolean; // Pode adicionar/editar produtos
   canViewProducts: boolean; // Pode visualizar cardápio
+  canManageFillers: boolean; // Pode gerenciar fillers (texto, imagem, vídeo)
 
   // Permissões de Categorias
   canManageCategories: boolean; // Pode gerenciar categorias
@@ -66,6 +67,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canViewTables: true,
     canManageProducts: true,
     canViewProducts: true,
+    canManageFillers: true,
     canManageCategories: true,
     canManageUsers: true,
     canManageRoles: true,
@@ -83,6 +85,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageTables: true,
     canViewTables: true,
     canManageProducts: false,
+    canManageFillers: false,
     canViewProducts: true,
     canManageCategories: false,
     canManageUsers: false,
@@ -101,6 +104,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageTables: false,
     canViewTables: false,
     canManageProducts: false,
+    canManageFillers: false,
     canViewProducts: true,
     canManageCategories: false,
     canManageUsers: false,
@@ -120,6 +124,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canViewTables: false,
     canManageProducts: false,
     canViewProducts: true,
+    canManageFillers: false,
     canManageCategories: false,
     canManageUsers: false,
     canManageRoles: false,

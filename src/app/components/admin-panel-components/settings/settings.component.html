@@ -6,605 +6,648 @@
     <p class="subtitle">Configure seu restaurante, pagamentos, email e banco de dados</p>
   </div>
 
-  <div *ngIf="loading" class="loading-state">
-    <p>⏳ Carregando configurações...</p>
-  </div>
-
-  <div *ngIf="!loading" class="settings-content">
-    <!-- Tabs -->
-    <div class="tabs">
-      <button
-        class="tab"
-        [class.active]="activeTab === 'restaurant'"
-        (click)="activeTab = 'restaurant'"
-      >
-        🏪 Restaurante
-      </button>
-      <button class="tab" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">
-        💳 Pagamentos Online
-      </button>
-      <button class="tab" [class.active]="activeTab === 'pos'" (click)="activeTab = 'pos'">
-        🖥️ Maquininha (POS)
-      </button>
-      <button class="tab" [class.active]="activeTab === 'email'" (click)="activeTab = 'email'">
-        📧 Email
-      </button>
-      <button
-        class="tab"
-        [class.active]="activeTab === 'database'"
-        (click)="activeTab = 'database'"
-      >
-        🗄️ Database
-      </button>
+  @if (loading) {
+    <div class="loading-state">
+      <p>⏳ Carregando configurações...</p>
     </div>
+  }
 
-    <!-- Tab: Restaurante -->
-    <div *ngIf="activeTab === 'restaurant'" class="tab-content">
-      <div class="section-header">
-        <h2>🏪 Informações do Restaurante</h2>
-        <p>Dados básicos do seu estabelecimento</p>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group full-width">
-          <label for="restaurantName">Nome do Restaurante *</label>
-          <input
-            type="text"
-            id="restaurantName"
-            [(ngModel)]="config.restaurant.name"
-            placeholder="Meu Restaurante"
-            class="form-control"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="cnpj">CNPJ</label>
-          <input
-            type="text"
-            id="cnpj"
-            [(ngModel)]="config.restaurant.cnpj"
-            (input)="onCNPJInput($event)"
-            placeholder="00.000.000/0000-00"
-            class="form-control"
-            maxlength="18"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="phone">Telefone</label>
-          <input
-            type="text"
-            id="phone"
-            [(ngModel)]="config.restaurant.phone"
-            (input)="onPhoneInput($event)"
-            placeholder="(00) 00000-0000"
-            class="form-control"
-            maxlength="15"
-          />
-        </div>
-
-        <div class="form-group full-width">
-          <label for="email">Email de Contato</label>
-          <input
-            type="email"
-            id="email"
-            [(ngModel)]="config.restaurant.email"
-            placeholder="contato@restaurante.com"
-            class="form-control"
-          />
-        </div>
-
-        <div class="form-group full-width">
-          <label for="address">Endereço Completo</label>
-          <textarea
-            id="address"
-            [(ngModel)]="config.restaurant.address"
-            placeholder="Rua Exemplo, 123 - Bairro - Cidade/UF"
-            class="form-control"
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: Pagamentos -->
-    <div *ngIf="activeTab === 'payment'" class="tab-content">
-      <div class="section-header">
-        <h2>💳 Pagamentos Online</h2>
-        <p>Configure o gateway de pagamento para aceitar PIX e cartões</p>
-      </div>
-
-      <!-- Habilitar Pagamentos -->
-      <div class="toggle-section">
-        <label class="toggle-label">
-          <input type="checkbox" [(ngModel)]="config.payment.enabled" />
-          <span>Habilitar pagamentos online</span>
-        </label>
-      </div>
-
-      <div *ngIf="config.payment.enabled">
-        <!-- Seleção do Gateway -->
-        <div class="form-section">
-          <h3>🏦 Gateway de Pagamento</h3>
-          <div class="provider-selector">
-            <label
-              *ngFor="let provider of paymentProviders"
-              class="provider-option"
-              [class.disabled]="provider.value === 'none'"
-            >
-              <input
-                type="radio"
-                [(ngModel)]="config.payment.provider"
-                [value]="provider.value"
-                [disabled]="provider.value === 'none'"
-              />
-              <div class="provider-card">
-                <span class="icon">{{ provider.icon }}</span>
-                <span class="label">{{ provider.label }}</span>
-              </div>
-            </label>
-          </div>
-          <a
-            *ngIf="config.payment.provider !== 'none'"
-            [href]="getProviderDocs(config.payment.provider)"
-            target="_blank"
-            class="docs-link"
-          >
-            📚 Ver documentação do {{ config.payment.provider }}
-          </a>
-        </div>
-
-        <!-- Credenciais -->
-        <div class="form-section" *ngIf="config.payment.provider !== 'none'">
-          <h3>🔑 Credenciais do Gateway</h3>
-          <div class="alert alert-info">
-            <p><strong>ℹ️ Como obter as credenciais:</strong></p>
-            <ol>
-              <li>Acesse o painel do {{ config.payment.provider }}</li>
-              <li>Vá em "Suas integrações" → "Credenciais"</li>
-              <li>Copie a <strong>Public Key</strong> e o <strong>Access Token</strong></li>
-              <li>Cole abaixo e clique em "Testar Conexão"</li>
-            </ol>
-          </div>
-
-          <div class="form-group">
-            <label for="publicKey">Public Key (Chave Pública) *</label>
-            <input
-              type="text"
-              id="publicKey"
-              [(ngModel)]="config.payment.publicKey"
-              placeholder="APP_USR-xxxxxxxx-xxxxxxxx"
-              class="form-control"
-            />
-            <small>Usada no frontend para tokenizar cartões</small>
-          </div>
-
-          <div class="form-group">
-            <label for="accessToken">Access Token (Chave Secreta) *</label>
-            <input
-              type="password"
-              id="accessToken"
-              [(ngModel)]="config.payment.accessToken"
-              placeholder="APP_USR-xxxxxxxx-xxxxxxxx-xxxxxxxx"
-              class="form-control"
-            />
-            <small>⚠️ Mantenha este token em segredo</small>
-          </div>
-
-          <div class="form-group">
-            <label for="webhookUrl">Webhook URL</label>
-            <input
-              type="url"
-              id="webhookUrl"
-              [(ngModel)]="config.payment.webhookUrl"
-              placeholder="http://seu-ip-publico:4200/api/payments/webhook"
-              class="form-control"
-            />
-            <small
-              >URL pública para receber notificações de pagamento (deixe vazio se não for
-              usar)</small
-            >
-          </div>
-
-          <button class="btn-secondary" (click)="testPaymentConnection()">
-            🔌 Testar Conexão com Gateway
-          </button>
-        </div>
-
-        <!-- Métodos de Pagamento -->
-        <div class="form-section" *ngIf="config.payment.provider !== 'none'">
-          <h3>💰 Métodos Disponíveis</h3>
-
-          <label class="checkbox-option">
-            <input type="checkbox" [(ngModel)]="config.payment.pixEnabled" />
-            <div class="option-content">
-              <span class="option-icon">📱</span>
-              <div class="option-text">
-                <strong>PIX</strong>
-                <small>Pagamento instantâneo via QR Code</small>
-              </div>
-              <span class="option-fee">~0.99%</span>
-            </div>
-          </label>
-
-          <label class="checkbox-option">
-            <input type="checkbox" [(ngModel)]="config.payment.creditCardEnabled" />
-            <div class="option-content">
-              <span class="option-icon">💳</span>
-              <div class="option-text">
-                <strong>Cartão de Crédito</strong>
-                <small>Visa, Mastercard, Elo, etc</small>
-              </div>
-              <span class="option-fee">~4.99%</span>
-            </div>
-          </label>
-
-          <label class="checkbox-option">
-            <input type="checkbox" [(ngModel)]="config.payment.debitCardEnabled" />
-            <div class="option-content">
-              <span class="option-icon">💳</span>
-              <div class="option-text">
-                <strong>Cartão de Débito</strong>
-                <small>Débito online</small>
-              </div>
-              <span class="option-fee">~2.99%</span>
-            </div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: POS Terminal (Maquininha) -->
-    <div *ngIf="activeTab === 'pos'" class="tab-content">
-      <div class="section-header">
-        <h2>🖥️ Maquininha de Cartão (POS Terminal)</h2>
-        <p>Configure sua maquininha para aceitar pagamentos com cartão físico e PIX local</p>
-      </div>
-
-      <!-- Habilitar POS -->
-      <div class="toggle-section">
-        <label class="toggle-label">
-          <input type="checkbox" [(ngModel)]="config.posTerminal.enabled" />
-          <span>Habilitar Maquininha de Cartão</span>
-        </label>
-        <p class="toggle-description">
-          ⚠️ Quando habilitado, o checkout mostrará opção de "Enviar para Maquininha"
-        </p>
-      </div>
-
-      <div *ngIf="config.posTerminal.enabled">
-        <!-- Seleção do Terminal -->
-        <div class="form-section">
-          <h3>🏪 Tipo de Terminal</h3>
-          <div class="provider-grid">
-            <label
-              *ngFor="let terminal of posTerminals"
-              class="provider-card"
-              [class.active]="config.posTerminal.terminalType === terminal.value"
-            >
-              <input
-                type="radio"
-                name="terminalType"
-                [value]="terminal.value"
-                [(ngModel)]="config.posTerminal.terminalType"
-              />
-              <span class="provider-icon">{{ terminal.icon }}</span>
-              <span class="provider-name">{{ terminal.label }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div *ngIf="config.posTerminal.terminalType !== 'none'">
-          <!-- Tipo de Conexão -->
-          <div class="form-section">
-            <h3>🔌 Tipo de Conexão</h3>
-            <div class="connection-types">
-              <label
-                *ngFor="let conn of connectionTypes"
-                class="connection-card"
-                [class.active]="config.posTerminal.connectionType === conn.value"
-              >
-                <input
-                  type="radio"
-                  name="connectionType"
-                  [value]="conn.value"
-                  [(ngModel)]="config.posTerminal.connectionType"
-                />
-                <span class="conn-icon">{{ conn.icon }}</span>
-                <div class="conn-text">
-                  <strong>{{ conn.label }}</strong>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Configurações de Rede (WiFi) -->
-          <div *ngIf="config.posTerminal.connectionType === 'wifi'" class="form-grid">
-            <div class="form-group">
-              <label for="posIp">Endereço IP da Maquininha *</label>
-              <input
-                type="text"
-                id="posIp"
-                [(ngModel)]="config.posTerminal.ipAddress"
-                placeholder="192.168.1.100"
-                class="form-control"
-              />
-              <small>Encontre o IP no menu de configurações da maquininha</small>
-            </div>
-
-            <div class="form-group">
-              <label for="posPort">Porta</label>
-              <input
-                type="number"
-                id="posPort"
-                [(ngModel)]="config.posTerminal.port"
-                placeholder="8080"
-                class="form-control"
-              />
-            </div>
-          </div>
-
-          <!-- Configurações Bluetooth -->
-          <div *ngIf="config.posTerminal.connectionType === 'bluetooth'" class="form-grid">
-            <div class="form-group full-width">
-              <label for="deviceId">ID do Dispositivo Bluetooth</label>
-              <input
-                type="text"
-                id="deviceId"
-                [(ngModel)]="config.posTerminal.deviceId"
-                placeholder="00:11:22:33:44:55"
-                class="form-control"
-              />
-              <small>Pareie a maquininha primeiro no menu Bluetooth do sistema</small>
-            </div>
-          </div>
-
-          <!-- Configurações USB -->
-          <div *ngIf="config.posTerminal.connectionType === 'usb'" class="alert alert-info">
-            <strong>ℹ️ Conexão USB</strong>
-            <p>
-              Conecte a maquininha via cabo USB. A detecção será automática após salvar as
-              configurações.
-            </p>
-          </div>
-
-          <!-- Configurações específicas por terminal -->
-          <div class="form-grid" *ngIf="config.posTerminal.terminalType === 'stone'">
-            <div class="form-group">
-              <label for="stoneCode">Stone Code *</label>
-              <input
-                type="text"
-                id="stoneCode"
-                [(ngModel)]="config.posTerminal.stoneCode"
-                placeholder="999999999"
-                class="form-control"
-              />
-              <small>Código Stone de 9 dígitos (encontrado no verso da maquininha)</small>
-            </div>
-          </div>
-
-          <!-- Serial Number (todos os terminais) -->
-          <div class="form-group full-width">
-            <label for="serialNumber">Número de Série</label>
-            <input
-              type="text"
-              id="serialNumber"
-              [(ngModel)]="config.posTerminal.serialNumber"
-              placeholder="SN123456789"
-              class="form-control"
-            />
-            <small
-              >Opcional - útil para identificação em estabelecimentos com múltiplos terminais</small
-            >
-          </div>
-
-          <!-- Confirmação Automática -->
-          <div class="toggle-section">
-            <label class="toggle-label">
-              <input type="checkbox" [(ngModel)]="config.posTerminal.autoConfirm" />
-              <span>Confirmação Automática</span>
-            </label>
-            <p class="toggle-description">
-              Quando ativado, a comanda será marcada como paga automaticamente após aprovação na
-              maquininha
-            </p>
-          </div>
-
-          <!-- Botão de Teste -->
-          <div class="test-section">
-            <button class="btn-test" (click)="testPOSConnection()" [disabled]="testingPOS">
-              <span *ngIf="!testingPOS">🔌 Testar Conexão com Maquininha</span>
-              <span *ngIf="testingPOS">⏳ Testando...</span>
-            </button>
-            <p class="test-note">Certifique-se que a maquininha está ligada e conectada</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: Email -->
-    <div *ngIf="activeTab === 'email'" class="tab-content">
-      <div class="section-header">
-        <h2>📧 Configuração de Email (SMTP)</h2>
-        <p>Configure o servidor SMTP para enviar emails de recuperação de senha e promoções</p>
-      </div>
-
-      <!-- Habilitar Email -->
-      <div class="toggle-section">
-        <label class="toggle-label">
-          <input type="checkbox" [(ngModel)]="config.email.enabled" />
-          <span>Habilitar envio de emails</span>
-        </label>
-      </div>
-
-      <div *ngIf="config.email.enabled">
-        <!-- Quick Select Provider -->
-        <div class="form-section">
-          <h3>🚀 Provedor SMTP (Atalho)</h3>
-          <div class="provider-quick-select">
-            <button
-              *ngFor="let provider of emailProviders"
-              class="provider-btn"
-              (click)="selectEmailProvider(provider)"
-            >
-              {{ provider.label }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Configurações SMTP -->
-        <div class="form-section">
-          <h3>⚙️ Configurações do Servidor SMTP</h3>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="emailHost">Host SMTP *</label>
-              <input
-                type="text"
-                id="emailHost"
-                [(ngModel)]="config.email.host"
-                placeholder="smtp.gmail.com"
-                class="form-control"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="emailPort">Porta *</label>
-              <input
-                type="number"
-                id="emailPort"
-                [(ngModel)]="config.email.port"
-                placeholder="587"
-                class="form-control"
-              />
-            </div>
-
-            <div class="form-group full-width">
-              <label for="emailUser">Usuário / Email *</label>
-              <input
-                type="email"
-                id="emailUser"
-                [(ngModel)]="config.email.user"
-                placeholder="seu-email@gmail.com"
-                class="form-control"
-              />
-            </div>
-
-            <div class="form-group full-width">
-              <label for="emailPassword">Senha / Senha de App *</label>
-              <input
-                type="password"
-                id="emailPassword"
-                [(ngModel)]="config.email.password"
-                placeholder="••••••••••••••••"
-                class="form-control"
-              />
-              <small
-                >⚠️ Para Gmail, use "Senha de App":
-                <a href="https://myaccount.google.com/apppasswords" target="_blank"
-                  >Gerar aqui</a
-                ></small
-              >
-            </div>
-
-            <div class="form-group full-width">
-              <label for="emailFrom">Remetente (Nome e Email) *</label>
-              <input
-                type="text"
-                id="emailFrom"
-                [(ngModel)]="config.email.from"
-                placeholder="Meu Restaurante <noreply@restaurante.com>"
-                class="form-control"
-              />
-              <small>Formato: Nome &lt;email&#64;dominio.com&gt;</small>
-            </div>
-          </div>
-
-          <button class="btn-secondary" (click)="testEmailConnection()">
-            📧 Enviar Email de Teste
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: Database -->
-    <div *ngIf="activeTab === 'database'" class="tab-content">
-      <div class="section-header">
-        <h2>🗄️ Banco de Dados</h2>
-        <p>Configurações de conexão e backup</p>
-      </div>
-
-      <!-- Informações de Conexão -->
-      <div class="form-section">
-        <h3>🔌 Conexão MongoDB</h3>
-        <div class="alert alert-warning">
-          <p><strong>⚠️ Atenção:</strong></p>
-          <p>A string de conexão do MongoDB é configurada no arquivo <code>.env</code>.</p>
-          <p>Para alterá-la, edite o arquivo <code>.env</code> e reinicie o servidor.</p>
-        </div>
-
-        <div class="db-info">
-          <div class="info-item">
-            <span class="label">String de Conexão:</span>
-            <code class="value">{{ config.database.uri || 'Não configurado' }}</code>
-          </div>
-        </div>
-
-        <button class="btn-secondary" (click)="testDatabaseConnection()">
-          🔌 Testar Conexão com Banco
+  @if (!loading) {
+    <div class="settings-content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'restaurant'"
+          (click)="activeTab = 'restaurant'"
+        >
+          🏪 Restaurante
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'payment'"
+          (click)="activeTab = 'payment'"
+        >
+          💳 Pagamentos Online
+        </button>
+        <button class="tab" [class.active]="activeTab === 'pos'" (click)="activeTab = 'pos'">
+          🖥️ Maquininha (POS)
+        </button>
+        <button class="tab" [class.active]="activeTab === 'email'" (click)="activeTab = 'email'">
+          📧 Email
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'database'"
+          (click)="activeTab = 'database'"
+        >
+          🗄️ Database
         </button>
       </div>
 
-      <!-- Backup -->
-      <div class="form-section">
-        <h3>💾 Backup Automático</h3>
+      <!-- Tab: Restaurante -->
+      @if (activeTab === 'restaurant') {
+        <div class="tab-content">
+          <div class="section-header">
+            <h2>🏪 Informações do Restaurante</h2>
+            <p>Dados básicos do seu estabelecimento</p>
+          </div>
 
-        <div class="toggle-section">
-          <label class="toggle-label">
-            <input type="checkbox" [(ngModel)]="config.database.backupEnabled" />
-            <span>Habilitar backup automático diário</span>
-          </label>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="restaurantName">Nome do Restaurante *</label>
+              <input
+                type="text"
+                id="restaurantName"
+                [(ngModel)]="config.restaurant.name"
+                placeholder="Meu Restaurante"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="cnpj">CNPJ</label>
+              <input
+                type="text"
+                id="cnpj"
+                [(ngModel)]="config.restaurant.cnpj"
+                (input)="onCNPJInput($event)"
+                placeholder="00.000.000/0000-00"
+                class="form-control"
+                maxlength="18"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Telefone</label>
+              <input
+                type="text"
+                id="phone"
+                [(ngModel)]="config.restaurant.phone"
+                (input)="onPhoneInput($event)"
+                placeholder="(00) 00000-0000"
+                class="form-control"
+                maxlength="15"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="email">Email de Contato</label>
+              <input
+                type="email"
+                id="email"
+                [(ngModel)]="config.restaurant.email"
+                placeholder="contato@restaurante.com"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="address">Endereço Completo</label>
+              <textarea
+                id="address"
+                [(ngModel)]="config.restaurant.address"
+                placeholder="Rua Exemplo, 123 - Bairro - Cidade/UF"
+                class="form-control"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
         </div>
+      }
 
-        <div *ngIf="config.database.backupEnabled" class="form-group">
-          <label for="backupRetention">Retenção de Backups (dias)</label>
-          <input
-            type="number"
-            id="backupRetention"
-            [(ngModel)]="config.database.backupRetentionDays"
-            min="1"
-            max="30"
-            class="form-control"
-          />
-          <small>Backups mais antigos que este período serão deletados automaticamente</small>
+      <!-- Tab: Pagamentos -->
+      @if (activeTab === 'payment') {
+        <div class="tab-content">
+          <div class="section-header">
+            <h2>💳 Pagamentos Online</h2>
+            <p>Configure o gateway de pagamento para aceitar PIX e cartões</p>
+          </div>
+
+          <!-- Habilitar Pagamentos -->
+          <div class="toggle-section">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="config.payment.enabled" />
+              <span>Habilitar pagamentos online</span>
+            </label>
+          </div>
+
+          @if (config.payment.enabled) {
+            <!-- Seleção do Gateway -->
+            <div class="form-section">
+              <h3>🏦 Gateway de Pagamento</h3>
+              <div class="provider-selector">
+                @for (provider of paymentProviders; track provider.value) {
+                  <label class="provider-option" [class.disabled]="provider.value === 'none'">
+                    <input
+                      type="radio"
+                      [(ngModel)]="config.payment.provider"
+                      [value]="provider.value"
+                      [disabled]="provider.value === 'none'"
+                    />
+                    <div class="provider-card">
+                      <span class="icon">{{ provider.icon }}</span>
+                      <span class="label">{{ provider.label }}</span>
+                    </div>
+                  </label>
+                }
+              </div>
+              @if (config.payment.provider !== 'none') {
+                <a
+                  [href]="getProviderDocs(config.payment.provider)"
+                  target="_blank"
+                  class="docs-link"
+                >
+                  📚 Ver documentação do {{ config.payment.provider }}
+                </a>
+              }
+            </div>
+
+            <!-- Credenciais -->
+            @if (config.payment.provider !== 'none') {
+              <div class="form-section">
+                <h3>🔑 Credenciais do Gateway</h3>
+                <div class="alert alert-info">
+                  <p><strong>ℹ️ Como obter as credenciais:</strong></p>
+                  <ol>
+                    <li>Acesse o painel do {{ config.payment.provider }}</li>
+                    <li>Vá em "Suas integrações" → "Credenciais"</li>
+                    <li>Copie a <strong>Public Key</strong> e o <strong>Access Token</strong></li>
+                    <li>Cole abaixo e clique em "Testar Conexão"</li>
+                  </ol>
+                </div>
+
+                <div class="form-group">
+                  <label for="publicKey">Public Key (Chave Pública) *</label>
+                  <input
+                    type="text"
+                    id="publicKey"
+                    [(ngModel)]="config.payment.publicKey"
+                    placeholder="APP_USR-xxxxxxxx-xxxxxxxx"
+                    class="form-control"
+                  />
+                  <small>Usada no frontend para tokenizar cartões</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="accessToken">Access Token (Chave Secreta) *</label>
+                  <input
+                    type="password"
+                    id="accessToken"
+                    [(ngModel)]="config.payment.accessToken"
+                    placeholder="APP_USR-xxxxxxxx-xxxxxxxx-xxxxxxxx"
+                    class="form-control"
+                  />
+                  <small>⚠️ Mantenha este token em segredo</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="webhookUrl">Webhook URL</label>
+                  <input
+                    type="url"
+                    id="webhookUrl"
+                    [(ngModel)]="config.payment.webhookUrl"
+                    placeholder="http://seu-ip-publico:4200/api/payments/webhook"
+                    class="form-control"
+                  />
+                  <small
+                    >URL pública para receber notificações de pagamento (deixe vazio se não for
+                    usar)</small
+                  >
+                </div>
+
+                <button class="btn-secondary" (click)="testPaymentConnection()">
+                  🔌 Testar Conexão com Gateway
+                </button>
+              </div>
+            }
+
+            <!-- Métodos de Pagamento -->
+            @if (config.payment.provider !== 'none') {
+              <div class="form-section">
+                <h3>💰 Métodos Disponíveis</h3>
+
+                <label class="checkbox-option">
+                  <input type="checkbox" [(ngModel)]="config.payment.pixEnabled" />
+                  <div class="option-content">
+                    <span class="option-icon">📱</span>
+                    <div class="option-text">
+                      <strong>PIX</strong>
+                      <small>Pagamento instantâneo via QR Code</small>
+                    </div>
+                    <span class="option-fee">~0.99%</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-option">
+                  <input type="checkbox" [(ngModel)]="config.payment.creditCardEnabled" />
+                  <div class="option-content">
+                    <span class="option-icon">💳</span>
+                    <div class="option-text">
+                      <strong>Cartão de Crédito</strong>
+                      <small>Visa, Mastercard, Elo, etc</small>
+                    </div>
+                    <span class="option-fee">~4.99%</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-option">
+                  <input type="checkbox" [(ngModel)]="config.payment.debitCardEnabled" />
+                  <div class="option-content">
+                    <span class="option-icon">💳</span>
+                    <div class="option-text">
+                      <strong>Cartão de Débito</strong>
+                      <small>Débito online</small>
+                    </div>
+                    <span class="option-fee">~2.99%</span>
+                  </div>
+                </label>
+              </div>
+            }
+          }
         </div>
+      }
 
-        <div class="alert alert-info">
-          <p><strong>ℹ️ Backup Automático:</strong></p>
-          <ul>
-            <li>Executado diariamente às 03:00</li>
-            <li>Armazenado em: <code>./backup/</code></li>
-            <li>Formato: <code>backup-YYYY-MM-DD_HH-MM-SS.json</code></li>
-          </ul>
+      <!-- Tab: POS Terminal (Maquininha) -->
+      @if (activeTab === 'pos') {
+        <div class="tab-content">
+          <div class="section-header">
+            <h2>🖥️ Maquininha de Cartão (POS Terminal)</h2>
+            <p>Configure sua maquininha para aceitar pagamentos com cartão físico e PIX local</p>
+          </div>
+
+          <!-- Habilitar POS -->
+          <div class="toggle-section">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="config.posTerminal.enabled" />
+              <span>Habilitar Maquininha de Cartão</span>
+            </label>
+            <p class="toggle-description">
+              ⚠️ Quando habilitado, o checkout mostrará opção de "Enviar para Maquininha"
+            </p>
+          </div>
+
+          @if (config.posTerminal.enabled) {
+            <!-- Seleção do Terminal -->
+            <div class="form-section">
+              <h3>🏪 Tipo de Terminal</h3>
+              <div class="provider-grid">
+                @for (terminal of posTerminals; track terminal.value) {
+                  <label
+                    class="provider-card"
+                    [class.active]="config.posTerminal.terminalType === terminal.value"
+                  >
+                    <input
+                      type="radio"
+                      name="terminalType"
+                      [value]="terminal.value"
+                      [(ngModel)]="config.posTerminal.terminalType"
+                    />
+                    <span class="provider-icon">{{ terminal.icon }}</span>
+                    <span class="provider-name">{{ terminal.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            @if (config.posTerminal.terminalType !== 'none') {
+              <!-- Tipo de Conexão -->
+              <div class="form-section">
+                <h3>🔌 Tipo de Conexão</h3>
+                <div class="connection-types">
+                  @for (conn of connectionTypes; track conn.value) {
+                    <label
+                      class="connection-card"
+                      [class.active]="config.posTerminal.connectionType === conn.value"
+                    >
+                      <input
+                        type="radio"
+                        name="connectionType"
+                        [value]="conn.value"
+                        [(ngModel)]="config.posTerminal.connectionType"
+                      />
+                      <span class="conn-icon">{{ conn.icon }}</span>
+                      <div class="conn-text">
+                        <strong>{{ conn.label }}</strong>
+                      </div>
+                    </label>
+                  }
+                </div>
+              </div>
+
+              <!-- Configurações de Rede (WiFi) -->
+              @if (config.posTerminal.connectionType === 'wifi') {
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="posIp">Endereço IP da Maquininha *</label>
+                    <input
+                      type="text"
+                      id="posIp"
+                      [(ngModel)]="config.posTerminal.ipAddress"
+                      placeholder="192.168.1.100"
+                      class="form-control"
+                    />
+                    <small>Encontre o IP no menu de configurações da maquininha</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="posPort">Porta</label>
+                    <input
+                      type="number"
+                      id="posPort"
+                      [(ngModel)]="config.posTerminal.port"
+                      placeholder="8080"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+              }
+
+              <!-- Configurações Bluetooth -->
+              @if (config.posTerminal.connectionType === 'bluetooth') {
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="deviceId">ID do Dispositivo Bluetooth</label>
+                    <input
+                      type="text"
+                      id="deviceId"
+                      [(ngModel)]="config.posTerminal.deviceId"
+                      placeholder="00:11:22:33:44:55"
+                      class="form-control"
+                    />
+                    <small>Pareie a maquininha primeiro no menu Bluetooth do sistema</small>
+                  </div>
+                </div>
+              }
+
+              <!-- Configurações USB -->
+              @if (config.posTerminal.connectionType === 'usb') {
+                <div class="alert alert-info">
+                  <strong>ℹ️ Conexão USB</strong>
+                  <p>
+                    Conecte a maquininha via cabo USB. A detecção será automática após salvar as
+                    configurações.
+                  </p>
+                </div>
+              }
+
+              <!-- Configurações específicas por terminal -->
+              @if (config.posTerminal.terminalType === 'stone') {
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="stoneCode">Stone Code *</label>
+                    <input
+                      type="text"
+                      id="stoneCode"
+                      [(ngModel)]="config.posTerminal.stoneCode"
+                      placeholder="999999999"
+                      class="form-control"
+                    />
+                    <small>Código Stone de 9 dígitos (encontrado no verso da maquininha)</small>
+                  </div>
+                </div>
+              }
+
+              <!-- Serial Number (todos os terminais) -->
+              <div class="form-group full-width">
+                <label for="serialNumber">Número de Série</label>
+                <input
+                  type="text"
+                  id="serialNumber"
+                  [(ngModel)]="config.posTerminal.serialNumber"
+                  placeholder="SN123456789"
+                  class="form-control"
+                />
+                <small
+                  >Opcional - útil para identificação em estabelecimentos com múltiplos
+                  terminais</small
+                >
+              </div>
+
+              <!-- Confirmação Automática -->
+              <div class="toggle-section">
+                <label class="toggle-label">
+                  <input type="checkbox" [(ngModel)]="config.posTerminal.autoConfirm" />
+                  <span>Confirmação Automática</span>
+                </label>
+                <p class="toggle-description">
+                  Quando ativado, a comanda será marcada como paga automaticamente após aprovação na
+                  maquininha
+                </p>
+              </div>
+
+              <!-- Botão de Teste -->
+              <div class="test-section">
+                <button class="btn-test" (click)="testPOSConnection()" [disabled]="testingPOS">
+                  @if (!testingPOS) {
+                    <span>🔌 Testar Conexão com Maquininha</span>
+                  }
+                  @if (testingPOS) {
+                    <span>⏳ Testando...</span>
+                  }
+                </button>
+                <p class="test-note">Certifique-se que a maquininha está ligada e conectada</p>
+              </div>
+            }
+          }
         </div>
+      }
 
-        <button class="btn-primary" (click)="createBackup()">💾 Criar Backup Manual Agora</button>
+      <!-- Tab: Email -->
+      @if (activeTab === 'email') {
+        <div class="tab-content">
+          <div class="section-header">
+            <h2>📧 Configuração de Email (SMTP)</h2>
+            <p>Configure o servidor SMTP para enviar emails de recuperação de senha e promoções</p>
+          </div>
+
+          <!-- Habilitar Email -->
+          <div class="toggle-section">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="config.email.enabled" />
+              <span>Habilitar envio de emails</span>
+            </label>
+          </div>
+
+          @if (config.email.enabled) {
+            <!-- Quick Select Provider -->
+            <div class="form-section">
+              <h3>🚀 Provedor SMTP (Atalho)</h3>
+              <div class="provider-quick-select">
+                @for (provider of emailProviders; track provider.value) {
+                  <button class="provider-btn" (click)="selectEmailProvider(provider)">
+                    {{ provider.label }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Configurações SMTP -->
+            <div class="form-section">
+              <h3>⚙️ Configurações do Servidor SMTP</h3>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="emailHost">Host SMTP *</label>
+                  <input
+                    type="text"
+                    id="emailHost"
+                    [(ngModel)]="config.email.host"
+                    placeholder="smtp.gmail.com"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="emailPort">Porta *</label>
+                  <input
+                    type="number"
+                    id="emailPort"
+                    [(ngModel)]="config.email.port"
+                    placeholder="587"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="emailUser">Usuário / Email *</label>
+                  <input
+                    type="email"
+                    id="emailUser"
+                    [(ngModel)]="config.email.user"
+                    placeholder="seu-email@gmail.com"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="emailPassword">Senha / Senha de App *</label>
+                  <input
+                    type="password"
+                    id="emailPassword"
+                    [(ngModel)]="config.email.password"
+                    placeholder="••••••••••••••••"
+                    class="form-control"
+                  />
+                  <small
+                    >⚠️ Para Gmail, use "Senha de App":
+                    <a href="https://myaccount.google.com/apppasswords" target="_blank"
+                      >Gerar aqui</a
+                    ></small
+                  >
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="emailFrom">Remetente (Nome e Email) *</label>
+                  <input
+                    type="text"
+                    id="emailFrom"
+                    [(ngModel)]="config.email.from"
+                    placeholder="Meu Restaurante <noreply@restaurante.com>"
+                    class="form-control"
+                  />
+                  <small>Formato: Nome &lt;email&#64;dominio.com&gt;</small>
+                </div>
+              </div>
+
+              <button class="btn-secondary" (click)="testEmailConnection()">
+                📧 Enviar Email de Teste
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Tab: Database -->
+      @if (activeTab === 'database') {
+        <div class="tab-content">
+          <div class="section-header">
+            <h2>🗄️ Banco de Dados</h2>
+            <p>Configurações de conexão e backup</p>
+          </div>
+
+          <!-- Informações de Conexão -->
+          <div class="form-section">
+            <h3>🔌 Conexão MongoDB</h3>
+            <div class="alert alert-warning">
+              <p><strong>⚠️ Atenção:</strong></p>
+              <p>A string de conexão do MongoDB é configurada no arquivo <code>.env</code>.</p>
+              <p>Para alterá-la, edite o arquivo <code>.env</code> e reinicie o servidor.</p>
+            </div>
+
+            <div class="db-info">
+              <div class="info-item">
+                <span class="label">String de Conexão:</span>
+                <code class="value">{{ config.database.uri || 'Não configurado' }}</code>
+              </div>
+            </div>
+
+            <button class="btn-secondary" (click)="testDatabaseConnection()">
+              🔌 Testar Conexão com Banco
+            </button>
+          </div>
+
+          <!-- Backup -->
+          <div class="form-section">
+            <h3>💾 Backup Automático</h3>
+
+            <div class="toggle-section">
+              <label class="toggle-label">
+                <input type="checkbox" [(ngModel)]="config.database.backupEnabled" />
+                <span>Habilitar backup automático diário</span>
+              </label>
+            </div>
+
+            @if (config.database.backupEnabled) {
+              <div class="form-group">
+                <label for="backupRetention">Retenção de Backups (dias)</label>
+                <input
+                  type="number"
+                  id="backupRetention"
+                  [(ngModel)]="config.database.backupRetentionDays"
+                  min="1"
+                  max="30"
+                  class="form-control"
+                />
+                <small>Backups mais antigos que este período serão deletados automaticamente</small>
+              </div>
+            }
+
+            <div class="alert alert-info">
+              <p><strong>ℹ️ Backup Automático:</strong></p>
+              <ul>
+                <li>Executado diariamente às 03:00</li>
+                <li>Armazenado em: <code>./backup/</code></li>
+                <li>Formato: <code>backup-YYYY-MM-DD_HH-MM-SS.json</code></li>
+              </ul>
+            </div>
+
+            <button class="btn-primary" (click)="createBackup()">
+              💾 Criar Backup Manual Agora
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Ações -->
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="loadConfig()">↺ Recarregar</button>
+        <button class="btn-primary" (click)="saveConfig()" [disabled]="saving">
+          @if (!saving) {
+            <span>💾 Salvar Configurações</span>
+          }
+          @if (saving) {
+            <span>⏳ Salvando...</span>
+          }
+        </button>
+      </div>
+
+      <div class="alert alert-warning restart-warning">
+        <p>
+          <strong>⚠️ Atenção:</strong> Após salvar as configurações, é necessário
+          <strong>reiniciar o servidor</strong> para aplicar as mudanças.
+        </p>
       </div>
     </div>
-
-    <!-- Ações -->
-    <div class="form-actions">
-      <button class="btn-secondary" (click)="loadConfig()">↺ Recarregar</button>
-      <button class="btn-primary" (click)="saveConfig()" [disabled]="saving">
-        {{ saving ? '⏳ Salvando...' : '💾 Salvar Configurações' }}
-      </button>
-    </div>
-
-    <div class="alert alert-warning restart-warning">
-      <p>
-        <strong>⚠️ Atenção:</strong> Após salvar as configurações, é necessário
-        <strong>reiniciar o servidor</strong> para aplicar as mudanças.
-      </p>
-    </div>
-  </div>
+  }
 </div>
