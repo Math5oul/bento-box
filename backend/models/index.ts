@@ -9,3 +9,4 @@ export * from './Product';
 export * from './Filler';
 export * from './Role';
 export * from './Category';
+export * from './ReportCategory';

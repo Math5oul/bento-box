@@ -42,6 +42,13 @@
         </button>
       }
 
+      @if (shouldShowButton('/maintenance/reports') && canViewReports) {
+        <button class="nav-btn btn-reports compact" routerLink="/maintenance/reports">
+          <span class="icon">📊</span>
+          <span class="text">Relatórios</span>
+        </button>
+      }
+
       <button class="nav-btn btn-app compact" (click)="goToApp()">
         <span class="icon">📋</span>
         <span class="text">Cardápio</span>
