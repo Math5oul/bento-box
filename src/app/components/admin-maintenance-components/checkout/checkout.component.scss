@@ -1019,6 +1019,13 @@
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .icon {
+    font-size: 1.2rem;
+  }
 
   &.alert-info {
     background: #dbeafe;

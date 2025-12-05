@@ -148,6 +148,9 @@
                       >
                         💰
                       </button>
+                      <button class="btn-icon" (click)="openPriceModal(item)" title="Editar preço">
+                        ✏️
+                      </button>
 
                       @if (item.discount && !item.isSplit) {
                         <button
@@ -468,6 +471,43 @@
         <div class="modal-footer">
           <button class="btn-secondary" (click)="closeDiscountModal()">Cancelar</button>
           <button class="btn-primary" (click)="confirmDiscount()">Aplicar Desconto</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showPriceModal) {
+    <div class="modal-overlay" (click)="closePriceModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>✏️ Editar Preço</h3>
+          <button class="btn-close" (click)="closePriceModal()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          @if (priceEditItem) {
+            <p>
+              <strong>{{ priceEditItem.productName }}</strong>
+            </p>
+            <p>Preço atual: R$ {{ priceEditItem.unitPrice.toFixed(2) }}</p>
+          }
+
+          <div class="form-group">
+            <label for="newPrice">Novo Preço</label>
+            <input
+              id="newPrice"
+              type="number"
+              [(ngModel)]="newPrice"
+              [min]="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closePriceModal()">Cancelar</button>
+          <button class="btn-primary" (click)="applyPriceEdit()">Salvar</button>
         </div>
       </div>
     </div>

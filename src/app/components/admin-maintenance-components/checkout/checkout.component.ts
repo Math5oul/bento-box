@@ -72,6 +72,7 @@ export class CheckoutComponent implements OnInit {
   showSplitModal = false;
   showDiscountModal = false;
   showHistoryModal = false;
+  showPriceModal = false;
 
   // Split
   splitItem: CheckoutItem | null = null;
@@ -82,6 +83,11 @@ export class CheckoutComponent implements OnInit {
   discountType: DiscountType = DiscountType.PERCENTAGE;
   discountValue = 0;
   discountDescription = '';
+
+  // Edição de Preço
+  priceEditItem: CheckoutItem | null = null;
+  newPrice = 0;
+  priceEditReason = '';
 
   // Pagamento
   paymentMethod: PaymentMethod = PaymentMethod.CASH;
@@ -528,6 +534,57 @@ export class CheckoutComponent implements OnInit {
       item.finalPrice = item.subtotal - value;
     }
     item.finalPrice = Math.max(0, Math.round(item.finalPrice * 100) / 100);
+  }
+
+  // ===== EDIÇÃO DE PREÇO =====
+  openPriceModal(item: CheckoutItem) {
+    this.priceEditItem = item;
+    this.newPrice = item.finalPrice;
+    this.priceEditReason = '';
+    this.showPriceModal = true;
+  }
+
+  closePriceModal() {
+    this.showPriceModal = false;
+    this.priceEditItem = null;
+    this.newPrice = 0;
+    this.priceEditReason = '';
+  }
+
+  applyPriceEdit() {
+    if (!this.priceEditItem || this.newPrice < 0) {
+      alert('⚠️ Valor inválido');
+      return;
+    }
+
+    // Salva o preço original se ainda não foi salvo
+    if (!(this.priceEditItem as any).originalPrice) {
+      (this.priceEditItem as any).originalPrice = this.priceEditItem.unitPrice;
+    }
+
+    // Atualiza o preço unitário e recalcula
+    this.priceEditItem.unitPrice = this.newPrice;
+    this.priceEditItem.subtotal = this.newPrice * this.priceEditItem.quantity;
+
+    // Se tem desconto, recalcula o finalPrice
+    if (this.priceEditItem.discount) {
+      const { type, value } = this.priceEditItem.discount;
+      if (type === DiscountType.PERCENTAGE) {
+        this.priceEditItem.finalPrice = this.priceEditItem.subtotal * (1 - value / 100);
+      } else {
+        this.priceEditItem.finalPrice = this.priceEditItem.subtotal - value;
+      }
+    } else {
+      this.priceEditItem.finalPrice = this.priceEditItem.subtotal;
+    }
+
+    // Arredonda
+    this.priceEditItem.finalPrice = Math.max(
+      0,
+      Math.round(this.priceEditItem.finalPrice * 100) / 100
+    );
+
+    this.closePriceModal();
   }
 
   openHistoryModal() {
