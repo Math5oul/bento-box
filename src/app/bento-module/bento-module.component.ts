@@ -237,8 +237,10 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
   get orderedCategories(): string[] {
     const availableCategories = Array.from(this.productsByCategory.keys());
     // Ordena pelas categorias cadastradas no CategoryService usando o campo `index`
+    // Filtra apenas categorias com showInMenu = true (ou undefined para compatibilidade)
     const categoryOrder = this.categories
       .slice()
+      .filter(c => c.showInMenu !== false) // Mostra se showInMenu for true ou undefined
       .sort((a, b) => (a.index || 0) - (b.index || 0))
       .map(c => c.slug);
     return categoryOrder.filter(cat => availableCategories.includes(cat));

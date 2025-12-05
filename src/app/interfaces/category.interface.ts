@@ -16,6 +16,7 @@ export interface Category {
   emoji: string;
   slug: string;
   index?: number;
+  showInMenu?: boolean; // Se true, aparece no cardápio público. Se false, apenas admin pode adicionar
   productCount?: number;
   discounts?: CategoryDiscount[];
   createdAt: Date;
@@ -30,6 +31,7 @@ export interface CreateCategoryDTO {
   emoji: string;
   slug?: string;
   index?: number;
+  showInMenu?: boolean;
 }
 
 /**
@@ -40,4 +42,5 @@ export interface UpdateCategoryDTO {
   emoji?: string;
   slug?: string;
   index?: number;
+  showInMenu?: boolean;
 }

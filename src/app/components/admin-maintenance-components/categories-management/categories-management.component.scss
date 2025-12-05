@@ -563,6 +563,26 @@
     color: #636e72;
     font-size: 0.85rem;
   }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+
+    input[type='checkbox'] {
+      width: auto;
+      cursor: pointer;
+      transform: scale(1.2);
+    }
+
+    span {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+  }
 }
 
 // Seletor de emoji

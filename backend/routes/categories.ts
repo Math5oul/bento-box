@@ -88,7 +88,7 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const { name, emoji, slug, index } = req.body;
+    const { name, emoji, slug, index, showInMenu } = req.body;
 
     // Verifica se já existe categoria com esse nome ou slug
     const existingCategory = await Category.findOne({
@@ -103,7 +103,7 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const newCategory = new Category({ name, emoji, slug, index });
+    const newCategory = new Category({ name, emoji, slug, index, showInMenu });
     await newCategory.save();
 
     res.status(201).json({
@@ -135,7 +135,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const { name, emoji, slug, index } = req.body;
+    const { name, emoji, slug, index, showInMenu } = req.body;
     const categoryId = req.params['id'];
 
     const category = await Category.findById(categoryId);
@@ -159,6 +159,10 @@ router.put('/:id', authenticate, async (req: Request, res: Response): Promise<vo
 
     if (index !== undefined) {
       category.set('index', index);
+    }
+
+    if (showInMenu !== undefined) {
+      category.showInMenu = showInMenu;
     }
 
     // Se o slug foi fornecido e é diferente, atualizar produtos

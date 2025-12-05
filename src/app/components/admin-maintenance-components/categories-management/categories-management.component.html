@@ -198,6 +198,17 @@
             <input type="number" [(ngModel)]="newCategory.index" min="0" />
             <small class="field-hint">Menor valor aparece primeiro (0, 1, 2...)</small>
           </div>
+
+          <!-- Exibir no Cardápio -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="newCategory.showInMenu" />
+              <span>Exibir no cardápio público (Bento Box)</span>
+            </label>
+            <small class="field-hint">
+              Se desmarcado, apenas administradores poderão adicionar produtos desta categoria
+            </small>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -270,6 +281,17 @@
             <label>Índice de Ordenação</label>
             <input type="number" [(ngModel)]="editingCategory.index" min="0" />
             <small class="field-hint">Menor valor aparece primeiro (0, 1, 2...)</small>
+          </div>
+
+          <!-- Exibir no Cardápio -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="editingCategory.showInMenu" />
+              <span>Exibir no cardápio público (Bento Box)</span>
+            </label>
+            <small class="field-hint">
+              Se desmarcado, apenas administradores poderão adicionar produtos desta categoria
+            </small>
           </div>
 
           <!-- Produtos vinculados -->
