@@ -301,6 +301,77 @@
 
 // ==================== STEP 1: MESAS ====================
 
+.counter-option {
+  margin-bottom: 1.5rem;
+
+  .counter-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #009e7d 0%, #00b894 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 158, 125, 0.2);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 158, 125, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    .counter-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .counter-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      text-align: left;
+
+      strong {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      small {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  span {
+    padding: 0 1rem;
+    color: #999;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+
 .table-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -353,6 +424,54 @@
 
 // ==================== STEP 2: CLIENTES ====================
 
+.search-bar {
+  position: relative;
+  margin-bottom: 1rem;
+
+  .search-input {
+    width: 100%;
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #009e7d;
+      box-shadow: 0 0 0 3px rgba(0, 158, 125, 0.1);
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  .clear-search {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #666;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+}
+
 .client-list {
   display: flex;
   flex-direction: column;
@@ -368,6 +487,7 @@
     transition: all 0.2s;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     text-align: left;
 
@@ -376,15 +496,45 @@
       background: #f0fdf9;
     }
 
-    .client-icon {
-      font-size: 2rem;
+    .client-main-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      min-width: 0; // Para text-overflow funcionar
+
+      .client-icon {
+        font-size: 2rem;
+        flex-shrink: 0;
+      }
+
+      .client-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0; // Para text-overflow funcionar
+        flex: 1;
+
+        .client-name {
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .client-email {
+          font-size: 0.875rem;
+          color: #666;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
     }
 
-    .client-name {
-      flex: 1;
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #333;
+    .client-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
     }
 
     .badge {

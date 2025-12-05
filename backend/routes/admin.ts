@@ -21,8 +21,8 @@ router.get('/users', authenticate, async (req: Request, res: Response): Promise<
       return;
     }
 
-    // Buscar todos os usuários (sem senha)
-    const users = await User.find().select('-password');
+    // Buscar todos os usuários (sem senha) com role populated
+    const users = await User.find().select('-password').populate('role', 'name slug clientLevel'); // Popular role com campos necessários
 
     res.json(users);
   } catch (error) {
