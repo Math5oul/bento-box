@@ -16,6 +16,7 @@ export interface ICategory extends Document {
   emoji: string;
   slug: string;
   index?: number;
+  showInMenu?: boolean; // Se true, aparece no cardápio público (Bento Box). Se false, apenas admin pode adicionar
   discounts?: ICategoryDiscount[]; // Descontos por nível de cliente
   createdAt: Date;
   updatedAt: Date;
@@ -69,6 +70,12 @@ const CategorySchema: Schema = new Schema(
       type: Number,
       required: false,
       default: 0,
+      index: true,
+    },
+    showInMenu: {
+      type: Boolean,
+      required: false,
+      default: true, // Por padrão, categorias aparecem no menu
       index: true,
     },
     discounts: {

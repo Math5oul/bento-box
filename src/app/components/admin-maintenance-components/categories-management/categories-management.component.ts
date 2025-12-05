@@ -43,6 +43,7 @@ export class CategoriesManagementComponent implements OnInit {
     emoji: '📦',
     slug: '',
     index: 0,
+    showInMenu: true, // Por padrão, categorias aparecem no menu
   };
 
   // Modal de edição
@@ -162,6 +163,7 @@ export class CategoriesManagementComponent implements OnInit {
       emoji: '📦',
       slug: '',
       index: 0,
+      showInMenu: true,
     };
     this.showCreateModal = true;
   }
@@ -240,6 +242,7 @@ export class CategoriesManagementComponent implements OnInit {
         emoji: this.newCategory.emoji,
         slug: this.newCategory.slug,
         index: Number(this.newCategory.index) || 0,
+        showInMenu: this.newCategory.showInMenu !== false, // false se explicitamente false, true caso contrário
       };
 
       const response = await this.categoryService.createCategory(payload).toPromise();
@@ -274,6 +277,7 @@ export class CategoriesManagementComponent implements OnInit {
       name: this.editingCategory.name,
       emoji: this.editingCategory.emoji,
       index: Number(this.editingCategory.index) || 0,
+      showInMenu: this.editingCategory.showInMenu,
     };
 
     try {
