@@ -121,6 +121,36 @@
       margin: 4px 0;
     }
 
+    // Estilos para desconto
+    .price-with-discount {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+
+      .original-price {
+        font-size: 18px;
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+
+      .discount-badge-card {
+        background-color: #4caf50;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .product-price.discounted {
+        color: #4caf50;
+        font-size: 32px;
+        font-weight: bold;
+      }
+    }
+
     // Ajustes para formato 2x1 (imagem à esquerda)
     &.format-2x1 {
       width: 50%;
@@ -133,6 +163,21 @@
 
       .product-price {
         font-size: 24px;
+      }
+
+      .price-with-discount {
+        .original-price {
+          font-size: 16px;
+        }
+
+        .discount-badge-card {
+          font-size: 12px;
+          padding: 2px 6px;
+        }
+
+        .product-price.discounted {
+          font-size: 24px;
+        }
       }
     }
 
@@ -149,6 +194,21 @@
       }
       .product-price {
         font-size: 20px;
+      }
+
+      .price-with-discount {
+        .original-price {
+          font-size: 14px;
+        }
+
+        .discount-badge-card {
+          font-size: 11px;
+          padding: 2px 6px;
+        }
+
+        .product-price.discounted {
+          font-size: 20px;
+        }
       }
     }
 
@@ -168,6 +228,21 @@
 
       .product-price {
         font-size: 24px;
+      }
+
+      .price-with-discount {
+        .original-price {
+          font-size: 16px;
+        }
+
+        .discount-badge-card {
+          font-size: 12px;
+          padding: 2px 6px;
+        }
+
+        .product-price.discounted {
+          font-size: 24px;
+        }
       }
     }
 
@@ -189,6 +264,21 @@
 
       .product-price {
         font-size: 36px;
+      }
+
+      .price-with-discount {
+        .original-price {
+          font-size: 20px;
+        }
+
+        .discount-badge-card {
+          font-size: 14px;
+          padding: 3px 8px;
+        }
+
+        .product-price.discounted {
+          font-size: 36px;
+        }
       }
     }
   }
@@ -250,6 +340,23 @@ p {
       .product-description {
         color: #f0f0f0;
       }
+
+      .price-with-discount {
+        .original-price {
+          color: #f0f0f0;
+        }
+
+        .product-price.discounted {
+          color: #7fff7f;
+        }
+      }
+    }
+
+    // Estilos de desconto para light mode
+    .price-with-discount {
+      .original-price {
+        color: #666;
+      }
     }
   }
 
@@ -282,6 +389,27 @@ p {
 
       .product-description {
         color: #f0f0f0;
+      }
+
+      .price-with-discount {
+        .original-price {
+          color: #c3c3c3;
+        }
+
+        .product-price.discounted {
+          color: #7fff7f;
+        }
+      }
+    }
+
+    // Estilos de desconto para dark mode
+    .price-with-discount {
+      .original-price {
+        color: #999;
+      }
+
+      .product-price.discounted {
+        color: #5fce5f;
       }
     }
   }

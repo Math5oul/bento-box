@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product, ProductVariation } from '../../interfaces';
+import { Category } from '../../interfaces/category.interface';
 
 export interface ProductModalData {
   images: string[];
@@ -9,6 +10,7 @@ export interface ProductModalData {
   description: string;
   sizes?: Array<{ name: string; abbreviation: string; price: number }>;
   variations?: ProductVariation[];
+  category?: Category | null;
   // Optional product id provided when opening modal from a product card
   productId?: string;
 

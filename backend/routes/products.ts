@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Product from '../models/Product';
+import Category from '../models/Category';
 import { optionalAuth } from '../middleware/auth';
 
 const router = Router();
@@ -50,36 +51,81 @@ router.get('/', optionalAuth, async (req: Request, res: Response) => {
  */
 router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
   try {
+    console.log('📋 [Products API] GET /menu - Buscando produtos...');
+
     const products = await Product.find({ available: true }).sort({
       'gridPosition.row': 1,
       'gridPosition.col': 1,
     });
 
-    const menuItems = products.map(product => ({
-      id: product._id,
-      component: 'SimpleProductComponent',
-      inputs: {
-        format: product.format,
-        images: product.images,
-        colorMode: product.colorMode,
-        productName: product.name,
-        description: product.description,
-        price: product.price,
-        sizes: product.sizes,
-        variations: product.variations,
-        category: product.category,
-      },
-      colSpan: product.gridPosition?.colSpan || 1,
-      rowSpan: product.gridPosition?.rowSpan || 1,
-      row: product.gridPosition?.row || 0,
-      col: product.gridPosition?.col || 0,
-    }));
+    console.log(`✅ [Products API] ${products.length} produtos encontrados`);
+
+    // Busca todas as categorias para mapear (com fallback se der erro)
+    let categoryMap = new Map();
+    try {
+      const categories = await Category.find({}).lean();
+      console.log(`📂 [Products API] ${categories.length} categorias encontradas`);
+
+      categories.forEach((cat: any) => {
+        categoryMap.set(cat.slug, cat);
+        console.log(`  - Categoria: ${cat.slug}, Descontos: ${cat.discounts?.length || 0}`);
+      });
+    } catch (catError) {
+      console.error('⚠️ [Products API] Erro ao buscar categorias:', catError);
+      console.log('⚠️ [Products API] Continuando sem descontos...');
+    }
+
+    const menuItems = products.map(product => {
+      let categoryData = null;
+
+      try {
+        const category = categoryMap.get(product.category);
+
+        if (category) {
+          categoryData = {
+            _id: category._id?.toString(),
+            name: category.name,
+            slug: category.slug,
+            discounts: (category.discounts || []).map((d: any) => ({
+              roleId: d.roleId?.toString(),
+              roleName: d.roleName,
+              discountPercent: d.discountPercent,
+            })),
+          };
+        }
+      } catch (mapError) {
+        console.error(`⚠️ Erro ao mapear categoria para produto ${product.name}:`, mapError);
+      }
+
+      return {
+        id: product._id,
+        component: 'SimpleProductComponent',
+        inputs: {
+          format: product.format,
+          images: product.images,
+          colorMode: product.colorMode,
+          productName: product.name,
+          description: product.description,
+          price: product.price,
+          sizes: product.sizes,
+          variations: product.variations,
+          category: categoryData,
+        },
+        colSpan: product.gridPosition?.colSpan || 1,
+        rowSpan: product.gridPosition?.rowSpan || 1,
+        row: product.gridPosition?.row || 0,
+        col: product.gridPosition?.col || 0,
+      };
+    });
+
+    console.log(`🎯 [Products API] ${menuItems.length} items no menu prontos para enviar`);
 
     res.json({
       success: true,
       data: { items: menuItems },
     });
   } catch (error: any) {
+    console.error('❌ [Products API] Erro CRÍTICO ao buscar menu:', error);
     res.status(500).json({
       success: false,
       message: 'Erro ao buscar menu',

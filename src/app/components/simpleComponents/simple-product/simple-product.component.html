@@ -21,7 +21,18 @@
 
     <div [ngClass]="['product-container__content', 'format-' + inputs.format]">
       <div class="title" [innerHTML]="inputs.productName | sanitize"></div>
-      <p class="product-price" [innerHTML]="inputs.price | currency: 'BRL'"></p>
+
+      <!-- Exibição de preço com desconto -->
+      @if (hasDiscount()) {
+        <div class="price-with-discount">
+          <span class="original-price">{{ inputs.price | currency: 'BRL' }}</span>
+          <span class="discount-badge-card">-{{ getDiscountCalculation().discountPercent }}%</span>
+          <p class="product-price discounted">{{ getFinalPrice() | currency: 'BRL' }}</p>
+        </div>
+      } @else {
+        <p class="product-price" [innerHTML]="inputs.price | currency: 'BRL'"></p>
+      }
+
       <p class="product-description" [innerHTML]="inputs.description | sanitize"></p>
     </div>
   </div>

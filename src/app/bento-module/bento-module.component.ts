@@ -184,14 +184,32 @@ export class BentoModuleComponent implements OnDestroy, OnInit {
     this.productsByCategory.clear();
     this.fillersByCategory.clear();
 
-    products.forEach(product => {
-      const category = product.inputs?.category || 'other';
+    console.log('🗂️ [BentoModule] Agrupando produtos por categoria...');
 
-      if (!this.productsByCategory.has(category)) {
-        this.productsByCategory.set(category, []);
+    products.forEach(product => {
+      // category pode ser uma string (slug) ou um objeto com slug
+      let categorySlug: string;
+
+      if (typeof product.inputs?.category === 'string') {
+        categorySlug = product.inputs.category;
+      } else if (product.inputs?.category?.slug) {
+        categorySlug = product.inputs.category.slug;
+      } else {
+        categorySlug = 'other';
       }
 
-      this.productsByCategory.get(category)!.push(product);
+      console.log(`  - Produto "${product.inputs?.productName}" → categoria "${categorySlug}"`);
+
+      if (!this.productsByCategory.has(categorySlug)) {
+        this.productsByCategory.set(categorySlug, []);
+      }
+
+      this.productsByCategory.get(categorySlug)!.push(product);
+    });
+
+    console.log(`✅ [BentoModule] ${this.productsByCategory.size} categorias com produtos`);
+    this.productsByCategory.forEach((prods, cat) => {
+      console.log(`   - ${cat}: ${prods.length} produtos`);
     });
 
     // Pré-distribui fillers entre categorias respeitando a ordem

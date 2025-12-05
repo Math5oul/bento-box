@@ -41,23 +41,29 @@ export class StorageService {
   }
 
   private loadFromServer(): void {
+    console.log('🔄 [StorageService] Carregando produtos do servidor...');
     this.http
       .get<ServerResponse>(this.API_URL)
       .pipe(
         map(response => {
+          console.log('📦 [StorageService] Resposta recebida:', response);
           const data = response.data;
           if (!data?.items || !Array.isArray(data.items)) {
-            console.warn('No items found in server response');
+            console.warn('⚠️ [StorageService] No items found in server response');
             return [];
           }
-          return data.items.map((item: ServerMenuItem) => {
+          console.log(`✅ [StorageService] ${data.items.length} items recebidos do servidor`);
+
+          const mappedItems = data.items.map((item: ServerMenuItem) => {
             const componentName =
               typeof item.component === 'string' ? item.component : String(item.component);
 
             const componentType = this.componentRegistry.getComponent(componentName);
 
             if (!componentType) {
-              console.error(`Component not found in registry: ${componentName}`);
+              console.error(
+                `❌ [StorageService] Component not found in registry: ${componentName}`
+              );
               return {
                 ...item,
                 component: this.componentRegistry.getComponent('SimpleProductComponent'),
@@ -69,14 +75,18 @@ export class StorageService {
               component: componentType,
             } as GridItem;
           });
+
+          console.log(`✅ [StorageService] ${mappedItems.length} items mapeados com sucesso`);
+          return mappedItems;
         }),
         catchError(error => {
-          console.error('Error loading products from server:', error);
+          console.error('❌ [StorageService] Error loading products from server:', error);
           return of([]);
         }),
         take(1)
       )
       .subscribe(items => {
+        console.log(`📤 [StorageService] Emitindo ${items.length} items para o BehaviorSubject`);
         this.productsSubject.next(items);
       });
   }
