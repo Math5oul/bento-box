@@ -11,7 +11,46 @@
           <div class="product-info">
             <div class="product-text">
               <h2 class="product-name">{{ productName }}</h2>
-              <p class="product-price">{{ getCurrentPrice() | currency: 'BRL' }}</p>
+
+              <!-- Exibição de preço com desconto -->
+              <div class="price-container">
+                @if (hasDiscount()) {
+                  <div class="price-breakdown-modal">
+                    <!-- Preço Base com Desconto -->
+                    <div class="base-price-section">
+                      <span class="label">Preço Base:</span>
+                      <span class="original-price">{{ getBasePrice() | currency: 'BRL' }}</span>
+                      <span class="discount-badge"
+                        >-{{ getDiscountCalculation().discountPercent }}%</span
+                      >
+                      <span class="discounted-price">{{
+                        getDiscountCalculation().finalPrice | currency: 'BRL'
+                      }}</span>
+                    </div>
+
+                    <!-- Preço da Variação (se houver) -->
+                    @if (getVariationPrice() > 0) {
+                      <div class="variation-price-section">
+                        <span class="label">Variação:</span>
+                        <span class="variation-add"
+                          >+{{ getVariationPrice() | currency: 'BRL' }}</span
+                        >
+                      </div>
+                    }
+
+                    <!-- Preço Total -->
+                    <div class="total-price-section">
+                      <span class="label">Total:</span>
+                      <p class="product-price discounted">
+                        {{ getCurrentPrice() | currency: 'BRL' }}
+                      </p>
+                    </div>
+                  </div>
+                } @else {
+                  <p class="product-price">{{ getCurrentPrice() | currency: 'BRL' }}</p>
+                }
+              </div>
+
               <p
                 class="product-description"
                 [innerHTML]="description | sanitize: 'trustedHtml'"
@@ -67,7 +106,21 @@
                       >
                         <span class="size-abbr">{{ size.abbreviation }}</span>
                         <span class="size-name">{{ size.name }}</span>
-                        <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                        @if (getSizeDiscountCalculation(size.price).hasDiscount) {
+                          <div class="size-price-with-discount">
+                            <span class="size-original-price">{{
+                              size.price | currency: 'BRL'
+                            }}</span>
+                            <span class="size-discount-badge"
+                              >-{{ getSizeDiscountCalculation(size.price).discountPercent }}%</span
+                            >
+                            <span class="size-price discounted">{{
+                              getSizeDiscountCalculation(size.price).finalPrice | currency: 'BRL'
+                            }}</span>
+                          </div>
+                        } @else {
+                          <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                        }
                       </button>
                     }
                   </div>

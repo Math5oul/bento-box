@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { CartService, CartItemSize } from '../../../services/cart-service/cart.service';
 import { ProductModalService } from '../../../services/product-modal-service/product-modal.service';
 import { ProductVariation } from '../../../interfaces/product.interface';
+import { DiscountService } from '../../../services/discount-service/discount.service';
 
 @Component({
   selector: 'app-simple-product',
@@ -13,6 +14,7 @@ import { ProductVariation } from '../../../interfaces/product.interface';
   styleUrl: './simple-product.component.scss',
 })
 export class SimpleProductComponent {
+  private discountService = inject(DiscountService);
   @Input() inputs: {
     format: '1x1' | '1x2' | '2x1' | '2x2';
     colorMode: string;
@@ -44,6 +46,8 @@ export class SimpleProductComponent {
     if (this.inputs.editMode) {
       return;
     } else {
+      console.log('🖱️ [SimpleProduct] Abrindo modal com category:', (this.inputs as any).category);
+
       this.productModalService.openModal({
         images: this.inputs.images,
         productName: this.inputs.productName,
@@ -51,10 +55,23 @@ export class SimpleProductComponent {
         description: this.inputs.description,
         sizes: this.inputs.sizes,
         variations: this.inputs.variations,
+        category: (this.inputs as any).category || null,
         productId: (this.inputs as any)._id || (this.inputs as any).id || undefined,
         onOrderSubmitted: order => this.handleOrder(order),
       });
     }
+  }
+
+  getDiscountCalculation() {
+    return this.discountService.calculatePrice(this.inputs.price, (this.inputs as any).category);
+  }
+
+  getFinalPrice(): number {
+    return this.getDiscountCalculation().finalPrice;
+  }
+
+  hasDiscount(): boolean {
+    return this.getDiscountCalculation().hasDiscount;
   }
 
   handleOrder(order: {
@@ -64,27 +81,41 @@ export class SimpleProductComponent {
     selectedSize?: CartItemSize;
     selectedVariation?: ProductVariation;
   }) {
-    let finalPrice = this.inputs.price;
+    // Preço base (tamanho ou preço padrão)
+    const basePrice = order.selectedSize ? order.selectedSize.price : this.inputs.price;
 
-    if (order.selectedSize) {
-      finalPrice = order.selectedSize.price;
-    }
+    // Preço da variação (sempre sem desconto)
+    const variationPrice = order.selectedVariation?.price || 0;
 
-    if (order.selectedVariation) {
-      finalPrice += order.selectedVariation.price;
-    }
+    // Calcula tudo usando o serviço centralizado
+    const priceCalc = this.discountService.calculateFullItemPrice(
+      basePrice,
+      variationPrice,
+      (this.inputs as any).category
+    );
 
     this.cartService.addItem({
       id: (this.inputs as any)._id || (this.inputs as any).id,
       productId: (this.inputs as any)._id || (this.inputs as any).id,
       productName: this.inputs.productName,
-      price: finalPrice,
+      price: priceCalc.finalTotalPrice,
       quantity: order.quantity,
       observations: order.observations || '',
       image: this.inputs.images[0],
       selectedSize: order.selectedSize,
       selectedVariation: order.selectedVariation,
       totalSizes: this.inputs.sizes?.length || 0,
+      // Informações de desconto
+      category: (this.inputs as any).category,
+      originalPrice: priceCalc.originalTotalPrice,
+      discountPercent: priceCalc.baseDiscountPercent,
+      discountAmount: priceCalc.totalDiscount,
+      finalPrice: priceCalc.finalTotalPrice,
+      hasDiscount: priceCalc.hasDiscount,
+      // Campos separados
+      basePriceOriginal: priceCalc.basePriceOriginal,
+      basePriceWithDiscount: priceCalc.basePriceWithDiscount,
+      variationPrice: priceCalc.variationPrice,
     });
   }
 }

@@ -326,11 +326,128 @@
   transform: translateY(-1px);
 }
 
+.item-price-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+
+  .discount-info-cart {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    .original-price-cart {
+      font-size: 0.8rem;
+      color: #718096;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    .discount-badge-cart {
+      background: #48bb78;
+      color: white;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+  }
+
+  .price-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+
+    .base-price-info,
+    .variation-price-info {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-wrap: nowrap;
+
+      .label {
+        color: #718096;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+
+      .original-price-cart {
+        color: #999;
+        text-decoration: line-through;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+      }
+
+      .discount-badge-cart {
+        background: #48bb78;
+        color: white;
+        padding: 0.1rem 0.3rem;
+        border-radius: 3px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .discounted-price {
+        color: #48bb78;
+        font-weight: 600;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+      }
+
+      .variation-price {
+        color: #e91e63;
+        font-weight: 600;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+      }
+    }
+
+    @media (max-width: 767px) {
+      gap: 0.2rem;
+      font-size: 0.7rem;
+
+      .base-price-info,
+      .variation-price-info {
+        gap: 0.2rem;
+
+        .label {
+          font-size: 0.65rem;
+        }
+
+        .original-price-cart {
+          font-size: 0.65rem;
+        }
+
+        .discount-badge-cart {
+          font-size: 0.6rem;
+          padding: 0.08rem 0.25rem;
+        }
+
+        .discounted-price {
+          font-size: 0.7rem;
+        }
+
+        .variation-price {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+}
+
 .item-total {
   font-weight: 600;
   color: #2d3436;
   font-size: 0.95rem;
-  margin-right: 0.5rem;
+
+  &.discounted-total {
+    color: #48bb78;
+    font-size: 1.05rem;
+  }
 }
 
 .cart-footer {
@@ -774,21 +891,124 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
-  div {
+  .product-name-price {
     flex: 1;
 
     strong {
       display: block;
       font-size: 1.1rem;
       color: #2d3436;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
 
-    p {
+    .simple-price {
       margin: 0;
       color: #00b894;
       font-weight: 700;
       font-size: 1rem;
+    }
+
+    .edit-price-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+
+      .price-line {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        flex-wrap: nowrap;
+
+        .label {
+          font-weight: 600;
+          color: #718096;
+          min-width: 60px;
+          flex-shrink: 0;
+        }
+
+        .original-price {
+          color: #999;
+          text-decoration: line-through;
+          font-size: 0.8rem;
+          flex-shrink: 0;
+        }
+
+        .discount-badge {
+          background: #48bb78;
+          color: white;
+          padding: 0.1rem 0.3rem;
+          border-radius: 3px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+
+        .discounted-price {
+          color: #48bb78;
+          font-weight: 700;
+          font-size: 0.85rem;
+          flex-shrink: 0;
+        }
+
+        .variation-price {
+          color: #e91e63;
+          font-weight: 600;
+          font-size: 0.85rem;
+          flex-shrink: 0;
+        }
+
+        &.total {
+          border-top: 1px solid #e2e8f0;
+          padding-top: 0.25rem;
+          margin-top: 0.25rem;
+
+          .final-price {
+            color: #00b894;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+          }
+        }
+      }
+
+      @media (max-width: 767px) {
+        gap: 0.2rem;
+
+        .price-line {
+          gap: 0.3rem;
+          font-size: 0.75rem;
+
+          .label {
+            min-width: 50px;
+            font-size: 0.7rem;
+          }
+
+          .original-price {
+            font-size: 0.7rem;
+          }
+
+          .discount-badge {
+            font-size: 0.6rem;
+            padding: 0.08rem 0.25rem;
+          }
+
+          .discounted-price {
+            font-size: 0.75rem;
+          }
+
+          .variation-price {
+            font-size: 0.75rem;
+          }
+
+          &.total {
+            .final-price {
+              font-size: 0.9rem;
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -858,6 +1078,38 @@
     color: #00b894;
     font-size: 0.9rem;
     margin-top: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+
+    .original-price {
+      font-size: 0.75rem;
+      color: #95a5a6;
+      text-decoration: line-through;
+      font-weight: 400;
+    }
+
+    .discount-info {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+
+      .discount-badge {
+        background: #48bb78;
+        color: white;
+        padding: 0.05rem 0.25rem;
+        border-radius: 3px;
+        font-size: 0.65rem;
+        font-weight: 700;
+      }
+
+      .discounted-price {
+        color: #48bb78;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+    }
   }
 }
 

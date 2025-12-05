@@ -22,6 +22,7 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { OrderService } from '../../services/order-service/order.service';
 import { CartService, CartItem, CartItemSize } from './../../services/cart-service/cart.service';
 import { ProductVariation } from '../../interfaces/product.interface';
+import { DiscountService } from '../../services/discount-service/discount.service';
 import { interval, Subscription, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -42,6 +43,7 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
+  private discountService = inject(DiscountService);
 
   isPlacingOrder = false;
   orderSuccess = false;
@@ -253,6 +255,52 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
     return `Há ${diffDays} dias`;
   }
 
+  /**
+   * Recalcula os preços de um item do carrinho usando o serviço
+   */
+  getItemPriceCalculation(item: CartItem) {
+    if (!item.basePriceOriginal) {
+      // Item antigo sem informações de desconto
+      return null;
+    }
+
+    return this.discountService.calculateFullItemPrice(
+      item.basePriceOriginal,
+      item.variationPrice || 0,
+      item.category
+    );
+  }
+
+  /**
+   * Retorna o preço base original do item
+   */
+  getItemBasePriceOriginal(item: CartItem): number {
+    return item.basePriceOriginal || item.price;
+  }
+
+  /**
+   * Retorna o preço base com desconto do item
+   */
+  getItemBasePriceWithDiscount(item: CartItem): number {
+    const calc = this.getItemPriceCalculation(item);
+    return calc ? calc.basePriceWithDiscount : item.price;
+  }
+
+  /**
+   * Retorna o preço da variação do item
+   */
+  getItemVariationPrice(item: CartItem): number {
+    return item.variationPrice || 0;
+  }
+
+  /**
+   * Retorna o percentual de desconto do item
+   */
+  getItemDiscountPercent(item: CartItem): number {
+    const calc = this.getItemPriceCalculation(item);
+    return calc ? calc.baseDiscountPercent : 0;
+  }
+
   shouldShowSize(item: CartItem): boolean {
     return !!item.selectedSize && !!item.totalSizes && item.totalSizes > 1;
   }
@@ -322,19 +370,42 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
 
   private updateEditingItemPrice(): void {
     if (this.editingItem) {
-      let basePrice = this.editingItemOriginal?.price || 0;
+      // Determina o preço base (usa o preço original do item ou preço do tamanho)
+      let basePrice =
+        this.editingItemOriginal?.basePriceOriginal || this.editingItemOriginal?.price || 0;
 
       // Se tiver tamanho selecionado, usa o preço do tamanho
       if (this.editingItem.selectedSize) {
         basePrice = this.editingItem.selectedSize.price;
       }
 
-      // Adiciona o preço da variação se houver
-      if (this.editingItem.selectedVariation) {
-        basePrice += this.editingItem.selectedVariation.price;
-      }
+      // Preço da variação (sempre sem desconto)
+      const variationPrice = this.editingItem.selectedVariation?.price || 0;
 
-      this.editingItem.price = basePrice;
+      // USA O SERVIÇO para calcular tudo com desconto
+      const priceCalc = this.discountService.calculateFullItemPrice(
+        basePrice,
+        variationPrice,
+        this.editingItem.category
+      );
+
+      console.log('🔄 [Cart] updateEditingItemPrice:', {
+        basePrice,
+        variationPrice,
+        category: this.editingItem.category,
+        priceCalc,
+      });
+
+      // Atualiza todos os campos de preço
+      this.editingItem.price = priceCalc.finalTotalPrice;
+      this.editingItem.originalPrice = priceCalc.originalTotalPrice;
+      this.editingItem.discountPercent = priceCalc.baseDiscountPercent;
+      this.editingItem.discountAmount = priceCalc.totalDiscount;
+      this.editingItem.finalPrice = priceCalc.finalTotalPrice;
+      this.editingItem.hasDiscount = priceCalc.hasDiscount;
+      this.editingItem.basePriceOriginal = priceCalc.basePriceOriginal;
+      this.editingItem.basePriceWithDiscount = priceCalc.basePriceWithDiscount;
+      this.editingItem.variationPrice = priceCalc.variationPrice;
     }
   }
 
@@ -344,6 +415,49 @@ export class CartComponent implements OnInit, OnDestroy, OnChanges {
       this._cartService.addItem(this.editingItem);
       this.closeEditModal();
     }
+  }
+
+  /**
+   * Métodos para exibir preços no modal de edição
+   */
+  getEditingItemBasePrice(): number {
+    if (!this.editingItem) return 0;
+    return this.editingItem.basePriceOriginal || this.editingItem.price;
+  }
+
+  getEditingItemBasePriceWithDiscount(): number {
+    if (!this.editingItem) return 0;
+    return this.editingItem.basePriceWithDiscount || this.editingItem.price;
+  }
+
+  getEditingItemVariationPrice(): number {
+    if (!this.editingItem) return 0;
+    return this.editingItem.variationPrice || 0;
+  }
+
+  getEditingItemDiscountPercent(): number {
+    if (!this.editingItem) return 0;
+    return this.editingItem.discountPercent || 0;
+  }
+
+  hasEditingItemDiscount(): boolean {
+    return this.editingItem?.hasDiscount || false;
+  }
+
+  /**
+   * Calcula desconto para um tamanho específico no modal de edição
+   */
+  getEditSizeDiscountCalculation(sizePrice: number) {
+    if (!this.editingItem?.category) {
+      return {
+        originalPrice: sizePrice,
+        discountPercent: 0,
+        discountAmount: 0,
+        finalPrice: sizePrice,
+        hasDiscount: false,
+      };
+    }
+    return this.discountService.calculateSizePrice(sizePrice, this.editingItem.category);
   }
 
   get isTableLinked(): boolean {

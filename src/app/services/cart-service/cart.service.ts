@@ -19,6 +19,17 @@ export interface CartItem {
   selectedSize?: CartItemSize;
   totalSizes?: number;
   selectedVariation?: ProductVariation;
+  // Campos de desconto
+  category?: any;
+  originalPrice?: number;
+  discountPercent?: number;
+  discountAmount?: number;
+  finalPrice?: number;
+  hasDiscount?: boolean;
+  // Campos para separar preço base e variação
+  basePriceOriginal?: number; // Preço base antes do desconto (tamanho ou preço padrão)
+  basePriceWithDiscount?: number; // Preço base após desconto
+  variationPrice?: number; // Preço da variação (sempre sem desconto)
 }
 
 @Injectable({ providedIn: 'root' })

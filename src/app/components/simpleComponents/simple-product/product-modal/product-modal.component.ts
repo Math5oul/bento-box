@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,11 @@ import { CarrosselComponent } from '../../../carrossel/carrossel.component';
 import { CartItemSize } from '../../../../services/cart-service/cart.service';
 import { SanitizePipe } from '../../../../pipes/sanitize.pipe';
 import { Product, ProductVariation } from '../../../../interfaces';
+import { Category } from '../../../../interfaces/category.interface';
+import {
+  DiscountService,
+  DiscountCalculation,
+} from '../../../../services/discount-service/discount.service';
 
 @Component({
   selector: 'app-product-modal',
@@ -15,6 +20,8 @@ import { Product, ProductVariation } from '../../../../interfaces';
   styleUrls: ['./product-modal.component.scss'],
 })
 export class ProductModalComponent {
+  private discountService = inject(DiscountService);
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   @Input() images: string[] = [];
@@ -24,6 +31,7 @@ export class ProductModalComponent {
   @Input() price: number = 0;
   @Input() sizes: Array<{ name: string; abbreviation: string; price: number }> = [];
   @Input() variations: ProductVariation[] = [];
+  @Input() category: Category | null = null;
 
   @Output() orderSubmitted = new EventEmitter<{
     productName: string;
@@ -43,6 +51,7 @@ export class ProductModalComponent {
    * Abre o modal de produto
    */
   open() {
+    console.log('🎭 [ProductModal] Modal aberto com category:', this.category);
     this.isOpen = true;
     // Bloqueia o scroll do body (apenas no browser)
     if (isPlatformBrowser(this.platformId)) {
@@ -117,22 +126,85 @@ export class ProductModalComponent {
   }
 
   /**
-   * Retorna o preço atual (do tamanho selecionado + variação selecionada ou preço base)
+   * Retorna o preço base (tamanho ou preço padrão)
+   */
+  getBasePrice(): number {
+    return this.selectedSize ? this.selectedSize.price : this.price;
+  }
+
+  /**
+   * Retorna o preço da variação
+   */
+  getVariationPrice(): number {
+    return this.selectedVariation?.price || 0;
+  }
+
+  /**
+   * Calcula todos os preços usando o serviço centralizado
+   */
+  getFullPriceCalculation() {
+    const basePrice = this.getBasePrice();
+    const variationPrice = this.getVariationPrice();
+
+    console.log('🔍 [ProductModal] getFullPriceCalculation:', {
+      basePrice,
+      variationPrice,
+      category: this.category,
+      hasCategory: !!this.category,
+      hasDiscounts: this.category?.discounts?.length || 0,
+    });
+
+    const result = this.discountService.calculateFullItemPrice(
+      basePrice,
+      variationPrice,
+      this.category
+    );
+
+    console.log('💰 [ProductModal] Resultado do cálculo:', result);
+
+    return result;
+  }
+
+  /**
+   * Retorna o preço atual (total final)
    */
   getCurrentPrice(): number {
-    let currentPrice = this.price;
+    return this.getFullPriceCalculation().finalTotalPrice;
+  }
 
-    // Adiciona preço do tamanho selecionado
-    if (this.selectedSize) {
-      currentPrice = this.selectedSize.price;
-    }
+  /**
+   * Retorna o cálculo de desconto para exibição (apenas do preço base)
+   */
+  getDiscountCalculation(): DiscountCalculation {
+    const calc = this.getFullPriceCalculation();
+    return {
+      originalPrice: calc.basePriceOriginal,
+      discountPercent: calc.baseDiscountPercent,
+      discountAmount: calc.baseDiscountAmount,
+      finalPrice: calc.basePriceWithDiscount,
+      hasDiscount: calc.hasDiscount,
+    };
+  }
 
-    // Adiciona preço da variação selecionada
-    if (this.selectedVariation) {
-      currentPrice += this.selectedVariation.price;
-    }
+  /**
+   * Retorna o preço final (com desconto se houver)
+   */
+  getFinalPrice(): number {
+    return this.getCurrentPrice();
+  }
 
-    return currentPrice;
+  /**
+   * Verifica se há desconto aplicável
+   */
+  hasDiscount(): boolean {
+    return this.getFullPriceCalculation().hasDiscount;
+  }
+
+  /**
+   * Retorna o cálculo de desconto para um tamanho específico
+   */
+  getSizeDiscountCalculation(sizePrice: number): DiscountCalculation {
+    return this.discountService.calculateSizePrice(sizePrice, this.category);
   }
 
   /**

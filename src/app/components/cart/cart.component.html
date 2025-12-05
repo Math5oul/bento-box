@@ -94,7 +94,41 @@
                     </button>
                   </div>
 
-                  <span class="item-total">{{ item.price * item.quantity | currency: 'BRL' }}</span>
+                  <div class="item-price-section">
+                    @if (item.hasDiscount && getItemDiscountPercent(item) > 0) {
+                      <div class="price-breakdown">
+                        <div class="base-price-info">
+                          <span class="label">Base:</span>
+                          <span class="original-price-cart">{{
+                            getItemBasePriceOriginal(item) * item.quantity | currency: 'BRL'
+                          }}</span>
+                          <span class="discount-badge-cart"
+                            >-{{ getItemDiscountPercent(item) }}%</span
+                          >
+                          <span class="discounted-price">{{
+                            getItemBasePriceWithDiscount(item) * item.quantity | currency: 'BRL'
+                          }}</span>
+                        </div>
+                        @if (getItemVariationPrice(item) > 0) {
+                          <div class="variation-price-info">
+                            <span class="label">Variação:</span>
+                            <span class="variation-price"
+                              >+{{
+                                getItemVariationPrice(item) * item.quantity | currency: 'BRL'
+                              }}</span
+                            >
+                          </div>
+                        }
+                      </div>
+                      <span class="item-total discounted-total">{{
+                        item.price * item.quantity | currency: 'BRL'
+                      }}</span>
+                    } @else {
+                      <span class="item-total">{{
+                        item.price * item.quantity | currency: 'BRL'
+                      }}</span>
+                    }
+                  </div>
                 </div>
               </div>
             }
@@ -208,9 +242,38 @@
         <div class="edit-modal-body">
           <div class="edit-product-info">
             <img [src]="editingItem.image" alt="{{ editingItem.productName }}" />
-            <div>
+            <div class="product-name-price">
               <strong>{{ editingItem.productName }}</strong>
-              <p>{{ editingItem.price | currency: 'BRL' }}</p>
+
+              <!-- Exibição de preço com breakdown de desconto -->
+              @if (hasEditingItemDiscount()) {
+                <div class="edit-price-breakdown">
+                  <div class="price-line">
+                    <span class="label">Base:</span>
+                    <span class="original-price">{{
+                      getEditingItemBasePrice() | currency: 'BRL'
+                    }}</span>
+                    <span class="discount-badge">-{{ getEditingItemDiscountPercent() }}%</span>
+                    <span class="discounted-price">{{
+                      getEditingItemBasePriceWithDiscount() | currency: 'BRL'
+                    }}</span>
+                  </div>
+                  @if (getEditingItemVariationPrice() > 0) {
+                    <div class="price-line">
+                      <span class="label">Variação:</span>
+                      <span class="variation-price"
+                        >+{{ getEditingItemVariationPrice() | currency: 'BRL' }}</span
+                      >
+                    </div>
+                  }
+                  <div class="price-line total">
+                    <span class="label">Total:</span>
+                    <span class="final-price">{{ editingItem.price | currency: 'BRL' }}</span>
+                  </div>
+                </div>
+              } @else {
+                <p class="simple-price">{{ editingItem.price | currency: 'BRL' }}</p>
+              }
             </div>
           </div>
 
@@ -228,7 +291,19 @@
                   >
                     <span class="size-abbr">{{ size.abbreviation }}</span>
                     <span class="size-name">{{ size.name }}</span>
-                    <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                    @if (getEditSizeDiscountCalculation(size.price).hasDiscount) {
+                      <div class="size-price-with-discount">
+                        <span class="size-original-price">{{ size.price | currency: 'BRL' }}</span>
+                        <span class="size-discount-badge"
+                          >-{{ getEditSizeDiscountCalculation(size.price).discountPercent }}%</span
+                        >
+                        <span class="size-price discounted">{{
+                          getEditSizeDiscountCalculation(size.price).finalPrice | currency: 'BRL'
+                        }}</span>
+                      </div>
+                    } @else {
+                      <span class="size-price">{{ size.price | currency: 'BRL' }}</span>
+                    }
                   </button>
                 }
               </div>

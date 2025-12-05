@@ -64,13 +64,17 @@
   padding-bottom: 1rem;
 
   @media (max-width: 767px) {
-    padding: 1.5rem;
+    padding: 1rem;
     padding-bottom: 0.5rem;
   }
 
   app-carrossel {
     display: block;
     margin-bottom: 0.5rem;
+
+    @media (max-width: 767px) {
+      margin-bottom: 0.25rem;
+    }
   }
 }
 
@@ -108,10 +112,173 @@
     margin: 0 0 0.75rem 0;
     color: #1a202c;
     line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 
     @media (max-width: 767px) {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       margin: 0 0 0.5rem 0;
+      line-height: 1.2;
+      padding-right: 2rem; // Espaço para o botão de fechar
+    }
+  }
+
+  .price-container {
+    margin: 0 0 1rem 0;
+
+    @media (max-width: 767px) {
+      margin: 0 0 0.75rem 0;
+    }
+
+    .discount-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+
+      .original-price {
+        font-size: 1rem;
+        color: #718096;
+        text-decoration: line-through;
+        font-weight: 500;
+
+        @media (max-width: 767px) {
+          font-size: 0.85rem;
+        }
+      }
+
+      .discount-badge {
+        background: #48bb78;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 700;
+
+        @media (max-width: 767px) {
+          font-size: 0.7rem;
+          padding: 0.1rem 0.35rem;
+        }
+      }
+    }
+
+    .price-breakdown-modal {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #48bb78;
+
+      .base-price-section,
+      .variation-price-section,
+      .total-price-section {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+
+        .label {
+          font-weight: 600;
+          color: #4a5568;
+          font-size: 0.9rem;
+          min-width: 80px;
+          flex-shrink: 0;
+        }
+
+        .original-price {
+          font-size: 0.95rem;
+          color: #718096;
+          text-decoration: line-through;
+          font-weight: 500;
+          flex-shrink: 0;
+        }
+
+        .discount-badge {
+          background: #48bb78;
+          color: white;
+          padding: 0.15rem 0.4rem;
+          border-radius: 4px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+
+        .discounted-price {
+          font-size: 1rem;
+          color: #48bb78;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+
+        .variation-add {
+          font-size: 0.95rem;
+          color: #e91e63;
+          font-weight: 600;
+        }
+      }
+
+      .total-price-section {
+        border-top: 2px solid #e2e8f0;
+        padding-top: 0.5rem;
+        margin-top: 0.25rem;
+
+        .product-price {
+          font-size: 1.5rem;
+          color: #48bb78;
+          font-weight: 700;
+          margin: 0;
+        }
+      }
+
+      @media (max-width: 767px) {
+        padding: 0.6rem;
+        gap: 0.3rem;
+        border-left-width: 3px;
+
+        .base-price-section,
+        .variation-price-section,
+        .total-price-section {
+          gap: 0.25rem;
+          font-size: 0;
+
+          .label {
+            font-size: 0.7rem;
+            min-width: 50px;
+            flex-shrink: 0;
+          }
+
+          .original-price {
+            font-size: 0.75rem;
+            flex-shrink: 0;
+          }
+
+          .discounted-price {
+            font-size: 0.8rem;
+            flex-shrink: 0;
+          }
+
+          .variation-add {
+            font-size: 0.8rem;
+          }
+
+          .discount-badge {
+            font-size: 0.65rem;
+            padding: 0.08rem 0.25rem;
+          }
+        }
+
+        .total-price-section {
+          padding-top: 0.35rem;
+          margin-top: 0.2rem;
+
+          .product-price {
+            font-size: 1.1rem;
+          }
+        }
+      }
     }
   }
 
@@ -119,11 +286,19 @@
     font-size: 1.5rem;
     color: #00b894;
     font-weight: 700;
-    margin: 0 0 1rem 0;
+    margin: 0;
+
+    &.discounted {
+      color: #48bb78;
+      font-size: 1.75rem;
+    }
 
     @media (max-width: 767px) {
       font-size: 1.3rem;
-      margin: 0 0 0.75rem 0;
+
+      &.discounted {
+        font-size: 1.5rem;
+      }
     }
   }
 
@@ -139,10 +314,11 @@
     color: #4a5568;
 
     @media (max-width: 767px) {
-      margin: 0 0 1rem 0;
-      max-height: 150px;
-      padding: 0.75rem;
-      font-size: 0.9rem;
+      margin: 0 0 0.75rem 0;
+      max-height: 120px;
+      padding: 0.6rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
 
     &::-webkit-scrollbar {
@@ -188,6 +364,11 @@
   border-radius: 20px;
   padding: 0.25rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 767px) {
+    margin: 0.75rem 0;
+    width: 90px;
+  }
 }
 
 .quantity-button {
@@ -231,18 +412,31 @@
 .sizes-selection {
   margin: 1.5rem 0;
 
+  @media (max-width: 767px) {
+    margin: 1rem 0;
+  }
+
   .sizes-label {
     display: block;
     font-weight: 600;
     margin-bottom: 0.75rem;
     color: #333;
     font-size: 0.95rem;
+
+    @media (max-width: 767px) {
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
   }
 
   .sizes-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+
+    @media (max-width: 767px) {
+      gap: 0.5rem;
+    }
   }
 
   .size-btn {
@@ -290,22 +484,75 @@
       font-weight: 600;
       color: #e91e63;
       margin-top: 0.25rem;
+
+      &.discounted {
+        color: #4caf50;
+      }
+    }
+
+    .size-price-with-discount {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+
+      .size-original-price {
+        font-size: 0.8rem;
+        color: #999;
+        text-decoration: line-through;
+      }
+
+      .size-discount-badge {
+        background-color: #4caf50;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: bold;
+      }
+
+      .size-price.discounted {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #4caf50;
+      }
     }
 
     @media (max-width: 767px) {
-      min-width: 100px;
-      padding: 0.65rem 0.75rem;
+      min-width: 90px;
+      padding: 0.5rem 0.6rem;
+      gap: 0.15rem;
 
       .size-abbr {
-        font-size: 1rem;
+        font-size: 0.95rem;
       }
 
       .size-name {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
       }
 
       .size-price {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        margin-top: 0.15rem;
+      }
+
+      .size-price-with-discount {
+        gap: 0.15rem;
+        margin-top: 0.15rem;
+
+        .size-original-price {
+          font-size: 0.7rem;
+        }
+
+        .size-discount-badge {
+          font-size: 0.6rem;
+          padding: 0.05rem 0.3rem;
+        }
+
+        .size-price.discounted {
+          font-size: 0.8rem;
+        }
       }
     }
   }
@@ -313,8 +560,12 @@
 
 /* OBSERVAÇÕES - ESTILOS REORGANIZADOS */
 .observations {
-  margin: 0.5rem 0 0 0; /* Reduzido o espaçamento */
+  margin: 0.5rem 0 0 0;
   padding: 0;
+
+  @media (max-width: 767px) {
+    margin: 0.75rem 0 0 0;
+  }
 
   .observations-label {
     display: block;
@@ -322,6 +573,11 @@
     margin-bottom: 0.5rem;
     color: #333;
     font-size: 0.95rem;
+
+    @media (max-width: 767px) {
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
   }
 
   textarea {
@@ -336,6 +592,13 @@
     transition: border-color 0.3s ease;
     resize: vertical;
     min-height: 80px;
+
+    @media (max-width: 767px) {
+      padding: 10px 12px;
+      font-size: 13px;
+      min-height: 70px;
+      line-height: 1.4;
+    }
 
     &:focus {
       outline: none;
@@ -360,8 +623,8 @@
   @media (max-width: 767px) {
     position: sticky;
     bottom: 0;
-    padding: 1rem 1.5rem;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding: 0.75rem 1rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
     border-top: 1px solid #e5e7eb;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -391,25 +654,38 @@
   }
 
   @media (max-width: 767px) {
-    padding: 1.2rem;
-    font-size: 1.05rem;
+    padding: 0.85rem;
+    font-size: 0.95rem;
   }
 }
 
 .variants-selection {
   margin: 1rem 0;
 
+  @media (max-width: 767px) {
+    margin: 0.75rem 0;
+  }
+
   .variants-label {
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #333;
+
+    @media (max-width: 767px) {
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
   }
 
   .variants-buttons {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
+    @media (max-width: 767px) {
+      gap: 0.4rem;
+    }
   }
 
   .variant-btn {
@@ -420,6 +696,10 @@
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
+
+    @media (max-width: 767px) {
+      padding: 0.6rem;
+    }
 
     &:hover {
       border-color: #ccc;
@@ -435,6 +715,10 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
+
+      @media (max-width: 767px) {
+        gap: 0.5rem;
+      }
     }
 
     .variant-image {
@@ -442,6 +726,11 @@
       height: 50px;
       border-radius: 6px;
       object-fit: cover;
+
+      @media (max-width: 767px) {
+        width: 40px;
+        height: 40px;
+      }
     }
 
     .variant-info {
@@ -449,22 +738,39 @@
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+
+      @media (max-width: 767px) {
+        gap: 0.15rem;
+      }
     }
 
     .variant-title {
       font-weight: 600;
       color: #333;
+
+      @media (max-width: 767px) {
+        font-size: 0.85rem;
+      }
     }
 
     .variant-description {
       font-size: 0.875rem;
       color: #666;
+
+      @media (max-width: 767px) {
+        font-size: 0.75rem;
+        line-height: 1.3;
+      }
     }
 
     .variant-price {
       font-weight: 600;
       color: #e91e63;
       font-size: 0.875rem;
+
+      @media (max-width: 767px) {
+        font-size: 0.8rem;
+      }
     }
   }
 }
