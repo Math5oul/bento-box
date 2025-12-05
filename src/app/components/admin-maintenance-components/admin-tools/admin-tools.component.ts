@@ -93,6 +93,10 @@ export class AdminToolsComponent implements OnInit {
     return this.authService.canManageSystemSettings();
   }
 
+  get canViewReports(): boolean {
+    return this.authService.canViewReports();
+  }
+
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }

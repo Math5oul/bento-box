@@ -217,6 +217,22 @@
       </div>
     }
 
+    <!-- Card: Relatórios e Análises -->
+    @if (canViewReports) {
+      <div class="test-card">
+        <div class="card-icon">📊</div>
+        <h3 class="card-title">Relatórios e Análises</h3>
+        <p class="card-description">Análise de vendas e gestão de categorias fiscais</p>
+        <ul class="card-features">
+          <li>Relatórios de Vendas</li>
+          <li>Categorias Fiscais</li>
+          <li>Análise por Período</li>
+          <li>Exportação CSV</li>
+        </ul>
+        <a routerLink="/maintenance/reports" class="card-button">Acessar Relatórios</a>
+      </div>
+    }
+
     <!-- Card: Documentation -->
     @if (isAdmin) {
       <div class="test-card">

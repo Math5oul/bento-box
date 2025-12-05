@@ -20,6 +20,7 @@ import roleRoutes from './routes/roles';
 import billRoutes from './routes/bills';
 import settingsRoutes from './routes/settings';
 import webhookRoutes from './routes/webhooks';
+import reportRoutes from './routes/reports';
 
 const app: Express = express();
 const PORT = process.env['PORT'] || 3001;
@@ -103,6 +104,7 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

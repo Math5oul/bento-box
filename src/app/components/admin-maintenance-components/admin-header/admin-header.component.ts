@@ -71,6 +71,10 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
     return this.authService.canManagePayments();
   }
 
+  get canViewReports(): boolean {
+    return this.authService.canViewReports();
+  }
+
   get frontendUrl(): string {
     if (isPlatformBrowser(this.platformId)) {
       return window.location.origin;

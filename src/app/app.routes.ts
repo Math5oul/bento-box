@@ -115,4 +115,12 @@ export const routes: Routes = [
       ),
     canActivate: [adminGuard],
   },
+  {
+    path: 'maintenance/reports',
+    loadComponent: () =>
+      import('./components/admin-maintenance-components/reports/reports.component').then(
+        m => m.ReportsComponent
+      ),
+    canActivate: [adminGuard],
+  },
 ];
