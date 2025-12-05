@@ -74,6 +74,16 @@
     color: #0a0;
     border: 1px solid #cfc;
   }
+
+  &.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+
+    strong {
+      font-weight: 700;
+    }
+  }
 }
 
 // Tabs
@@ -684,6 +694,23 @@
 
   input {
     width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+    }
   }
 }
 
@@ -748,20 +775,6 @@
   &.selected {
     border-color: #3b82f6;
     background-color: #eff6ff;
-
-    .product-checkbox input {
-      accent-color: #3b82f6;
-    }
-  }
-
-  .product-checkbox {
-    flex-shrink: 0;
-
-    input[type='checkbox'] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
   }
 
   .product-image {

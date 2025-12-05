@@ -42,6 +42,7 @@ export class ReportsComponent implements OnInit {
   showProductsModal = false;
   selectedCategoryForProducts: ReportCategory | null = null;
   productSearchTerm = '';
+  pendingProductChanges: Map<string, string[]> = new Map(); // categoryId -> productIds
 
   // Relatórios
   salesReport: SalesReport | null = null;
@@ -440,6 +441,16 @@ export class ReportsComponent implements OnInit {
    * Fechar modal de produtos
    */
   closeProductsModal(): void {
+    // Se houver mudanças pendentes, perguntar se quer descartar
+    if (this.pendingProductChanges.size > 0) {
+      if (!confirm('Há alterações não salvas. Deseja descartar as alterações?')) {
+        return;
+      }
+      // Recarregar categorias para descartar mudanças locais
+      this.loadCategories();
+      this.pendingProductChanges.clear();
+    }
+
     this.showProductsModal = false;
     this.selectedCategoryForProducts = null;
     this.productSearchTerm = '';
@@ -450,65 +461,162 @@ export class ReportsComponent implements OnInit {
    */
   isProductInCategory(productId: string): boolean {
     if (!this.selectedCategoryForProducts) return false;
-    return this.selectedCategoryForProducts.productIds.includes(productId);
+
+    // Verificar se o productId está na lista, lidando com objetos ou strings
+    return this.selectedCategoryForProducts.productIds.some(id => {
+      // Extrair o ID se for um objeto, senão usar como string
+      const categoryProductId =
+        typeof id === 'object' && id !== null && '_id' in id ? String((id as any)._id) : String(id);
+      return categoryProductId === productId;
+    });
   }
 
   /**
-   * Toggle produto na categoria
+   * Toggle produto na categoria (apenas localmente)
    */
   toggleProductInCategory(productId: string): void {
     if (!this.selectedCategoryForProducts) return;
 
     const category = this.selectedCategoryForProducts;
-    const isCurrentlyInCategory = category.productIds.includes(productId);
 
-    let updatedProductIds: string[];
+    // Converter productIds para strings para comparação
+    const normalizeId = (id: any): string => {
+      return typeof id === 'object' && id !== null && '_id' in id ? String(id._id) : String(id);
+    };
+
+    // Verificar se produto está na categoria
+    const isCurrentlyInCategory = category.productIds.some(id => normalizeId(id) === productId);
+
+    console.log('🔄 Toggle produto:', productId, 'está na categoria?', isCurrentlyInCategory);
+    console.log('📋 IDs atuais:', category.productIds);
 
     if (isCurrentlyInCategory) {
-      // Remover produto
-      updatedProductIds = category.productIds.filter(id => id !== productId);
+      // Remover produto - criar novo array
+      const newProductIds = category.productIds
+        .filter(id => normalizeId(id) !== productId)
+        .map(id => normalizeId(id));
+
+      console.log('❌ Removendo produto. Novos IDs:', newProductIds);
+      category.productIds = newProductIds as any[];
     } else {
-      // Adicionar produto
-      updatedProductIds = [...category.productIds, productId];
+      // Adicionar produto (e remover de outras categorias)
+      // Primeiro remove de todas as outras categorias
+      this.categories.forEach(cat => {
+        if (cat._id !== category._id) {
+          const hasProduct = cat.productIds.some(id => normalizeId(id) === productId);
+          if (hasProduct) {
+            cat.productIds = cat.productIds
+              .filter(id => normalizeId(id) !== productId)
+              .map(id => normalizeId(id)) as any[];
+            // Marcar categoria como tendo mudanças pendentes
+            this.pendingProductChanges.set(cat._id, cat.productIds);
+          }
+        }
+      });
+
+      // Adicionar na categoria atual - normalizar todos os IDs e criar novo array
+      const normalizedIds = category.productIds.map(id => normalizeId(id));
+      category.productIds = [...normalizedIds, productId] as any[];
+
+      console.log('✅ Adicionando produto. Novos IDs:', category.productIds);
     }
 
-    // Atualizar no backend
-    this.isLoading = true;
-    this.reportService.updateCategory(category._id, { productIds: updatedProductIds }).subscribe({
-      next: response => {
-        // Atualizar localmente
-        category.productIds = updatedProductIds;
+    // Marcar categoria atual como tendo mudanças pendentes
+    this.pendingProductChanges.set(category._id, category.productIds);
 
-        // Atualizar também na lista de categorias
-        const categoryIndex = this.categories.findIndex(c => c._id === category._id);
-        if (categoryIndex !== -1) {
-          this.categories[categoryIndex] = { ...category };
-        }
+    // Atualizar também na lista de categorias - criar novo objeto para forçar detecção de mudanças
+    const categoryIndex = this.categories.findIndex(c => c._id === category._id);
+    if (categoryIndex !== -1) {
+      this.categories[categoryIndex] = {
+        ...category,
+        productIds: [...category.productIds], // Criar nova referência do array
+      };
+      // Atualizar a referência selecionada também
+      this.selectedCategoryForProducts = this.categories[categoryIndex];
+    }
 
-        this.isLoading = false;
-      },
-      error: err => {
-        this.error = 'Erro ao atualizar produtos da categoria';
-        console.error('Erro:', err);
-        this.isLoading = false;
-      },
-    });
+    console.log('✔️ Categoria atualizada:', this.selectedCategoryForProducts.productIds);
   }
 
   /**
-   * Filtrar produtos por termo de busca
+   * Salvar todas as alterações de produtos (ao clicar em Concluído)
+   */
+  async saveProductChanges(): Promise<void> {
+    if (this.pendingProductChanges.size === 0) {
+      this.closeProductsModal();
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = null;
+
+    try {
+      // Enviar todas as alterações pendentes
+      const updates = Array.from(this.pendingProductChanges.entries()).map(
+        ([categoryId, productIds]) => {
+          return this.reportService.updateCategory(categoryId, { productIds }).toPromise();
+        }
+      );
+
+      await Promise.all(updates);
+
+      this.success = 'Produtos atualizados com sucesso!';
+      this.pendingProductChanges.clear();
+      this.closeProductsModal();
+
+      // Recarregar categorias para garantir sincronização
+      await this.loadCategories();
+    } catch (err) {
+      this.error = 'Erro ao salvar alterações de produtos';
+      console.error('Erro:', err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Filtrar produtos por termo de busca e excluir produtos de outras categorias
    */
   get filteredProducts(): Product[] {
-    if (!this.productSearchTerm.trim()) {
+    if (!this.selectedCategoryForProducts) {
       return this.allProducts;
     }
 
-    const term = this.productSearchTerm.toLowerCase();
-    return this.allProducts.filter(
-      product =>
-        product.name.toLowerCase().includes(term) ||
-        product.description?.toLowerCase().includes(term)
-    );
+    const normalizeId = (id: any): string => {
+      return typeof id === 'object' && id !== null && '_id' in id ? String(id._id) : String(id);
+    };
+
+    // Obter IDs de produtos em outras categorias (exceto a categoria atual)
+    const productsInOtherCategories = new Set<string>();
+    this.categories.forEach(category => {
+      if (category._id !== this.selectedCategoryForProducts?._id) {
+        category.productIds.forEach(productId => {
+          productsInOtherCategories.add(normalizeId(productId));
+        });
+      }
+    });
+
+    // Filtrar produtos
+    let products = this.allProducts.filter(product => {
+      const productId = String(product._id);
+      // Excluir produtos que estão em outras categorias
+      if (productsInOtherCategories.has(productId)) {
+        return false;
+      }
+      return true;
+    });
+
+    // Aplicar filtro de busca se houver
+    if (this.productSearchTerm.trim()) {
+      const term = this.productSearchTerm.toLowerCase();
+      products = products.filter(
+        product =>
+          product.name.toLowerCase().includes(term) ||
+          product.description?.toLowerCase().includes(term)
+      );
+    }
+
+    return products;
   }
 
   /**
@@ -516,5 +624,51 @@ export class ReportsComponent implements OnInit {
    */
   getProductCount(category: ReportCategory): number {
     return category.productIds.length;
+  }
+
+  /**
+   * Verificar se há produtos sem categoria
+   */
+  get hasUncategorizedProducts(): boolean {
+    const allCategorizedProductIds = new Set<string>();
+
+    this.categories.forEach(category => {
+      category.productIds.forEach(productId => {
+        // Extrair o ID se for um objeto, senão usar como string
+        const id =
+          typeof productId === 'object' && productId !== null && '_id' in productId
+            ? String((productId as any)._id)
+            : String(productId);
+        allCategorizedProductIds.add(id);
+      });
+    });
+
+    return this.allProducts.some(product => {
+      const productId = String(product._id);
+      return product._id && !allCategorizedProductIds.has(productId);
+    });
+  }
+
+  /**
+   * Obter lista de produtos não categorizados
+   */
+  get uncategorizedProducts(): Product[] {
+    const allCategorizedProductIds = new Set<string>();
+
+    this.categories.forEach(category => {
+      category.productIds.forEach(productId => {
+        // Extrair o ID se for um objeto, senão usar como string
+        const id =
+          typeof productId === 'object' && productId !== null && '_id' in productId
+            ? String((productId as any)._id)
+            : String(productId);
+        allCategorizedProductIds.add(id);
+      });
+    });
+
+    return this.allProducts.filter(product => {
+      const productId = String(product._id);
+      return product._id && !allCategorizedProductIds.has(productId);
+    });
   }
 }
