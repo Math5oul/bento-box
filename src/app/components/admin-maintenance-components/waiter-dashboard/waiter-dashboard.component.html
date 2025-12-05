@@ -153,7 +153,17 @@
                   </span>
                 </div>
                 <div class="table-info">
-                  <span class="table-number">🍽️ Mesa {{ order.tableNumber }}</span>
+                  <span
+                    class="table-number"
+                    (click)="openEditTableModal(order.tableNumber)"
+                    style="cursor: pointer"
+                    title="Clique para editar mesa"
+                  >
+                    🍽️ {{ getTableDisplayName(order.tableNumber) }}
+                    @if (canManageOrders) {
+                      <span class="edit-icon">✏️</span>
+                    }
+                  </span>
                   <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
                 </div>
               </div>
@@ -304,7 +314,7 @@
                       </span>
                     </div>
                     <div class="table-info">
-                      <span class="table-number">Mesa {{ order.tableNumber }}</span>
+                      <span class="table-number">{{ getTableDisplayName(order.tableNumber) }}</span>
                       <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
                     </div>
                   </div>
@@ -465,4 +475,13 @@
 <!-- New Order Modal -->
 @if (showNewOrderModal) {
   <app-new-order-modal (close)="handleCloseNewOrderModal()" (orderCreated)="handleOrderCreated()" />
+}
+
+<!-- Edit Table Modal -->
+@if (showEditTableModal && selectedTableForEdit) {
+  <app-edit-table-modal
+    [table]="selectedTableForEdit"
+    (close)="closeEditTableModal()"
+    (save)="handleSaveTable($event)"
+  />
 }

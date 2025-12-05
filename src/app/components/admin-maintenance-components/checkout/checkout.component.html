@@ -23,7 +23,7 @@
             [class.closed]="table.status === 'closed'"
             (click)="table.status !== 'available' && selectTable(table)"
           >
-            <div class="table-number">Mesa {{ table.number }}</div>
+            <div class="table-number">{{ getTableDisplayName(table) }}</div>
             <div class="table-capacity">👥 {{ table.capacity }} pessoas</div>
             <div class="table-status">{{ table.status }}</div>
           </div>
@@ -36,7 +36,10 @@
     <div class="step-container">
       <div class="page-header">
         <h1>Selecione os Itens</h1>
-        <p class="subtitle">Mesa {{ selectedTable?.number }} - Marque os itens que serão pagos</p>
+        <p class="subtitle">
+          {{ selectedTable ? getTableDisplayName(selectedTable) : 'Mesa' }} - Marque os itens que
+          serão pagos
+        </p>
 
         <div class="header-actions">
           <button class="btn-secondary" (click)="changeTable()">🔄 Trocar Mesa</button>
@@ -221,7 +224,9 @@
     <div class="step-container">
       <div class="page-header">
         <h1>💳 Finalizar Pagamento</h1>
-        <p class="subtitle">Mesa {{ selectedTable?.number }} - Confirme os dados</p>
+        <p class="subtitle">
+          {{ selectedTable ? getTableDisplayName(selectedTable) : 'Mesa' }} - Confirme os dados
+        </p>
         <button class="btn-secondary" (click)="backToItems()">⬅️ Voltar</button>
       </div>
 

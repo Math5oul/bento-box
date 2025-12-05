@@ -6,6 +6,7 @@ import { TableService } from '../../../services/table-service/table.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TableOrdersModalComponent } from '../table-orders-modal/table-orders-modal.component';
+import { EditTableModalComponent } from '../../shared/edit-table-modal/edit-table-modal.component';
 
 interface ReservationInfo {
   clientName: string;
@@ -37,7 +38,7 @@ interface TableWithDetails extends Table {
 @Component({
   selector: 'app-admin-tables-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableOrdersModalComponent],
+  imports: [CommonModule, FormsModule, TableOrdersModalComponent, EditTableModalComponent],
   templateUrl: './admin-tables-tab.component.html',
   styleUrl: './admin-tables-tab.component.scss',
 })
@@ -55,6 +56,10 @@ export class AdminTablesTabComponent implements OnInit, OnDestroy {
   showOrdersModal = false;
   selectedTableOrders: any[] = [];
   selectedTableNumber: number = 0;
+
+  // Modal de edição
+  showEditModal = false;
+  selectedTableForEdit: Table | null = null;
 
   // Polling para atualização em tempo real
   private pollingSubscription?: Subscription;
@@ -240,6 +245,46 @@ export class AdminTablesTabComponent implements OnInit, OnDestroy {
     this.showOrdersModal = false;
     this.selectedTableOrders = [];
     this.selectedTableNumber = 0;
+  }
+
+  /**
+   * Abre modal de edição de mesa
+   */
+  openEditModal(table: Table) {
+    console.log('🔧 Abrindo modal de edição da mesa:', table);
+    this.selectedTableForEdit = table;
+    this.showEditModal = true;
+    console.log('🔧 showEditModal:', this.showEditModal);
+    console.log('🔧 selectedTableForEdit:', this.selectedTableForEdit);
+  }
+
+  /**
+   * Fecha modal de edição
+   */
+  closeEditModal() {
+    this.showEditModal = false;
+    this.selectedTableForEdit = null;
+  }
+
+  /**
+   * Salva alterações na mesa
+   */
+  async handleSaveTable(data: { id: string; number: number; name?: string; capacity: number }) {
+    try {
+      await this.tableService.updateTable(data.id, {
+        number: data.number,
+        name: data.name,
+        capacity: data.capacity,
+      });
+      await this.loadTables();
+      this.closeEditModal();
+      alert('Mesa atualizada com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao atualizar mesa:', error);
+      alert(
+        'Erro ao atualizar mesa: ' + (error.error?.message || 'Verifique se o número já existe.')
+      );
+    }
   }
 
   /**

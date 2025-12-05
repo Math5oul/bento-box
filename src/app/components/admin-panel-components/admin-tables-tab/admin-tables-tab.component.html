@@ -8,7 +8,12 @@
     @for (table of tables; track table.id) {
       <div class="table-card" [style.border-color]="getStatusColor(table.status)">
         <div class="table-header">
-          <div class="table-number">Mesa {{ table.number }}</div>
+          <div class="table-number">
+            <span class="table-number-main">Mesa {{ table.number }}</span>
+            @if (table.name) {
+              <span class="table-name">{{ table.name }}</span>
+            }
+          </div>
           <div class="table-status" [style.background]="getStatusColor(table.status)">
             {{ getStatusLabel(table.status) }}
           </div>
@@ -63,6 +68,7 @@
             📋 Pedidos
           </button>
           <button class="btn-action btn-qr" (click)="showTableQRCode(table)">📱 QR Code</button>
+          <button class="btn-action btn-edit" (click)="openEditModal(table)">✏️ Editar</button>
           <button class="btn-action btn-delete" (click)="deleteTable(table)">🗑️</button>
         </div>
       </div>
@@ -135,4 +141,13 @@
     [orders]="selectedTableOrders"
     (close)="closeOrdersModal()"
   ></app-table-orders-modal>
+}
+
+<!-- Modal: Editar Mesa -->
+@if (showEditModal && selectedTableForEdit) {
+  <app-edit-table-modal
+    [table]="selectedTableForEdit"
+    (close)="closeEditModal()"
+    (save)="handleSaveTable($event)"
+  />
 }

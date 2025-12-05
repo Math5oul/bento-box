@@ -7,6 +7,9 @@ import { AuthService } from '../../../services/auth-service/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { NewOrderModalComponent } from '../new-order-modal/new-order-modal.component';
+import { EditTableModalComponent } from '../../shared/edit-table-modal/edit-table-modal.component';
+import { Table } from '../../../interfaces/table.interface';
+import { TableService } from '../../../services/table-service/table.service';
 
 interface WaiterOrder {
   id: string;
@@ -42,7 +45,14 @@ interface WaiterOrder {
 @Component({
   selector: 'app-waiter-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent, NewOrderModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AdminHeaderComponent,
+    NewOrderModalComponent,
+    EditTableModalComponent,
+  ],
   templateUrl: './waiter-dashboard.component.html',
   styleUrls: ['./waiter-dashboard.component.scss'],
 })
@@ -63,9 +73,13 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   // Modal de novo pedido
   showNewOrderModal = false;
 
-  // Modal de edição
+  // Modal de edição de pedido
   showEditModal = false;
   editingOrder: WaiterOrder | null = null;
+
+  // Modal de edição de mesa
+  showEditTableModal = false;
+  selectedTableForEdit: Table | null = null;
   // Edição inline do nome do cliente
   editingNameOrderId: string | null = null;
   editingNameValue = '';
@@ -119,6 +133,8 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   ];
 
   tables: string[] = [];
+  tablesMap: Map<string, Table> = new Map(); // Mapa para informações completas das mesas
+  allTables: Table[] = []; // Array com todas as mesas
 
   // Polling automático
   private pollingSubscription?: Subscription;
@@ -127,11 +143,13 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private tableService: TableService
   ) {}
 
   ngOnInit() {
     this.loadOrders();
+    this.loadTablesInfo();
     this.startPolling();
   }
 
@@ -894,5 +912,100 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
    */
   get canCancelOrders(): boolean {
     return this.authService.canManageOrders();
+  }
+
+  /**
+   * Carrega informações das mesas para exibir nomes
+   */
+  loadTablesInfo() {
+    this.tableService.loadTables();
+    this.tableService.tables$.subscribe({
+      next: tables => {
+        console.log('🔧 Mesas carregadas:', tables);
+        this.allTables = tables || [];
+        // Atualiza o mapa de mesas
+        this.tablesMap.clear();
+        this.allTables.forEach(table => {
+          this.tablesMap.set(table.number.toString(), table);
+        });
+        console.log('🔧 tablesMap atualizado:', this.tablesMap);
+      },
+      error: error => {
+        console.error('Erro ao carregar informações das mesas:', error);
+      },
+    });
+  }
+
+  /**
+   * Retorna o nome formatado da mesa (nome se houver, senão "Mesa X")
+   */
+  getTableDisplayName(tableNumber: string): string {
+    const table = this.tablesMap.get(String(tableNumber));
+
+    if (table?.name) {
+      return table.name;
+    }
+    return `Mesa ${tableNumber}`;
+  }
+
+  /**
+   * Abre modal para editar mesa a partir do número
+   */
+  openEditTableModal(tableNumber: string | number) {
+    // Garante que o número é string para buscar no Map
+    const tableNumberStr = String(tableNumber);
+    console.log(
+      '🔧 Abrindo modal para mesa:',
+      tableNumberStr,
+      '(tipo original:',
+      typeof tableNumber,
+      ')'
+    );
+    console.log('🔧 tablesMap atual:', this.tablesMap);
+    console.log('🔧 Chaves do Map:', Array.from(this.tablesMap.keys()));
+
+    const table = this.tablesMap.get(tableNumberStr);
+    console.log('🔧 Mesa encontrada no Map:', table);
+
+    if (table) {
+      this.selectedTableForEdit = table;
+      this.showEditTableModal = true;
+      console.log('🔧 selectedTableForEdit:', this.selectedTableForEdit);
+      console.log('🔧 showEditTableModal:', this.showEditTableModal);
+    } else {
+      console.warn('🔧 Mesa não encontrada no Map para chave:', tableNumberStr);
+      alert('Mesa não encontrada');
+    }
+  }
+
+  /**
+   * Fecha modal de edição de mesa
+   */
+  closeEditTableModal() {
+    this.showEditTableModal = false;
+    this.selectedTableForEdit = null;
+  }
+
+  /**
+   * Salva alterações na mesa
+   */
+  async handleSaveTable(data: { id: string; number: number; name?: string; capacity: number }) {
+    try {
+      await this.tableService.updateTable(data.id, {
+        number: data.number,
+        name: data.name,
+        capacity: data.capacity,
+      });
+      this.closeEditTableModal();
+      alert('Mesa atualizada com sucesso!');
+      // Recarrega informações das mesas e pedidos
+      this.loadTablesInfo();
+      this.loadOrders(true);
+    } catch (error: any) {
+      console.error('Erro ao atualizar mesa:', error);
+      alert(
+        'Erro ao atualizar mesa: ' + (error.error?.message || 'Verifique se o número já existe.')
+      );
+    }
   }
 }
