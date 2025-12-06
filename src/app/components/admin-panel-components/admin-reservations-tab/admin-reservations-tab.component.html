@@ -97,6 +97,7 @@
             name="clientPhone"
             placeholder="(00) 00000-0000"
             required
+            (input)="reservation.clientPhone = maskPhone($event.target.value)"
           />
         </div>
 
