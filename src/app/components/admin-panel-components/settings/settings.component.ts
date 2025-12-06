@@ -15,35 +15,6 @@ interface RestaurantConfig {
   address: string;
 }
 
-interface PaymentConfig {
-  provider: 'mercado_pago' | 'stripe' | 'pagseguro' | 'asaas' | 'none';
-  enabled: boolean;
-  publicKey: string;
-  accessToken: string;
-  pixEnabled: boolean;
-  creditCardEnabled: boolean;
-  debitCardEnabled: boolean;
-  webhookUrl: string;
-}
-
-interface POSTerminalConfig {
-  enabled: boolean;
-  terminalType:
-    | 'stone'
-    | 'pagseguro_moderninha'
-    | 'mercadopago_point'
-    | 'cielo_lio'
-    | 'getnet'
-    | 'none';
-  connectionType: 'wifi' | 'bluetooth' | 'usb';
-  ipAddress: string;
-  port: number;
-  deviceId: string;
-  stoneCode: string; // Para Stone
-  serialNumber: string;
-  autoConfirm: boolean; // Confirma automaticamente quando POS aprovar
-}
-
 interface EmailConfig {
   enabled: boolean;
   host: string;
@@ -62,8 +33,6 @@ interface DatabaseConfig {
 
 interface SystemConfig {
   restaurant: RestaurantConfig;
-  payment: PaymentConfig;
-  posTerminal: POSTerminalConfig;
   email: EmailConfig;
   database: DatabaseConfig;
 }
@@ -93,27 +62,6 @@ export class SettingsComponent implements OnInit {
       email: '',
       address: '',
     },
-    payment: {
-      provider: 'none',
-      enabled: false,
-      publicKey: '',
-      accessToken: '',
-      pixEnabled: false,
-      creditCardEnabled: false,
-      debitCardEnabled: false,
-      webhookUrl: '',
-    },
-    posTerminal: {
-      enabled: false,
-      terminalType: 'none',
-      connectionType: 'wifi',
-      ipAddress: '',
-      port: 8080,
-      deviceId: '',
-      stoneCode: '',
-      serialNumber: '',
-      autoConfirm: true,
-    },
     email: {
       enabled: false,
       host: 'smtp.gmail.com',
@@ -129,31 +77,6 @@ export class SettingsComponent implements OnInit {
       backupRetentionDays: 7,
     },
   };
-
-  // Providers disponíveis
-  paymentProviders = [
-    { value: 'none', label: 'Desabilitado', icon: '🚫' },
-    { value: 'mercado_pago', label: 'Mercado Pago', icon: '💳' },
-    { value: 'stripe', label: 'Stripe', icon: '💳' },
-    { value: 'pagseguro', label: 'PagSeguro', icon: '💳' },
-    { value: 'asaas', label: 'Asaas', icon: '💳' },
-  ];
-
-  // POS Terminals disponíveis
-  posTerminals = [
-    { value: 'none', label: 'Desabilitado', icon: '🚫' },
-    { value: 'stone', label: 'Stone (Ton)', icon: '💳' },
-    { value: 'pagseguro_moderninha', label: 'PagSeguro Moderninha', icon: '💳' },
-    { value: 'mercadopago_point', label: 'Mercado Pago Point', icon: '💳' },
-    { value: 'cielo_lio', label: 'Cielo LIO', icon: '💳' },
-    { value: 'getnet', label: 'GetNet', icon: '💳' },
-  ];
-
-  connectionTypes = [
-    { value: 'wifi', label: 'WiFi (Rede Local)', icon: '📡' },
-    { value: 'bluetooth', label: 'Bluetooth', icon: '📲' },
-    { value: 'usb', label: 'USB', icon: '🔌' },
-  ];
 
   // SMTP Providers
   emailProviders = [
@@ -205,23 +128,6 @@ export class SettingsComponent implements OnInit {
       }
     }
 
-    if (this.activeTab === 'payment') {
-      if (this.config.payment.enabled) {
-        if (!this.config.payment.publicKey || !this.config.payment.accessToken) {
-          alert('⚠️ Preencha as credenciais do gateway de pagamento');
-          return;
-        }
-        if (
-          !this.config.payment.pixEnabled &&
-          !this.config.payment.creditCardEnabled &&
-          !this.config.payment.debitCardEnabled
-        ) {
-          alert('⚠️ Habilite pelo menos um método de pagamento');
-          return;
-        }
-      }
-    }
-
     if (this.activeTab === 'email') {
       if (this.config.email.enabled) {
         if (!this.config.email.user || !this.config.email.password || !this.config.email.from) {
@@ -247,85 +153,6 @@ export class SettingsComponent implements OnInit {
       alert('❌ Erro ao salvar configurações');
     } finally {
       this.saving = false;
-    }
-  }
-
-  async testPaymentConnection() {
-    if (!this.config.payment.publicKey || !this.config.payment.accessToken) {
-      alert('⚠️ Preencha as credenciais primeiro');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('auth_token');
-      const result = await this.http
-        .post<any>(
-          `${environment.apiUrl}/settings/test-payment`,
-          {
-            provider: this.config.payment.provider,
-            publicKey: this.config.payment.publicKey,
-            accessToken: this.config.payment.accessToken,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .toPromise();
-
-      if (result?.success) {
-        alert('✅ Conexão testada com sucesso!');
-      } else {
-        alert('❌ Erro na conexão: ' + (result?.message || 'Erro desconhecido'));
-      }
-    } catch (error) {
-      console.error('Erro ao testar conexão:', error);
-      alert('❌ Erro ao testar conexão com o gateway');
-    }
-  }
-
-  async testPOSConnection() {
-    if (this.config.posTerminal.terminalType === 'none') {
-      alert('⚠️ Selecione um tipo de terminal primeiro');
-      return;
-    }
-
-    if (this.config.posTerminal.connectionType === 'wifi' && !this.config.posTerminal.ipAddress) {
-      alert('⚠️ Preencha o endereço IP da maquininha');
-      return;
-    }
-
-    this.testingPOS = true;
-    try {
-      const token = localStorage.getItem('auth_token');
-      const result = await this.http
-        .post<any>(
-          `${environment.apiUrl}/settings/test-pos`,
-          {
-            terminalType: this.config.posTerminal.terminalType,
-            connectionType: this.config.posTerminal.connectionType,
-            ipAddress: this.config.posTerminal.ipAddress,
-            port: this.config.posTerminal.port,
-            deviceId: this.config.posTerminal.deviceId,
-            stoneCode: this.config.posTerminal.stoneCode,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .toPromise();
-
-      if (result?.success) {
-        alert('✅ Conexão com maquininha testada com sucesso!\n\n' + result.message);
-      } else {
-        alert(
-          '❌ Erro na conexão: ' + (result?.message || 'Não foi possível conectar à maquininha')
-        );
-      }
-    } catch (error) {
-      console.error('Erro ao testar conexão POS:', error);
-      alert('❌ Erro ao testar conexão com a maquininha');
-    } finally {
-      this.testingPOS = false;
     }
   }
 

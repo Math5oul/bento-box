@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { BillService } from '../../../services/bill.service';
 import { OrderService } from '../../../services/order-service/order.service';
 import { TableService } from '../../../services/table-service/table.service';
-import { PosTerminalService } from '../../../services/pos-terminal.service';
 import {
   BillItem,
   CreateBillDTO,
@@ -50,8 +49,6 @@ export class CheckoutComponent implements OnInit {
   private billService = inject(BillService);
   private orderService = inject(OrderService);
   private tableService = inject(TableService);
-  private posService = inject(PosTerminalService);
-
   // Dados
   tables: Table[] = [];
   selectedTable: Table | null = null;
@@ -105,17 +102,6 @@ export class CheckoutComponent implements OnInit {
 
   async ngOnInit() {
     this.loadTables();
-    await this.checkPaymentOptions();
-  }
-
-  async checkPaymentOptions() {
-    try {
-      this.posEnabled = await this.posService.isPOSEnabled();
-      // TODO: Adicionar verificação de gateway online quando implementado
-      this.paymentGatewayEnabled = false;
-    } catch (error) {
-      console.error('Erro ao verificar opções de pagamento:', error);
-    }
   }
 
   async loadTables() {
@@ -710,136 +696,6 @@ export class CheckoutComponent implements OnInit {
     } finally {
       this.loading = false;
     }
-  }
-
-  /**
-   * Envia pagamento para maquininha (POS)
-   */
-  async sendToPOS() {
-    if (!this.selectedTable || !this.hasSelectedItems) {
-      alert('⚠️ Dados incompletos');
-      return;
-    }
-
-    this.sendingToPOS = true;
-    try {
-      // Primeiro, cria a bill
-      const subtotal = this.selectedItems.reduce((sum, item) => sum + item.subtotal, 0);
-      const finalTotal = this.selectedItems.reduce((sum, item) => sum + item.finalPrice, 0);
-
-      const billData: CreateBillDTO = {
-        tableId: this.selectedTable.id,
-        tableNumber: this.selectedTable.number,
-        orderIds: [...new Set(this.selectedItems.map(item => item.orderId))],
-        items: this.selectedItems.map(item => ({
-          orderId: item.orderId,
-          orderItemId: item.orderItemId,
-          productId: item.productId,
-          productName: item.productName,
-          quantity: item.quantity,
-          originalQuantity: item.originalQuantity,
-          unitPrice: item.unitPrice,
-          subtotal: item.subtotal,
-          discount: item.discount,
-          finalPrice: item.finalPrice,
-          isSplit: item.isSplit,
-          splitIndex: item.splitIndex,
-          totalSplits: item.totalSplits,
-        })),
-        subtotal: subtotal,
-        finalTotal: finalTotal,
-        notes: `Aguardando pagamento na maquininha (${this.posPaymentType})`,
-      };
-
-      const billResponse = await this.billService.createBill(billData).toPromise();
-
-      if (!billResponse?.success || !billResponse.data._id) {
-        alert('❌ Erro ao criar registro de pagamento');
-        return;
-      }
-
-      this.currentBillId = billResponse.data._id;
-
-      // Envia para a maquininha
-      alert(
-        '📱 Enviando para maquininha...\n\nPeça ao cliente para passar o cartão ou escanear o QR Code PIX.'
-      );
-
-      const posResponse = await this.posService
-        .sendToPOS(this.currentBillId, this.posPaymentType)
-        .toPromise();
-
-      if (posResponse?.success && posResponse.approved) {
-        // Pagamento aprovado imediatamente
-        alert(
-          `✅ ${posResponse.message || 'Pagamento aprovado!'}\n\n${posResponse.receiptText || ''}`
-        );
-        this.finalizePOSPayment();
-      } else {
-        // Pagamento recusado ou erro
-        alert(`❌ ${posResponse?.message || 'Pagamento recusado pela maquininha'}`);
-
-        // Cancela a bill
-        if (this.currentBillId) {
-          await this.billService.cancelBill(this.currentBillId).toPromise();
-        }
-
-        this.currentBillId = null;
-      }
-    } catch (error: any) {
-      console.error('Erro ao enviar para POS:', error);
-      alert(
-        `❌ Erro ao comunicar com maquininha:\n\n${error.message || 'Verifique se a maquininha está ligada e conectada'}`
-      );
-
-      // Cancela a bill se foi criada
-      if (this.currentBillId) {
-        await this.billService.cancelBill(this.currentBillId).toPromise();
-        this.currentBillId = null;
-      }
-    } finally {
-      this.sendingToPOS = false;
-    }
-  }
-
-  /**
-   * Inicia polling para verificar status do pagamento POS
-   */
-  startPOSPolling() {
-    if (this.posPollingInterval) {
-      clearInterval(this.posPollingInterval);
-    }
-
-    let attempts = 0;
-    const maxAttempts = 120; // 2 minutos (120 * 1 segundo)
-
-    this.posPollingInterval = setInterval(async () => {
-      attempts++;
-
-      if (attempts > maxAttempts) {
-        clearInterval(this.posPollingInterval);
-        alert('⏱️ Tempo esgotado. Pagamento não foi confirmado.');
-        this.currentBillId = null;
-        return;
-      }
-
-      if (!this.currentBillId) {
-        clearInterval(this.posPollingInterval);
-        return;
-      }
-
-      try {
-        const response = await this.posService.checkPOSStatus(this.currentBillId).toPromise();
-
-        if (response?.approved) {
-          clearInterval(this.posPollingInterval);
-          alert('✅ Pagamento confirmado!');
-          this.finalizePOSPayment();
-        }
-      } catch (error) {
-        console.error('Erro ao verificar status POS:', error);
-      }
-    }, 1000); // Verifica a cada 1 segundo
   }
 
   /**

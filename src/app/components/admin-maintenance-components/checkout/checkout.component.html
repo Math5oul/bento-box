@@ -243,37 +243,6 @@
         </ul>
       </div>
 
-      <div class="payment-mode-selector">
-        <h3>🎯 Como deseja processar o pagamento?</h3>
-
-        <div class="mode-grid">
-          <label class="mode-card" [class.active]="paymentMode === 'manual'">
-            <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="manual" />
-            <div class="mode-icon">💵</div>
-            <div class="mode-title">Pagamento Manual</div>
-            <div class="mode-desc">Dinheiro, cartão físico ou PIX manual</div>
-          </label>
-
-          @if (posEnabled) {
-            <label class="mode-card" [class.active]="paymentMode === 'pos'">
-              <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="pos" />
-              <div class="mode-icon">🖥️</div>
-              <div class="mode-title">Maquininha (POS)</div>
-              <div class="mode-desc">Cliente passa cartão ou paga PIX na maquininha</div>
-            </label>
-          }
-
-          @if (paymentGatewayEnabled) {
-            <label class="mode-card" [class.active]="paymentMode === 'online'">
-              <input type="radio" name="paymentMode" [(ngModel)]="paymentMode" value="online" />
-              <div class="mode-icon">🌐</div>
-              <div class="mode-title">Pagamento Online</div>
-              <div class="mode-desc">QR Code PIX ou link de pagamento</div>
-            </label>
-          }
-        </div>
-      </div>
-
       @if (paymentMode === 'manual') {
         <div class="payment-form">
           <h3>Método de Pagamento</h3>
@@ -364,16 +333,6 @@
               ✅ Confirmar Pagamento
             } @else {
               ⏳ Processando...
-            }
-          </button>
-        }
-
-        @if (paymentMode === 'pos') {
-          <button class="btn-primary btn-block" (click)="sendToPOS()" [disabled]="sendingToPOS">
-            @if (!sendingToPOS) {
-              🖥️ Enviar para Maquininha
-            } @else {
-              ⏳ Aguardando pagamento...
             }
           </button>
         }
