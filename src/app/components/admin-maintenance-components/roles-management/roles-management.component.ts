@@ -22,6 +22,7 @@ export class RolesManagementComponent implements OnInit {
   showCreateModal = false;
   showEditModal = false;
   showPermissionsModal = false;
+  showMigrationModal = false;
 
   // Formulários
   newRole: CreateRoleDTO = {
@@ -34,6 +35,9 @@ export class RolesManagementComponent implements OnInit {
 
   editingRole: Partial<Role> = {};
   selectedRole: Role | null = null;
+  roleToDelete: Role | null = null;
+  migrationTargetRoleId: string = '';
+  usersToMigrate: number = 0;
 
   // Filtro/Pesquisa
   searchTerm = '';
@@ -178,19 +182,62 @@ export class RolesManagementComponent implements OnInit {
       return;
     }
 
+    try {
+      // Tentar deletar sem migração primeiro
+      console.log('🗑️ Tentando deletar role:', role.name, role._id);
+      await this.roleService.deleteRole(role._id);
+      alert('Perfil deletado com sucesso!');
+      await this.loadRoles();
+    } catch (error: any) {
+      console.log('❌ Erro ao deletar role:', error);
+      console.log('🔍 requiresMigration?', error.requiresMigration);
+      console.log('🔍 usersCount?', error.usersCount);
+
+      // Se o erro indica que precisa de migração
+      if (error.requiresMigration) {
+        console.log('✅ Abrindo modal de migração');
+        this.roleToDelete = role;
+        this.usersToMigrate = error.usersCount;
+        this.migrationTargetRoleId = '';
+        this.showMigrationModal = true;
+      } else {
+        alert(error.message || 'Erro ao deletar perfil');
+      }
+    }
+  }
+
+  closeMigrationModal() {
+    this.showMigrationModal = false;
+    this.roleToDelete = null;
+    this.migrationTargetRoleId = '';
+    this.usersToMigrate = 0;
+  }
+
+  async confirmMigrationAndDelete() {
+    if (!this.roleToDelete || !this.migrationTargetRoleId) {
+      alert('Selecione um perfil de destino para migrar os usuários');
+      return;
+    }
+
     const confirmed = confirm(
-      `Tem certeza que deseja deletar o perfil "${role.name}"?\nEsta ação não pode ser desfeita.`
+      `Confirma a migração de ${this.usersToMigrate} usuário(s) ` +
+        `do perfil "${this.roleToDelete.name}" para o perfil selecionado?`
     );
 
     if (!confirmed) return;
 
     try {
-      await this.roleService.deleteRole(role._id);
-      alert('Perfil deletado com sucesso!');
+      await this.roleService.deleteRole(this.roleToDelete._id, this.migrationTargetRoleId);
+      alert(`Perfil deletado com sucesso! ${this.usersToMigrate} usuário(s) migrado(s).`);
+      this.closeMigrationModal();
       await this.loadRoles();
     } catch (error: any) {
-      alert(error.message || 'Erro ao deletar perfil');
+      alert(error.message || 'Erro ao deletar perfil e migrar usuários');
     }
+  }
+
+  get availableRolesForMigration(): Role[] {
+    return this.roles.filter(r => r._id !== this.roleToDelete?._id);
   }
 
   openPermissionsModal(role: Role) {

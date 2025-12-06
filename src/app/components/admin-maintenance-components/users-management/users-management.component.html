@@ -8,10 +8,10 @@
 
   <!-- Abas -->
   <div class="tabs-container">
-    <button class="tab-button" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+    <button class="tab-button" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
       👥 Gerenciar Contas
     </button>
-    <button class="tab-button" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">
+    <button class="tab-button" [class.active]="activeTab === 'roles'" (click)="switchTab('roles')">
       🔐 Gerenciar Perfis
     </button>
   </div>
@@ -90,16 +90,6 @@
           <div class="section-header">
             <div class="header-title">
               <h2>📋 Usuários Cadastrados ({{ filteredUsers.length }}/{{ users.length }})</h2>
-              @if (legacyUsersCount > 0) {
-                <button
-                  class="migrate-btn"
-                  (click)="migrateLegacyRoles()"
-                  title="Migrar usuários com perfis antigos"
-                >
-                  🔄 Migrar {{ legacyUsersCount }} perfil{{ legacyUsersCount !== 1 ? 's' : '' }}
-                  legacy
-                </button>
-              }
             </div>
 
             <!-- Barra de Pesquisa -->
