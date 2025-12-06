@@ -239,7 +239,7 @@
                                 {{ category.categoryName }}
                               </span>
                             </td>
-                            <td class="text-right">{{ category.quantity }}</td>
+                            <td class="text-right">{{ Math.round(category.quantity) }}</td>
                             <td class="text-right">{{ formatCurrency(category.revenue) }}</td>
                             <td class="text-right">
                               <span class="percentage-badge"
@@ -291,7 +291,7 @@
                           <tr>
                             <td class="text-muted">{{ i + 1 }}</td>
                             <td>{{ product.productName }}</td>
-                            <td class="text-right">{{ product.quantity }}</td>
+                            <td class="text-right">{{ Math.round(product.quantity) }}</td>
                             <td class="text-right">{{ formatCurrency(product.revenue) }}</td>
                             <td class="text-right">{{ formatCurrency(product.averagePrice) }}</td>
                           </tr>
@@ -344,7 +344,7 @@
                             </span>
                           </td>
                           <td>{{ row.name }}</td>
-                          <td class="text-right">{{ row.quantity }}</td>
+                          <td class="text-right">{{ Math.round(row.quantity) }}</td>
                           <td class="text-right">{{ formatCurrency(row.revenue) }}</td>
                           <td class="text-right">
                             {{ row.percentage !== null ? row.percentage.toFixed(2) + '%' : '-' }}

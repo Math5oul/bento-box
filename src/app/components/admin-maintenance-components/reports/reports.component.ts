@@ -27,6 +27,9 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
   styleUrls: ['./reports.component.scss'],
 })
 export class ReportsComponent implements OnInit {
+  // Expor Math para o template
+  Math = Math;
+
   // Controle de abas
   activeTab: 'categories' | 'sales' | 'analysis' = 'sales';
 
@@ -300,7 +303,7 @@ export class ReportsComponent implements OnInit {
         data.push({
           type: 'Categoria',
           name: cat.categoryName,
-          quantity: cat.quantity,
+          quantity: Math.round(cat.quantity),
           revenue: cat.revenue,
           percentage: cat.percentage,
         });
@@ -313,7 +316,7 @@ export class ReportsComponent implements OnInit {
         data.push({
           type: 'Produto',
           name: prod.productName,
-          quantity: prod.quantity,
+          quantity: Math.round(prod.quantity),
           revenue: prod.revenue,
           percentage: null,
         });
