@@ -170,11 +170,12 @@ router.put('/:id', async (req: Request, res: Response) => {
 
 /**
  * DELETE /api/roles/:id
- * Deleta um perfil
+ * Deleta um perfil e migra usuários para outro role
  */
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { migrateToRoleId } = req.body; // Role de destino para migração
 
     const role = await Role.findById(id);
 
@@ -193,20 +194,95 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
+    // DEBUG: Ver todos os roles únicos dos usuários
+    const allUserRoles = await User.distinct('role');
+    console.log(`🔍 DEBUG - Roles únicos no banco:`, allUserRoles);
+    console.log(`🔍 DEBUG - Role sendo deletado:`, role._id, 'tipo:', typeof role._id);
+    console.log(`🔍 DEBUG - Role slug:`, role.slug);
+
     // Verificar se existem usuários com este role
-    const usersWithRole = await User.countDocuments({ role: role._id });
+    // Busca por ObjectId ou por slug (para roles legacy que podem estar como string)
+    const usersWithRoleByObjectId = await User.countDocuments({ role: role._id });
+    const usersWithRoleBySlug = await User.countDocuments({ role: role.slug });
+
+    // Também tenta buscar como string do ObjectId
+    const usersWithRoleAsString = await User.countDocuments({ role: role._id.toString() });
+
+    const usersWithRole = usersWithRoleByObjectId + usersWithRoleBySlug + usersWithRoleAsString;
+
+    console.log(`📊 Role "${role.name}" (${role._id}) possui:`);
+    console.log(`   - ${usersWithRoleByObjectId} usuário(s) com ObjectId`);
+    console.log(`   - ${usersWithRoleBySlug} usuário(s) com slug "${role.slug}"`);
+    console.log(`   - ${usersWithRoleAsString} usuário(s) com ObjectId como string`);
+    console.log(`   - Total: ${usersWithRole} usuário(s)`);
+
     if (usersWithRole > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Não é possível deletar este perfil pois ${usersWithRole} usuário(s) ainda o utilizam`,
-      });
+      // Se existem usuários mas não foi fornecido role de destino
+      if (!migrateToRoleId) {
+        console.log(`⚠️ Bloqueando deleção - precisa migrar ${usersWithRole} usuário(s)`);
+        return res.status(400).json({
+          success: false,
+          message: `Não é possível deletar este perfil pois ${usersWithRole} usuário(s) ainda o utilizam`,
+          requiresMigration: true,
+          usersCount: usersWithRole,
+        });
+      }
+
+      // Validar role de destino
+      const targetRole = await Role.findById(migrateToRoleId);
+      if (!targetRole) {
+        return res.status(400).json({
+          success: false,
+          message: 'Perfil de destino para migração não encontrado',
+        });
+      }
+
+      // Não permitir migrar para o próprio role sendo deletado
+      if (targetRole._id.toString() === role._id.toString()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Não é possível migrar usuários para o mesmo perfil sendo deletado',
+        });
+      }
+
+      // Migrar todos os usuários para o novo role (ObjectId, string, e slug)
+      const updateResultById = await User.updateMany(
+        { role: role._id },
+        { $set: { role: targetRole._id } }
+      );
+
+      const updateResultByString = await User.updateMany(
+        { role: role._id.toString() },
+        { $set: { role: targetRole._id } }
+      );
+
+      const updateResultBySlug = await User.updateMany(
+        { role: role.slug },
+        { $set: { role: targetRole._id } }
+      );
+
+      const totalMigrated =
+        updateResultById.modifiedCount +
+        updateResultByString.modifiedCount +
+        updateResultBySlug.modifiedCount;
+      console.log(
+        `✅ ${totalMigrated} usuários migrados de "${role.name}" para "${targetRole.name}"`
+      );
+      console.log(`   - ${updateResultById.modifiedCount} por ObjectId`);
+      console.log(`   - ${updateResultByString.modifiedCount} por ObjectId como string`);
+      console.log(`   - ${updateResultBySlug.modifiedCount} por slug`);
     }
 
+    // Deletar o role
     await Role.findByIdAndDelete(id);
 
     res.json({
       success: true,
-      message: 'Perfil deletado com sucesso',
+      message:
+        usersWithRole > 0
+          ? `Perfil deletado com sucesso. ${usersWithRole} usuário(s) migrado(s) para o novo perfil.`
+          : 'Perfil deletado com sucesso',
+      migratedUsers: usersWithRole,
     });
   } catch (error: any) {
     console.error('Erro ao deletar role:', error);

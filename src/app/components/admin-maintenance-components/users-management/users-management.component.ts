@@ -76,6 +76,19 @@ export class UsersManagementComponent implements OnInit {
   }
 
   /**
+   * Muda de aba e recarrega dados se necessário
+   */
+  async switchTab(tab: 'users' | 'roles'): Promise<void> {
+    this.activeTab = tab;
+
+    // Se voltou para a aba de usuários, recarregar roles
+    // (caso tenham sido criados/editados na aba de roles)
+    if (tab === 'users') {
+      await this.loadRoles();
+    }
+  }
+
+  /**
    * Carrega roles disponíveis da API
    */
   async loadRoles(): Promise<void> {
@@ -97,15 +110,9 @@ export class UsersManagementComponent implements OnInit {
       console.log('Roles carregados:', this.roles);
     } catch (error) {
       console.error('Erro ao carregar roles:', error);
-      alert('Erro ao carregar perfis. Usando perfis padrão.');
-      // Fallback para roles antigos se API falhar
-      this.availableRoles = [
-        { value: UserRole.CLIENT, label: 'Cliente (Legacy)', clientLevel: 1 },
-        { value: UserRole.ADMIN, label: 'Administrador (Legacy)', clientLevel: 0 },
-        { value: UserRole.KITCHEN, label: 'Cozinha (Legacy)', clientLevel: 0 },
-        { value: UserRole.WAITER, label: 'Garçom (Legacy)', clientLevel: 0 },
-      ];
-      this.newUser.role = UserRole.CLIENT;
+      alert('Erro ao carregar perfis. Verifique sua conexão.');
+      this.availableRoles = [];
+      this.newUser.role = '';
     } finally {
       this.loadingRoles = false;
     }
@@ -158,7 +165,10 @@ export class UsersManagementComponent implements OnInit {
   /**
    * Abre modal de criação
    */
-  openCreateModal(): void {
+  async openCreateModal(): Promise<void> {
+    // Recarregar roles antes de abrir o modal
+    await this.loadRoles();
+
     // Use primeiro role de cliente ou primeiro disponível
     const defaultClientRole = this.roles.find(r => r.clientLevel > 0);
     const defaultRole = defaultClientRole?._id || this.roles[0]?._id || '';
@@ -227,7 +237,10 @@ export class UsersManagementComponent implements OnInit {
   /**
    * Abre modal de edição
    */
-  openEditModal(user: User): void {
+  async openEditModal(user: User): Promise<void> {
+    // Recarregar roles antes de abrir o modal
+    await this.loadRoles();
+
     this.editingUser = { ...user };
     this.showEditModal = true;
   }
@@ -333,44 +346,40 @@ export class UsersManagementComponent implements OnInit {
   }
 
   /**
-   * Retorna o label do role (suporta enum legacy e ObjectId)
+   * Retorna o label do role
    */
-  getRoleLabel(role: string): string {
+  getRoleLabel(role: string | any): string {
     if (!role) return 'Sem Role';
 
+    // Se role já é um objeto (populado), usar diretamente
+    if (typeof role === 'object' && role.name) {
+      return `${role.name} ${role.clientLevel === 0 ? '(Staff)' : `(Nível ${role.clientLevel})`}`;
+    }
+
+    // Se é string, procurar nos roles
+    const roleStr = String(role);
+
     // Tenta encontrar nos roles dinâmicos (ObjectId)
-    const foundDynamic = this.availableRoles.find(r => r.value === role);
+    const foundDynamic = this.availableRoles.find(r => r.value === roleStr);
     if (foundDynamic) {
       return foundDynamic.label;
     }
 
-    // Tenta encontrar pelo ID do role (para roles populados)
-    const foundById = this.roles.find(r => r._id === role);
+    // Tenta encontrar pelo ID do role
+    const foundById = this.roles.find(r => r._id === roleStr);
     if (foundById) {
       return `${foundById.name} ${foundById.clientLevel === 0 ? '(Staff)' : `(Nível ${foundById.clientLevel})`}`;
     }
 
-    // Tenta encontrar pelo slug (para buscar role por nome enum)
-    const foundBySlug = this.roles.find(r => r.slug === role.toLowerCase() || r.slug === role);
+    // Tenta encontrar pelo slug
+    const foundBySlug = this.roles.find(
+      r => r.slug === roleStr.toLowerCase() || r.slug === roleStr
+    );
     if (foundBySlug) {
       return `${foundBySlug.name} ${foundBySlug.clientLevel === 0 ? '(Staff)' : `(Nível ${foundBySlug.clientLevel})`}`;
     }
 
-    // Fallback para enum legacy (compatibilidade)
-    const legacyLabels: Record<string, string> = {
-      admin: 'Administrador (Legacy)',
-      client: 'Cliente (Legacy)',
-      cozinha: 'Cozinha (Legacy)',
-      garcom: 'Garçom (Legacy)',
-      garçom: 'Garçom (Legacy)',
-      waiter: 'Garçom (Legacy)',
-      kitchen: 'Cozinha (Legacy)',
-      user: 'Usuário (Legacy)',
-      table: 'Mesa (Legacy)',
-    };
-
-    const lowerRole = role.toLowerCase();
-    return legacyLabels[lowerRole] || `${role} (Legacy)`;
+    return 'Role não encontrado';
   }
 
   /**
@@ -392,120 +401,5 @@ export class UsersManagementComponent implements OnInit {
     //   console.error('Erro ao enviar email:', error);
     //   alert('❌ Erro ao enviar email: ' + (error.error?.message || error.message));
     // }
-  }
-
-  /**
-   * Conta quantos usuários têm roles legacy (enum antigo)
-   */
-  get legacyUsersCount(): number {
-    return this.users.filter(user => {
-      // Se o role não é encontrado nos roles dinâmicos, é legacy
-      const isDynamicRole = this.availableRoles.some(r => r.value === user.role);
-      const isNewRole = this.roles.some(r => r._id === user.role);
-      return !isDynamicRole && !isNewRole;
-    }).length;
-  }
-
-  /**
-   * Migra usuários com roles enum antigos para os novos roles customizados
-   */
-  async migrateLegacyRoles(): Promise<void> {
-    const legacyUsers = this.users.filter(user => {
-      const isDynamicRole = this.availableRoles.some(r => r.value === user.role);
-      const isNewRole = this.roles.some(r => r._id === user.role);
-      return !isDynamicRole && !isNewRole;
-    });
-
-    if (legacyUsers.length === 0) {
-      alert('✅ Todos os usuários já estão usando os novos perfis!');
-      return;
-    }
-
-    const confirm = window.confirm(
-      `🔄 Migração de Perfis Legacy\n\n` +
-        `Foram encontrados ${legacyUsers.length} usuário(s) usando perfis antigos.\n\n` +
-        `Esta ação irá:\n` +
-        `• Converter "admin" → "Administrador"\n` +
-        `• Converter "client" → "Cliente"\n` +
-        `• Converter "garcom" → "Garçom"\n` +
-        `• Converter "cozinha" → "Cozinha"\n\n` +
-        `Deseja continuar?`
-    );
-
-    if (!confirm) return;
-
-    try {
-      // Mapa de conversão: enum antigo → slug do novo role
-      const roleMap: Record<string, string> = {
-        admin: 'administrador',
-        client: 'cliente',
-        garcom: 'garcom',
-        garçom: 'garcom',
-        waiter: 'garcom',
-        cozinha: 'cozinha',
-        kitchen: 'cozinha',
-        user: 'cliente',
-        table: 'cliente',
-      };
-
-      let migrated = 0;
-      let errors = 0;
-
-      for (const user of legacyUsers) {
-        const oldRole = user.role.toLowerCase();
-        const newSlug = roleMap[oldRole];
-
-        if (!newSlug) {
-          console.warn(`Role desconhecido: ${user.role}`);
-          errors++;
-          continue;
-        }
-
-        // Busca o novo role pelo slug
-        const newRole = this.roles.find(r => r.slug === newSlug);
-        if (!newRole) {
-          console.warn(`Role com slug "${newSlug}" não encontrado`);
-          errors++;
-          continue;
-        }
-
-        try {
-          // Atualiza o usuário com o novo role
-          const token = localStorage.getItem('auth_token');
-          await this.http
-            .patch(
-              `${environment.apiUrl}/admin/users/${user._id}/role`,
-              { role: newRole._id },
-              { headers: { Authorization: `Bearer ${token}` } }
-            )
-            .toPromise();
-
-          migrated++;
-        } catch (error) {
-          console.error(`Erro ao migrar usuário ${user.email}:`, error);
-          errors++;
-        }
-      }
-
-      if (errors === 0) {
-        alert(
-          `✅ Migração concluída com sucesso!\n\n` +
-            `${migrated} usuário(s) migrado(s) para os novos perfis.`
-        );
-      } else {
-        alert(
-          `⚠️ Migração concluída com avisos\n\n` +
-            `✅ ${migrated} usuário(s) migrado(s)\n` +
-            `❌ ${errors} erro(s) encontrado(s)\n\n` +
-            `Verifique o console para mais detalhes.`
-        );
-      }
-
-      // Recarrega lista de usuários
-      await this.loadUsers();
-    } catch (error) {
-      console.error('Erro na migração:', error);
-      alert('❌ Erro durante a migração. Verifique o console.');
-    }
   }
 }

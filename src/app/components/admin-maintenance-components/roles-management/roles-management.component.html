@@ -297,4 +297,64 @@
       </div>
     </div>
   }
+
+  <!-- Modal de Migração de Usuários -->
+  @if (showMigrationModal && roleToDelete) {
+    <div class="modal active">
+      <div class="modal-overlay" (click)="closeMigrationModal()"></div>
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>⚠️ Migração de Usuários</h3>
+          <button class="close-btn" (click)="closeMigrationModal()">&times;</button>
+        </div>
+
+        <div class="migration-content">
+          <div class="warning-box">
+            <p>
+              <strong>Atenção:</strong> O perfil <strong>"{{ roleToDelete.name }}"</strong> possui
+              <strong>{{ usersToMigrate }}</strong> usuário(s) associado(s).
+            </p>
+            <p>
+              Para deletar este perfil, você deve escolher um perfil de destino para migrar os
+              usuários.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label>Selecione o perfil de destino</label>
+            <select [(ngModel)]="migrationTargetRoleId" class="select-role">
+              <option value="">-- Selecione um perfil --</option>
+              @for (role of availableRolesForMigration; track role._id) {
+                <option [value]="role._id">
+                  {{ role.name }}
+                  {{ role.clientLevel === 0 ? '(Staff)' : '(Nível ' + role.clientLevel + ')' }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="info-box">
+            <p>ℹ️ <strong>O que acontecerá:</strong></p>
+            <ul>
+              <li>Os {{ usersToMigrate }} usuário(s) serão migrados para o perfil escolhido</li>
+              <li>O perfil "{{ roleToDelete.name }}" será deletado permanentemente</li>
+              <li>Esta ação não pode ser desfeita</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="cancel-btn" (click)="closeMigrationModal()">Cancelar</button>
+          <button
+            type="button"
+            class="delete-btn"
+            (click)="confirmMigrationAndDelete()"
+            [disabled]="!migrationTargetRoleId"
+          >
+            🗑️ Migrar e Deletar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -107,21 +107,49 @@ export class RoleService {
   }
 
   /**
-   * Deleta um perfil
+   * Deleta um perfil (com opção de migrar usuários para outro perfil)
    */
-  async deleteRole(id: string): Promise<void> {
+  async deleteRole(id: string, migrateToRoleId?: string): Promise<void> {
     try {
+      console.log('🌐 RoleService.deleteRole - id:', id, 'migrateToRoleId:', migrateToRoleId);
+
+      const token = localStorage.getItem('auth_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
+        headers,
         credentials: 'include',
+        body: migrateToRoleId ? JSON.stringify({ migrateToRoleId }) : undefined,
       });
+
+      console.log('📡 Response status:', response.status, response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('❌ Error data from API:', errorData);
+
+        // Se precisa de migração, lança erro com dados extras
+        if (errorData.requiresMigration) {
+          console.log('⚠️ Precisa de migração! usersCount:', errorData.usersCount);
+          const error: any = new Error(errorData.message || 'Perfil possui usuários');
+          error.requiresMigration = true;
+          error.usersCount = errorData.usersCount;
+          throw error;
+        }
+
         throw new Error(errorData.message || 'Erro ao deletar perfil');
       }
+
+      console.log('✅ Role deletado com sucesso');
     } catch (error) {
-      console.error('Erro ao deletar perfil:', error);
+      console.error('💥 Erro ao deletar perfil (service):', error);
       throw error;
     }
   }
