@@ -14,16 +14,6 @@ const router = Router();
  */
 router.get('/users', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    // Debug: Log permission check
-    console.log('[DEBUG] GET /api/admin/users permission check:', {
-      userId: req.user?.userId,
-      role: req.user?.role,
-      hasPermissions: !!req.user?.permissions,
-      canViewUsers: req.user?.permissions?.canViewUsers,
-      canManageUsers: req.user?.permissions?.canManageUsers,
-      permissions: req.user?.permissions,
-    });
-
     // Verificar permissão: canViewUsers OU canManageUsers
     // canViewUsers: pode listar usuários (ex: garçom criando pedido no balcão)
     // canManageUsers: pode fazer CRUD completo de usuários (ex: admin)

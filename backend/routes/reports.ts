@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { ReportCategory } from '../models/ReportCategory';
 import { Bill } from '../models/Bill';
-import mongoose from 'mongoose';
 import { authenticate, requirePermission } from '../middleware/auth';
 import { reportLimiter, createLimiter } from '../middleware/rateLimiter';
 import { auditLog } from '../middleware/auditLogger';

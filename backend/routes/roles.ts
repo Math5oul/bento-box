@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { Role, IRole } from '../models/Role';
 import { User } from '../models/User';
 import { auditLog } from '../middleware/auditLogger';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requirePermission } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -10,54 +10,64 @@ const router = express.Router();
  * GET /api/roles
  * Lista todos os perfis
  */
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const roles = await Role.find().sort({ clientLevel: 1, name: 1 });
+router.get(
+  '/',
+  authenticate,
+  requirePermission('canManageRoles'),
+  async (req: Request, res: Response) => {
+    try {
+      const roles = await Role.find().sort({ clientLevel: 1, name: 1 });
 
-    res.json({
-      success: true,
-      roles,
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar roles:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar perfis',
-      error: error.message,
-    });
+      res.json({
+        success: true,
+        roles,
+      });
+    } catch (error: any) {
+      console.error('Erro ao buscar roles:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao buscar perfis',
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 /**
  * GET /api/roles/:id
  * Busca um perfil específico
  */
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+router.get(
+  '/:id',
+  authenticate,
+  requirePermission('canManageRoles'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    const role = await Role.findById(id);
+      const role = await Role.findById(id);
 
-    if (!role) {
-      return res.status(404).json({
+      if (!role) {
+        return res.status(404).json({
+          success: false,
+          message: 'Perfil não encontrado',
+        });
+      }
+
+      res.json({
+        success: true,
+        role,
+      });
+    } catch (error: any) {
+      console.error('Erro ao buscar role:', error);
+      res.status(500).json({
         success: false,
-        message: 'Perfil não encontrado',
+        message: 'Erro ao buscar perfil',
+        error: error.message,
       });
     }
-
-    res.json({
-      success: true,
-      role,
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar role:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar perfil',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * POST /api/roles
@@ -66,6 +76,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post(
   '/',
   authenticate,
+  requirePermission('canManageRoles'),
   auditLog('CREATE_ROLE', 'roles'),
   async (req: Request, res: Response) => {
     try {
@@ -121,6 +132,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  requirePermission('canManageRoles'),
   auditLog('UPDATE_ROLE', 'roles'),
   async (req: Request, res: Response) => {
     try {
@@ -187,6 +199,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
+  requirePermission('canManageRoles'),
   auditLog('DELETE_ROLE', 'roles'),
   async (req: Request, res: Response) => {
     try {
@@ -315,7 +328,7 @@ router.delete(
  * GET /api/roles/client-levels/list
  * Lista os níveis de cliente disponíveis (para descontos em categorias)
  */
-router.get('/client-levels/list', async (req: Request, res: Response) => {
+router.get('/client-levels/list', authenticate, async (req: Request, res: Response) => {
   try {
     // Buscar roles de clientes (clientLevel > 0)
     const clientRoles = await Role.find({ clientLevel: { $gt: 0 } })
