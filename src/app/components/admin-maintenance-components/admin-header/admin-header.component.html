@@ -7,42 +7,42 @@
 
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
-      @if (shouldShowButton('/maintenance/admin-tools') && canAccessAdminPanel) {
+      @if (canAccessAdminPanel) {
         <button class="nav-btn btn-hub compact" routerLink="/maintenance/admin-tools">
           <span class="icon">🏠</span>
           <span class="text">Hub</span>
         </button>
       }
 
-      @if (shouldShowButton('/maintenance/tables') && canManageTables) {
+      @if (canManageTables) {
         <button class="nav-btn btn-tables compact" routerLink="/maintenance/tables">
           <span class="icon">🪑</span>
           <span class="text">Mesas</span>
         </button>
       }
 
-      @if (shouldShowButton('/maintenance/waiter') && canAccessWaiterPanel) {
+      @if (canAccessWaiterPanel) {
         <button class="nav-btn btn-waiter compact" routerLink="/maintenance/waiter">
           <span class="icon">🧑‍🍳</span>
           <span class="text">Garçom</span>
         </button>
       }
 
-      @if (shouldShowButton('/maintenance/kitchen') && canAccessKitchenPanel) {
+      @if (canAccessKitchenPanel) {
         <button class="nav-btn btn-kitchen compact" routerLink="/maintenance/kitchen">
           <span class="icon">🍳</span>
           <span class="text">Cozinha</span>
         </button>
       }
 
-      @if (shouldShowButton('/maintenance/checkout') && canManagePayments) {
+      @if (canManagePayments) {
         <button class="nav-btn btn-checkout compact" routerLink="/maintenance/checkout">
           <span class="icon">💳</span>
           <span class="text">Checkout</span>
         </button>
       }
 
-      @if (shouldShowButton('/maintenance/reports') && canViewReports) {
+      @if (canViewReports) {
         <button class="nav-btn btn-reports compact" routerLink="/maintenance/reports">
           <span class="icon">📊</span>
           <span class="text">Relatórios</span>
