@@ -5,7 +5,8 @@ import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ReportCategory, SalesReport, ReportFilters } from '../interfaces/report.interface';
 import { environment } from '../../environments/environment';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root',
@@ -136,62 +137,117 @@ export class ReportService {
    * Exportar relatório para Excel com formatação de tabela
    */
   exportToCsv(report: SalesReport): void {
-    // Criar workbook
-    const wb = XLSX.utils.book_new();
+    // Criar workbook ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Relatório de Vendas');
 
-    // Criar dados para a planilha de resumo
-    const summaryData: any[] = [
-      ['RESUMO DO RELATÓRIO'],
-      [],
-      ['Receita Total', `R$ ${report.totalRevenue.toFixed(2)}`],
-      ['Total de Vendas', report.totalSales.toString()],
-      [],
-    ];
+    // Função para estilizar título e mesclar
+    function styleTitle(row: ExcelJS.Row, worksheet: ExcelJS.Worksheet) {
+      row.font = { bold: true, size: 14 };
+      row.alignment = { vertical: 'middle', horizontal: 'center' };
+      row.eachCell(cell => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFD9D9D9' }, // cinza claro
+        };
+      });
+      // Mesclar as 4 colunas do título
+      worksheet.mergeCells(`A${row.number}:D${row.number}`);
+    }
 
-    // Dados por categoria
-    const categoryData: any[] = [
-      ['VENDAS POR CATEGORIA FISCAL'],
-      [],
-      ['Categoria', 'Quantidade', 'Receita', 'Percentual'],
-    ];
+    // Função para estilizar cabeçalho
+    function styleHeader(row: ExcelJS.Row) {
+      row.font = { bold: true };
+      row.alignment = { vertical: 'middle', horizontal: 'center' };
+      row.eachCell(cell => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE2EFDA' }, // verde claro
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    }
 
+    // Função para aplicar borda fina em uma área de tabela
+    function addTableBorders(
+      worksheet: ExcelJS.Worksheet,
+      startRow: number,
+      endRow: number,
+      colCount: number = 4
+    ) {
+      for (let r = startRow; r <= endRow; r++) {
+        const row = worksheet.getRow(r);
+        for (let c = 1; c <= colCount; c++) {
+          const cell = row.getCell(c);
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        }
+      }
+    }
+
+    // Adicionar dados de resumo
+    let row = worksheet.addRow(['RESUMO DO RELATÓRIO']);
+    styleTitle(row, worksheet);
+    worksheet.addRow([]);
+    const receitaRow = worksheet.addRow(['Receita Total', `R$ ${report.totalRevenue.toFixed(2)}`]);
+    const vendasRow = worksheet.addRow(['Total de Vendas', report.totalSales.toString()]);
+    // Adicionar borda fina nessas duas linhas
+    [receitaRow, vendasRow].forEach(row => {
+      for (let c = 1; c <= 4; c++) {
+        row.getCell(c).border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        // Alinhar à direita as colunas C e D
+        if (c === 3 || c === 4) {
+          row.getCell(c).alignment = { horizontal: 'right' };
+        }
+      }
+    });
+    worksheet.addRow([]);
+
+    // Vendas por categoria
+    const catTitleRow = worksheet.addRow(['VENDAS POR CATEGORIA FISCAL']);
+    styleTitle(catTitleRow, worksheet);
+    worksheet.addRow([]);
+    const catHeaderRow = worksheet.addRow(['Categoria', 'Quantidade', 'Receita', 'Percentual']);
+    styleHeader(catHeaderRow);
+    const catStart = catHeaderRow.number + 1;
     report.salesByCategory.forEach(cat => {
-      categoryData.push([
+      worksheet.addRow([
         cat.categoryName,
         Math.round(cat.quantity),
         cat.revenue,
         `${cat.percentage.toFixed(2)}%`,
       ]);
     });
+    const catEnd = worksheet.lastRow ? worksheet.lastRow.number : catHeaderRow.number;
+    addTableBorders(worksheet, catHeaderRow.number, catEnd);
 
-    // Dados por produto
-    const productData: any[] = [
-      [],
-      ['PRODUTOS MAIS VENDIDOS'],
-      [],
-      ['Produto', 'Quantidade', 'Receita', 'Preço Médio'],
-    ];
-
-    report.salesByProduct.forEach(prod => {
-      productData.push([
-        prod.productName,
-        Math.round(prod.quantity),
-        prod.revenue,
-        prod.averagePrice,
-      ]);
-    });
-
-    // Dados por método de pagamento
-    const paymentData: any[] = [
-      [],
-      ['VENDAS POR MÉTODO DE PAGAMENTO'],
-      [],
-      ['Método', 'Quantidade', 'Receita', 'Percentual'],
-    ];
-
+    worksheet.addRow([]);
+    // VENDAS POR MÉTODO DE PAGAMENTO (agora acima dos produtos)
+    const payTitleRow = worksheet.addRow(['VENDAS POR MÉTODO DE PAGAMENTO']);
+    styleTitle(payTitleRow, worksheet);
+    worksheet.addRow([]);
+    const payHeaderRow = worksheet.addRow(['Método', 'Quantidade', 'Receita', 'Percentual']);
+    styleHeader(payHeaderRow);
+    const payStart = payHeaderRow.number + 1;
     if (report.salesByPaymentMethod && report.salesByPaymentMethod.length > 0) {
       report.salesByPaymentMethod.forEach(payment => {
-        paymentData.push([
+        worksheet.addRow([
           this.getPaymentMethodLabel(payment.method),
           payment.count,
           payment.revenue,
@@ -199,48 +255,49 @@ export class ReportService {
         ]);
       });
     }
+    const payEnd = worksheet.lastRow ? worksheet.lastRow.number : payHeaderRow.number;
+    addTableBorders(worksheet, payHeaderRow.number, payEnd);
 
-    // Combinar todos os dados
-    const allData = [...summaryData, ...categoryData, ...productData, ...paymentData];
-
-    // Converter para worksheet
-    const ws = XLSX.utils.aoa_to_sheet(allData);
+    worksheet.addRow([]);
+    // PRODUTOS VENDIDOS (agora depois de métodos de pagamento)
+    const prodTitleRow = worksheet.addRow(['PRODUTOS VENDIDOS']);
+    styleTitle(prodTitleRow, worksheet);
+    worksheet.addRow([]);
+    const prodHeaderRow = worksheet.addRow(['Produto', 'Quantidade', 'Receita', 'Preço Médio']);
+    styleHeader(prodHeaderRow);
+    const prodStart = prodHeaderRow.number + 1;
+    // Listar todos os produtos vendidos
+    report.salesByProduct.forEach(prod => {
+      worksheet.addRow([
+        prod.productName,
+        Math.round(prod.quantity),
+        prod.revenue,
+        prod.averagePrice,
+      ]);
+    });
+    const prodEnd = worksheet.lastRow ? worksheet.lastRow.number : prodHeaderRow.number;
+    addTableBorders(worksheet, prodHeaderRow.number, prodEnd);
 
     // Definir largura das colunas
-    ws['!cols'] = [
-      { wch: 30 }, // Coluna A - Nome/Tipo
-      { wch: 15 }, // Coluna B - Quantidade
-      { wch: 15 }, // Coluna C - Receita
-      { wch: 15 }, // Coluna D - Percentual/Preço
-    ];
+    worksheet.columns = [{ width: 30 }, { width: 15 }, { width: 15 }, { width: 15 }];
 
-    // Formatar células de valores monetários
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-        if (!ws[cellAddress]) continue;
-
-        const cell = ws[cellAddress];
-
-        // Formatar valores monetários (coluna C - índice 2)
-        if (C === 2 && typeof cell.v === 'number' && R > 2) {
-          cell.z = 'R$ #,##0.00';
+    // Formatar valores monetários (coluna C e D)
+    worksheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell, colNumber) => {
+        if ((colNumber === 3 || colNumber === 4) && typeof cell.value === 'number') {
+          cell.numFmt = 'R$ #,##0.00';
         }
-
-        // Formatar preço médio (coluna D - índice 3 na seção de produtos)
-        if (C === 3 && typeof cell.v === 'number' && R > 2) {
-          cell.z = 'R$ #,##0.00';
-        }
-      }
-    }
-
-    // Adicionar worksheet ao workbook
-    XLSX.utils.book_append_sheet(wb, ws, 'Relatório de Vendas');
+      });
+    });
 
     // Gerar arquivo Excel
     const fileName = `relatorio_vendas_${new Date().toISOString().split('T')[0]}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    workbook.xlsx.writeBuffer().then(buffer => {
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      saveAs(blob, fileName);
+    });
   }
 
   /**
