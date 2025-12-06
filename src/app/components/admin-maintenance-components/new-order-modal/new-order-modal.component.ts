@@ -405,12 +405,10 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedClient = client;
 
     // Extrair roleId do cliente
-    // O cliente pode ter role como string (ID) ou objeto populated
     if ((client as any).role) {
       const role = (client as any).role;
       this.selectedClientRoleId = typeof role === 'string' ? role : role._id;
     } else {
-      // Se não tem role no objeto, buscar na tabela original
       const originalClient = this.selectedTable?.clients?.find((c: any) => c._id === client._id);
       if (originalClient && originalClient.role) {
         const role = originalClient.role;
@@ -420,8 +418,37 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       }
     }
 
-    this.currentStep = 'products';
-    this.loadProducts();
+    // Sempre associar cliente à mesa (bancada ou normal)
+    const tablePromise = this.isCounterOrder
+      ? this.getOrCreateCounterTable()
+      : Promise.resolve(this.selectedTable?._id);
+
+    tablePromise.then(tableId => {
+      if (!tableId) return;
+      if (client.isAnonymous) {
+        // Associar cliente anônimo
+        const url = `/api/table/create-anonymous-client`;
+        const body = { tableId, anonymousClientId: client._id };
+        this.http.post(url, body, { headers: this.getHeaders() }).subscribe({
+          next: () => {},
+          error: err => {
+            console.error('Erro ao associar cliente anônimo à mesa:', err);
+          },
+        });
+      } else {
+        // Associar cliente normal
+        const url = `/api/table/${tableId}/add-client`;
+        const body = { clientId: client._id };
+        this.http.patch(url, body, { headers: this.getHeaders() }).subscribe({
+          next: () => {},
+          error: err => {
+            console.error('Erro ao associar cliente normal à mesa:', err);
+          },
+        });
+      }
+      this.currentStep = 'products';
+      this.loadProducts();
+    });
   }
 
   startCreateClient() {
@@ -444,15 +471,18 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       return;
     }
 
+    let tableId: string | undefined;
+    if (this.isCounterOrder) {
+      tableId = await this.getOrCreateCounterTable();
+    } else if (this.selectedTable) {
+      tableId = this.selectedTable._id;
+    }
+
     const body: any = {
       clientName: this.newClientName.trim(),
-      roleId: this.selectedClientRole || undefined, // Incluir roleId se selecionado
+      roleId: this.selectedClientRole || undefined,
+      tableId: tableId,
     };
-
-    // Adiciona tableId apenas se não for pedido de balcão
-    if (this.selectedTable) {
-      body.tableId = this.selectedTable._id;
-    }
 
     this.http
       .post<{ client: Client }>('/api/table/create-anonymous-client', body, {
@@ -461,9 +491,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       .subscribe({
         next: response => {
           this.selectedClient = response.client;
-          // Armazenar o roleId que acabamos de criar
           this.selectedClientRoleId = this.selectedClientRole || null;
-
           this.creatingNewClient = false;
           this.newClientName = '';
           this.currentStep = 'products';

@@ -111,6 +111,70 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
 });
 
 /**
+ * PATCH /api/table/:tableId/add-client
+ * Adiciona um cliente já existente à mesa (Waiter/Admin)
+ */
+router.patch(
+  '/:tableId/add-client',
+  authenticate,
+  runValidations([
+    param('tableId').isMongoId().withMessage('ID da mesa inválido'),
+    body('clientId').isMongoId().withMessage('ID do cliente inválido'),
+  ]),
+  validate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tableId } = req.params;
+      const { clientId } = req.body;
+
+      const table = await Table.findById(tableId);
+      if (!table) {
+        res.status(404).json({
+          success: false,
+          message: 'Mesa não encontrada',
+        });
+        return;
+      }
+
+      // Verifica se mesa está fechada
+      if (table.status === TableStatus.CLOSED) {
+        res.status(400).json({
+          success: false,
+          message: 'Mesa fechada para novos clientes',
+        });
+        return;
+      }
+
+      // Adiciona cliente se ainda não estiver na mesa
+      if (!table.clients.some((id: any) => id.toString() === clientId)) {
+        table.clients.push(clientId);
+        // Atualiza status da mesa se estava disponível
+        if (table.status === TableStatus.AVAILABLE) {
+          table.status = TableStatus.OCCUPIED;
+        }
+        await table.save();
+      }
+
+      res.json({
+        success: true,
+        message: 'Cliente adicionado à mesa com sucesso',
+        table: {
+          id: table._id,
+          number: table.number,
+          status: table.status,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao adicionar cliente à mesa:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao adicionar cliente à mesa',
+      });
+    }
+  }
+);
+
+/**
  * POST /api/tables
  * Cria uma nova mesa (Admin)
  * Número 0 é reservado para mesa de balcão
