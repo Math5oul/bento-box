@@ -82,12 +82,6 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
     return 'http://localhost:4200';
   }
 
-  // Verifica se deve mostrar o botão na rota atual
-  shouldShowButton(buttonRoute: string): boolean {
-    // Não mostra o botão se já estamos na rota dele
-    return !this.currentRoute.includes(buttonRoute);
-  }
-
   openLoginModal(): void {
     this.showLoginModal = true;
     this.loginError = '';

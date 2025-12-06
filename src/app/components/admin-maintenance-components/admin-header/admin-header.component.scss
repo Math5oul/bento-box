@@ -11,28 +11,28 @@
   backdrop-filter: blur(10px);
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .header-content {
   max-width: 100%;
   width: 100%;
   margin: 0 auto;
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.5rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 0.8rem;
+  gap: 1rem;
   box-sizing: border-box;
+  min-height: 70px;
 }
 
 .logo-section {
   cursor: pointer;
   transition: all 0.3s ease;
-  padding: 0.3rem 0.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 12px;
   flex-shrink: 0;
-  min-width: 0;
 
   &:hover {
     transform: scale(1.05);
@@ -44,7 +44,7 @@
   }
 
   .logo {
-    height: 32px;
+    height: 40px;
     width: auto;
     display: block;
     filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.3));
@@ -53,36 +53,27 @@
 
 .nav-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   flex: 1;
   min-width: 0;
   justify-content: flex-end;
-  overflow-x: auto;
-  overflow-y: hidden;
-  max-width: 100%;
-
-  // Esconde a barra de scroll mas mantém a funcionalidade
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-  }
+  margin-left: auto;
 }
 
 .nav-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.8rem;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
@@ -90,96 +81,78 @@
   text-decoration: none;
   flex-shrink: 0;
   box-sizing: border-box;
-  // Compact header design, keeping color scheme
-  .admin-header {
-    background: #222;
-    color: #fff;
-    padding: 0 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 44px;
-      .logo-section {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        .logo {
-          height: 26px;
-          margin-right: 6px;
-        }
-      }
-      .nav-buttons {
-        display: flex;
-        gap: 4px;
-        .nav-btn {
-          display: flex;
-          align-items: center;
-          gap: 2px;
-          background: #333;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          padding: 2px 7px;
-          font-size: 13px;
-          cursor: pointer;
-          transition: background 0.2s;
-          min-height: 28px;
-          min-width: 0;
-          &:hover:not(:disabled) {
-            background: #1976d2;
-          }
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-          .icon {
-            font-size: 16px;
-          }
-          .text {
-            font-size: 12px;
-          }
-        }
-        .btn-app {
-          background: #1976d2;
-          color: #fff;
-        }
-        .btn-hub {
-          background: #444;
-        }
-        .btn-tables {
-          background: #667eea;
-          color: #fff;
-        }
-        .btn-waiter {
-          background: #4caf50;
-          color: #fff;
-        }
-        .btn-kitchen {
-          background: #ff9800;
-          color: #fff;
-        }
-        .btn-checkout {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: #fff;
-        }
-        .btn-reports {
-          background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-          color: #fff;
-        }
-        .compact {
-          padding: 2px 7px;
-          font-size: 13px;
-          min-width: 0;
-        }
-      }
+  min-height: 44px;
+  width: 130px;
+
+  .icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .text {
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  // Cores específicas dos botões
+  &.btn-hub {
+    background: rgba(102, 126, 234, 0.3);
+    &:hover {
+      background: rgba(102, 126, 234, 0.5);
     }
   }
-  &:hover {
-    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-    box-shadow: 0 6px 18px rgba(245, 87, 108, 0.5);
-    transform: translateY(-3px) scale(1.02);
+
+  &.btn-tables {
+    background: rgba(102, 126, 234, 0.3);
+    &:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+  }
+
+  &.btn-waiter {
+    background: rgba(76, 175, 80, 0.3);
+    &:hover {
+      background: rgba(76, 175, 80, 0.5);
+    }
+  }
+
+  &.btn-kitchen {
+    background: rgba(255, 152, 0, 0.3);
+    &:hover {
+      background: rgba(255, 152, 0, 0.5);
+    }
+  }
+
+  &.btn-checkout {
+    background: rgba(156, 39, 176, 0.3);
+    &:hover {
+      background: rgba(156, 39, 176, 0.5);
+    }
+  }
+
+  &.btn-reports {
+    background: rgba(59, 130, 246, 0.3);
+    &:hover {
+      background: rgba(59, 130, 246, 0.5);
+    }
+  }
+
+  &.btn-app {
+    background: rgba(33, 150, 243, 0.3);
+    &:hover {
+      background: rgba(33, 150, 243, 0.5);
+    }
   }
 }
 
@@ -398,7 +371,6 @@
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
   .header-content {
     padding: 0.7rem 1.2rem;
@@ -432,18 +404,17 @@
   }
 
   .nav-btn {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.9rem;
-    min-width: 36px;
-    max-width: 90vw;
-    flex: 1 1 40px;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.7rem;
+    gap: 0.35rem;
+    width: 110px;
 
     .text {
-      display: none;
+      font-size: 0.7rem;
     }
 
     .icon {
-      font-size: 1.3rem;
+      font-size: 1rem;
     }
   }
 }
@@ -492,12 +463,12 @@
   }
 
   .nav-btn {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.75rem;
-    gap: 0.3rem;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.8rem;
+    gap: 0.35rem;
 
     .text {
-      display: none;
+      font-size: 0.8rem;
     }
 
     .icon {
@@ -515,6 +486,102 @@
     .logout-btn {
       padding: 0.35rem 0.7rem;
       font-size: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .header-content {
+    padding: 0.4rem 0.6rem;
+    gap: 0.4rem;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: auto;
+  }
+
+  .logo-section {
+    flex-shrink: 0;
+    padding: 0.2rem 0.3rem;
+
+    .logo {
+      height: 28px;
+    }
+  }
+
+  .nav-buttons {
+    gap: 0.35rem;
+    width: calc(100% - 70px);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .nav-btn {
+    padding: 0.4rem 0.35rem;
+    font-size: 0.65rem;
+    min-height: 32px;
+    width: 90px;
+    border-width: 1px;
+
+    .icon {
+      font-size: 0.95rem;
+    }
+
+    .text {
+      font-size: 0.65rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .header-content {
+    padding: 0.3rem 0.5rem;
+    gap: 0.3rem;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: auto;
+  }
+
+  .logo-section {
+    flex-shrink: 0;
+    padding: 0.15rem 0.25rem;
+
+    .logo {
+      height: 24px;
+    }
+  }
+
+  .nav-buttons {
+    gap: 0.3rem;
+    width: calc(100% - 60px);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .nav-btn {
+    padding: 0.35rem 0.35rem;
+    font-size: 0.6rem;
+    min-height: 28px;
+    width: 80px;
+    flex: 0 0 auto;
+    border-width: 1px;
+    gap: 0.25rem;
+
+    .icon {
+      font-size: 0.85rem;
+    }
+
+    .text {
+      font-size: 0.6rem;
     }
   }
 }
