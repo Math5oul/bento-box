@@ -73,13 +73,6 @@ export const authenticate = async (
       const decoded = verifyToken(token);
       const permissions = await loadUserPermissions(decoded.role);
 
-      console.log('[AUTH] User authenticated:', {
-        userId: decoded.userId,
-        role: decoded.role,
-        hasPermissions: !!permissions,
-        canManageOrders: permissions?.canManageOrders,
-      });
-
       req.user = {
         userId: decoded.userId,
         email: decoded.email,

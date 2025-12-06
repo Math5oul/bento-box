@@ -92,9 +92,6 @@ function recordLoginAttempt(ip: string, success: boolean): void {
   // Bloqueia se excedeu o limite
   if (attempt.count >= MAX_LOGIN_ATTEMPTS) {
     attempt.blockedUntil = new Date(now.getTime() + BLOCK_DURATION);
-    console.log(
-      `🚫 IP ${ip} bloqueado por ${BLOCK_DURATION / 1000 / 60} minutos após ${attempt.count} tentativas falhas`
-    );
   }
 
   loginAttempts.set(ip, attempt);
@@ -167,23 +164,18 @@ router.post(
 
       // Se role foi fornecido, validar (aceita enum ou ObjectId)
       let userRole = UserRole.CLIENT; // Default
-      console.log('🔍 DEBUG Register - role recebido:', role, 'tipo:', typeof role);
 
       if (role) {
         const validEnumRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
         const isEnumRole = validEnumRoles.includes(role);
         const isObjectId = mongoose.Types.ObjectId.isValid(role);
 
-        console.log('🔍 isEnumRole:', isEnumRole, 'isObjectId:', isObjectId);
-
         if (isEnumRole) {
           userRole = role === 'garçom' ? 'garcom' : role;
-          console.log('✅ Usando enum role:', userRole);
         } else if (isObjectId) {
           // Verificar se o role existe
           const { Role } = await import('../models');
           const roleExists = await Role.findById(role);
-          console.log('🔍 Role encontrado no banco:', roleExists?.name);
           if (roleExists) {
             userRole = role; // Use ObjectId directly
             console.log('✅ Usando ObjectId role:', userRole);
@@ -194,8 +186,6 @@ router.post(
           console.log('❌ Role inválido - não é enum nem ObjectId');
         }
       }
-
-      console.log('📝 Criando usuário com role:', userRole);
 
       // Cria novo usuário
       const user = new User({

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Bill, BillStatus, PaymentMethod } from '../models/Bill';
 import { Order } from '../models/Order';
 import { authenticate } from '../middleware/auth';
+import { auditLog } from '../middleware/auditLogger';
 
 const router = Router();
 
@@ -340,51 +341,56 @@ router.get(
  * DELETE /api/bills/:id
  * Deleta uma bill (apenas se status = PENDING ou CANCELLED)
  */
-router.delete('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  authenticate,
+  auditLog('DELETE_BILL', 'bills'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      res.status(400).json({
-        success: false,
-        message: 'ID inválido',
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({
+          success: false,
+          message: 'ID inválido',
+        });
+        return;
+      }
+
+      const bill = await Bill.findById(id);
+
+      if (!bill) {
+        res.status(404).json({
+          success: false,
+          message: 'Bill não encontrada',
+        });
+        return;
+      }
+
+      if (bill.status === BillStatus.PAID) {
+        res.status(400).json({
+          success: false,
+          message: 'Não é possível deletar uma bill paga',
+        });
+        return;
+      }
+
+      await Bill.findByIdAndDelete(id);
+
+      res.json({
+        success: true,
+        message: 'Bill deletada com sucesso',
       });
-      return;
-    }
-
-    const bill = await Bill.findById(id);
-
-    if (!bill) {
-      res.status(404).json({
+    } catch (error: any) {
+      console.error('Erro ao deletar bill:', error);
+      res.status(500).json({
         success: false,
-        message: 'Bill não encontrada',
+        message: 'Erro ao deletar bill',
+        error: error.message,
       });
-      return;
     }
-
-    if (bill.status === BillStatus.PAID) {
-      res.status(400).json({
-        success: false,
-        message: 'Não é possível deletar uma bill paga',
-      });
-      return;
-    }
-
-    await Bill.findByIdAndDelete(id);
-
-    res.json({
-      success: true,
-      message: 'Bill deletada com sucesso',
-    });
-  } catch (error: any) {
-    console.error('Erro ao deletar bill:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao deletar bill',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * POST /api/bills/:id/initiate-payment

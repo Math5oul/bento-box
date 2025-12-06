@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import Product from '../models/Product';
 import Category from '../models/Category';
-import { optionalAuth } from '../middleware/auth';
+import { authenticate, optionalAuth, requirePermission } from '../middleware/auth';
 import { auditLog } from '../middleware/auditLogger';
 
 const router = Router();
@@ -224,7 +224,8 @@ function getSpansFromFormat(format: string): { rowSpan: number; colSpan: number 
  */
 router.post(
   '/',
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
   auditLog('CREATE_PRODUCT', 'products'),
   async (req: Request, res: Response): Promise<void> => {
     try {
@@ -278,7 +279,8 @@ router.post(
  */
 router.put(
   '/:id',
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
   auditLog('UPDATE_PRODUCT', 'products'),
   async (req: Request, res: Response): Promise<void> => {
     try {
@@ -330,44 +332,49 @@ router.put(
  * PATCH /api/products/:id/position
  * Atualiza apenas a posição do grid de um produto
  */
-router.patch('/:id/position', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { row, col, rowSpan, colSpan } = req.body;
+router.patch(
+  '/:id/position',
+  authenticate,
+  requirePermission('canManageProducts'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { row, col, rowSpan, colSpan } = req.body;
 
-    const product = await Product.findByIdAndUpdate(
-      req.params['id'],
-      {
-        $set: {
-          'gridPosition.row': row,
-          'gridPosition.col': col,
-          'gridPosition.rowSpan': rowSpan,
-          'gridPosition.colSpan': colSpan,
+      const product = await Product.findByIdAndUpdate(
+        req.params['id'],
+        {
+          $set: {
+            'gridPosition.row': row,
+            'gridPosition.col': col,
+            'gridPosition.rowSpan': rowSpan,
+            'gridPosition.colSpan': colSpan,
+          },
         },
-      },
-      { new: true, runValidators: true }
-    );
+        { new: true, runValidators: true }
+      );
 
-    if (!product) {
-      res.status(404).json({
-        success: false,
-        message: 'Produto não encontrado',
+      if (!product) {
+        res.status(404).json({
+          success: false,
+          message: 'Produto não encontrado',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: product,
+        message: 'Posição atualizada com sucesso',
       });
-      return;
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: 'Erro ao atualizar posição',
+        error: error.message,
+      });
     }
-
-    res.json({
-      success: true,
-      data: product,
-      message: 'Posição atualizada com sucesso',
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao atualizar posição',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * PATCH /api/products/batch/positions
@@ -375,7 +382,8 @@ router.patch('/:id/position', optionalAuth, async (req: Request, res: Response):
  */
 router.patch(
   '/batch/positions',
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { products } = req.body;
@@ -426,7 +434,8 @@ router.patch(
  */
 router.delete(
   '/:id',
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
   auditLog('DELETE_PRODUCT', 'products'),
   async (req: Request, res: Response): Promise<void> => {
     try {

@@ -6,8 +6,9 @@ import fsSync from 'fs';
 import sharp from 'sharp';
 import { fileTypeFromFile } from 'file-type';
 import Product from '../models/Product';
-import { optionalAuth } from '../middleware/auth';
+import { authenticate, requirePermission } from '../middleware/auth';
 import { uploadLimiter } from '../middleware/rateLimiter';
+import { auditLog } from '../middleware/auditLogger';
 
 const router = Router();
 
@@ -71,13 +72,15 @@ const upload = multer({
 /**
  * @route   POST /api/upload/:productId
  * @desc    Upload de múltiplas imagens para um produto
- * @access  Public (temporário - adicionar autenticação depois)
+ * @access  Private - Requer canManageProducts
  */
 router.post(
   '/:productId',
-  uploadLimiter, // Rate limiting para uploads
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
+  uploadLimiter,
   upload.array('images', 10),
+  auditLog('UPLOAD_PRODUCT_IMAGE', 'upload'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { productId } = req.params;
@@ -196,87 +199,100 @@ router.post(
 /**
  * @route   DELETE /api/upload/image
  * @desc    Deleta uma imagem específica
- * @access  Public (temporário - adicionar autenticação depois)
+ * @access  Private - Requer canManageProducts
  */
-router.delete('/image', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { imagePath, productId } = req.body;
+router.delete(
+  '/image',
+  authenticate,
+  requirePermission('canManageProducts'),
+  auditLog('DELETE_IMAGE', 'upload'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { imagePath, productId } = req.body;
 
-    if (!imagePath) {
-      res.status(400).json({ success: false, error: 'Caminho da imagem não fornecido' });
-      return;
-    }
-
-    // Remove o prefixo 'assets/images/' para obter o caminho no sistema de arquivos
-    const relativePath = imagePath.replace('assets/images/', '');
-    const fullPath = path.join(IMAGES_BASE_PATH, relativePath);
-
-    if (fsSync.existsSync(fullPath)) {
-      fsSync.unlinkSync(fullPath);
-
-      // Se productId foi fornecido, remove do array de imagens no MongoDB
-      if (productId) {
-        const product = await Product.findById(productId);
-        if (product) {
-          product.images = product.images.filter(img => img !== imagePath);
-          await product.save();
-        }
+      if (!imagePath) {
+        res.status(400).json({ success: false, error: 'Caminho da imagem não fornecido' });
+        return;
       }
 
-      res.json({ success: true, message: 'Imagem deletada com sucesso' });
-    } else {
-      res.status(404).json({ success: false, error: 'Imagem não encontrada' });
+      // Remove o prefixo 'assets/images/' para obter o caminho no sistema de arquivos
+      const relativePath = imagePath.replace('assets/images/', '');
+      const fullPath = path.join(IMAGES_BASE_PATH, relativePath);
+
+      if (fsSync.existsSync(fullPath)) {
+        fsSync.unlinkSync(fullPath);
+
+        // Se productId foi fornecido, remove do array de imagens no MongoDB
+        if (productId) {
+          const product = await Product.findById(productId);
+          if (product) {
+            product.images = product.images.filter(img => img !== imagePath);
+            await product.save();
+          }
+        }
+
+        res.json({ success: true, message: 'Imagem deletada com sucesso' });
+      } else {
+        res.status(404).json({ success: false, error: 'Imagem não encontrada' });
+      }
+    } catch (error: any) {
+      console.error('❌ Erro ao deletar imagem:', error);
+      res.status(500).json({ success: false, error: error.message });
     }
-  } catch (error: any) {
-    console.error('❌ Erro ao deletar imagem:', error);
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+);
 
 /**
  * @route   DELETE /api/upload/product/:productId
  * @desc    Deleta pasta inteira de imagens de um produto
- * @access  Public (temporário - adicionar autenticação depois)
+ * @access  Private - Requer canManageProducts
  */
-router.delete('/product/:productId', optionalAuth, async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-    console.log('🗑️ Requisição DELETE recebida para productId:', productId);
+router.delete(
+  '/product/:productId',
+  authenticate,
+  requirePermission('canManageProducts'),
+  auditLog('DELETE_PRODUCT_IMAGES', 'upload'),
+  async (req: Request, res: Response) => {
+    try {
+      const { productId } = req.params;
+      console.log('🗑️ Requisição DELETE recebida para productId:', productId);
 
-    const imageFolderPath = path.join(IMAGES_BASE_PATH, productId);
-    console.log('📂 Caminho da pasta:', imageFolderPath);
-    console.log('📂 Pasta existe?', fsSync.existsSync(imageFolderPath));
+      const imageFolderPath = path.join(IMAGES_BASE_PATH, productId);
+      console.log('📂 Caminho da pasta:', imageFolderPath);
+      console.log('📂 Pasta existe?', fsSync.existsSync(imageFolderPath));
 
-    if (fsSync.existsSync(imageFolderPath)) {
-      fsSync.rmSync(imageFolderPath, { recursive: true, force: true });
-      console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
+      if (fsSync.existsSync(imageFolderPath)) {
+        fsSync.rmSync(imageFolderPath, { recursive: true, force: true });
+        console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
 
-      // Remove imagens do produto no MongoDB
-      const product = await Product.findById(productId);
-      if (product) {
-        product.images = [];
-        await product.save();
+        // Remove imagens do produto no MongoDB
+        const product = await Product.findById(productId);
+        if (product) {
+          product.images = [];
+          await product.save();
+        }
+
+        res.json({ success: true, message: 'Pasta de imagens deletada com sucesso' });
+      } else {
+        console.log('⚠️ Pasta não encontrada');
+        res.status(404).json({ success: false, message: 'Pasta de imagens não encontrada' });
       }
-
-      res.json({ success: true, message: 'Pasta de imagens deletada com sucesso' });
-    } else {
-      console.log('⚠️ Pasta não encontrada');
-      res.status(404).json({ success: false, message: 'Pasta de imagens não encontrada' });
+    } catch (error: any) {
+      console.error('❌ Erro ao deletar pasta:', error);
+      res.status(500).json({ success: false, error: error.message });
     }
-  } catch (error: any) {
-    console.error('❌ Erro ao deletar pasta:', error);
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+);
 
 /**
  * @route   POST /api/upload/:tempId/rename/:newId
  * @desc    Renomeia pasta de imagens de ID temporário para ID definitivo
- * @access  Public (temporário - adicionar autenticação depois)
+ * @access  Private - Requer canManageProducts
  */
 router.post(
   '/:tempId/rename/:newId',
-  optionalAuth,
+  authenticate,
+  requirePermission('canManageProducts'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { tempId, newId } = req.params;
