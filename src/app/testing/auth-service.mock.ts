@@ -60,6 +60,10 @@ export class MockAuthService {
     return false;
   }
 
+  canViewUsers() {
+    return false;
+  }
+
   canManageUsers() {
     return false;
   }
@@ -114,6 +118,7 @@ export const createAuthServiceSpyMock = () => ({
   canManageTables: jasmine.createSpy('canManageTables').and.returnValue(false),
   canManageProducts: jasmine.createSpy('canManageProducts').and.returnValue(false),
   canManageCategories: jasmine.createSpy('canManageCategories').and.returnValue(false),
+  canViewUsers: jasmine.createSpy('canViewUsers').and.returnValue(false),
   canManageUsers: jasmine.createSpy('canManageUsers').and.returnValue(false),
   canManageRoles: jasmine.createSpy('canManageRoles').and.returnValue(false),
   canManageSystemSettings: jasmine.createSpy('canManageSystemSettings').and.returnValue(false),
@@ -140,6 +145,7 @@ export const createCustomAuthServiceMock = (
     canManageTables: boolean;
     canManageProducts: boolean;
     canManageCategories: boolean;
+    canViewUsers: boolean;
     canManageUsers: boolean;
     canManageRoles: boolean;
     canManageSystemSettings: boolean;
@@ -161,6 +167,7 @@ export const createCustomAuthServiceMock = (
   canManageTables: () => permissions.canManageTables || false,
   canManageProducts: () => permissions.canManageProducts || false,
   canManageCategories: () => permissions.canManageCategories || false,
+  canViewUsers: () => permissions.canViewUsers || false,
   canManageUsers: () => permissions.canManageUsers || false,
   canManageRoles: () => permissions.canManageRoles || false,
   canManageSystemSettings: () => permissions.canManageSystemSettings || false,

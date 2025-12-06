@@ -28,7 +28,7 @@ export const auditLog = (action: string, resource: string) => {
     };
 
     // Extrai dados do usuário autenticado
-    const userId = (req as any).user?._id || (req as any).user?.id;
+    const userId = (req as any).user?.userId || (req as any).user?._id || (req as any).user?.id;
     const userEmail = (req as any).user?.email;
 
     // Extrai informações do request

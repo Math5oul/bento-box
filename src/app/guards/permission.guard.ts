@@ -101,3 +101,15 @@ export const checkoutGuard = createPermissionGuard((authService: AuthService) =>
     authService.canManagePayments()
   );
 });
+
+/**
+ * Guard para painel de mesas
+ * Requer: accessAdminPanel OU canManageTables OU canViewTables
+ */
+export const tablesGuard = createPermissionGuard((authService: AuthService) => {
+  return (
+    authService.canAccessAdminPanel() ||
+    authService.hasPermission('canManageTables') ||
+    authService.hasPermission('canViewTables')
+  );
+});

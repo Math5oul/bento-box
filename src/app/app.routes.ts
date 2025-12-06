@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
 import { BentoModuleComponent } from './bento-module/bento-module.component';
-import { adminGuard, checkoutGuard, kitchenGuard, waiterGuard } from './guards/permission.guard';
+import {
+  adminGuard,
+  checkoutGuard,
+  kitchenGuard,
+  waiterGuard,
+  tablesGuard,
+} from './guards/permission.guard';
 
 export const routes: Routes = [
   { path: '', component: BentoModuleComponent },
@@ -47,7 +53,7 @@ export const routes: Routes = [
       import('./components/admin-panel-components/admin-panel/admin-panel.component').then(
         m => m.AdminPanelComponent
       ),
-    canActivate: [adminGuard],
+    canActivate: [tablesGuard], // Permite admin e garçom (canManageTables/canViewTables)
   },
   {
     path: 'maintenance/users',

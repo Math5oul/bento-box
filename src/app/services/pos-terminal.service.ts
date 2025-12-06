@@ -57,12 +57,15 @@ export class PosTerminalService {
   }
 
   /**
-   * Verifica se POS está habilitado (via settings)
+   * Verifica se POS está habilitado (via settings públicas)
    */
   async isPOSEnabled(): Promise<boolean> {
     try {
       // Token enviado automaticamente via cookie httpOnly
-      const response = await this.http.get<any>(`${environment.apiUrl}/settings`).toPromise();
+      // Usa endpoint público que não requer canManageSettings
+      const response = await this.http
+        .get<any>(`${environment.apiUrl}/settings/public`)
+        .toPromise();
 
       return response?.posTerminal?.enabled === true;
     } catch (error) {

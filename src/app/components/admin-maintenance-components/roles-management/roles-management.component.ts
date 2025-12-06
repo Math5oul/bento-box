@@ -61,11 +61,17 @@ export class RolesManagementComponent implements OnInit {
     // Produtos
     { key: 'canManageProducts', label: 'Pode Gerenciar Produtos', category: 'Produtos' },
     { key: 'canViewProducts', label: 'Pode Visualizar Produtos', category: 'Produtos' },
+    {
+      key: 'canManageFillers',
+      label: 'Pode Gerenciar Fillers (Textos/Imagens)',
+      category: 'Produtos',
+    },
 
     // Categorias
     { key: 'canManageCategories', label: 'Pode Gerenciar Categorias', category: 'Categorias' },
 
     // Usuários
+    { key: 'canViewUsers', label: 'Pode Visualizar Usuários', category: 'Usuários' },
     { key: 'canManageUsers', label: 'Pode Gerenciar Usuários', category: 'Usuários' },
     { key: 'canManageRoles', label: 'Pode Gerenciar Perfis', category: 'Usuários' },
 

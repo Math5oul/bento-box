@@ -175,8 +175,45 @@ async function writeEnvFile(env: Record<string, string>): Promise<void> {
 }
 
 /**
+ * GET /api/settings/public
+ * Obter configurações públicas (não sensíveis)
+ * Acessível por qualquer usuário autenticado
+ */
+router.get('/public', authenticate, async (req, res) => {
+  try {
+    const env = await readEnvFile();
+
+    // Retorna apenas informações públicas/não sensíveis
+    const publicConfig = {
+      restaurant: {
+        name: env['RESTAURANT_NAME'] || '',
+        phone: env['RESTAURANT_PHONE'] || '',
+        email: env['RESTAURANT_EMAIL'] || '',
+      },
+      payment: {
+        enabled: env['PAYMENT_ENABLED'] === 'true',
+        pixEnabled: env['PAYMENT_PIX_ENABLED'] === 'true',
+        creditCardEnabled: env['PAYMENT_CREDIT_CARD_ENABLED'] === 'true',
+        debitCardEnabled: env['PAYMENT_DEBIT_CARD_ENABLED'] === 'true',
+      },
+      posTerminal: {
+        enabled: env['POS_TERMINAL_ENABLED'] === 'true',
+      },
+    };
+
+    res.json(publicConfig);
+  } catch (error: any) {
+    console.error('Erro ao carregar configurações públicas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao carregar configurações',
+    });
+  }
+});
+
+/**
  * GET /api/settings
- * Obter configurações atuais
+ * Obter configurações atuais (completas - apenas admin)
  */
 router.get('/', authenticate, canManageSettings, async (req, res) => {
   try {

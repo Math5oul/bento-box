@@ -318,6 +318,17 @@ export class AuthService {
   }
 
   /**
+   * Verifica se o usuário pode visualizar usuários
+   */
+  canViewUsers(): boolean {
+    const user = this.getCurrentUser();
+    if (user?.role === UserRole.ADMIN || user?.role === 'admin') {
+      return true;
+    }
+    return this.hasPermission('canViewUsers');
+  }
+
+  /**
    * Verifica se o usuário pode gerenciar usuários
    */
   canManageUsers(): boolean {
