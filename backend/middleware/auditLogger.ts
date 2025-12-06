@@ -60,6 +60,11 @@ export const auditLog = (action: string, resource: string) => {
         const success = res.statusCode >= 200 && res.statusCode < 300;
         let errorMessage: string | undefined;
 
+        // Não salva tentativas mal sucedidas de login
+        if (action === 'LOGIN' && !success) {
+          return;
+        }
+
         // Se falhou, tenta extrair mensagem de erro
         if (!success && responseBody) {
           try {
