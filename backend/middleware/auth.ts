@@ -45,6 +45,7 @@ async function loadUserPermissions(
 /**
  * Middleware de autenticação dual: aceita JWT ou SessionToken
  * Suporta tanto usuários registrados quanto anônimos
+ * Prioridade: 1) Cookie httpOnly, 2) Authorization header (fallback)
  */
 export const authenticate = async (
   req: Request,
@@ -53,16 +54,20 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    const accessToken = req.cookies?.['access_token'];
+    const legacyToken = req.cookies?.['auth_token']; // Backward compatibility
 
-    if (!authHeader) {
+    // Prioriza access_token, fallback para auth_token (legado), depois Authorization header
+    const token =
+      accessToken || legacyToken || (authHeader ? authHeader.replace('Bearer ', '') : null);
+
+    if (!token) {
       res.status(401).json({
         success: false,
         message: 'Token não fornecido',
       });
       return;
     }
-
-    const token = authHeader.replace('Bearer ', '');
 
     try {
       const decoded = verifyToken(token);
@@ -199,6 +204,7 @@ export const requirePermission = (permissionKey: keyof IRolePermissions) => {
 /**
  * Middleware de autenticação opcional
  * Não retorna erro se não houver token, apenas popula req.user quando disponível
+ * Prioridade: 1) Cookie httpOnly, 2) Authorization header (fallback)
  */
 export const optionalAuth = async (
   req: Request,
@@ -206,14 +212,18 @@ export const optionalAuth = async (
   next: NextFunction
 ): Promise<void> => {
   const authHeader = req.headers.authorization;
+  const accessToken = req.cookies?.['access_token'];
+  const legacyToken = req.cookies?.['auth_token']; // Backward compatibility
 
-  if (!authHeader) {
+  // Prioriza access_token, fallback para auth_token (legado), depois Authorization header
+  const token =
+    accessToken || legacyToken || (authHeader ? authHeader.replace('Bearer ', '') : null);
+
+  if (!token) {
     return next();
   }
 
   try {
-    const token = authHeader.replace('Bearer ', '');
-
     try {
       const decoded = verifyToken(token);
       const permissions = await loadUserPermissions(decoded.role);

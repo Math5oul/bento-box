@@ -25,11 +25,10 @@ export class PosTerminalService {
 
   /**
    * Retorna headers com autenticação
+   * Token enviado automaticamente via cookie httpOnly
    */
   private getHeaders() {
-    const token = localStorage.getItem('auth_token');
     return {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
   }
@@ -62,12 +61,8 @@ export class PosTerminalService {
    */
   async isPOSEnabled(): Promise<boolean> {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await this.http
-        .get<any>(`${environment.apiUrl}/settings`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .toPromise();
+      // Token enviado automaticamente via cookie httpOnly
+      const response = await this.http.get<any>(`${environment.apiUrl}/settings`).toPromise();
 
       return response?.posTerminal?.enabled === true;
     } catch (error) {

@@ -3,6 +3,9 @@ import { ReportCategory } from '../models/ReportCategory';
 import { Bill } from '../models/Bill';
 import mongoose from 'mongoose';
 import { authenticate, requirePermission } from '../middleware/auth';
+import { reportLimiter, createLimiter } from '../middleware/rateLimiter';
+import { auditLog } from '../middleware/auditLogger';
+import { logError, sanitizeError } from '../utils/errorSanitizer';
 
 const router = Router();
 
@@ -24,8 +27,9 @@ router.get(
 
       res.json({ categories });
     } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-      res.status(500).json({ error: 'Erro ao buscar categorias de relatório' });
+      logError('GET /api/reports/categories', error);
+      const sanitized = sanitizeError(error, 'Erro ao buscar categorias de relatório');
+      res.status(sanitized.statusCode).json({ success: false, error: sanitized.message });
     }
   }
 );
@@ -36,7 +40,9 @@ router.get(
  */
 router.post(
   '/categories',
+  createLimiter, // Rate limiting para criação
   requirePermission('canManageSystemSettings'),
+  auditLog('CREATE_REPORT_CATEGORY', 'reports'), // Audit logging
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, description, color, productIds } = req.body;
@@ -87,6 +93,7 @@ router.post(
 router.put(
   '/categories/:id',
   requirePermission('canManageSystemSettings'),
+  auditLog('UPDATE_REPORT_CATEGORY', 'reports'), // Audit logging
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
@@ -141,6 +148,7 @@ router.put(
 router.delete(
   '/categories/:id',
   requirePermission('canManageSystemSettings'),
+  auditLog('DELETE_REPORT_CATEGORY', 'reports'), // Audit logging
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
@@ -165,7 +173,9 @@ router.delete(
  */
 router.post(
   '/sales',
+  reportLimiter, // Rate limiting para geração de relatórios
   requirePermission('canViewReports'),
+  auditLog('EXPORT_SALES_REPORT', 'reports'), // Audit logging
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { startDate, endDate, categoryIds, productIds, paymentMethods } = req.body;

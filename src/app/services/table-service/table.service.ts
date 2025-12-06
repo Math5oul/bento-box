@@ -24,9 +24,9 @@ export class TableService {
   }
 
   private getHeaders(): HttpHeaders {
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('auth_token') : null;
+    // Token enviado automaticamente via cookie httpOnly
     return new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     });
   }
 

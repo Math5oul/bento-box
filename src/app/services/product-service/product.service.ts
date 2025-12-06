@@ -1,5 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Product, BatchPositionUpdate } from '../../interfaces/product.interface';
@@ -58,7 +59,18 @@ export interface ProductResponse {
 })
 export class ProductService {
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
   private apiUrl = `${environment.apiUrl}/products`;
+
+  /**
+   * Retorna headers com autenticação
+   * Token enviado automaticamente via cookie httpOnly
+   */
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+  }
 
   /**
    * Busca menu formatado para o grid
@@ -98,14 +110,18 @@ export class ProductService {
    * Cria novo produto
    */
   createProduct(product: Partial<Product>): Observable<ProductResponse> {
-    return this.http.post<ProductResponse>(this.apiUrl, product);
+    return this.http.post<ProductResponse>(this.apiUrl, product, {
+      headers: this.getHeaders(),
+    });
   }
 
   /**
    * Atualiza produto completo
    */
   updateProduct(id: string, product: Partial<Product>): Observable<ProductResponse> {
-    return this.http.put<ProductResponse>(`${this.apiUrl}/${id}`, product);
+    return this.http.put<ProductResponse>(`${this.apiUrl}/${id}`, product, {
+      headers: this.getHeaders(),
+    });
   }
 
   /**
@@ -115,20 +131,30 @@ export class ProductService {
     id: string,
     position: { row: number; col: number; rowSpan: number; colSpan: number }
   ): Observable<ProductResponse> {
-    return this.http.patch<ProductResponse>(`${this.apiUrl}/${id}/position`, position);
+    return this.http.patch<ProductResponse>(`${this.apiUrl}/${id}/position`, position, {
+      headers: this.getHeaders(),
+    });
   }
 
   /**
    * Atualiza posições de múltiplos produtos em lote
    */
   updateBatchPositions(products: BatchPositionUpdate[]): Observable<ProductsResponse> {
-    return this.http.patch<ProductsResponse>(`${this.apiUrl}/batch/positions`, { products });
+    return this.http.patch<ProductsResponse>(
+      `${this.apiUrl}/batch/positions`,
+      { products },
+      {
+        headers: this.getHeaders(),
+      }
+    );
   }
 
   /**
    * Deleta produto
    */
   deleteProduct(id: string): Observable<ProductResponse> {
-    return this.http.delete<ProductResponse>(`${this.apiUrl}/${id}`);
+    return this.http.delete<ProductResponse>(`${this.apiUrl}/${id}`, {
+      headers: this.getHeaders(),
+    });
   }
 }

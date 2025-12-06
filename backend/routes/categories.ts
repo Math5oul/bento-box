@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Category } from '../models/Category';
 import Product from '../models/Product';
 import { optionalAuth, authenticate } from '../middleware/auth';
+import { auditLog } from '../middleware/auditLogger';
 
 const router = Router();
 
@@ -77,255 +78,275 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
  * POST /api/categories
  * Cria nova categoria
  */
-router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Verificar permissão: canManageCategories (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageCategories === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+router.post(
+  '/',
+  authenticate,
+  auditLog('CREATE_CATEGORY', 'categories'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Verificar permissão: canManageCategories (ou legacy admin)
+      const canManage = req.user?.permissions?.canManageCategories === true;
+      const isLegacyAdmin = req.user?.role === 'admin';
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ success: false, message: 'Acesso negado' });
-      return;
-    }
+      if (!canManage && !isLegacyAdmin) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
+        return;
+      }
 
-    const { name, emoji, slug, index, showInMenu } = req.body;
+      const { name, emoji, slug, index, showInMenu } = req.body;
 
-    // Verifica se já existe categoria com esse nome ou slug
-    const existingCategory = await Category.findOne({
-      $or: [{ name }, { slug }],
-    });
+      // Verifica se já existe categoria com esse nome ou slug
+      const existingCategory = await Category.findOne({
+        $or: [{ name }, { slug }],
+      });
 
-    if (existingCategory) {
+      if (existingCategory) {
+        res.status(400).json({
+          success: false,
+          message: 'Já existe uma categoria com esse nome ou slug',
+        });
+        return;
+      }
+
+      const newCategory = new Category({ name, emoji, slug, index, showInMenu });
+      await newCategory.save();
+
+      res.status(201).json({
+        success: true,
+        data: newCategory,
+        message: 'Categoria criada com sucesso',
+      });
+    } catch (error: any) {
       res.status(400).json({
         success: false,
-        message: 'Já existe uma categoria com esse nome ou slug',
+        message: 'Erro ao criar categoria',
+        error: error.message,
       });
-      return;
     }
-
-    const newCategory = new Category({ name, emoji, slug, index, showInMenu });
-    await newCategory.save();
-
-    res.status(201).json({
-      success: true,
-      data: newCategory,
-      message: 'Categoria criada com sucesso',
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao criar categoria',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * PUT /api/categories/:id
  * Atualiza categoria (renomear)
  */
-router.put('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Verificar permissão: canManageCategories (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageCategories === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+router.put(
+  '/:id',
+  authenticate,
+  auditLog('UPDATE_CATEGORY', 'categories'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Verificar permissão: canManageCategories (ou legacy admin)
+      const canManage = req.user?.permissions?.canManageCategories === true;
+      const isLegacyAdmin = req.user?.role === 'admin';
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ success: false, message: 'Acesso negado' });
-      return;
-    }
+      if (!canManage && !isLegacyAdmin) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
+        return;
+      }
 
-    const { name, emoji, slug, index, showInMenu } = req.body;
-    const categoryId = req.params['id'];
+      const { name, emoji, slug, index, showInMenu } = req.body;
+      const categoryId = req.params['id'];
 
-    const category = await Category.findById(categoryId);
+      const category = await Category.findById(categoryId);
 
-    if (!category) {
-      res.status(404).json({
-        success: false,
-        message: 'Categoria não encontrada',
+      if (!category) {
+        res.status(404).json({
+          success: false,
+          message: 'Categoria não encontrada',
+        });
+        return;
+      }
+
+      // Atualiza a categoria
+      if (name !== undefined) {
+        category.name = name;
+      }
+
+      if (emoji !== undefined) {
+        category.emoji = emoji;
+      }
+
+      if (index !== undefined) {
+        category.set('index', index);
+      }
+
+      if (showInMenu !== undefined) {
+        category.showInMenu = showInMenu;
+      }
+
+      // Se o slug foi fornecido e é diferente, atualizar produtos
+      if (slug !== undefined && slug !== category.slug) {
+        const oldSlug = category.slug;
+        await Product.updateMany({ category: oldSlug }, { $set: { category: slug } });
+        category.slug = slug;
+      }
+
+      await category.save();
+
+      res.json({
+        success: true,
+        data: category,
+        message: 'Categoria atualizada com sucesso',
       });
-      return;
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: 'Erro ao atualizar categoria',
+        error: error.message,
+      });
     }
-
-    // Atualiza a categoria
-    if (name !== undefined) {
-      category.name = name;
-    }
-
-    if (emoji !== undefined) {
-      category.emoji = emoji;
-    }
-
-    if (index !== undefined) {
-      category.set('index', index);
-    }
-
-    if (showInMenu !== undefined) {
-      category.showInMenu = showInMenu;
-    }
-
-    // Se o slug foi fornecido e é diferente, atualizar produtos
-    if (slug !== undefined && slug !== category.slug) {
-      const oldSlug = category.slug;
-      await Product.updateMany({ category: oldSlug }, { $set: { category: slug } });
-      category.slug = slug;
-    }
-
-    await category.save();
-
-    res.json({
-      success: true,
-      data: category,
-      message: 'Categoria atualizada com sucesso',
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao atualizar categoria',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * PUT /api/categories/:id/discounts
  * Atualiza descontos por role de usuário de uma categoria
  */
-router.put('/:id/discounts', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Verificar permissão: canManageCategories (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageCategories === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+router.put(
+  '/:id/discounts',
+  authenticate,
+  auditLog('UPDATE_CATEGORY_DISCOUNTS', 'categories'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Verificar permissão: canManageCategories (ou legacy admin)
+      const canManage = req.user?.permissions?.canManageCategories === true;
+      const isLegacyAdmin = req.user?.role === 'admin';
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ success: false, message: 'Acesso negado' });
-      return;
-    }
+      if (!canManage && !isLegacyAdmin) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
+        return;
+      }
 
-    const categoryId = req.params['id'];
-    const { discounts } = req.body; // Array de { roleId: string, discountPercent: number }
+      const categoryId = req.params['id'];
+      const { discounts } = req.body; // Array de { roleId: string, discountPercent: number }
 
-    if (!Array.isArray(discounts)) {
+      if (!Array.isArray(discounts)) {
+        res.status(400).json({
+          success: false,
+          message: 'Discounts deve ser um array',
+        });
+        return;
+      }
+
+      const category = await Category.findById(categoryId);
+
+      if (!category) {
+        res.status(404).json({
+          success: false,
+          message: 'Categoria não encontrada',
+        });
+        return;
+      }
+
+      // Validar descontos
+      for (const discount of discounts) {
+        if (!discount.roleId || typeof discount.roleId !== 'string') {
+          res.status(400).json({
+            success: false,
+            message: 'roleId é obrigatório e deve ser uma string',
+          });
+          return;
+        }
+
+        // Validar se o roleId é um ObjectId válido
+        if (!mongoose.Types.ObjectId.isValid(discount.roleId)) {
+          res.status(400).json({
+            success: false,
+            message: 'roleId deve ser um ObjectId válido',
+          });
+          return;
+        }
+
+        if (
+          typeof discount.discountPercent !== 'number' ||
+          discount.discountPercent < 0 ||
+          discount.discountPercent > 100
+        ) {
+          res.status(400).json({
+            success: false,
+            message: 'Discount percent deve ser um número entre 0 e 100',
+          });
+          return;
+        }
+      }
+
+      // Atualizar descontos
+      category.discounts = discounts;
+      await category.save();
+
+      res.json({
+        success: true,
+        data: category,
+        message: 'Descontos atualizados com sucesso',
+      });
+    } catch (error: any) {
       res.status(400).json({
         success: false,
-        message: 'Discounts deve ser um array',
+        message: 'Erro ao atualizar descontos',
+        error: error.message,
       });
-      return;
     }
-
-    const category = await Category.findById(categoryId);
-
-    if (!category) {
-      res.status(404).json({
-        success: false,
-        message: 'Categoria não encontrada',
-      });
-      return;
-    }
-
-    // Validar descontos
-    for (const discount of discounts) {
-      if (!discount.roleId || typeof discount.roleId !== 'string') {
-        res.status(400).json({
-          success: false,
-          message: 'roleId é obrigatório e deve ser uma string',
-        });
-        return;
-      }
-
-      // Validar se o roleId é um ObjectId válido
-      if (!mongoose.Types.ObjectId.isValid(discount.roleId)) {
-        res.status(400).json({
-          success: false,
-          message: 'roleId deve ser um ObjectId válido',
-        });
-        return;
-      }
-
-      if (
-        typeof discount.discountPercent !== 'number' ||
-        discount.discountPercent < 0 ||
-        discount.discountPercent > 100
-      ) {
-        res.status(400).json({
-          success: false,
-          message: 'Discount percent deve ser um número entre 0 e 100',
-        });
-        return;
-      }
-    }
-
-    // Atualizar descontos
-    category.discounts = discounts;
-    await category.save();
-
-    res.json({
-      success: true,
-      data: category,
-      message: 'Descontos atualizados com sucesso',
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao atualizar descontos',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * DELETE /api/categories/:id
  * Deleta categoria (somente se não houver produtos)
  */
-router.delete('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Verificar permissão: canManageCategories (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageCategories === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+router.delete(
+  '/:id',
+  authenticate,
+  auditLog('DELETE_CATEGORY', 'categories'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Verificar permissão: canManageCategories (ou legacy admin)
+      const canManage = req.user?.permissions?.canManageCategories === true;
+      const isLegacyAdmin = req.user?.role === 'admin';
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ success: false, message: 'Acesso negado' });
-      return;
-    }
+      if (!canManage && !isLegacyAdmin) {
+        res.status(403).json({ success: false, message: 'Acesso negado' });
+        return;
+      }
 
-    const categoryId = req.params['id'];
+      const categoryId = req.params['id'];
 
-    const category = await Category.findById(categoryId);
+      const category = await Category.findById(categoryId);
 
-    if (!category) {
-      res.status(404).json({
-        success: false,
-        message: 'Categoria não encontrada',
+      if (!category) {
+        res.status(404).json({
+          success: false,
+          message: 'Categoria não encontrada',
+        });
+        return;
+      }
+
+      // Verifica se há produtos usando essa categoria
+      const productCount = await Product.countDocuments({ category: category.slug });
+
+      if (productCount > 0) {
+        res.status(400).json({
+          success: false,
+          message: `Não é possível deletar esta categoria. Existem ${productCount} produto(s) vinculado(s).`,
+        });
+        return;
+      }
+
+      await Category.findByIdAndDelete(categoryId);
+
+      res.json({
+        success: true,
+        message: 'Categoria deletada com sucesso',
+        data: category,
       });
-      return;
-    }
-
-    // Verifica se há produtos usando essa categoria
-    const productCount = await Product.countDocuments({ category: category.slug });
-
-    if (productCount > 0) {
-      res.status(400).json({
+    } catch (error: any) {
+      res.status(500).json({
         success: false,
-        message: `Não é possível deletar esta categoria. Existem ${productCount} produto(s) vinculado(s).`,
+        message: 'Erro ao deletar categoria',
+        error: error.message,
       });
-      return;
     }
-
-    await Category.findByIdAndDelete(categoryId);
-
-    res.json({
-      success: true,
-      message: 'Categoria deletada com sucesso',
-      data: category,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao deletar categoria',
-      error: error.message,
-    });
   }
-});
+);
 
 export default router;

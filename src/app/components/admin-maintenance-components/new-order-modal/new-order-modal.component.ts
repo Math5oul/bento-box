@@ -260,9 +260,9 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this.http.get<{ tables: Table[] }>('/api/table', { headers: this.getHeaders() }).subscribe({
       next: response => {
-        // Filtrar mesas que NÃO estão fechadas
+        // Filtrar mesas que NÃO estão fechadas E que não são o balcão (number !== 0)
         this.tables = response.tables
-          .filter(t => t.status !== 'closed')
+          .filter(t => t.status !== 'closed' && t.number !== 0)
           .sort((a, b) => a.number - b.number);
         this.loadingTables = false;
       },

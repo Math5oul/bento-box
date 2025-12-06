@@ -46,7 +46,8 @@ export class HeaderComponent {
   }
 
   onLoginSuccess(data: { token: string; user: any }) {
-    this.authService.login(data.token, data.user);
+    // Token agora vem via cookie httpOnly, não precisa passar
+    this.authService.login('', data.user);
     console.log('Login bem-sucedido:', data.user);
     this.isLoginOpen = false;
   }

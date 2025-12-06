@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { Role, IRole } from '../models/Role';
 import { User } from '../models/User';
+import { auditLog } from '../middleware/auditLogger';
 
 const router = express.Router();
 
@@ -61,7 +62,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  * POST /api/roles
  * Cria um novo perfil
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', auditLog('CREATE_ROLE', 'roles'), async (req: Request, res: Response) => {
   try {
     const { name, slug, permissions, clientLevel, description } = req.body;
 
@@ -111,7 +112,7 @@ router.post('/', async (req: Request, res: Response) => {
  * PUT /api/roles/:id
  * Atualiza um perfil existente
  */
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', auditLog('UPDATE_ROLE', 'roles'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, slug, permissions, clientLevel, description } = req.body;
@@ -172,7 +173,7 @@ router.put('/:id', async (req: Request, res: Response) => {
  * DELETE /api/roles/:id
  * Deleta um perfil e migra usuários para outro role
  */
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', auditLog('DELETE_ROLE', 'roles'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { migrateToRoleId } = req.body; // Role de destino para migração

@@ -1,78 +1,40 @@
 import { Request, Response, NextFunction } from 'express';
+import { sanitizeError, logError, isDevelopment } from '../utils/errorSanitizer';
 
 /**
  * Middleware de Error Handler Global
+ * Sanitiza erros antes de enviá-los ao cliente
  */
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
-  console.error('❌ Erro:', err);
-
-  // Erro de validação do Mongoose
-  if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map((e: any) => ({
-      field: e.path,
-      message: e.message,
-    }));
-
-    res.status(400).json({
-      success: false,
-      message: 'Erro de validação',
-      errors,
-    });
-    return;
-  }
-
-  // Erro de duplicação (unique constraint)
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern)[0];
-    res.status(409).json({
-      success: false,
-      message: `${field} já está em uso`,
-      error: {
-        code: 'DUPLICATE_KEY',
-        field,
-      },
-    });
-    return;
-  }
-
-  // Erro de JWT
-  if (err.name === 'JsonWebTokenError') {
-    res.status(401).json({
-      success: false,
-      message: 'Token inválido',
-    });
-    return;
-  }
-
-  if (err.name === 'TokenExpiredError') {
-    res.status(401).json({
-      success: false,
-      message: 'Token expirado',
-    });
-    return;
-  }
-
-  // Erro de CastError (ID inválido)
-  if (err.name === 'CastError') {
-    res.status(400).json({
-      success: false,
-      message: 'ID inválido',
-    });
-    return;
-  }
-
-  // Erro genérico
-  res.status(err.statusCode || 500).json({
-    success: false,
-    message: err.message || 'Erro interno do servidor',
-    error:
-      process.env['NODE_ENV'] === 'development'
-        ? {
-            stack: err.stack,
-            ...err,
-          }
-        : undefined,
+  // Loga erro completo no servidor (com todos os detalhes)
+  logError('Global Error Handler', err, {
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    body: req.body?.password ? { ...req.body, password: '[REDACTED]' } : req.body,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
   });
+
+  // Sanitiza erro para o cliente
+  const sanitized = sanitizeError(err);
+
+  // Em produção, NUNCA expõe stack traces ou detalhes internos
+  const response: any = {
+    success: false,
+    error: sanitized.message,
+    code: sanitized.code,
+  };
+
+  // Apenas em desenvolvimento, inclui informações extras (cuidado!)
+  if (isDevelopment()) {
+    response.debug = {
+      type: err.name,
+      originalMessage: err.message,
+    };
+  }
+
+  res.status(sanitized.statusCode).json(response);
 };
 
 /**
