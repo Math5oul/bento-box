@@ -63,11 +63,6 @@ export class UsersManagementComponent implements OnInit {
   showEditModal = false;
   editingUser: Partial<User> = {};
 
-  // Teste de login (sem fazer login real)
-  loginEmail = '';
-  loginPassword = '';
-  loginResult: any = null;
-
   async ngOnInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
       await this.loadRoles();
@@ -303,46 +298,6 @@ export class UsersManagementComponent implements OnInit {
       console.error('Erro ao deletar usuário:', error);
       alert('❌ Erro ao deletar usuário: ' + (error.error?.message || error.message));
     }
-  }
-
-  /**
-   * Testa login (apenas validação, sem fazer login de fato)
-   */
-  async testLogin(): Promise<void> {
-    if (!this.loginEmail || !this.loginPassword) {
-      this.loginResult = { success: false, message: 'Preencha email e senha' };
-      return;
-    }
-
-    try {
-      const response: any = await this.http
-        .post(`${environment.apiUrl}/auth/login`, {
-          email: this.loginEmail,
-          password: this.loginPassword,
-        })
-        .toPromise();
-
-      this.loginResult = {
-        success: true,
-        message: '✅ Credenciais válidas!',
-        user: response.data?.user,
-        tokenPreview: response.data?.token ? response.data.token.substring(0, 20) + '...' : '',
-      };
-    } catch (error: any) {
-      this.loginResult = {
-        success: false,
-        message: '❌ ' + (error.error?.message || error.message),
-      };
-    }
-  }
-
-  /**
-   * Limpa resultado do teste
-   */
-  clearLoginTest(): void {
-    this.loginEmail = '';
-    this.loginPassword = '';
-    this.loginResult = null;
   }
 
   /**

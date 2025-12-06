@@ -19,58 +19,6 @@
   <!-- Conteúdo da aba Contas -->
   @if (activeTab === 'users') {
     <div class="tab-content">
-      <!-- Seção de Teste de Login -->
-      <div class="login-test-section">
-        <h2>🔐 Teste de Credenciais</h2>
-        <p class="section-description">
-          Valide credenciais sem fazer login (você já está autenticado como admin)
-        </p>
-
-        <div class="login-test-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" [(ngModel)]="loginEmail" placeholder="usuario@email.com" />
-            </div>
-            <div class="form-group">
-              <label>Senha</label>
-              <input type="password" [(ngModel)]="loginPassword" placeholder="senha" />
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn-test" (click)="testLogin()">🔍 Testar Credenciais</button>
-            <button class="btn-clear" (click)="clearLoginTest()">🗑️ Limpar</button>
-          </div>
-
-          @if (loginResult) {
-            <div
-              class="login-result"
-              [class.success]="loginResult.success"
-              [class.error]="!loginResult.success"
-            >
-              <p class="result-message">{{ loginResult.message }}</p>
-
-              @if (loginResult.user) {
-                <div class="user-info">
-                  <p><strong>Nome:</strong> {{ loginResult.user.name }}</p>
-                  <p><strong>Email:</strong> {{ loginResult.user.email }}</p>
-                  <p>
-                    <strong>Role:</strong>
-                    <span class="role-badge" [ngClass]="'role-' + loginResult.user.role">
-                      {{ getRoleLabel(loginResult.user.role) }}
-                    </span>
-                  </p>
-                  <p>
-                    <strong>Token:</strong> <code>{{ loginResult.tokenPreview }}</code>
-                  </p>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      </div>
-
       <!-- Ações -->
       <div class="actions-section">
         <button class="create-button" (click)="openCreateModal()">➕ Criar Nova Conta</button>
