@@ -108,6 +108,11 @@ export class AuthService {
     }
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+
+    // Redireciona para a raiz da página para limpar todo o estado da aplicação
+    if (this.isBrowser) {
+      window.location.href = '/';
+    }
   }
 
   getCurrentUser(): User | null {
