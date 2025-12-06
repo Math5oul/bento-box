@@ -25,6 +25,7 @@ export interface RolePermissions {
   canManageCategories: boolean;
 
   // Permissões de Usuários
+  canViewUsers: boolean;
   canManageUsers: boolean;
   canManageRoles: boolean;
 
