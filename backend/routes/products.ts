@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import Product from '../models/Product';
 import Category from '../models/Category';
 import { optionalAuth } from '../middleware/auth';
+import { auditLog } from '../middleware/auditLogger';
 
 const router = Router();
 
@@ -221,99 +222,109 @@ function getSpansFromFormat(format: string): { rowSpan: number; colSpan: number 
  * POST /api/products
  * Cria novo produto
  */
-router.post('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const productData = req.body;
+router.post(
+  '/',
+  optionalAuth,
+  auditLog('CREATE_PRODUCT', 'products'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const productData = req.body;
 
-    console.log('📦 Recebendo produto:', JSON.stringify(productData, null, 2));
-    console.log('📏 Tamanhos recebidos:', productData.sizes);
+      console.log('📦 Recebendo produto:', JSON.stringify(productData, null, 2));
+      console.log('📏 Tamanhos recebidos:', productData.sizes);
 
-    // Calcula rowSpan e colSpan baseado no formato
-    const format = productData.format || '1x1';
-    const spans = getSpansFromFormat(format);
+      // Calcula rowSpan e colSpan baseado no formato
+      const format = productData.format || '1x1';
+      const spans = getSpansFromFormat(format);
 
-    // Garante que gridPosition existe e tem os spans corretos
-    if (!productData.gridPosition) {
-      productData.gridPosition = {};
+      // Garante que gridPosition existe e tem os spans corretos
+      if (!productData.gridPosition) {
+        productData.gridPosition = {};
+      }
+      productData.gridPosition.rowSpan = spans.rowSpan;
+      productData.gridPosition.colSpan = spans.colSpan;
+
+      console.log(
+        `📐 Formato '${format}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+      );
+
+      const newProduct = new Product(productData);
+
+      console.log('💾 Produto antes de salvar:', JSON.stringify(newProduct.toObject(), null, 2));
+
+      await newProduct.save();
+
+      console.log('✅ Produto salvo:', JSON.stringify(newProduct.toObject(), null, 2));
+
+      res.status(201).json({
+        success: true,
+        data: newProduct,
+        message: 'Produto criado com sucesso',
+      });
+    } catch (error: any) {
+      console.error('❌ Erro ao criar produto:', error);
+      res.status(400).json({
+        success: false,
+        message: 'Erro ao criar produto',
+        error: error.message,
+      });
     }
-    productData.gridPosition.rowSpan = spans.rowSpan;
-    productData.gridPosition.colSpan = spans.colSpan;
-
-    console.log(
-      `📐 Formato '${format}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-    );
-
-    const newProduct = new Product(productData);
-
-    console.log('💾 Produto antes de salvar:', JSON.stringify(newProduct.toObject(), null, 2));
-
-    await newProduct.save();
-
-    console.log('✅ Produto salvo:', JSON.stringify(newProduct.toObject(), null, 2));
-
-    res.status(201).json({
-      success: true,
-      data: newProduct,
-      message: 'Produto criado com sucesso',
-    });
-  } catch (error: any) {
-    console.error('❌ Erro ao criar produto:', error);
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao criar produto',
-      error: error.message,
-    });
   }
-});
+);
 
 /**
  * PUT /api/products/:id
  * Atualiza produto completo
  */
-router.put('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const updateData = { ...req.body };
+router.put(
+  '/:id',
+  optionalAuth,
+  auditLog('UPDATE_PRODUCT', 'products'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const updateData = { ...req.body };
 
-    // Se o formato for alterado, atualizar gridPosition automaticamente
-    if (updateData.format) {
-      const spans = getSpansFromFormat(updateData.format);
-      if (!updateData.gridPosition) {
-        updateData.gridPosition = {};
+      // Se o formato for alterado, atualizar gridPosition automaticamente
+      if (updateData.format) {
+        const spans = getSpansFromFormat(updateData.format);
+        if (!updateData.gridPosition) {
+          updateData.gridPosition = {};
+        }
+        updateData.gridPosition.rowSpan = spans.rowSpan;
+        updateData.gridPosition.colSpan = spans.colSpan;
+
+        console.log(
+          `🔧 Atualizando formato '${updateData.format}' para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
+        );
       }
-      updateData.gridPosition.rowSpan = spans.rowSpan;
-      updateData.gridPosition.colSpan = spans.colSpan;
 
-      console.log(
-        `🔧 Atualizando formato '${updateData.format}' para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-      );
-    }
-
-    const product = await Product.findByIdAndUpdate(req.params['id'], updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!product) {
-      res.status(404).json({
-        success: false,
-        message: 'Produto não encontrado',
+      const product = await Product.findByIdAndUpdate(req.params['id'], updateData, {
+        new: true,
+        runValidators: true,
       });
-      return;
-    }
 
-    res.json({
-      success: true,
-      data: product,
-      message: 'Produto atualizado com sucesso',
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: 'Erro ao atualizar produto',
-      error: error.message,
-    });
+      if (!product) {
+        res.status(404).json({
+          success: false,
+          message: 'Produto não encontrado',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: product,
+        message: 'Produto atualizado com sucesso',
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: 'Erro ao atualizar produto',
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 /**
  * PATCH /api/products/:id/position
@@ -413,47 +424,52 @@ router.patch(
  * DELETE /api/products/:id
  * Deleta produto e suas imagens
  */
-router.delete('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const productId = req.params['id'];
-    const product = await Product.findByIdAndDelete(productId);
-
-    if (!product) {
-      res.status(404).json({
-        success: false,
-        message: 'Produto não encontrado',
-      });
-      return;
-    }
-
-    // Deleta também a pasta de imagens do produto
+router.delete(
+  '/:id',
+  optionalAuth,
+  auditLog('DELETE_PRODUCT', 'products'),
+  async (req: Request, res: Response): Promise<void> => {
     try {
-      const path = require('path');
-      const fs = require('fs');
-      const IMAGES_BASE_PATH = path.join(__dirname, '..', '..', 'src', 'assets', 'images');
-      const productImageFolder = path.join(IMAGES_BASE_PATH, productId);
+      const productId = req.params['id'];
+      const product = await Product.findByIdAndDelete(productId);
 
-      if (fs.existsSync(productImageFolder)) {
-        fs.rmSync(productImageFolder, { recursive: true, force: true });
-        console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
+      if (!product) {
+        res.status(404).json({
+          success: false,
+          message: 'Produto não encontrado',
+        });
+        return;
       }
-    } catch (imageError: any) {
-      console.error('⚠️ Erro ao deletar pasta de imagens:', imageError);
-      // Não falha a operação se não conseguir deletar as imagens
-    }
 
-    res.json({
-      success: true,
-      message: 'Produto e imagens deletados com sucesso',
-      data: product,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao deletar produto',
-      error: error.message,
-    });
+      // Deleta também a pasta de imagens do produto
+      try {
+        const path = require('path');
+        const fs = require('fs');
+        const IMAGES_BASE_PATH = path.join(__dirname, '..', '..', 'src', 'assets', 'images');
+        const productImageFolder = path.join(IMAGES_BASE_PATH, productId);
+
+        if (fs.existsSync(productImageFolder)) {
+          fs.rmSync(productImageFolder, { recursive: true, force: true });
+          console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
+        }
+      } catch (imageError: any) {
+        console.error('⚠️ Erro ao deletar pasta de imagens:', imageError);
+        // Não falha a operação se não conseguir deletar as imagens
+      }
+
+      res.json({
+        success: true,
+        message: 'Produto e imagens deletados com sucesso',
+        data: product,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao deletar produto',
+        error: error.message,
+      });
+    }
   }
-});
+);
 
 export default router;

@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import path from 'path';
 import { connectDB } from './config/database';
@@ -32,6 +33,7 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));

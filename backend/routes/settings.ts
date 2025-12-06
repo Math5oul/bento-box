@@ -5,6 +5,8 @@ import { authenticate, hasPermission } from '../middleware/auth';
 import mongoose from 'mongoose';
 import { UserRole } from '../models/User';
 import { Request, Response, NextFunction } from 'express';
+import { auditLog } from '../middleware/auditLogger';
+import { logError, sanitizeError } from '../utils/errorSanitizer';
 
 const router = express.Router();
 
@@ -236,88 +238,98 @@ router.get('/', authenticate, canManageSettings, async (req, res) => {
  * PUT /api/settings
  * Salvar configurações
  */
-router.put('/', authenticate, canManageSettings, async (req, res) => {
-  try {
-    const { restaurant, payment, posTerminal, email, database } = req.body;
+router.put(
+  '/',
+  authenticate,
+  canManageSettings,
+  auditLog('SYSTEM_SETTINGS_CHANGE', 'system'),
+  async (req, res) => {
+    try {
+      const { restaurant, payment, posTerminal, email, database } = req.body;
 
-    // Ler .env atual
-    const env = await readEnvFile();
+      // Ler .env atual
+      const env = await readEnvFile();
 
-    // Atualizar valores do restaurante
-    if (restaurant) {
-      env.RESTAURANT_NAME = restaurant.name || '';
-      env.RESTAURANT_CNPJ = restaurant.cnpj || '';
-      env.RESTAURANT_PHONE = restaurant.phone || '';
-      env.RESTAURANT_EMAIL = restaurant.email || '';
-      env.RESTAURANT_ADDRESS = restaurant.address || '';
-    }
-
-    // Atualizar valores de pagamento
-    if (payment) {
-      env.PAYMENT_PROVIDER = payment.provider || 'none';
-      env.PAYMENT_ENABLED = payment.enabled ? 'true' : 'false';
-
-      // Só atualizar tokens se foram fornecidos
-      if (payment.publicKey) {
-        env.MERCADOPAGO_PUBLIC_KEY = payment.publicKey;
-      }
-      if (payment.accessToken) {
-        env.MERCADOPAGO_ACCESS_TOKEN = payment.accessToken;
+      // Atualizar valores do restaurante
+      if (restaurant) {
+        env.RESTAURANT_NAME = restaurant.name || '';
+        env.RESTAURANT_CNPJ = restaurant.cnpj || '';
+        env.RESTAURANT_PHONE = restaurant.phone || '';
+        env.RESTAURANT_EMAIL = restaurant.email || '';
+        env.RESTAURANT_ADDRESS = restaurant.address || '';
       }
 
-      env.PAYMENT_PIX_ENABLED = payment.pixEnabled ? 'true' : 'false';
-      env.PAYMENT_CREDIT_CARD_ENABLED = payment.creditCardEnabled ? 'true' : 'false';
-      env.PAYMENT_DEBIT_CARD_ENABLED = payment.debitCardEnabled ? 'true' : 'false';
-      env.PAYMENT_WEBHOOK_URL = payment.webhookUrl || '';
-    }
+      // Atualizar valores de pagamento
+      if (payment) {
+        env.PAYMENT_PROVIDER = payment.provider || 'none';
+        env.PAYMENT_ENABLED = payment.enabled ? 'true' : 'false';
 
-    // Atualizar valores de POS Terminal
-    if (posTerminal) {
-      env.POS_ENABLED = posTerminal.enabled ? 'true' : 'false';
-      env.POS_TERMINAL_TYPE = posTerminal.terminalType || 'none';
-      env.POS_CONNECTION_TYPE = posTerminal.connectionType || 'wifi';
-      env.POS_IP_ADDRESS = posTerminal.ipAddress || '';
-      env.POS_PORT = String(posTerminal.port || 8080);
-      env.POS_DEVICE_ID = posTerminal.deviceId || '';
-      env.POS_STONE_CODE = posTerminal.stoneCode || '';
-      env.POS_SERIAL_NUMBER = posTerminal.serialNumber || '';
-      env.POS_AUTO_CONFIRM = posTerminal.autoConfirm ? 'true' : 'false';
-    }
+        // Só atualizar tokens se foram fornecidos
+        if (payment.publicKey) {
+          env.MERCADOPAGO_PUBLIC_KEY = payment.publicKey;
+        }
+        if (payment.accessToken) {
+          env.MERCADOPAGO_ACCESS_TOKEN = payment.accessToken;
+        }
 
-    // Atualizar valores de email
-    if (email) {
-      env.EMAIL_ENABLED = email.enabled ? 'true' : 'false';
-      env.EMAIL_HOST = email.host || 'smtp.gmail.com';
-      env.EMAIL_PORT = String(email.port || 587);
-      env.EMAIL_SECURE = email.secure ? 'true' : 'false';
-      env.EMAIL_USER = email.user || '';
-
-      // Só atualizar senha se foi fornecida
-      if (email.password) {
-        env.EMAIL_PASSWORD = email.password;
+        env.PAYMENT_PIX_ENABLED = payment.pixEnabled ? 'true' : 'false';
+        env.PAYMENT_CREDIT_CARD_ENABLED = payment.creditCardEnabled ? 'true' : 'false';
+        env.PAYMENT_DEBIT_CARD_ENABLED = payment.debitCardEnabled ? 'true' : 'false';
+        env.PAYMENT_WEBHOOK_URL = payment.webhookUrl || '';
       }
 
-      env.EMAIL_FROM = email.from || '';
+      // Atualizar valores de POS Terminal
+      if (posTerminal) {
+        env.POS_ENABLED = posTerminal.enabled ? 'true' : 'false';
+        env.POS_TERMINAL_TYPE = posTerminal.terminalType || 'none';
+        env.POS_CONNECTION_TYPE = posTerminal.connectionType || 'wifi';
+        env.POS_IP_ADDRESS = posTerminal.ipAddress || '';
+        env.POS_PORT = String(posTerminal.port || 8080);
+        env.POS_DEVICE_ID = posTerminal.deviceId || '';
+        env.POS_STONE_CODE = posTerminal.stoneCode || '';
+        env.POS_SERIAL_NUMBER = posTerminal.serialNumber || '';
+        env.POS_AUTO_CONFIRM = posTerminal.autoConfirm ? 'true' : 'false';
+      }
+
+      // Atualizar valores de email
+      if (email) {
+        env.EMAIL_ENABLED = email.enabled ? 'true' : 'false';
+        env.EMAIL_HOST = email.host || 'smtp.gmail.com';
+        env.EMAIL_PORT = String(email.port || 587);
+        env.EMAIL_SECURE = email.secure ? 'true' : 'false';
+        env.EMAIL_USER = email.user || '';
+
+        // Só atualizar senha se foi fornecida
+        if (email.password) {
+          env.EMAIL_PASSWORD = email.password;
+        }
+
+        env.EMAIL_FROM = email.from || '';
+      }
+
+      // Atualizar valores de database
+      if (database) {
+        env.BACKUP_ENABLED = database.backupEnabled ? 'true' : 'false';
+        env.BACKUP_RETENTION_DAYS = String(database.backupRetentionDays || 7);
+      }
+
+      // Salvar .env
+      await writeEnvFile(env);
+
+      res.json({
+        success: true,
+        message: 'Configurações salvas com sucesso. Reinicie o servidor para aplicar as mudanças.',
+      });
+    } catch (error) {
+      logError('PUT /api/settings', error, { body: req.body });
+      const sanitized = sanitizeError(error, 'Erro ao salvar configurações');
+      res.status(sanitized.statusCode).json({
+        success: false,
+        error: sanitized.message,
+      });
     }
-
-    // Atualizar valores de database
-    if (database) {
-      env.BACKUP_ENABLED = database.backupEnabled ? 'true' : 'false';
-      env.BACKUP_RETENTION_DAYS = String(database.backupRetentionDays || 7);
-    }
-
-    // Salvar .env
-    await writeEnvFile(env);
-
-    res.json({
-      success: true,
-      message: 'Configurações salvas com sucesso. Reinicie o servidor para aplicar as mudanças.',
-    });
-  } catch (error) {
-    console.error('Erro ao salvar configurações:', error);
-    res.status(500).json({ error: 'Erro ao salvar configurações' });
   }
-});
+);
 
 /**
  * POST /api/settings/test-payment
@@ -466,26 +478,33 @@ router.post('/test-database', authenticate, canManageSettings, async (req, res) 
  * POST /api/settings/backup
  * Criar backup manual do banco de dados
  */
-router.post('/backup', authenticate, canManageSettings, async (req, res) => {
-  try {
-    // TODO: Implementar backup real
-    // Por enquanto, apenas simular
+router.post(
+  '/backup',
+  authenticate,
+  canManageSettings,
+  auditLog('DATABASE_BACKUP', 'system'),
+  async (req, res) => {
+    try {
+      // TODO: Implementar backup real
+      // Por enquanto, apenas simular
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `backup-${timestamp}.json`;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `backup-${timestamp}.json`;
 
-    res.json({
-      success: true,
-      filename,
-      size: '1.2 MB (simulado)',
-    });
-  } catch (error) {
-    console.error('Erro ao criar backup:', error);
-    res.json({
-      success: false,
-      message: 'Erro ao criar backup',
-    });
+      res.json({
+        success: true,
+        filename,
+        size: '1.2 MB (simulado)',
+      });
+    } catch (error) {
+      logError('POST /api/settings/backup', error);
+      const sanitized = sanitizeError(error, 'Erro ao criar backup');
+      res.status(sanitized.statusCode).json({
+        success: false,
+        message: sanitized.message,
+      });
+    }
   }
-});
+);
 
 export default router;

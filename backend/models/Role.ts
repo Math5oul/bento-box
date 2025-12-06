@@ -27,7 +27,8 @@ export interface IRolePermissions {
   canManageCategories: boolean; // Pode gerenciar categorias
 
   // Permissões de Usuários
-  canManageUsers: boolean; // Pode gerenciar contas de usuários
+  canViewUsers: boolean; // Pode visualizar lista de usuários (para criar pedidos)
+  canManageUsers: boolean; // Pode gerenciar contas de usuários (CRUD completo)
   canManageRoles: boolean; // Pode gerenciar perfis e permissões
 
   // Permissões de Sistema
@@ -69,6 +70,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canViewProducts: true,
     canManageFillers: true,
     canManageCategories: true,
+    canViewUsers: true,
     canManageUsers: true,
     canManageRoles: true,
     canManageSystemSettings: true,
@@ -88,6 +90,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageFillers: false,
     canViewProducts: true,
     canManageCategories: false,
+    canViewUsers: true, // ✅ Garçom pode ver usuários para criar pedidos no balcão
     canManageUsers: false,
     canManageRoles: false,
     canManageSystemSettings: false,
@@ -107,6 +110,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageFillers: false,
     canViewProducts: true,
     canManageCategories: false,
+    canViewUsers: false,
     canManageUsers: false,
     canManageRoles: false,
     canManageSystemSettings: false,
@@ -126,6 +130,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canViewProducts: true,
     canManageFillers: false,
     canManageCategories: false,
+    canViewUsers: false,
     canManageUsers: false,
     canManageRoles: false,
     canManageSystemSettings: false,
@@ -150,6 +155,7 @@ const PermissionsSchema = new Schema<IRolePermissions>(
     canManageProducts: { type: Boolean, default: false },
     canViewProducts: { type: Boolean, default: true },
     canManageCategories: { type: Boolean, default: false },
+    canViewUsers: { type: Boolean, default: false },
     canManageUsers: { type: Boolean, default: false },
     canManageRoles: { type: Boolean, default: false },
     canManageSystemSettings: { type: Boolean, default: false },

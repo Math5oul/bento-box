@@ -30,10 +30,11 @@ export class AuthService {
       return;
     }
 
-    const token = localStorage.getItem('auth_token');
+    // Token agora vem via cookie httpOnly (gerenciado pelo navegador)
+    // Apenas carrega os dados do usuário do localStorage
     const userStr = localStorage.getItem('user');
 
-    if (token && userStr) {
+    if (userStr) {
       try {
         const user = JSON.parse(userStr);
         this.currentUserSubject.next(user);
@@ -52,7 +53,8 @@ export class AuthService {
       const existingTableNumber = localStorage.getItem('tableNumber');
       const existingSessionToken = localStorage.getItem('sessionToken');
 
-      localStorage.setItem('auth_token', token);
+      // Token agora vem via cookie httpOnly do backend (não precisa armazenar)
+      // Apenas salva os dados do usuário
       localStorage.setItem('user', JSON.stringify(user));
 
       // Restaura tableId se existia (usuário estava em uma mesa antes do login)
@@ -79,16 +81,13 @@ export class AuthService {
    * Transfere pedidos anônimos para o usuário autenticado
    */
   private transferAnonymousOrders(tableId: string, sessionToken: string): void {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-    });
-
+    // Cookie enviado automaticamente via credentialsInterceptor
     this.http
       .patch<{
         success: boolean;
         message: string;
         count: number;
-      }>('/api/orders/transfer-anonymous', { tableId, sessionToken }, { headers })
+      }>('/api/orders/transfer-anonymous', { tableId, sessionToken })
       .subscribe({
         next: response => {
           if (response.count > 0) {
@@ -103,7 +102,8 @@ export class AuthService {
 
   logout(): void {
     if (this.isBrowser) {
-      localStorage.removeItem('auth_token');
+      // Token será limpo pelo backend via clearCookie
+      // Apenas remove dados do usuário do localStorage
       localStorage.removeItem('user');
     }
     this.currentUserSubject.next(null);
@@ -373,28 +373,20 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    if (!this.isBrowser) {
-      return null;
-    }
-    return localStorage.getItem('auth_token');
+    // Deprecated: Token agora vem via cookie httpOnly
+    // Este método é mantido para compatibilidade mas retorna null
+    return null;
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<any> {
-    const token = this.getToken();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
+    // Cookie enviado automaticamente via credentialsInterceptor
+    // Não precisa mais de Authorization header manual
     return this.http
-      .post(
-        '/api/auth/change-password',
-        {
-          currentPassword,
-          newPassword,
-          confirmPassword: newPassword,
-        },
-        { headers }
-      )
+      .post('/api/auth/change-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword: newPassword,
+      })
       .toPromise();
   }
 

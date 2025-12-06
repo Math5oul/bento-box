@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
+import fsSync from 'fs';
 import sharp from 'sharp';
+import { fileTypeFromFile } from 'file-type';
 import Product from '../models/Product';
 import { optionalAuth } from '../middleware/auth';
+import { uploadLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -12,8 +15,8 @@ const router = Router();
 const IMAGES_BASE_PATH = path.join(__dirname, '..', '..', 'src', 'assets', 'images');
 
 // Garante que a pasta de imagens existe
-if (!fs.existsSync(IMAGES_BASE_PATH)) {
-  fs.mkdirSync(IMAGES_BASE_PATH, { recursive: true });
+if (!fsSync.existsSync(IMAGES_BASE_PATH)) {
+  fsSync.mkdirSync(IMAGES_BASE_PATH, { recursive: true });
 }
 
 // Configuração do multer para upload
@@ -27,8 +30,8 @@ const storage = multer.diskStorage({
     const productPath = path.join(IMAGES_BASE_PATH, productId);
 
     // Cria a pasta do produto se não existir
-    if (!fs.existsSync(productPath)) {
-      fs.mkdirSync(productPath, { recursive: true });
+    if (!fsSync.existsSync(productPath)) {
+      fsSync.mkdirSync(productPath, { recursive: true });
     }
 
     cb(null, productPath);
@@ -72,6 +75,7 @@ const upload = multer({
  */
 router.post(
   '/:productId',
+  uploadLimiter, // Rate limiting para uploads
   optionalAuth,
   upload.array('images', 10),
   async (req: Request, res: Response): Promise<void> => {
@@ -98,6 +102,29 @@ router.post(
           const folderPath = path.join(IMAGES_BASE_PATH, productId);
           const originalFullPath = path.join(folderPath, originalFilename);
 
+          // 🔒 VALIDAÇÃO DE SEGURANÇA: Verifica o magic number do arquivo
+          const fileType = await fileTypeFromFile(originalFullPath);
+          const allowedMimes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/avif',
+            'image/heic',
+            'image/heif',
+          ];
+
+          if (!fileType || !allowedMimes.includes(fileType.mime)) {
+            console.warn(
+              `⚠️ Arquivo rejeitado por magic number inválido: ${originalFilename} (detectado: ${fileType?.mime || 'desconhecido'})`
+            );
+            // Remove o arquivo inválido
+            fsSync.unlinkSync(originalFullPath);
+            continue; // Pula este arquivo
+          }
+
+          console.log(`✅ Magic number válido: ${originalFilename} (${fileType.mime})`);
+
           // Skip conversion for GIFs (animated) and already-AVIF files
           if (originalExt === '.gif' || originalExt === '.avif') {
             processedImagePaths.push(`assets/images/${productId}/${originalFilename}`);
@@ -117,7 +144,7 @@ router.post(
 
           // Se a conversão teve sucesso, removemos o original para economizar espaço
           try {
-            fs.unlinkSync(originalFullPath);
+            fsSync.unlinkSync(originalFullPath);
           } catch (unlinkErr) {
             console.warn('Não foi possível remover o arquivo original após conversão:', unlinkErr);
           }
@@ -184,8 +211,8 @@ router.delete('/image', optionalAuth, async (req: Request, res: Response): Promi
     const relativePath = imagePath.replace('assets/images/', '');
     const fullPath = path.join(IMAGES_BASE_PATH, relativePath);
 
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    if (fsSync.existsSync(fullPath)) {
+      fsSync.unlinkSync(fullPath);
 
       // Se productId foi fornecido, remove do array de imagens no MongoDB
       if (productId) {
@@ -218,10 +245,10 @@ router.delete('/product/:productId', optionalAuth, async (req: Request, res: Res
 
     const imageFolderPath = path.join(IMAGES_BASE_PATH, productId);
     console.log('📂 Caminho da pasta:', imageFolderPath);
-    console.log('📂 Pasta existe?', fs.existsSync(imageFolderPath));
+    console.log('📂 Pasta existe?', fsSync.existsSync(imageFolderPath));
 
-    if (fs.existsSync(imageFolderPath)) {
-      fs.rmSync(imageFolderPath, { recursive: true, force: true });
+    if (fsSync.existsSync(imageFolderPath)) {
+      fsSync.rmSync(imageFolderPath, { recursive: true, force: true });
       console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
 
       // Remove imagens do produto no MongoDB
@@ -258,19 +285,19 @@ router.post(
       const tempFolderPath = path.join(IMAGES_BASE_PATH, tempId);
       const newFolderPath = path.join(IMAGES_BASE_PATH, newId);
 
-      console.log('📂 Pasta temp existe?', fs.existsSync(tempFolderPath));
+      console.log('📂 Pasta temp existe?', fsSync.existsSync(tempFolderPath));
 
-      if (!fs.existsSync(tempFolderPath)) {
+      if (!fsSync.existsSync(tempFolderPath)) {
         console.log('⚠️ Pasta temporária não encontrada - nada a renomear');
         res.status(404).json({ success: false, message: 'Pasta temporária não encontrada' });
         return;
       }
 
-      fs.renameSync(tempFolderPath, newFolderPath);
+      fsSync.renameSync(tempFolderPath, newFolderPath);
       console.log(`✅ Pasta renomeada de ${tempId} para ${newId}`);
 
       // Retornar os novos caminhos das imagens
-      const files = fs.readdirSync(newFolderPath);
+      const files = fsSync.readdirSync(newFolderPath);
       const newPaths = files.map(file => `assets/images/${newId}/${file}`);
 
       // Atualiza os caminhos no produto MongoDB

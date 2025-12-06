@@ -23,11 +23,11 @@ export class CategoryService {
 
   /**
    * Headers com autenticação
+   * Token enviado automaticamente via cookie httpOnly
    */
   private getHeaders(): HttpHeaders {
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('auth_token') : null;
     return new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
     });
   }
 
@@ -139,7 +139,13 @@ export class CategoryService {
         success: boolean;
         data: Category;
         message: string;
-      }>(`${this.apiUrl}/${categoryId}/discounts`, { discounts })
+      }>(
+        `${this.apiUrl}/${categoryId}/discounts`,
+        { discounts },
+        {
+          headers: this.getHeaders(),
+        }
+      )
       .pipe(
         tap(response => {
           if (response.success) {

@@ -20,11 +20,11 @@ export class ReportService {
 
   /**
    * Retorna headers com token de autenticação
+   * Token enviado automaticamente via cookie httpOnly
    */
   private getHeaders(): HttpHeaders {
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('auth_token') : null;
     return new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
     });
   }
 

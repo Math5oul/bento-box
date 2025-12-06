@@ -1,4 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Role, CreateRoleDTO, ClientLevel } from '../interfaces/role.interface';
 
@@ -8,26 +11,35 @@ import { Role, CreateRoleDTO, ClientLevel } from '../interfaces/role.interface';
 export class RoleService {
   private apiUrl = `${environment.apiUrl}/roles`;
 
-  constructor() {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
+
+  /**
+   * Retorna headers com autenticação
+   */
+  private getHeaders(): HttpHeaders {
+    // Token enviado automaticamente via cookie httpOnly
+    // Authorization header não é mais necessário
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+  }
 
   /**
    * Lista todos os perfis
    */
   async getRoles(): Promise<Role[]> {
     try {
-      const response = await fetch(this.apiUrl, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar perfis');
-      }
-
-      const data = await response.json();
-      return data.roles || [];
+      const headers = this.getHeaders();
+      const response = await firstValueFrom(
+        this.http.get<{ roles: Role[] }>(this.apiUrl, { headers })
+      );
+      return response.roles || [];
     } catch (error) {
-      console.error('Erro ao buscar perfis:', error);
-      throw error;
+      console.error('Erro ao buscar perfis');
+      throw new Error('Erro ao carregar perfis');
     }
   }
 
@@ -36,19 +48,14 @@ export class RoleService {
    */
   async getRoleById(id: string): Promise<Role> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar perfil');
-      }
-
-      const data = await response.json();
-      return data.role;
+      const headers = this.getHeaders();
+      const response = await firstValueFrom(
+        this.http.get<{ role: Role }>(`${this.apiUrl}/${id}`, { headers })
+      );
+      return response.role;
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
-      throw error;
+      console.error('Erro ao buscar perfil');
+      throw new Error('Erro ao carregar perfil');
     }
   }
 
@@ -57,25 +64,14 @@ export class RoleService {
    */
   async createRole(roleData: CreateRoleDTO): Promise<Role> {
     try {
-      const response = await fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(roleData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao criar perfil');
-      }
-
-      const data = await response.json();
-      return data.role;
-    } catch (error) {
-      console.error('Erro ao criar perfil:', error);
-      throw error;
+      const headers = this.getHeaders();
+      const response = await firstValueFrom(
+        this.http.post<{ role: Role }>(this.apiUrl, roleData, { headers })
+      );
+      return response.role;
+    } catch (error: any) {
+      console.error('Erro ao criar perfil');
+      throw new Error(error?.error?.message || 'Erro ao criar perfil');
     }
   }
 
@@ -84,25 +80,14 @@ export class RoleService {
    */
   async updateRole(id: string, roleData: Partial<CreateRoleDTO>): Promise<Role> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(roleData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao atualizar perfil');
-      }
-
-      const data = await response.json();
-      return data.role;
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      throw error;
+      const headers = this.getHeaders();
+      const response = await firstValueFrom(
+        this.http.put<{ role: Role }>(`${this.apiUrl}/${id}`, roleData, { headers })
+      );
+      return response.role;
+    } catch (error: any) {
+      console.error('Erro ao atualizar perfil');
+      throw new Error(error?.error?.message || 'Erro ao atualizar perfil');
     }
   }
 
@@ -113,44 +98,30 @@ export class RoleService {
     try {
       console.log('🌐 RoleService.deleteRole - id:', id, 'migrateToRoleId:', migrateToRoleId);
 
-      const token = localStorage.getItem('auth_token');
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
+      const headers = this.getHeaders();
+      const body = migrateToRoleId ? { migrateToRoleId } : {};
 
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${this.apiUrl}/${id}`, {
-        method: 'DELETE',
-        headers,
-        credentials: 'include',
-        body: migrateToRoleId ? JSON.stringify({ migrateToRoleId }) : undefined,
-      });
-
-      console.log('📡 Response status:', response.status, response.ok);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log('❌ Error data from API:', errorData);
-
-        // Se precisa de migração, lança erro com dados extras
-        if (errorData.requiresMigration) {
-          console.log('⚠️ Precisa de migração! usersCount:', errorData.usersCount);
-          const error: any = new Error(errorData.message || 'Perfil possui usuários');
-          error.requiresMigration = true;
-          error.usersCount = errorData.usersCount;
-          throw error;
-        }
-
-        throw new Error(errorData.message || 'Erro ao deletar perfil');
-      }
+      const response = await firstValueFrom(
+        this.http.delete<any>(`${this.apiUrl}/${id}`, {
+          headers,
+          body: migrateToRoleId ? body : undefined,
+        })
+      );
 
       console.log('✅ Role deletado com sucesso');
-    } catch (error) {
-      console.error('💥 Erro ao deletar perfil (service):', error);
-      throw error;
+    } catch (error: any) {
+      console.error('💥 Erro ao deletar perfil');
+
+      // Verificar se o erro requer migração
+      if (error?.error?.requiresMigration) {
+        console.log('⚠️ Precisa de migração! usersCount:', error.error.usersCount);
+        const migrationError: any = new Error(error.error.message || 'Perfil possui usuários');
+        migrationError.requiresMigration = true;
+        migrationError.usersCount = error.error.usersCount;
+        throw migrationError;
+      }
+
+      throw new Error(error?.error?.message || 'Erro ao deletar perfil');
     }
   }
 
@@ -159,19 +130,16 @@ export class RoleService {
    */
   async getClientLevels(): Promise<ClientLevel[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/client-levels/list`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar níveis de cliente');
-      }
-
-      const data = await response.json();
-      return data.clientLevels || [];
+      const headers = this.getHeaders();
+      const response = await firstValueFrom(
+        this.http.get<{ clientLevels: ClientLevel[] }>(`${this.apiUrl}/client-levels/list`, {
+          headers,
+        })
+      );
+      return response.clientLevels || [];
     } catch (error) {
-      console.error('Erro ao buscar níveis de cliente:', error);
-      throw error;
+      console.error('Erro ao buscar níveis de cliente');
+      throw new Error('Erro ao carregar níveis de cliente');
     }
   }
 

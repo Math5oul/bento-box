@@ -15,9 +15,9 @@ export interface JWTPayload {
 }
 
 /**
- * Gera JWT Token para usuário registrado
+ * Gera Access Token (curta duração - 15 minutos)
  */
-export const generateToken = (user: IUser): string => {
+export const generateAccessToken = (user: IUser): string => {
   // Convert role to string (either enum value or ObjectId string)
   const roleValue = user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role;
 
@@ -29,16 +29,51 @@ export const generateToken = (user: IUser): string => {
   };
 
   const secret = process.env['JWT_SECRET'] || 'fallback-secret';
-  const expiresIn = process.env['JWT_EXPIRES_IN'] || '24h';
+  const expiresIn = process.env['JWT_ACCESS_EXPIRES'] || '15m'; // 15 minutos
 
   return jwt.sign(payload, secret, { expiresIn } as jwt.SignOptions);
 };
 
 /**
- * Verifica e decodifica JWT Token
+ * Gera Refresh Token (longa duração - 7 dias)
+ */
+export const generateRefreshToken = (user: IUser): string => {
+  const payload: JWTPayload = {
+    userId: (user._id as any).toString(),
+    email: user.email,
+    role: user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role,
+    isAnonymous: user.isAnonymous,
+  };
+
+  const secret =
+    process.env['JWT_REFRESH_SECRET'] || process.env['JWT_SECRET'] || 'fallback-refresh-secret';
+  const expiresIn = process.env['JWT_REFRESH_EXPIRES'] || '7d'; // 7 dias
+
+  return jwt.sign(payload, secret, { expiresIn } as jwt.SignOptions);
+};
+
+/**
+ * Gera JWT Token (mantido para compatibilidade - usa access token)
+ * @deprecated Use generateAccessToken e generateRefreshToken
+ */
+export const generateToken = (user: IUser): string => {
+  return generateAccessToken(user);
+};
+
+/**
+ * Verifica e decodifica Access Token
  */
 export const verifyToken = (token: string): JWTPayload => {
   const secret = process.env['JWT_SECRET'] || 'fallback-secret';
+  return jwt.verify(token, secret) as JWTPayload;
+};
+
+/**
+ * Verifica e decodifica Refresh Token
+ */
+export const verifyRefreshToken = (token: string): JWTPayload => {
+  const secret =
+    process.env['JWT_REFRESH_SECRET'] || process.env['JWT_SECRET'] || 'fallback-refresh-secret';
   return jwt.verify(token, secret) as JWTPayload;
 };
 

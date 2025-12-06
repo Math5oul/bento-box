@@ -7,6 +7,9 @@ import { Order } from '../models/Order';
 import { generateToken } from '../utils/jwt';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { validate, runValidations } from '../middleware/validate';
+import { authLimiter, refreshLimiter } from '../middleware/rateLimiter';
+import { auditLog } from '../middleware/auditLogger';
+import { logError, sanitizeError } from '../utils/errorSanitizer';
 
 const router = Router();
 
@@ -147,6 +150,7 @@ router.post(
     }),
   ]),
   validate,
+  auditLog('REGISTER_USER', 'auth'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, email, password, role } = req.body;
@@ -213,8 +217,19 @@ router.post(
         }
       }
 
-      // Gera token JWT
-      const token = generateToken(user);
+      // Gera tokens JWT (access + refresh)
+      const { generateAccessToken, generateRefreshToken } = await import('../utils/jwt');
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+
+      // Salva refresh token no banco
+      const { RefreshToken } = await import('../models');
+      await RefreshToken.create({
+        token: refreshToken,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+        deviceInfo: req.get('user-agent'),
+      });
 
       // Remove senha da resposta
       const userResponse: any = populatedUser?.toObject
@@ -232,17 +247,32 @@ router.post(
         userResponse.permissions = userResponse.role.permissions;
       }
 
+      // Define cookies httpOnly com os tokens
+      res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 minutos
+      });
+
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      });
+
       res.status(201).json({
         success: true,
         message: 'Usuário registrado com sucesso',
-        token,
         user: userResponse,
       });
     } catch (error) {
-      console.error('Erro no registro:', error);
-      res.status(500).json({
+      logError('POST /api/auth/register', error);
+      const sanitized = sanitizeError(error, 'Erro ao registrar usuário');
+      res.status(sanitized.statusCode).json({
         success: false,
-        message: 'Erro ao registrar usuário',
+        error: sanitized.message,
       });
     }
   }
@@ -254,11 +284,13 @@ router.post(
  */
 router.post(
   '/login',
+  authLimiter, // Rate limiting para login
   runValidations([
     body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
     body('password').notEmpty().withMessage('Senha é obrigatória'),
   ]),
   validate,
+  auditLog('LOGIN', 'auth'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
@@ -327,8 +359,19 @@ router.post(
         }
       }
 
-      // Gera token JWT
-      const token = generateToken(user);
+      // Gera tokens JWT (access + refresh)
+      const { generateAccessToken, generateRefreshToken } = await import('../utils/jwt');
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+
+      // Salva refresh token no banco
+      const { RefreshToken } = await import('../models');
+      await RefreshToken.create({
+        token: refreshToken,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+        deviceInfo: req.get('user-agent'),
+      });
 
       // Remove senha da resposta
       const userResponse: any = populatedUser?.toObject
@@ -352,10 +395,24 @@ router.post(
         console.log('[Login] NOT adding permissions - role is not object or no permissions field');
       }
 
+      // Define cookies httpOnly com os tokens
+      res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 minutos
+      });
+
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      });
+
       res.json({
         success: true,
         message: 'Login realizado com sucesso',
-        token,
         user: userResponse,
       });
     } catch (error) {
@@ -369,15 +426,130 @@ router.post(
 );
 
 /**
- * POST /api/auth/logout
- * Logout (apenas limpa token no frontend)
+ * POST /api/auth/refresh
+ * Renova access token usando refresh token
  */
-router.post('/logout', authenticate, async (req: Request, res: Response): Promise<void> => {
-  res.json({
-    success: true,
-    message: 'Logout realizado com sucesso',
-  });
+router.post('/refresh', refreshLimiter, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.cookies?.['refresh_token'];
+
+    if (!refreshToken) {
+      res.status(401).json({
+        success: false,
+        message: 'Refresh token não fornecido',
+      });
+      return;
+    }
+
+    // Verifica se o refresh token é válido
+    const { verifyRefreshToken } = await import('../utils/jwt');
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch (error) {
+      res.status(401).json({
+        success: false,
+        message: 'Refresh token inválido ou expirado',
+      });
+      return;
+    }
+
+    // Verifica se o refresh token existe no banco e não foi revogado
+    const { RefreshToken } = await import('../models');
+    const storedToken = await RefreshToken.findOne({
+      token: refreshToken,
+      userId: decoded.userId,
+      isRevoked: false,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!storedToken) {
+      res.status(401).json({
+        success: false,
+        message: 'Refresh token inválido ou revogado',
+      });
+      return;
+    }
+
+    // Busca usuário atualizado
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado',
+      });
+      return;
+    }
+
+    // Gera novo access token
+    const { generateAccessToken } = await import('../utils/jwt');
+    const newAccessToken = generateAccessToken(user);
+
+    // Define novo cookie de access token
+    res.cookie('access_token', newAccessToken, {
+      httpOnly: true,
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 minutos
+    });
+
+    res.json({
+      success: true,
+      message: 'Token renovado com sucesso',
+    });
+  } catch (error) {
+    console.error('Erro ao renovar token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao renovar token',
+    });
+  }
 });
+
+/**
+ * POST /api/auth/logout
+ * Logout (limpa cookies httpOnly e revoga refresh token)
+ */
+router.post(
+  '/logout',
+  authenticate,
+  auditLog('LOGOUT', 'auth'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const refreshToken = req.cookies?.['refresh_token'];
+
+      // Revoga o refresh token no banco
+      if (refreshToken) {
+        const { RefreshToken } = await import('../models');
+        await RefreshToken.updateOne({ token: refreshToken }, { isRevoked: true });
+      }
+
+      // Limpa os cookies de autenticação
+      res.clearCookie('access_token', {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+      });
+
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+      });
+
+      res.json({
+        success: true,
+        message: 'Logout realizado com sucesso',
+      });
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao fazer logout',
+      });
+    }
+  }
+);
 
 /**
  * POST /api/auth/change-password

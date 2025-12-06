@@ -142,18 +142,19 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
         response = await this.http.post(endpoint, payload).toPromise();
 
-        if (response.token) {
+        if (response.success && response.user) {
           this.successMessage = this.isRegistering
             ? 'Conta criada com sucesso!'
             : 'Login realizado com sucesso!';
 
-          // Usa o AuthService para gerenciar o login
-          this.authService.login(response.token, response.user);
+          // Token vem via cookie httpOnly, apenas passa o user
+          // Passamos string vazia como token para compatibilidade
+          this.authService.login('', response.user);
         }
       }
 
-      if (response && (response.token || response.success)) {
-        this.loginSuccess.emit({ token: response.token, user: response.user });
+      if (response && response.success) {
+        this.loginSuccess.emit({ token: '', user: response.user });
 
         setTimeout(() => {
           this.closeModal();

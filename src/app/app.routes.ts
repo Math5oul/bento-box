@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { BentoModuleComponent } from './bento-module/bento-module.component';
-import { adminGuard } from './guards/admin.guard';
-import { kitchenGuard } from './guards/kitchen.guard';
-import { waiterGuard } from './guards/waiter.guard';
+import { adminGuard, checkoutGuard, kitchenGuard, waiterGuard } from './guards/permission.guard';
 
 export const routes: Routes = [
   { path: '', component: BentoModuleComponent },
@@ -13,17 +11,17 @@ export const routes: Routes = [
   {
     path: 'maintenance/kitchen',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/kitchen-dashboard/kitchen-dashboard.component'
-      ).then(m => m.KitchenDashboardComponent),
+      import('./components/admin-maintenance-components/kitchen-dashboard/kitchen-dashboard.component').then(
+        m => m.KitchenDashboardComponent
+      ),
     canActivate: [kitchenGuard],
   },
   {
     path: 'maintenance/waiter',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/waiter-dashboard/waiter-dashboard.component'
-      ).then(m => m.WaiterDashboardComponent),
+      import('./components/admin-maintenance-components/waiter-dashboard/waiter-dashboard.component').then(
+        m => m.WaiterDashboardComponent
+      ),
     canActivate: [waiterGuard],
   },
   // Rotas de manutenção/administração (protegidas por adminGuard)
@@ -54,17 +52,17 @@ export const routes: Routes = [
   {
     path: 'maintenance/users',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/users-management/users-management.component'
-      ).then(m => m.UsersManagementComponent),
+      import('./components/admin-maintenance-components/users-management/users-management.component').then(
+        m => m.UsersManagementComponent
+      ),
     canActivate: [adminGuard],
   },
   {
     path: 'maintenance/roles',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/roles-management/roles-management.component'
-      ).then(m => m.RolesManagementComponent),
+      import('./components/admin-maintenance-components/roles-management/roles-management.component').then(
+        m => m.RolesManagementComponent
+      ),
     canActivate: [adminGuard],
   },
   {
@@ -86,25 +84,25 @@ export const routes: Routes = [
   {
     path: 'maintenance/fillers',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/fillers-management/fillers-management.component'
-      ).then(m => m.FillersManagementComponent),
+      import('./components/admin-maintenance-components/fillers-management/fillers-management.component').then(
+        m => m.FillersManagementComponent
+      ),
     canActivate: [adminGuard],
   },
   {
     path: 'maintenance/products',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/products-management/products-management.component'
-      ).then(m => m.ProductsManagementComponent),
+      import('./components/admin-maintenance-components/products-management/products-management.component').then(
+        m => m.ProductsManagementComponent
+      ),
     canActivate: [adminGuard],
   },
   {
     path: 'maintenance/categories',
     loadComponent: () =>
-      import(
-        './components/admin-maintenance-components/categories-management/categories-management.component'
-      ).then(m => m.CategoriesManagementComponent),
+      import('./components/admin-maintenance-components/categories-management/categories-management.component').then(
+        m => m.CategoriesManagementComponent
+      ),
     canActivate: [adminGuard],
   },
   {
@@ -113,7 +111,7 @@ export const routes: Routes = [
       import('./components/admin-maintenance-components/checkout/checkout.component').then(
         m => m.CheckoutComponent
       ),
-    canActivate: [adminGuard],
+    canActivate: [checkoutGuard], // Permite admin e garçom (canManagePayments)
   },
   {
     path: 'maintenance/reports',

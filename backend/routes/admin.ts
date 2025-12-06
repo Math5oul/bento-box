@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/User';
 import { authenticate } from '../middleware/auth';
+import { auditLog } from '../middleware/auditLogger';
+import { logError, sanitizeError } from '../utils/errorSanitizer';
 
 const router = Router();
 
@@ -12,12 +14,26 @@ const router = Router();
  */
 router.get('/users', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    // Verificar permissão: canManageUsers (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageUsers === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+    // Debug: Log permission check
+    console.log('[DEBUG] GET /api/admin/users permission check:', {
+      userId: req.user?.userId,
+      role: req.user?.role,
+      hasPermissions: !!req.user?.permissions,
+      canViewUsers: req.user?.permissions?.canViewUsers,
+      canManageUsers: req.user?.permissions?.canManageUsers,
+      permissions: req.user?.permissions,
+    });
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ message: 'Acesso negado' });
+    // Verificar permissão: canViewUsers OU canManageUsers
+    // canViewUsers: pode listar usuários (ex: garçom criando pedido no balcão)
+    // canManageUsers: pode fazer CRUD completo de usuários (ex: admin)
+    const canView = req.user?.permissions?.canViewUsers === true;
+    const canManage = req.user?.permissions?.canManageUsers === true;
+
+    if (!canView && !canManage) {
+      res
+        .status(403)
+        .json({ message: 'Acesso negado. Permissão canViewUsers ou canManageUsers necessária.' });
       return;
     }
 
@@ -26,8 +42,12 @@ router.get('/users', authenticate, async (req: Request, res: Response): Promise<
 
     res.json(users);
   } catch (error) {
-    console.error('Erro ao buscar usuários:', error);
-    res.status(500).json({ message: 'Erro ao buscar usuários', error });
+    logError('GET /api/admin/users', error);
+    const sanitized = sanitizeError(error, 'Erro ao buscar usuários');
+    res.status(sanitized.statusCode).json({
+      success: false,
+      message: sanitized.message,
+    });
   }
 });
 
@@ -39,14 +59,14 @@ router.get('/users', authenticate, async (req: Request, res: Response): Promise<
 router.patch(
   '/users/:id/role',
   authenticate,
+  auditLog('UPDATE_USER_ROLE', 'users'),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // Verificar permissão: canManageUsers ou canManageRoles (ou legacy admin)
+      // Verificar permissão: canManageUsers ou canManageRoles
       const canManageUsers = req.user?.permissions?.canManageUsers === true;
       const canManageRoles = req.user?.permissions?.canManageRoles === true;
-      const isLegacyAdmin = req.user?.role === 'admin';
 
-      if (!canManageUsers && !canManageRoles && !isLegacyAdmin) {
+      if (!canManageUsers && !canManageRoles) {
         res.status(403).json({ message: 'Acesso negado' });
         return;
       }
@@ -106,8 +126,12 @@ router.patch(
 
       res.json({ message: 'Role atualizada com sucesso', user });
     } catch (error) {
-      console.error('Erro ao atualizar role:', error);
-      res.status(500).json({ message: 'Erro ao atualizar role', error });
+      logError('PATCH /api/admin/users/:id/role', error);
+      const sanitized = sanitizeError(error, 'Erro ao atualizar role');
+      res.status(sanitized.statusCode).json({
+        success: false,
+        message: sanitized.message,
+      });
     }
   }
 );
@@ -117,38 +141,46 @@ router.patch(
  * @desc    Deletar um usuário (apenas admin)
  * @access  Private/Admin
  */
-router.delete('/users/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Verificar permissão: canManageUsers (ou legacy admin)
-    const canManage = req.user?.permissions?.canManageUsers === true;
-    const isLegacyAdmin = req.user?.role === 'admin';
+router.delete(
+  '/users/:id',
+  authenticate,
+  auditLog('DELETE_USER', 'users'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Verificar permissão: canManageUsers
+      const canManage = req.user?.permissions?.canManageUsers === true;
 
-    if (!canManage && !isLegacyAdmin) {
-      res.status(403).json({ message: 'Acesso negado' });
-      return;
+      if (!canManage) {
+        res.status(403).json({ message: 'Acesso negado' });
+        return;
+      }
+
+      const { id } = req.params;
+
+      // Impedir que o admin delete sua própria conta
+      if (id === req.user?.userId) {
+        res.status(400).json({ message: 'Você não pode deletar sua própria conta.' });
+        return;
+      }
+
+      // Deletar usuário
+      const user = await User.findByIdAndDelete(id);
+
+      if (!user) {
+        res.status(404).json({ message: 'Usuário não encontrado' });
+        return;
+      }
+
+      res.json({ message: 'Usuário deletado com sucesso' });
+    } catch (error) {
+      logError('DELETE /api/admin/users/:id', error);
+      const sanitized = sanitizeError(error, 'Erro ao deletar usuário');
+      res.status(sanitized.statusCode).json({
+        success: false,
+        message: sanitized.message,
+      });
     }
-
-    const { id } = req.params;
-
-    // Impedir que o admin delete sua própria conta
-    if (id === req.user?.userId) {
-      res.status(400).json({ message: 'Você não pode deletar sua própria conta.' });
-      return;
-    }
-
-    // Deletar usuário
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      res.status(404).json({ message: 'Usuário não encontrado' });
-      return;
-    }
-
-    res.json({ message: 'Usuário deletado com sucesso' });
-  } catch (error) {
-    console.error('Erro ao deletar usuário:', error);
-    res.status(500).json({ message: 'Erro ao deletar usuário', error });
   }
-});
+);
 
 export default router;
