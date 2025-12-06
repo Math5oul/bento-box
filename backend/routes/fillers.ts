@@ -71,20 +71,14 @@ router.post(
         }
         fillerData.gridPosition.rowSpan = spans.rowSpan;
         fillerData.gridPosition.colSpan = spans.colSpan;
-
-        console.log(
-          `📐 Filler formato primário '${primaryFormat}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-        );
       }
 
       const filler = new Filler(fillerData);
       const savedFiller = await filler.save();
 
-      console.log('✅ Filler salvo:', JSON.stringify(savedFiller.toObject(), null, 2));
-
       res.status(201).json(savedFiller);
     } catch (error: any) {
-      console.error('❌ Erro ao criar filler:', error);
+      console.error('Erro ao criar filler:', error);
       res.status(400).json({ message: 'Erro ao criar filler', error: error.message });
     }
   }
@@ -113,10 +107,6 @@ router.put(
         }
         updateData.gridPosition.rowSpan = spans.rowSpan;
         updateData.gridPosition.colSpan = spans.colSpan;
-
-        console.log(
-          `🔧 Filler atualizado - formato primário '${primaryFormat}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-        );
       }
 
       const filler = await Filler.findByIdAndUpdate(req.params['id'], updateData, {
@@ -131,7 +121,7 @@ router.put(
 
       res.json(filler);
     } catch (error: any) {
-      console.error('❌ Erro ao atualizar filler:', error);
+      console.error('Erro ao atualizar filler:', error);
       res.status(400).json({ message: 'Erro ao atualizar filler', error: error.message });
     }
   }

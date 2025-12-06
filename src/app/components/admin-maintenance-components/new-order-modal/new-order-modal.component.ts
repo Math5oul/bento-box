@@ -143,15 +143,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     // Se o carrinho está pelo menos 30% visível e mais visível que os produtos, considera que está vendo o carrinho
     const wasViewingCart = this.isViewingCart;
     this.isViewingCart = cartVisibility > 0.3 && cartVisibility >= productsVisibility;
-
-    // Log para debug (pode remover depois)
-    if (wasViewingCart !== this.isViewingCart) {
-      console.log('View state changed:', {
-        viewingCart: this.isViewingCart,
-        productsVisibility,
-        cartVisibility,
-      });
-    }
   }
 
   /**
@@ -285,12 +276,9 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
    * Seleciona pedido de balcão (sem mesa)
    */
   selectCounter() {
-    console.log('🟢 selectCounter() chamado');
     this.selectedTable = null;
     this.isCounterOrder = true;
     this.currentStep = 'client';
-    console.log('🟢 isCounterOrder:', this.isCounterOrder);
-    console.log('🟢 currentStep:', this.currentStep);
     this.loadAllRegisteredClients();
   }
 
@@ -298,7 +286,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
    * Carrega todos os clientes registrados (não anônimos) para pedidos de balcão
    */
   loadAllRegisteredClients() {
-    console.log('🔵 loadAllRegisteredClients() chamado');
     this.loadingClients = true;
     this.error = '';
     this.clientSearchTerm = '';
@@ -309,7 +296,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       })
       .subscribe({
         next: users => {
-          console.log('🔵 Usuários recebidos da API:', users.length);
           // Filtrar apenas clientes registrados (não anônimos e não staff)
           this.clients = users
             .filter(user => {
@@ -334,9 +320,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
             .sort((a, b) => a.name.localeCompare(b.name)); // Ordena por nome
 
           this.filteredClients = [...this.clients];
-          console.log('✅ Clientes (não-staff) carregados:', this.clients.length);
-          console.log('✅ filteredClients:', this.filteredClients.length);
-          console.log('✅ Lista de clientes:', this.clients);
           this.loadingClients = false;
         },
         error: err => {
@@ -437,8 +420,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       }
     }
 
-    console.log('👤 Cliente selecionado:', client.name, '- RoleId:', this.selectedClientRoleId);
-
     this.currentStep = 'products';
     this.loadProducts();
   }
@@ -482,7 +463,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
           this.selectedClient = response.client;
           // Armazenar o roleId que acabamos de criar
           this.selectedClientRoleId = this.selectedClientRole || null;
-          console.log('✅ Cliente anônimo criado - RoleId:', this.selectedClientRoleId);
 
           this.creatingNewClient = false;
           this.newClientName = '';
@@ -510,11 +490,8 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       }>('/api/products/menu', { headers: this.getHeaders() })
       .subscribe({
         next: response => {
-          console.log('📦 Resposta do /api/products/menu:', response);
-
           // Extrair produtos do formato do menu (cada item tem um objeto 'inputs')
           const menuItems = response.data?.items || [];
-          console.log('📋 Menu items:', menuItems.length);
 
           this.products = menuItems.map((item: any) => {
             const inputs = item.inputs || {};
@@ -532,11 +509,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
               available: true, // Produtos do menu sempre disponíveis
             } as Product;
           });
-
-          console.log('✅ Produtos mapeados:', this.products.length);
-          if (this.products.length > 0) {
-            console.log('🔍 Primeiro produto:', this.products[0]);
-          }
 
           // Extrair categorias únicas e armazenar objetos de categoria
           const cats = new Set<string>();
@@ -556,9 +528,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
             }
           });
           this.categories = Array.from(cats).sort();
-
-          console.log('📂 Categorias encontradas:', this.categories);
-          console.log('🗺️ Category objects map:', this.categoryObjects);
 
           this.loadingProducts = false;
         },
@@ -889,13 +858,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
         const unitPrice = this.getItemPrice(item);
         const totalPrice = unitPrice * item.quantity;
 
-        console.log('📦 Mapeando item:', {
-          productId: item.product._id,
-          productName: item.product.name,
-          unitPrice,
-          totalPrice,
-        });
-
         return {
           productId: item.product._id,
           productName: item.product.name,
@@ -924,11 +886,8 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       totalAmount: this.getTotalAmount(),
     };
 
-    console.log('📋 Body final do pedido:', JSON.stringify(body, null, 2));
-
     this.http.post('/api/orders', body, { headers: this.getHeaders() }).subscribe({
       next: () => {
-        console.log('✅ Pedido criado com sucesso!');
         this.orderCreated.emit();
         this.closeModal();
       },

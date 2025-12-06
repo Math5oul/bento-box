@@ -490,16 +490,12 @@ export class ReportsComponent implements OnInit {
     // Verificar se produto está na categoria
     const isCurrentlyInCategory = category.productIds.some(id => normalizeId(id) === productId);
 
-    console.log('🔄 Toggle produto:', productId, 'está na categoria?', isCurrentlyInCategory);
-    console.log('📋 IDs atuais:', category.productIds);
-
     if (isCurrentlyInCategory) {
       // Remover produto - criar novo array
       const newProductIds = category.productIds
         .filter(id => normalizeId(id) !== productId)
         .map(id => normalizeId(id));
 
-      console.log('❌ Removendo produto. Novos IDs:', newProductIds);
       category.productIds = newProductIds as any[];
     } else {
       // Adicionar produto (e remover de outras categorias)
@@ -520,8 +516,6 @@ export class ReportsComponent implements OnInit {
       // Adicionar na categoria atual - normalizar todos os IDs e criar novo array
       const normalizedIds = category.productIds.map(id => normalizeId(id));
       category.productIds = [...normalizedIds, productId] as any[];
-
-      console.log('✅ Adicionando produto. Novos IDs:', category.productIds);
     }
 
     // Marcar categoria atual como tendo mudanças pendentes
@@ -537,8 +531,6 @@ export class ReportsComponent implements OnInit {
       // Atualizar a referência selecionada também
       this.selectedCategoryForProducts = this.categories[categoryIndex];
     }
-
-    console.log('✔️ Categoria atualizada:', this.selectedCategoryForProducts.productIds);
   }
 
   /**

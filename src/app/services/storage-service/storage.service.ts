@@ -41,18 +41,14 @@ export class StorageService {
   }
 
   private loadFromServer(): void {
-    console.log('🔄 [StorageService] Carregando produtos do servidor...');
     this.http
       .get<ServerResponse>(this.API_URL)
       .pipe(
         map(response => {
-          console.log('📦 [StorageService] Resposta recebida:', response);
           const data = response.data;
           if (!data?.items || !Array.isArray(data.items)) {
-            console.warn('⚠️ [StorageService] No items found in server response');
             return [];
           }
-          console.log(`✅ [StorageService] ${data.items.length} items recebidos do servidor`);
 
           const mappedItems = data.items.map((item: ServerMenuItem) => {
             const componentName =
@@ -76,7 +72,6 @@ export class StorageService {
             } as GridItem;
           });
 
-          console.log(`✅ [StorageService] ${mappedItems.length} items mapeados com sucesso`);
           return mappedItems;
         }),
         catchError(error => {
@@ -86,7 +81,6 @@ export class StorageService {
         take(1)
       )
       .subscribe(items => {
-        console.log(`📤 [StorageService] Emitindo ${items.length} items para o BehaviorSubject`);
         this.productsSubject.next(items);
       });
   }
@@ -107,11 +101,8 @@ export class StorageService {
       colSpan: item.colSpan,
     }));
 
-    console.log('📤 Salvando posições de', batchUpdates.length, 'produtos...');
-
     return this.productService.updateBatchPositions(batchUpdates).pipe(
       tap(() => {
-        console.log('✅ Posições salvas no MongoDB com sucesso');
         this.productsSubject.next(products);
       }),
       catchError(error => {
@@ -125,8 +116,6 @@ export class StorageService {
    * Atualiza um produto existente
    */
   updateProduct(id: string, productData: any): Observable<any> {
-    console.log('📝 Atualizando produto', id, productData);
-
     const apiData: any = {
       name: productData.productName || productData.name,
       description: productData.description,
@@ -148,7 +137,6 @@ export class StorageService {
 
     return this.productService.updateProduct(id, apiData).pipe(
       tap(() => {
-        console.log('✅ Produto atualizado com sucesso');
         this.loadFromServer();
       }),
       catchError(error => {
@@ -172,9 +160,6 @@ export class StorageService {
 
   saveProducts_OLD(products: any[]): Observable<any> {
     return this.http.post(this.API_URL, { items: products }).pipe(
-      tap(() => {
-        console.log('✅ Dados salvos no servidor com sucesso');
-      }),
       catchError(error => {
         console.error('Error saving products:', error);
         return throwError(() => error);
@@ -202,21 +187,12 @@ export class StorageService {
    * Faz upload de imagens para um produto específico
    */
   uploadProductImages(productId: string, files: File[]): Observable<any> {
-    console.log('📤 uploadProductImages chamado');
-    console.log('  - productId:', productId);
-    console.log('  - Número de arquivos:', files.length);
-    console.log('  - URL:', `${environment.apiUrl}/upload/${productId}`);
-
     const formData = new FormData();
     files.forEach(file => {
       formData.append('images', file);
-      console.log('  - Adicionado arquivo:', file.name, file.type, file.size);
     });
 
     return this.http.post(`${environment.apiUrl}/upload/${productId}`, formData).pipe(
-      tap(response => {
-        console.log('✅ Resposta do upload:', response);
-      }),
       catchError(error => {
         console.error('❌ Error uploading images:', error);
         return throwError(() => error);

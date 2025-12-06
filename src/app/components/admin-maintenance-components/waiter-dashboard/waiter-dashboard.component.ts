@@ -228,14 +228,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       (order.items || []).forEach((it, idx) => {
         const status = it.status || 'pending';
         if (status === 'ready') {
-          console.log(
-            '🔍 Item pronto - orderId:',
-            order.id,
-            'tableNumber:',
-            order.tableNumber,
-            'tipo:',
-            typeof order.tableNumber
-          );
           items.push({
             orderId: order.id,
             tableNumber: order.tableNumber,
@@ -254,8 +246,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       const tb = new Date(b.order?.createdAt || 0).getTime();
       return tb - ta;
     });
-
-    console.log('🔍 readyViewItems depois do sort:', this.readyViewItems);
   }
 
   /**
@@ -377,7 +367,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       }>(`/api/orders/${order.id}/status`, { status: newStatus }, { headers })
       .subscribe({
         next: response => {
-          console.log('✅ Status atualizado:', response.message);
           this.loadOrders(true); // Recarrega silenciosamente
         },
         error: err => {
@@ -803,7 +792,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: response => {
-          console.log('✅ Pedido atualizado:', response.message);
           this.closeEditModal();
           this.loadOrders(true);
         },
@@ -933,14 +921,12 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     this.tableService.loadTables();
     this.tableService.tables$.subscribe({
       next: tables => {
-        console.log('🔧 Mesas carregadas:', tables);
         this.allTables = tables || [];
         // Atualiza o mapa de mesas
         this.tablesMap.clear();
         this.allTables.forEach(table => {
           this.tablesMap.set(table.number.toString(), table);
         });
-        console.log('🔧 tablesMap atualizado:', this.tablesMap);
       },
       error: error => {
         console.error('Erro ao carregar informações das mesas:', error);
@@ -956,12 +942,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     const tableNumberStr = String(tableNumber);
     const table = this.tablesMap.get(tableNumberStr);
 
-    console.log('🔍 getTableDisplayName chamado:');
-    console.log('  - input:', tableNumber, '(tipo:', typeof tableNumber, ')');
-    console.log('  - tableNumberStr:', tableNumberStr);
-    console.log('  - table encontrada:', table);
-    console.log('  - table.name:', table?.name);
-
     if (table?.name) {
       return table.name;
     }
@@ -974,24 +954,12 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   openEditTableModal(tableNumber: string | number) {
     // Garante que o número é string para buscar no Map
     const tableNumberStr = String(tableNumber);
-    console.log(
-      '🔧 Abrindo modal para mesa:',
-      tableNumberStr,
-      '(tipo original:',
-      typeof tableNumber,
-      ')'
-    );
-    console.log('🔧 tablesMap atual:', this.tablesMap);
-    console.log('🔧 Chaves do Map:', Array.from(this.tablesMap.keys()));
 
     const table = this.tablesMap.get(tableNumberStr);
-    console.log('🔧 Mesa encontrada no Map:', table);
 
     if (table) {
       this.selectedTableForEdit = table;
       this.showEditTableModal = true;
-      console.log('🔧 selectedTableForEdit:', this.selectedTableForEdit);
-      console.log('🔧 showEditTableModal:', this.showEditTableModal);
     } else {
       console.warn('🔧 Mesa não encontrada no Map para chave:', tableNumberStr);
       alert('Mesa não encontrada');
