@@ -52,28 +52,20 @@ router.get('/', optionalAuth, async (req: Request, res: Response) => {
  */
 router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
   try {
-    console.log('📋 [Products API] GET /menu - Buscando produtos...');
-
     const products = await Product.find({ available: true }).sort({
       'gridPosition.row': 1,
       'gridPosition.col': 1,
     });
 
-    console.log(`✅ [Products API] ${products.length} produtos encontrados`);
-
     // Busca todas as categorias para mapear (com fallback se der erro)
     let categoryMap = new Map();
     try {
       const categories = await Category.find({}).lean();
-      console.log(`📂 [Products API] ${categories.length} categorias encontradas`);
-
       categories.forEach((cat: any) => {
         categoryMap.set(cat.slug, cat);
-        console.log(`  - Categoria: ${cat.slug}, Descontos: ${cat.discounts?.length || 0}`);
       });
     } catch (catError) {
-      console.error('⚠️ [Products API] Erro ao buscar categorias:', catError);
-      console.log('⚠️ [Products API] Continuando sem descontos...');
+      console.error('Erro ao buscar categorias:', catError);
     }
 
     const menuItems = products.map(product => {
@@ -95,7 +87,7 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
           };
         }
       } catch (mapError) {
-        console.error(`⚠️ Erro ao mapear categoria para produto ${product.name}:`, mapError);
+        console.error('Erro ao mapear categoria:', mapError);
       }
 
       return {
@@ -119,14 +111,12 @@ router.get('/menu', optionalAuth, async (req: Request, res: Response) => {
       };
     });
 
-    console.log(`🎯 [Products API] ${menuItems.length} items no menu prontos para enviar`);
-
     res.json({
       success: true,
       data: { items: menuItems },
     });
   } catch (error: any) {
-    console.error('❌ [Products API] Erro CRÍTICO ao buscar menu:', error);
+    console.error('Erro ao buscar menu:', error);
     res.status(500).json({
       success: false,
       message: 'Erro ao buscar menu',
@@ -231,9 +221,6 @@ router.post(
     try {
       const productData = req.body;
 
-      console.log('📦 Recebendo produto:', JSON.stringify(productData, null, 2));
-      console.log('📏 Tamanhos recebidos:', productData.sizes);
-
       // Calcula rowSpan e colSpan baseado no formato
       const format = productData.format || '1x1';
       const spans = getSpansFromFormat(format);
@@ -245,17 +232,8 @@ router.post(
       productData.gridPosition.rowSpan = spans.rowSpan;
       productData.gridPosition.colSpan = spans.colSpan;
 
-      console.log(
-        `📐 Formato '${format}' convertido para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-      );
-
       const newProduct = new Product(productData);
-
-      console.log('💾 Produto antes de salvar:', JSON.stringify(newProduct.toObject(), null, 2));
-
       await newProduct.save();
-
-      console.log('✅ Produto salvo:', JSON.stringify(newProduct.toObject(), null, 2));
 
       res.status(201).json({
         success: true,
@@ -263,7 +241,7 @@ router.post(
         message: 'Produto criado com sucesso',
       });
     } catch (error: any) {
-      console.error('❌ Erro ao criar produto:', error);
+      console.error('Erro ao criar produto:', error);
       res.status(400).json({
         success: false,
         message: 'Erro ao criar produto',
@@ -294,10 +272,6 @@ router.put(
         }
         updateData.gridPosition.rowSpan = spans.rowSpan;
         updateData.gridPosition.colSpan = spans.colSpan;
-
-        console.log(
-          `🔧 Atualizando formato '${updateData.format}' para rowSpan: ${spans.rowSpan}, colSpan: ${spans.colSpan}`
-        );
       }
 
       const product = await Product.findByIdAndUpdate(req.params['id'], updateData, {
@@ -459,11 +433,9 @@ router.delete(
 
         if (fs.existsSync(productImageFolder)) {
           fs.rmSync(productImageFolder, { recursive: true, force: true });
-          console.log(`✅ Pasta de imagens do produto ${productId} deletada`);
         }
       } catch (imageError: any) {
-        console.error('⚠️ Erro ao deletar pasta de imagens:', imageError);
-        // Não falha a operação se não conseguir deletar as imagens
+        console.error('Erro ao deletar pasta de imagens:', imageError);
       }
 
       res.json({

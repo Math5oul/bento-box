@@ -46,8 +46,6 @@ export class DiscountService {
    * Calcula o preço com desconto para um produto baseado na categoria
    */
   calculatePrice(price: number, category: Category | null): DiscountCalculation {
-    console.log('🔍 [DiscountService] Calculando preço:', { price, category });
-
     const result: DiscountCalculation = {
       originalPrice: price,
       discountPercent: 0,
@@ -58,34 +56,27 @@ export class DiscountService {
 
     // Se não tem categoria ou descontos, retorna preço original
     if (!category || !category.discounts || category.discounts.length === 0) {
-      console.log('⚠️ [DiscountService] Sem categoria ou descontos');
       return result;
     }
 
     // Pega o usuário atual
     const user = this.authService.getCurrentUser();
-    console.log('👤 [DiscountService] Usuário:', user);
 
     if (!user || !user.role) {
-      console.log('⚠️ [DiscountService] Sem usuário ou role');
       return result;
     }
 
     // Busca desconto para o role do usuário
     // role pode ser um ObjectId (string) ou o roleDetails pode ter _id
     const userRoleId = typeof user.role === 'string' ? user.role : user.roleDetails?._id;
-    console.log('🎭 [DiscountService] Role ID:', userRoleId);
-    console.log('💰 [DiscountService] Descontos disponíveis:', category.discounts);
 
     const discount = category.discounts.find(d => d.roleId === userRoleId);
-    console.log('🎯 [DiscountService] Desconto encontrado:', discount);
 
     if (discount && discount.discountPercent > 0) {
       result.discountPercent = discount.discountPercent;
       result.discountAmount = (price * discount.discountPercent) / 100;
       result.finalPrice = price - result.discountAmount;
       result.hasDiscount = true;
-      console.log('✅ [DiscountService] Desconto aplicado!', result);
     }
 
     return result;
@@ -131,12 +122,6 @@ export class DiscountService {
     variationPrice: number = 0,
     category: Category | null
   ): DetailedPriceCalculation {
-    console.log('📊 [DiscountService] calculateFullItemPrice:', {
-      basePrice,
-      variationPrice,
-      category,
-    });
-
     // Calcula desconto apenas no preço base
     const baseCalc = this.calculatePrice(basePrice, category);
 
@@ -158,7 +143,6 @@ export class DiscountService {
       hasDiscount: baseCalc.hasDiscount,
     };
 
-    console.log('✅ [DiscountService] Resultado:', result);
     return result;
   }
 
