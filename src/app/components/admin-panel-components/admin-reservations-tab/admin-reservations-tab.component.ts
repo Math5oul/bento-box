@@ -38,6 +38,24 @@ export class AdminReservationsTabComponent implements OnInit {
     notes: '',
   };
 
+  /**
+   * Formats a phone number as (00) 00000-0000
+   */
+  maskPhone(value: string): string {
+    // Remove all non-digit characters
+    value = value.replace(/\D/g, '');
+    // Apply mask: (00) 00000-0000
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 6) {
+      return `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+    } else if (value.length > 2) {
+      return `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    } else if (value.length > 0) {
+      return `(${value}`;
+    }
+    return '';
+  }
+
   ngOnInit() {
     this.loadTables();
   }
