@@ -90,7 +90,7 @@ export const DEFAULT_PERMISSIONS: Record<string, IRolePermissions> = {
     canManageFillers: false,
     canViewProducts: true,
     canManageCategories: false,
-    canViewUsers: true, // ✅ Garçom pode ver usuários para criar pedidos no balcão
+    canViewUsers: true,
     canManageUsers: false,
     canManageRoles: false,
     canManageSystemSettings: false,
@@ -161,6 +161,7 @@ const PermissionsSchema = new Schema<IRolePermissions>(
     canManageSystemSettings: { type: Boolean, default: false },
     canViewReports: { type: Boolean, default: false },
     canManagePayments: { type: Boolean, default: false },
+    canManageFillers: { type: Boolean, default: false },
   },
   { _id: false }
 );

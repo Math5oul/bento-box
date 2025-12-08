@@ -56,7 +56,7 @@ export class UsersManagementComponent implements OnInit {
     email: '',
     password: '',
     confirmPassword: '',
-    role: '', // Will be set after roles are loaded
+    role: '',
   };
 
   // Modal de edição
