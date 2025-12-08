@@ -269,7 +269,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedTable = table;
     this.isCounterOrder = false;
     this.currentStep = 'client';
-    this.loadClientsForTable(table);
+    this.loadAllRegisteredClients();
   }
 
   /**

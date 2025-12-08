@@ -95,72 +95,44 @@
 
         @if (!creatingNewClient) {
           <!-- Botão de criar novo cliente no topo -->
-          <button class="btn btn-secondary full-width" (click)="startCreateClient()">
+          <button
+            class="btn btn-secondary full-width"
+            (click)="startCreateClient()"
+            style="margin-bottom: 1rem"
+          >
             ➕ Criar Novo Cliente Anônimo
           </button>
 
-          @if (isCounterOrder) {
-            <!-- BALCÃO: Barra de pesquisa e lista completa de clientes registrados -->
-            <div class="search-bar">
-              <input
-                type="text"
-                [(ngModel)]="clientSearchTerm"
-                (input)="filterClients()"
-                placeholder="🔍 Buscar por nome ou email..."
-                class="search-input"
-              />
-              @if (clientSearchTerm) {
-                <button class="clear-search" (click)="clientSearchTerm = ''; filterClients()">
-                  ✕
-                </button>
-              }
-            </div>
-
-            @if (loadingClients) {
-              <div class="loading">Carregando clientes...</div>
-            } @else {
-              @if (filteredClients.length > 0) {
-                <div class="client-list">
-                  @for (client of filteredClients; track client._id) {
-                    <button class="client-card" (click)="selectClient(client)">
-                      <div class="client-main-info">
-                        <span class="client-icon">👤</span>
-                        <div class="client-details">
-                          <span class="client-name">{{ client.name }}</span>
-                          @if (client.email) {
-                            <span class="client-email">{{ client.email }}</span>
-                          }
-                        </div>
-                      </div>
-
-                      <div class="client-badges">
-                        @if (getClientCustomRoleName(client); as roleName) {
-                          <span class="badge custom-role">{{ roleName }}</span>
-                        }
-
-                        @if (client.isAnonymous) {
-                          <span class="badge anon">Anônimo</span>
-                        }
-                      </div>
-                    </button>
-                  }
-                </div>
-              } @else if (clientSearchTerm) {
-                <p class="empty-state">Nenhum cliente encontrado com "{{ clientSearchTerm }}"</p>
-              } @else {
-                <p class="empty-state">Nenhum cliente registrado encontrado</p>
-              }
+          <!-- Barra de pesquisa e lista completa de clientes registrados -->
+          <div class="search-bar">
+            <input
+              type="text"
+              [(ngModel)]="clientSearchTerm"
+              (input)="filterClients()"
+              placeholder="🔍 Buscar por nome ou email..."
+              class="search-input"
+            />
+            @if (clientSearchTerm) {
+              <button class="clear-search" (click)="clientSearchTerm = ''; filterClients()">
+                ✕
+              </button>
             }
+          </div>
+
+          @if (loadingClients) {
+            <div class="loading">Carregando clientes...</div>
           } @else {
-            <!-- MESA: Apenas clientes já conectados à mesa -->
-            @if (clients.length > 0) {
+            @if (filteredClients.length > 0) {
               <div class="client-list">
-                @for (client of clients; track client._id) {
+                @for (client of filteredClients; track client._id) {
                   <button class="client-card" (click)="selectClient(client)">
                     <div class="client-main-info">
                       <span class="client-icon">👤</span>
                       <div class="client-details">
                         <span class="client-name">{{ client.name }}</span>
+                        @if (client.email) {
+                          <span class="client-email">{{ client.email }}</span>
+                        }
                       </div>
                     </div>
 
@@ -176,10 +148,10 @@
                   </button>
                 }
               </div>
+            } @else if (clientSearchTerm) {
+              <p class="empty-state">Nenhum cliente encontrado com "{{ clientSearchTerm }}"</p>
             } @else {
-              <p class="empty-state">
-                Nenhum cliente na mesa ainda. Crie um novo cliente para começar.
-              </p>
+              <p class="empty-state">Nenhum cliente registrado encontrado</p>
             }
           }
         } @else {
