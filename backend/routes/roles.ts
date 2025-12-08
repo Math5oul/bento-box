@@ -99,11 +99,24 @@ router.post(
         });
       }
 
+      // Preencher permissões faltantes com false
+      const permissionsSchema = (Role.schema.path('permissions') as any)?.schema?.paths || {};
+      const allPermissionKeys: string[] = Object.keys(permissionsSchema).filter(k => k !== '_id');
+      const filledPermissions: any = {};
+      allPermissionKeys.forEach(key => {
+        let value =
+          permissions && Object.prototype.hasOwnProperty.call(permissions, key)
+            ? permissions[key]
+            : (permissionsSchema[key]?.options?.default ?? false);
+        // Converter para boolean
+        filledPermissions[key] = value === true || value === 'true';
+      });
+
       // Criar novo role
       const newRole = await Role.create({
         name,
         slug,
-        permissions: permissions || {},
+        permissions: filledPermissions,
         clientLevel: clientLevel || 1,
         description: description || '',
         isSystem: false, // Perfis criados via API não são do sistema
@@ -167,10 +180,22 @@ router.put(
         }
       }
 
-      // Atualizar role
+      // Preencher permissões faltantes com false ao atualizar
+      if (permissions) {
+        const permissionsSchema = (Role.schema.path('permissions') as any)?.schema?.paths || {};
+        const allPermissionKeys: string[] = Object.keys(permissionsSchema).filter(k => k !== '_id');
+        const filledPermissions: any = {};
+        allPermissionKeys.forEach(key => {
+          let value = Object.prototype.hasOwnProperty.call(permissions, key)
+            ? permissions[key]
+            : (permissionsSchema[key]?.options?.default ?? false);
+          // Converter para boolean
+          filledPermissions[key] = value === true || value === 'true';
+        });
+        role.permissions = filledPermissions;
+      }
       if (name) role.name = name;
       if (slug) role.slug = slug;
-      if (permissions) role.permissions = permissions;
       if (clientLevel !== undefined) role.clientLevel = clientLevel;
       if (description !== undefined) role.description = description;
 
@@ -235,8 +260,9 @@ router.delete(
       const usersWithRoleBySlug = await User.countDocuments({ role: role.slug });
 
       // Também tenta buscar como string do ObjectId
-      const usersWithRoleAsString = await User.countDocuments({ role: role._id.toString() });
-
+      const usersWithRoleAsString = await User.countDocuments({
+        role: (role._id as string).toString(),
+      });
       const usersWithRole = usersWithRoleByObjectId + usersWithRoleBySlug + usersWithRoleAsString;
 
       console.log(`📊 Role "${role.name}" (${role._id}) possui:`);
@@ -267,7 +293,7 @@ router.delete(
         }
 
         // Não permitir migrar para o próprio role sendo deletado
-        if (targetRole._id.toString() === role._id.toString()) {
+        if ((targetRole._id as string).toString() === (role._id as string).toString()) {
           return res.status(400).json({
             success: false,
             message: 'Não é possível migrar usuários para o mesmo perfil sendo deletado',
@@ -281,7 +307,7 @@ router.delete(
         );
 
         const updateResultByString = await User.updateMany(
-          { role: role._id.toString() },
+          { role: (role._id as string).toString() },
           { $set: { role: targetRole._id } }
         );
 
