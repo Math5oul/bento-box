@@ -140,45 +140,46 @@
                   </label>
 
                   <div class="item-actions">
-                    @if (!item.isSplit) {
-                      <button class="btn-icon" (click)="openSplitModal(item)" title="Dividir item">
-                        ✂️
-                      </button>
-                      <button
-                        class="btn-icon"
-                        (click)="openDiscountModal(item)"
-                        title="Aplicar desconto"
-                      >
-                        💰
-                      </button>
-                      <button class="btn-icon" (click)="openPriceModal(item)" title="Editar preço">
-                        ✏️
-                      </button>
-
-                      @if (item.discount && !item.isSplit) {
-                        <button
-                          class="btn-icon remove"
-                          (click)="removeDiscount(item)"
-                          title="Remover desconto"
-                        >
-                          🗑️
-                        </button>
-                      }
-                    }
-
-                    @if (item.isSplit) {
-                      <button
-                        class="btn-icon undo"
-                        (click)="undoSplit(item)"
-                        title="Desfazer divisão"
-                      >
-                        ⟲
-                      </button>
-
-                      @if (item.parentDiscount) {
-                        <span class="parent-discount-badge">💰 Desconto herdado</span>
-                      }
-                    }
+                    <!-- Ações para todos os itens (splits e não splits) -->
+                    <button
+                      *ngIf="!item.isSplit"
+                      class="btn-icon"
+                      (click)="openSplitModal(item)"
+                      title="Dividir item"
+                    >
+                      ✂️
+                    </button>
+                    <button
+                      class="btn-icon"
+                      (click)="openDiscountModal(item)"
+                      title="Aplicar desconto"
+                    >
+                      💰
+                    </button>
+                    <button
+                      *ngIf="item.discount"
+                      class="btn-icon remove"
+                      (click)="removeDiscount(item)"
+                      title="Desfazer desconto"
+                    >
+                      ↩️
+                    </button>
+                    <button class="btn-icon" (click)="openPriceModal(item)" title="Editar preço">
+                      ✏️
+                    </button>
+                    <button
+                      *ngIf="item.isSplit"
+                      class="btn-icon undo"
+                      (click)="undoSplit(item)"
+                      title="Desfazer divisão"
+                    >
+                      ⟲
+                    </button>
+                    <span
+                      *ngIf="item.parentDiscount && !item.discount"
+                      class="parent-discount-badge"
+                      >💰 Desconto herdado</span
+                    >
                   </div>
                 </div>
               }

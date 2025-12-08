@@ -466,14 +466,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   openDiscountModal(item: CheckoutItem) {
-    // Não permite aplicar desconto em subitens
-    if (item.isSplit) {
-      alert(
-        '⚠️ Não é possível aplicar desconto em itens divididos. O desconto deve ser aplicado antes da divisão.'
-      );
-      return;
-    }
-
     this.discountItem = item;
     this.discountType = item.discount?.type || DiscountType.PERCENTAGE;
     this.discountValue = item.discount?.value || 0;
@@ -555,20 +547,25 @@ export class CheckoutComponent implements OnInit {
       (this.priceEditItem as any).originalPrice = this.priceEditItem.unitPrice;
     }
 
-    // Atualiza o preço unitário e recalcula
-    this.priceEditItem.unitPrice = this.newPrice;
-    this.priceEditItem.subtotal = this.newPrice * this.priceEditItem.quantity;
-
-    // Se tem desconto, recalcula o finalPrice
-    if (this.priceEditItem.discount) {
-      const { type, value } = this.priceEditItem.discount;
-      if (type === DiscountType.PERCENTAGE) {
-        this.priceEditItem.finalPrice = this.priceEditItem.subtotal * (1 - value / 100);
-      } else {
-        this.priceEditItem.finalPrice = this.priceEditItem.subtotal - value;
-      }
+    // Se for split, o preço editado é o final daquele split
+    if (this.priceEditItem.isSplit) {
+      this.priceEditItem.finalPrice = this.newPrice;
+      this.priceEditItem.unitPrice = this.newPrice / this.priceEditItem.quantity;
+      this.priceEditItem.subtotal = this.priceEditItem.finalPrice;
     } else {
-      this.priceEditItem.finalPrice = this.priceEditItem.subtotal;
+      // Para itens normais, mantém lógica anterior
+      this.priceEditItem.unitPrice = this.newPrice;
+      this.priceEditItem.subtotal = this.newPrice * this.priceEditItem.quantity;
+      if (this.priceEditItem.discount) {
+        const { type, value } = this.priceEditItem.discount;
+        if (type === DiscountType.PERCENTAGE) {
+          this.priceEditItem.finalPrice = this.priceEditItem.subtotal * (1 - value / 100);
+        } else {
+          this.priceEditItem.finalPrice = this.priceEditItem.subtotal - value;
+        }
+      } else {
+        this.priceEditItem.finalPrice = this.priceEditItem.subtotal;
+      }
     }
 
     // Arredonda
