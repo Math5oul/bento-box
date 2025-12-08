@@ -189,14 +189,58 @@
                     <table class="data-table">
                       <thead>
                         <tr>
-                          <th>Método</th>
-                          <th class="text-right">Quantidade</th>
-                          <th class="text-right">Receita</th>
-                          <th class="text-right">Percentual</th>
+                          <th>
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setPaymentSort('method')"
+                            >
+                              Método
+                              <span *ngIf="paymentSortColumn === 'method'">
+                                {{ paymentSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setPaymentSort('count')"
+                            >
+                              Quantidade
+                              <span *ngIf="paymentSortColumn === 'count'">
+                                {{ paymentSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setPaymentSort('revenue')"
+                            >
+                              Receita
+                              <span *ngIf="paymentSortColumn === 'revenue'">
+                                {{ paymentSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setPaymentSort('percentage')"
+                            >
+                              Percentual
+                              <span *ngIf="paymentSortColumn === 'percentage'">
+                                {{ paymentSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        @for (method of salesReport.salesByPaymentMethod; track method.method) {
+                        @for (method of getSortedPayments(); track method.method) {
                           <tr>
                             <td>{{ getPaymentMethodLabel(method.method) }}</td>
                             <td class="text-right">{{ method.count }}</td>
@@ -222,14 +266,58 @@
                     <table class="data-table">
                       <thead>
                         <tr>
-                          <th>Categoria</th>
-                          <th class="text-right">Quantidade</th>
-                          <th class="text-right">Receita</th>
-                          <th class="text-right">Percentual</th>
+                          <th>
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setCategorySort('categoryName')"
+                            >
+                              Categoria
+                              <span *ngIf="categorySortColumn === 'categoryName'">
+                                {{ categorySortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setCategorySort('quantity')"
+                            >
+                              Quantidade
+                              <span *ngIf="categorySortColumn === 'quantity'">
+                                {{ categorySortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setCategorySort('revenue')"
+                            >
+                              Receita
+                              <span *ngIf="categorySortColumn === 'revenue'">
+                                {{ categorySortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setCategorySort('percentage')"
+                            >
+                              Percentual
+                              <span *ngIf="categorySortColumn === 'percentage'">
+                                {{ categorySortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        @for (category of salesReport.salesByCategory; track category.categoryId) {
+                        @for (category of getSortedCategories(); track category.categoryId) {
                           <tr>
                             <td>
                               <span
@@ -276,10 +364,54 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Produto</th>
-                          <th class="text-right">Quantidade</th>
-                          <th class="text-right">Receita</th>
-                          <th class="text-right">Preço Médio</th>
+                          <th>
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setProductSort('productName')"
+                            >
+                              Produto
+                              <span *ngIf="productSortColumn === 'productName'">
+                                {{ productSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setProductSort('quantity')"
+                            >
+                              Quantidade
+                              <span *ngIf="productSortColumn === 'quantity'">
+                                {{ productSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setProductSort('revenue')"
+                            >
+                              Receita
+                              <span *ngIf="productSortColumn === 'revenue'">
+                                {{ productSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
+                          <th class="text-right">
+                            <button
+                              type="button"
+                              class="sort-btn"
+                              (click)="setProductSort('averagePrice')"
+                            >
+                              Preço Médio
+                              <span *ngIf="productSortColumn === 'averagePrice'">
+                                {{ productSortDirection === 'asc' ? '▲' : '▼' }}
+                              </span>
+                            </button>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -324,15 +456,50 @@
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>Tipo</th>
-                        <th>Nome</th>
-                        <th class="text-right">Quantidade</th>
-                        <th class="text-right">Receita</th>
-                        <th class="text-right">Percentual</th>
+                        <th>
+                          <button type="button" class="sort-btn" (click)="setCsvSort('type')">
+                            Tipo
+                            <span *ngIf="csvSortColumn === 'type'">
+                              {{ csvSortDirection === 'asc' ? '▲' : '▼' }}
+                            </span>
+                          </button>
+                        </th>
+                        <th>
+                          <button type="button" class="sort-btn" (click)="setCsvSort('name')">
+                            Nome
+                            <span *ngIf="csvSortColumn === 'name'">
+                              {{ csvSortDirection === 'asc' ? '▲' : '▼' }}
+                            </span>
+                          </button>
+                        </th>
+                        <th class="text-right">
+                          <button type="button" class="sort-btn" (click)="setCsvSort('quantity')">
+                            Quantidade
+                            <span *ngIf="csvSortColumn === 'quantity'">
+                              {{ csvSortDirection === 'asc' ? '▲' : '▼' }}
+                            </span>
+                          </button>
+                        </th>
+                        <th class="text-right">
+                          <button type="button" class="sort-btn" (click)="setCsvSort('revenue')">
+                            Receita
+                            <span *ngIf="csvSortColumn === 'revenue'">
+                              {{ csvSortDirection === 'asc' ? '▲' : '▼' }}
+                            </span>
+                          </button>
+                        </th>
+                        <th class="text-right">
+                          <button type="button" class="sort-btn" (click)="setCsvSort('percentage')">
+                            Percentual
+                            <span *ngIf="csvSortColumn === 'percentage'">
+                              {{ csvSortDirection === 'asc' ? '▲' : '▼' }}
+                            </span>
+                          </button>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      @for (row of csvTableData; track row.name + row.type; let i = $index) {
+                      @for (row of getSortedCsv(); track row.name + row.type; let i = $index) {
                         <tr>
                           <td class="text-muted">{{ i + 1 }}</td>
                           <td>

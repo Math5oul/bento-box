@@ -27,6 +27,103 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
   styleUrls: ['./reports.component.scss'],
 })
 export class ReportsComponent implements OnInit {
+  // Estado de ordenação para Método de Pagamento
+  paymentSortColumn: 'method' | 'count' | 'revenue' | 'percentage' = 'count';
+  paymentSortDirection: 'asc' | 'desc' = 'desc';
+
+  // Estado de ordenação para Categoria
+  categorySortColumn: 'categoryName' | 'quantity' | 'revenue' | 'percentage' = 'quantity';
+  categorySortDirection: 'asc' | 'desc' = 'desc';
+
+  // Estado de ordenação para CSV
+  csvSortColumn: 'type' | 'name' | 'quantity' | 'revenue' | 'percentage' = 'quantity';
+  csvSortDirection: 'asc' | 'desc' = 'desc';
+  getSortedPayments(): any[] {
+    if (!this.salesReport || !this.salesReport.salesByPaymentMethod) return [];
+    let arr = [...this.salesReport.salesByPaymentMethod];
+    arr.sort((a, b) => {
+      let valA = a[this.paymentSortColumn];
+      let valB = b[this.paymentSortColumn];
+      if (this.paymentSortColumn === 'method') {
+        return this.paymentSortDirection === 'asc'
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      } else {
+        return this.paymentSortDirection === 'asc'
+          ? Number(valA) - Number(valB)
+          : Number(valB) - Number(valA);
+      }
+    });
+    return arr;
+  }
+
+  setPaymentSort(column: 'method' | 'count' | 'revenue' | 'percentage') {
+    if (this.paymentSortColumn === column) {
+      this.paymentSortDirection = this.paymentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.paymentSortColumn = column;
+      this.paymentSortDirection = column === 'method' ? 'asc' : 'desc';
+    }
+  }
+
+  getSortedCategories(): any[] {
+    if (!this.salesReport || !this.salesReport.salesByCategory) return [];
+    let arr = [...this.salesReport.salesByCategory];
+    arr.sort((a, b) => {
+      let valA = a[this.categorySortColumn];
+      let valB = b[this.categorySortColumn];
+      if (this.categorySortColumn === 'categoryName') {
+        return this.categorySortDirection === 'asc'
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      } else {
+        return this.categorySortDirection === 'asc'
+          ? Number(valA) - Number(valB)
+          : Number(valB) - Number(valA);
+      }
+    });
+    return arr;
+  }
+
+  setCategorySort(column: 'categoryName' | 'quantity' | 'revenue' | 'percentage') {
+    if (this.categorySortColumn === column) {
+      this.categorySortDirection = this.categorySortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.categorySortColumn = column;
+      this.categorySortDirection = column === 'categoryName' ? 'asc' : 'desc';
+    }
+  }
+
+  getSortedCsv(): any[] {
+    if (!this.csvTableData) return [];
+    let arr = [...this.csvTableData];
+    arr.sort((a, b) => {
+      let valA = a[this.csvSortColumn];
+      let valB = b[this.csvSortColumn];
+      if (this.csvSortColumn === 'type' || this.csvSortColumn === 'name') {
+        return this.csvSortDirection === 'asc'
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      } else {
+        return this.csvSortDirection === 'asc'
+          ? Number(valA) - Number(valB)
+          : Number(valB) - Number(valA);
+      }
+    });
+    return arr;
+  }
+
+  setCsvSort(column: 'type' | 'name' | 'quantity' | 'revenue' | 'percentage') {
+    if (this.csvSortColumn === column) {
+      this.csvSortDirection = this.csvSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.csvSortColumn = column;
+      this.csvSortDirection = column === 'type' || column === 'name' ? 'asc' : 'desc';
+    }
+  }
+  // Estado de ordenação para Produtos Mais Vendidos
+  productSortColumn: 'productName' | 'quantity' | 'revenue' | 'averagePrice' = 'quantity';
+  productSortDirection: 'asc' | 'desc' = 'desc';
   // Expor Math para o template
   Math = Math;
 
@@ -381,9 +478,35 @@ export class ReportsComponent implements OnInit {
     if (!this.salesReport || !this.salesReport.salesByProduct) {
       return [];
     }
-    return this.showAllProducts
-      ? this.salesReport.salesByProduct
-      : this.salesReport.salesByProduct.slice(0, 10);
+    // Copiar array para não mutar original
+    let products = [...this.salesReport.salesByProduct];
+    // Ordenar conforme coluna e direção
+    products.sort((a, b) => {
+      let valA = a[this.productSortColumn];
+      let valB = b[this.productSortColumn];
+      // Para nome, usar localeCompare
+      if (this.productSortColumn === 'productName') {
+        return this.productSortDirection === 'asc'
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      } else {
+        // Para números
+        return this.productSortDirection === 'asc'
+          ? Number(valA) - Number(valB)
+          : Number(valB) - Number(valA);
+      }
+    });
+    return this.showAllProducts ? products : products.slice(0, 10);
+  }
+
+  setProductSort(column: 'productName' | 'quantity' | 'revenue' | 'averagePrice') {
+    if (this.productSortColumn === column) {
+      // Alterna direção
+      this.productSortDirection = this.productSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.productSortColumn = column;
+      this.productSortDirection = column === 'productName' ? 'asc' : 'desc';
+    }
   }
 
   /**

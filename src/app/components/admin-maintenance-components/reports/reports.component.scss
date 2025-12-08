@@ -1,3 +1,42 @@
+.csv-table thead tr {
+  background: #2563eb;
+}
+.csv-table thead th {
+  color: #2563eb;
+}
+.csv-table thead th .sort-btn {
+  color: #fff;
+}
+
+// Botões de ordenação da tabela de produtos
+.sort-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sort-btn:hover,
+.sort-btn:focus {
+  background: #e0e7ff;
+  color: #1e40af;
+  outline: none;
+}
+
+.sort-btn span {
+  font-size: 0.9em;
+  margin-left: 0.15em;
+}
 .reports-container {
   padding: 1.25rem;
   max-width: 1400px;
