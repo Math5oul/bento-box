@@ -261,7 +261,7 @@ router.delete(
 
       // Também tenta buscar como string do ObjectId
       const usersWithRoleAsString = await User.countDocuments({
-        role: (role._id as string).toString(),
+        role: role._id.toString(),
       });
       const usersWithRole = usersWithRoleByObjectId + usersWithRoleBySlug + usersWithRoleAsString;
 
@@ -293,7 +293,7 @@ router.delete(
         }
 
         // Não permitir migrar para o próprio role sendo deletado
-        if ((targetRole._id as string).toString() === (role._id as string).toString()) {
+        if (targetRole._id.toString() === role._id.toString()) {
           return res.status(400).json({
             success: false,
             message: 'Não é possível migrar usuários para o mesmo perfil sendo deletado',
@@ -307,7 +307,7 @@ router.delete(
         );
 
         const updateResultByString = await User.updateMany(
-          { role: (role._id as string).toString() },
+          { role: role._id.toString() },
           { $set: { role: targetRole._id } }
         );
 

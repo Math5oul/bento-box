@@ -2,6 +2,8 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, switchMap, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth-service/auth.service';
 
 /**
  * Interceptor para renovação automática de access token
@@ -22,9 +24,12 @@ export const authRefreshInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Se for a rota de refresh falhando, não tenta de novo (evita loop)
       if (req.url.includes('/api/auth/refresh')) {
-        console.warn('🔄 Refresh token expirado. Redirecionando para login...');
-        // Aqui você pode redirecionar para /login se quiser
-        // inject(Router).navigate(['/login']);
+        console.warn('🔄 Refresh token expirado. Fazendo logout e redirecionando para login...');
+        // Limpa estado de autenticação e redireciona
+        const authService = inject(AuthService);
+        const router = inject(Router);
+        authService.logout();
+        router.navigate(['/login']);
         return throwError(() => error);
       }
 
@@ -45,7 +50,11 @@ export const authRefreshInterceptor: HttpInterceptorFn = (req, next) => {
         catchError(refreshError => {
           // Falha ao renovar token
           console.error('❌ Falha ao renovar token:', refreshError);
-          // Aqui você pode fazer logout ou redirecionar para login
+          // Limpa estado de autenticação e redireciona
+          const authService = inject(AuthService);
+          const router = inject(Router);
+          authService.logout();
+          router.navigate(['/login']);
           return throwError(() => refreshError);
         })
       );
