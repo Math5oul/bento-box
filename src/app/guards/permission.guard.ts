@@ -5,13 +5,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { RolePermissions } from '../interfaces/role.interface';
 
 /**
- * Factory para criar guards baseados em verificação de permissão
+ * Factory para criar guards baseados em verificação de permissão.
  *
- * Uso:
- * - canActivate: [createPermissionGuard('canAccessAdminPanel')]
- * - canActivate: [createPermissionGuard(['accessWaiterPanel', 'accessAdminPanel'])] // OR logic
- *
- * Este guard substitui adminGuard, waiterGuard, kitchenGuard com lógica unificada
+ * - Passe uma string para exigir uma permissão específica.
+ * - Passe um array de strings para aceitar qualquer uma das permissões (lógica OR).
+ * - Passe uma função para lógica personalizada.
  */
 export function createPermissionGuard(
   permissionCheck:
