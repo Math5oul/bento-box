@@ -20,18 +20,14 @@
     "serve:ssr:bento-box": "node dist/bento-box/server/server.mjs",
     "backend": "ts-node-dev --project tsconfig.backend.json backend/server.ts",
     "regenerate:qrcodes": "ts-node --project tsconfig.backend.json backend/scripts/regenerate-qrcodes.ts",
-    "regenerate:qrcodes:ngrok": "QR_CODE_BASE_URL=https://gatherable-unasking-niels.ngrok-free.dev ts-node --project tsconfig.backend.json backend/scripts/regenerate-qrcodes.ts",
     "seed:export": "ts-node --project tsconfig.backend.json backend/scripts/export-database.ts",
     "seed:restore": "ts-node --project tsconfig.backend.json backend/scripts/restore-database.ts",
     "migrate:images": "ts-node --project tsconfig.backend.json backend/scripts/migrate-product-images.ts",
     "dev": "concurrently \"npm run backend\" \"ng serve\"",
     "dev:mobile": "concurrently \"npm run backend\" \"ng serve --host 0.0.0.0\"",
-    "dev:ngrok": "concurrently \"npm run backend\" \"ng serve --host 0.0.0.0\" \"ngrok http 4200\"",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{js,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\" \"*.{js,json}\"",
-    "prepare": "husky",
-    "ngrok:backend": "ngrok http 3001",
-    "ngrok:frontend": "ngrok http 4200"
+    "prepare": "husky"
   },
   "dependencies": {
     "@angular/animations": "^20.3.15",
@@ -92,7 +88,6 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^16.2.6",
-    "ngrok": "^5.0.0-beta.2",
     "prettier": "^3.6.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.21.0",

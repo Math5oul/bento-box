@@ -76,7 +76,6 @@
           "options": {
             "proxyConfig": "proxy.conf.json",
             "allowedHosts": [
-              "gatherable-unasking-niels.ngrok-free.dev",
               "localhost",
               "127.0.0.1"
             ],
