@@ -46,8 +46,6 @@ export class SimpleProductComponent {
     if (this.inputs.editMode) {
       return;
     } else {
-      console.log('🖱️ [SimpleProduct] Abrindo modal com category:', (this.inputs as any).category);
-
       this.productModalService.openModal({
         images: this.inputs.images,
         productName: this.inputs.productName,

@@ -394,6 +394,35 @@ export class AuthService {
     return null;
   }
 
+  /**
+   * Valida se a sessão atual ainda é válida no backend
+   * Retorna true se autenticado, false caso contrário
+   */
+  async validateSession(): Promise<boolean> {
+    if (!this.isBrowser) {
+      return false;
+    }
+
+    // Se não há dados de usuário, não está logado
+    if (!this.getCurrentUser()) {
+      return false;
+    }
+
+    try {
+      // Faz uma requisição simples para validar o token
+      const response = await this.http
+        .get<{ success: boolean; authenticated: boolean }>('/api/auth/validate-session')
+        .toPromise();
+
+      return response?.authenticated ?? false;
+    } catch (error) {
+      // Se falhar (401, 403, etc), sessão inválida
+      console.warn('Sessão inválida, fazendo logout...');
+      this.logout();
+      return false;
+    }
+  }
+
   async changePassword(currentPassword: string, newPassword: string): Promise<any> {
     // Cookie enviado automaticamente via credentialsInterceptor
     // Não precisa mais de Authorization header manual

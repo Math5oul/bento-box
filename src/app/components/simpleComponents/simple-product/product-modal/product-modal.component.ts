@@ -51,7 +51,6 @@ export class ProductModalComponent {
    * Abre o modal de produto
    */
   open() {
-    console.log('🎭 [ProductModal] Modal aberto com category:', this.category);
     this.isOpen = true;
     // Bloqueia o scroll do body (apenas no browser)
     if (isPlatformBrowser(this.platformId)) {
@@ -146,21 +145,11 @@ export class ProductModalComponent {
     const basePrice = this.getBasePrice();
     const variationPrice = this.getVariationPrice();
 
-    console.log('🔍 [ProductModal] getFullPriceCalculation:', {
-      basePrice,
-      variationPrice,
-      category: this.category,
-      hasCategory: !!this.category,
-      hasDiscounts: this.category?.discounts?.length || 0,
-    });
-
     const result = this.discountService.calculateFullItemPrice(
       basePrice,
       variationPrice,
       this.category
     );
-
-    console.log('💰 [ProductModal] Resultado do cálculo:', result);
 
     return result;
   }

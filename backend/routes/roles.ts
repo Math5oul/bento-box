@@ -250,9 +250,6 @@ router.delete(
 
       // DEBUG: Ver todos os roles únicos dos usuários
       const allUserRoles = await User.distinct('role');
-      console.log(`🔍 DEBUG - Roles únicos no banco:`, allUserRoles);
-      console.log(`🔍 DEBUG - Role sendo deletado:`, role._id, 'tipo:', typeof role._id);
-      console.log(`🔍 DEBUG - Role slug:`, role.slug);
 
       // Verificar se existem usuários com este role
       // Busca por ObjectId ou por slug (para roles legacy que podem estar como string)

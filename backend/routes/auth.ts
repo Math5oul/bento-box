@@ -784,4 +784,36 @@ router.post(
   }
 );
 
+/**
+ * GET /api/auth/validate-session
+ * Valida se a sessão atual (via cookie) ainda é válida
+ * Não requer body, apenas verifica o token no cookie
+ */
+router.get(
+  '/validate-session',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Se passou pelo middleware authenticate, o token é válido
+      res.json({
+        success: true,
+        authenticated: true,
+        user: {
+          userId: req.user?.userId,
+          email: req.user?.email,
+          role: req.user?.role,
+          isAnonymous: req.user?.isAnonymous,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao validar sessão:', error);
+      res.status(401).json({
+        success: false,
+        authenticated: false,
+        message: 'Sessão inválida',
+      });
+    }
+  }
+);
+
 export default router;
