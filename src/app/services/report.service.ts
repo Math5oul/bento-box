@@ -33,20 +33,14 @@ export class ReportService {
    * Listar todas as categorias de relatório
    */
   getCategories(): Observable<{ categories: ReportCategory[] }> {
-    const headers = this.getHeaders();
-    return this.http.get<{ categories: ReportCategory[] }>(`${this.apiUrl}/categories`, {
-      headers,
-    });
+    return this.http.get<{ categories: ReportCategory[] }>(`${this.apiUrl}/categories`);
   }
 
   /**
    * Criar nova categoria de relatório
    */
   createCategory(category: Partial<ReportCategory>): Observable<{ category: ReportCategory }> {
-    const headers = this.getHeaders();
-    return this.http.post<{ category: ReportCategory }>(`${this.apiUrl}/categories`, category, {
-      headers,
-    });
+    return this.http.post<{ category: ReportCategory }>(`${this.apiUrl}/categories`, category);
   }
 
   /**
@@ -56,28 +50,21 @@ export class ReportService {
     id: string,
     category: Partial<ReportCategory>
   ): Observable<{ category: ReportCategory }> {
-    const headers = this.getHeaders();
-    return this.http.put<{ category: ReportCategory }>(
-      `${this.apiUrl}/categories/${id}`,
-      category,
-      { headers }
-    );
+    return this.http.put<{ category: ReportCategory }>(`${this.apiUrl}/categories/${id}`, category);
   }
 
   /**
    * Deletar categoria de relatório
    */
   deleteCategory(id: string): Observable<{ message: string }> {
-    const headers = this.getHeaders();
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/categories/${id}`, { headers });
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/categories/${id}`);
   }
 
   /**
    * Gerar relatório de vendas com filtros
    */
   generateSalesReport(filters: ReportFilters): Observable<SalesReport> {
-    const headers = this.getHeaders();
-    return this.http.post<SalesReport>(`${this.apiUrl}/sales`, filters, { headers });
+    return this.http.post<SalesReport>(`${this.apiUrl}/sales`, filters);
   }
 
   /**
@@ -136,7 +123,7 @@ export class ReportService {
   /**
    * Exportar relatório para Excel com formatação de tabela
    */
-  exportToCsv(report: SalesReport): void {
+  exportToCsv(report: SalesReport): Promise<void> {
     // Criar workbook ExcelJS
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Relatório de Vendas');
@@ -292,12 +279,19 @@ export class ReportService {
 
     // Gerar arquivo Excel
     const fileName = `relatorio_vendas_${new Date().toISOString().split('T')[0]}.xlsx`;
-    workbook.xlsx.writeBuffer().then(buffer => {
+    return workbook.xlsx.writeBuffer().then(buffer => {
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      saveAs(blob, fileName);
+      this.saveFile(blob, fileName);
     });
+  }
+
+  /**
+   * Método auxiliar para salvar arquivo (facilita testes)
+   */
+  protected saveFile(blob: Blob, fileName: string): void {
+    saveAs(blob, fileName);
   }
 
   /**

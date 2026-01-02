@@ -4,11 +4,16 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { createCustomAuthServiceMock } from '../../../testing/auth-service.mock';
+import { TableService } from '../../../services/table-service/table.service';
+import { BehaviorSubject } from 'rxjs';
+import { Table } from '../../../interfaces/table.interface';
 
 describe('WaiterDashboardComponent', () => {
   let component: WaiterDashboardComponent;
   let fixture: ComponentFixture<WaiterDashboardComponent>;
   let httpMock: HttpTestingController;
+  let mockTableService: jasmine.SpyObj<TableService>;
+  const tablesSubject = new BehaviorSubject<Table[]>([]);
 
   beforeEach(async () => {
     const authServiceMock = createCustomAuthServiceMock({
@@ -17,16 +22,27 @@ describe('WaiterDashboardComponent', () => {
       canManageOrders: true,
     });
 
+    mockTableService = jasmine.createSpyObj('TableService', ['loadTables', 'updateTable'], {
+      tables$: tablesSubject.asObservable(),
+    });
+
     await TestBed.configureTestingModule({
       imports: [WaiterDashboardComponent, HttpClientTestingModule],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: TableService, useValue: mockTableService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WaiterDashboardComponent);
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
+
+    // Trigger ngOnInit
     fixture.detectChanges();
 
+    // Handle initial request from ngOnInit
     const initReq = httpMock.expectOne('/api/orders');
     initReq.flush({ orders: [] });
   });
@@ -43,7 +59,6 @@ describe('WaiterDashboardComponent', () => {
     expect(component.orders).toEqual([]);
     expect(component.filteredOrders).toEqual([]);
     expect(component.historyOrders).toEqual([]);
-    // loading é false após chamada inicial terminar (o teste controla resposta HTTP abaixo)
   });
 
   it('formatCurrency deve retornar moeda BRL', () => {

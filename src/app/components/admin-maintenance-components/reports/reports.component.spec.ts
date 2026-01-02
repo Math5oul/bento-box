@@ -3,7 +3,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { ReportsComponent } from './reports.component';
 import { ReportService } from '../../../services/report.service';
+import { ProductService } from '../../../services/product-service/product.service';
 import { ReportCategory, SalesReport } from '../../../interfaces/report.interface';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { AuthService } from '../../../services/auth-service/auth.service';
+import { MockAuthService } from '../../../testing/auth-service.mock';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute } from '@angular/router';
 
 describe('ReportsComponent', () => {
   let component: ReportsComponent;
@@ -86,10 +92,27 @@ describe('ReportsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ReportsComponent, ReactiveFormsModule],
+      imports: [
+        ReportsComponent,
+        ReactiveFormsModule,
+        HttpClientTestingModule,
+        RouterTestingModule,
+      ],
       providers: [
         { provide: ReportService, useValue: mockReportService },
-        { provide: 'ProductService', useValue: mockProductService },
+        { provide: ProductService, useValue: mockProductService },
+        { provide: AuthService, useClass: MockAuthService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            queryParams: of({}),
+            snapshot: {
+              params: {},
+              queryParams: {},
+            },
+          },
+        },
       ],
     }).compileComponents();
 
@@ -104,19 +127,20 @@ describe('ReportsComponent', () => {
 
   it('should initialize with default values', () => {
     expect(component.activeTab).toBe('sales');
-    expect(component.categories).toEqual([]);
     expect(component.salesReport).toBeNull();
     expect(component.isLoading).toBeFalse();
   });
 
   it('should load categories on init', () => {
-    component.ngOnInit();
     expect(mockReportService.getCategories).toHaveBeenCalled();
     expect(component.categories).toEqual(mockCategories);
   });
 
   it('should handle error when loading categories', () => {
     mockReportService.getCategories.and.returnValue(throwError(() => new Error('Network error')));
+
+    // Spy on console.error to prevent it from cluttering the test output
+    spyOn(console, 'error');
 
     component.loadCategories();
 
@@ -317,13 +341,12 @@ describe('ReportsComponent', () => {
 
   describe('Product Management', () => {
     it('should load products on init', () => {
-      component.ngOnInit();
       expect(mockProductService.getAllProducts).toHaveBeenCalled();
       expect(component.allProducts).toEqual(mockProducts);
     });
 
     it('should open products modal', () => {
-      const category = mockCategories[0];
+      const category = { ...mockCategories[0] };
 
       component.openProductsModal(category);
 
@@ -345,48 +368,37 @@ describe('ReportsComponent', () => {
     });
 
     it('should check if product is in category', () => {
-      component.selectedCategoryForProducts = mockCategories[0];
+      component.selectedCategoryForProducts = { ...mockCategories[0], productIds: ['p1', 'p2'] };
 
       expect(component.isProductInCategory('p1')).toBeTrue();
       expect(component.isProductInCategory('p3')).toBeFalse();
     });
 
     it('should toggle product in category - add', () => {
-      const category = mockCategories[0];
-      component.selectedCategoryForProducts = category;
-
-      mockReportService.updateCategory.and.returnValue(
-        of({
-          category: { ...category, productIds: [...category.productIds, 'p3'] },
-        })
-      );
+      const category = { ...mockCategories[0], productIds: ['p1', 'p2'] };
+      component.selectedCategoryForProducts = { ...category };
+      component.categories = [{ ...category }];
 
       component.toggleProductInCategory('p3');
 
-      expect(mockReportService.updateCategory).toHaveBeenCalledWith(category._id, {
-        productIds: ['p1', 'p2', 'p3'],
-      });
+      expect(component.pendingProductChanges.get(category._id)).toEqual(['p1', 'p2', 'p3']);
     });
 
     it('should toggle product in category - remove', () => {
-      const category = mockCategories[0];
-      component.selectedCategoryForProducts = category;
-
-      mockReportService.updateCategory.and.returnValue(
-        of({
-          category: { ...category, productIds: ['p2'] },
-        })
-      );
+      const category = { ...mockCategories[0], productIds: ['p1', 'p2'] };
+      component.selectedCategoryForProducts = { ...category };
+      component.categories = [{ ...category }];
 
       component.toggleProductInCategory('p1');
 
-      expect(mockReportService.updateCategory).toHaveBeenCalledWith(category._id, {
-        productIds: ['p2'],
-      });
+      expect(component.pendingProductChanges.get(category._id)).toEqual(['p2']);
     });
 
     it('should filter products by search term', () => {
-      component.allProducts = mockProducts;
+      component.allProducts = [...mockProducts];
+      const category = { ...mockCategories[0], productIds: [] };
+      component.selectedCategoryForProducts = category;
+      component.categories = [category];
       component.productSearchTerm = 'coca';
 
       const filtered = component.filteredProducts;
@@ -396,7 +408,10 @@ describe('ReportsComponent', () => {
     });
 
     it('should return all products when search term is empty', () => {
-      component.allProducts = mockProducts;
+      component.allProducts = [...mockProducts];
+      const category = { ...mockCategories[0], productIds: [] };
+      component.selectedCategoryForProducts = category;
+      component.categories = [category];
       component.productSearchTerm = '';
 
       const filtered = component.filteredProducts;
@@ -405,7 +420,7 @@ describe('ReportsComponent', () => {
     });
 
     it('should get product count for category', () => {
-      const category = mockCategories[0];
+      const category = { ...mockCategories[0], productIds: ['p1', 'p2'] };
 
       const count = component.getProductCount(category);
 
