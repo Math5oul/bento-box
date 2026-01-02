@@ -9,8 +9,8 @@ export interface User {
   email?: string; // Opcional para usuários anônimos
   password?: string; // Hash bcrypt, opcional para anônimos
   name: string;
-  role: UserRole | string; // Pode ser enum legacy ou ObjectId de Role
-  roleDetails?: Role; // Role populado com permissões (quando role é ObjectId)
+  role: string; // ObjectId de Role no banco
+  roleDetails?: Role; // Role populado com permissões
   permissions?: RolePermissions; // Permissões diretas para acesso rápido
   isAnonymous: boolean; // true se for cliente genérico via QR Code
   createdAt: Date;
@@ -27,23 +27,12 @@ export interface User {
 }
 
 /**
- * Enum de Roles do Sistema
- */
-export enum UserRole {
-  ADMIN = 'admin',
-  CLIENT = 'client',
-  TABLE = 'table', // Nível mais baixo (não usado diretamente)
-  KITCHEN = 'cozinha', // Perfil para dashboard da cozinha
-  WAITER = 'garcom', // Perfil para garçons
-}
-
-/**
  * Payload do JWT Token
  */
 export interface JWTPayload {
   userId: string;
   email?: string;
-  role: UserRole;
+  role: string; // ObjectId de Role
   isAnonymous: boolean;
   iat: number; // Issued at
   exp: number; // Expiration

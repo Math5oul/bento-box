@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { body } from 'express-validator';
 import mongoose from 'mongoose';
-import { User, UserRole } from '../models/User';
+import { User } from '../models/User';
+import { Role } from '../models/Role';
 import { Table } from '../models/Table';
 import { Order } from '../models/Order';
 import { generateToken } from '../utils/jwt';
@@ -162,29 +163,32 @@ router.post(
         return;
       }
 
-      // Se role foi fornecido, validar (aceita enum ou ObjectId)
-      let userRole = UserRole.CLIENT; // Default
+      // Determina o role - usa o fornecido ou busca o role 'cliente' padrão
+      let userRole: mongoose.Types.ObjectId;
 
-      if (role) {
-        const validEnumRoles = ['user', 'admin', 'cozinha', 'garçom', 'garcom', 'client', 'table'];
-        const isEnumRole = validEnumRoles.includes(role);
-        const isObjectId = mongoose.Types.ObjectId.isValid(role);
-
-        if (isEnumRole) {
-          userRole = role === 'garçom' ? 'garcom' : role;
-        } else if (isObjectId) {
-          // Verificar se o role existe
-          const { Role } = await import('../models');
-          const roleExists = await Role.findById(role);
-          if (roleExists) {
-            userRole = role; // Use ObjectId directly
-            console.log('✅ Usando ObjectId role:', userRole);
-          } else {
-            console.log('❌ Role não encontrado no banco');
-          }
+      if (role && mongoose.Types.ObjectId.isValid(role)) {
+        // Role foi fornecido como ObjectId
+        const roleExists = await Role.findById(role);
+        if (roleExists) {
+          userRole = new mongoose.Types.ObjectId(role);
         } else {
-          console.log('❌ Role inválido - não é enum nem ObjectId');
+          res.status(400).json({
+            success: false,
+            message: 'Role fornecido não existe',
+          });
+          return;
         }
+      } else {
+        // Busca role padrão 'cliente'
+        const defaultRole = await Role.findOne({ slug: 'cliente' });
+        if (!defaultRole) {
+          res.status(500).json({
+            success: false,
+            message: 'Role padrão "cliente" não encontrado. Execute o seed de roles.',
+          });
+          return;
+        }
+        userRole = defaultRole._id as mongoose.Types.ObjectId;
       }
 
       // Cria novo usuário
@@ -711,7 +715,7 @@ router.post(
           name: registerData.name,
           email: registerData.email,
           password: registerData.password,
-          role: UserRole.CLIENT,
+          role: (await Role.findOne({ slug: 'cliente' }))?._id,
           isAnonymous: false,
         });
 

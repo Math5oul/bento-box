@@ -62,6 +62,7 @@ const AuditLogSchema = new Schema<IAuditLog>(
         'FAILED_LOGIN',
         'BACKUP_DATABASE',
         'RESTORE_DATABASE',
+        'SYSTEM_ERROR',
       ],
     },
     resource: {

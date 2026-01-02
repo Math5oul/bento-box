@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sanitizeError, logError, isDevelopment } from '../utils/errorSanitizer';
+import { createAuditLog } from './auditLogger';
 
 /**
  * Middleware de Error Handler Global
@@ -18,6 +19,29 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
 
   // Sanitiza erro para o cliente
   const sanitized = sanitizeError(err);
+
+  // Registra erros críticos (5xx) no AuditLog
+  if (sanitized.statusCode >= 500) {
+    const userId = (req as any).user?.userId || (req as any).user?._id;
+    const userEmail = (req as any).user?.email;
+
+    createAuditLog(
+      'SYSTEM_ERROR',
+      'system',
+      userId,
+      userEmail,
+      {
+        path: req.path,
+        method: req.method,
+        errorName: err.name,
+        errorMessage: err.message,
+        statusCode: sanitized.statusCode,
+      },
+      undefined,
+      false,
+      err.message || 'Internal Server Error'
+    );
+  }
 
   // Em produção, NUNCA expõe stack traces ou detalhes internos
   const response: any = {

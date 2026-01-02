@@ -464,7 +464,7 @@ export class PaymentService {
  * Factory para criar instância do PaymentService baseado no .env
  */
 export function createPaymentService(): PaymentService | null {
-  const provider = (process.env.PAYMENT_PROVIDER as PaymentConfig['provider']) || 'none';
+  const provider = (process.env['PAYMENT_PROVIDER'] as PaymentConfig['provider']) || 'none';
 
   if (provider === 'none') {
     return null;
@@ -472,12 +472,12 @@ export function createPaymentService(): PaymentService | null {
 
   const config: PaymentConfig = {
     provider,
-    publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || '',
-    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
-    pixEnabled: process.env.PAYMENT_PIX_ENABLED === 'true',
-    creditCardEnabled: process.env.PAYMENT_CREDIT_CARD_ENABLED === 'true',
-    debitCardEnabled: process.env.PAYMENT_DEBIT_CARD_ENABLED === 'true',
-    webhookUrl: process.env.PAYMENT_WEBHOOK_URL || '',
+    publicKey: process.env['MERCADOPAGO_PUBLIC_KEY'] || '',
+    accessToken: process.env['MERCADOPAGO_ACCESS_TOKEN'] || '',
+    pixEnabled: process.env['PAYMENT_PIX_ENABLED'] === 'true',
+    creditCardEnabled: process.env['PAYMENT_CREDIT_CARD_ENABLED'] === 'true',
+    debitCardEnabled: process.env['PAYMENT_DEBIT_CARD_ENABLED'] === 'true',
+    webhookUrl: process.env['PAYMENT_WEBHOOK_URL'] || '',
   };
 
   return new PaymentService(config);

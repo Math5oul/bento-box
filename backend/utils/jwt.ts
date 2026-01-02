@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import { IUser, UserRole } from '../models/User';
+import { IUser } from '../models/User';
 
 /**
  * Payload do JWT Token
@@ -8,7 +8,7 @@ import { IUser, UserRole } from '../models/User';
 export interface JWTPayload {
   userId: string;
   email?: string;
-  role: UserRole | string; // Can be enum or Role ObjectId string
+  role: string; // Role ObjectId como string
   isAnonymous: boolean;
   iat?: number;
   exp?: number;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JWTPayload } from '../utils/jwt';
-import { User, UserRole } from '../models/User';
+import { User } from '../models/User';
 import { Role, IRolePermissions, DEFAULT_PERMISSIONS } from '../models/Role';
 import mongoose from 'mongoose';
 
@@ -10,9 +10,9 @@ declare global {
       user?: {
         userId: string;
         email?: string;
-        role: UserRole | string; // Can be enum or ObjectId string
+        role: string; // Role ObjectId como string
         isAnonymous: boolean;
-        permissions?: IRolePermissions; // Dynamic permissions from Role document
+        permissions?: IRolePermissions;
       };
       sessionToken?: string;
     }
@@ -23,19 +23,21 @@ declare global {
  * Helper function to load permissions for a user
  */
 async function loadUserPermissions(
-  role: UserRole | string | mongoose.Types.ObjectId
+  role: string | mongoose.Types.ObjectId
 ): Promise<IRolePermissions | undefined> {
-  // If role is a static enum value, return default permissions
-  if (typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)) {
-    const roleKey =
-      role === UserRole.WAITER ? 'waiter' : role === UserRole.KITCHEN ? 'kitchen' : role;
-    return DEFAULT_PERMISSIONS[roleKey];
-  }
-
-  // If role is an ObjectId, fetch the Role document
   try {
     const roleDoc = await Role.findById(role);
-    return roleDoc?.permissions;
+    if (roleDoc) {
+      return roleDoc.permissions;
+    }
+    
+    // Fallback para role por slug se for string legível
+    if (typeof role === 'string' && role.length < 24) {
+      const roleBySlug = await Role.findOne({ slug: role });
+      return roleBySlug?.permissions;
+    }
+    
+    return undefined;
   } catch (error) {
     console.error('Error loading role permissions:', error);
     return undefined;
@@ -95,7 +97,6 @@ export const authenticate = async (
         return;
       }
 
-      // Convert role to string (either enum value or ObjectId string)
       const roleValue =
         user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role;
 
@@ -121,10 +122,10 @@ export const authenticate = async (
 
 /**
  * Middleware de autorização por role
- * @param allowedRoles - Roles permitidas para acessar a rota
+ * @param allowedRoleSlugs - Slugs dos roles permitidos (ex: 'admin', 'garcom', 'cozinha')
  */
-export const authorize = (...allowedRoles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export const authorize = (...allowedRoleSlugs: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
       res.status(401).json({
         success: false,
@@ -133,39 +134,62 @@ export const authorize = (...allowedRoles: UserRole[]) => {
       return;
     }
 
-    // Check if role matches any allowed role (handle both enum and string)
-    const userRole = req.user.role as string;
-    const allowedRoleStrings = allowedRoles.map(role => role as string);
+    try {
+      // Busca o role do usuário no banco
+      const roleDoc = await Role.findById(req.user.role);
+      
+      if (!roleDoc) {
+        res.status(403).json({
+          success: false,
+          message: 'Role não encontrado',
+        });
+        return;
+      }
 
-    if (!allowedRoleStrings.includes(userRole)) {
-      res.status(403).json({
+      // Verifica se o slug do role está na lista de permitidos
+      if (!allowedRoleSlugs.includes(roleDoc.slug)) {
+        res.status(403).json({
+          success: false,
+          message: 'Permissão negada',
+        });
+        return;
+      }
+
+      next();
+    } catch (error) {
+      console.error('Erro ao verificar autorização:', error);
+      res.status(500).json({
         success: false,
-        message: 'Permissão negada',
+        message: 'Erro ao verificar permissões',
       });
-      return;
     }
-
-    next();
   };
 };
 
-export const adminOnly = authorize(UserRole.ADMIN);
-export const clientOnly = authorize(UserRole.CLIENT);
-export const kitchenOnly = authorize(UserRole.KITCHEN);
-export const kitchenOrAdmin = authorize(UserRole.ADMIN, UserRole.KITCHEN);
+export const adminOnly = authorize('admin');
+export const clientOnly = authorize('cliente', 'cliente-vip');
+export const kitchenOnly = authorize('cozinha');
+export const kitchenOrAdmin = authorize('admin', 'cozinha');
 
 /**
  * Helper function to check if user has a specific permission
  */
-export function hasPermission(req: Request, permissionKey: keyof IRolePermissions): boolean {
+export async function hasPermission(req: Request, permissionKey: keyof IRolePermissions): Promise<boolean> {
   if (!req.user) return false;
 
-  // Legacy check: admin role has all permissions
-  if (req.user.role === UserRole.ADMIN || req.user.role === 'admin') {
-    return true;
+  // Busca role do banco para verificar se é admin
+  try {
+    const roleDoc = await Role.findById(req.user.role);
+    
+    // Admin tem todas as permissões
+    if (roleDoc?.slug === 'admin') {
+      return true;
+    }
+  } catch (error) {
+    console.error('Erro ao verificar role:', error);
   }
 
-  // Check dynamic permissions
+  // Verifica permissões dinâmicas
   return req.user.permissions?.[permissionKey] === true;
 }
 
@@ -173,7 +197,7 @@ export function hasPermission(req: Request, permissionKey: keyof IRolePermission
  * Middleware to require a specific permission
  */
 export const requirePermission = (permissionKey: keyof IRolePermissions) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
       res.status(401).json({
         success: false,
@@ -182,7 +206,8 @@ export const requirePermission = (permissionKey: keyof IRolePermissions) => {
       return;
     }
 
-    if (!hasPermission(req, permissionKey)) {
+    const hasPerm = await hasPermission(req, permissionKey);
+    if (!hasPerm) {
       res.status(403).json({
         success: false,
         message: 'Acesso negado',
@@ -206,11 +231,10 @@ export const optionalAuth = async (
 ): Promise<void> => {
   const authHeader = req.headers.authorization;
   const accessToken = req.cookies?.['access_token'];
-  const legacyToken = req.cookies?.['auth_token']; // Backward compatibility
 
   // Prioriza access_token, fallback para auth_token (legado), depois Authorization header
   const token =
-    accessToken || legacyToken || (authHeader ? authHeader.replace('Bearer ', '') : null);
+    accessToken || (authHeader ? authHeader.replace('Bearer ', '') : null);
 
   if (!token) {
     return next();
@@ -234,7 +258,6 @@ export const optionalAuth = async (
       });
 
       if (user) {
-        // Convert role to string (either enum value or ObjectId string)
         const roleValue =
           user.role instanceof mongoose.Types.ObjectId ? user.role.toString() : user.role;
 

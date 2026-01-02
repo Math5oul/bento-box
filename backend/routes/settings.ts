@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { authenticate, hasPermission } from '../middleware/auth';
 import mongoose from 'mongoose';
-import { UserRole } from '../models/User';
+import { Role } from '../models/Role';
 import { Request, Response, NextFunction } from 'express';
 import { auditLog } from '../middleware/auditLogger';
 import { logError, sanitizeError } from '../utils/errorSanitizer';
@@ -11,19 +11,25 @@ import { logError, sanitizeError } from '../utils/errorSanitizer';
 const router = express.Router();
 
 // Middleware específico para settings: aceita admin ou permissão canManageSystemSettings
-const canManageSettings = (req: Request, res: Response, next: NextFunction): void => {
+const canManageSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   if (!req.user) {
     res.status(401).json({ success: false, message: 'Usuário não autenticado' });
     return;
   }
 
-  // Admin sempre tem acesso
-  if (req.user.role === UserRole.ADMIN || req.user.role === 'admin') {
-    return next();
+  // Verifica se é admin pelo slug
+  try {
+    const roleDoc = await Role.findById(req.user.role);
+    if (roleDoc?.slug === 'admin') {
+      return next();
+    }
+  } catch (error) {
+    console.error('Erro ao verificar role:', error);
   }
 
   // Verificar permissão específica
-  if (hasPermission(req, 'canManageSystemSettings')) {
+  const hasPerm = await hasPermission(req, 'canManageSystemSettings');
+  if (hasPerm) {
     return next();
   }
 

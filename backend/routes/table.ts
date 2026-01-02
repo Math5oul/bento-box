@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { param, body } from 'express-validator';
-import { User, UserRole } from '../models/User';
+import { User } from '../models/User';
 import { Table, TableStatus } from '../models/Table';
 import { Order } from '../models/Order';
 import { Role } from '../models/Role';
@@ -769,9 +769,18 @@ router.post(
       }
 
       // Cria usuário anônimo com nome personalizado
+      const defaultRole = await Role.findOne({ slug: 'cliente' });
+      if (!defaultRole) {
+        res.status(500).json({
+          success: false,
+          message: 'Role padrão "cliente" não encontrado. Execute o seed de roles.',
+        });
+        return;
+      }
+
       const anonymousUser = new User({
         name: clientName,
-        role: roleId || UserRole.CLIENT, // Usa roleId se fornecido, senão usa CLIENT padrão
+        role: roleId || defaultRole._id, // Usa roleId se fornecido, senão usa cliente padrão
         isAnonymous: true,
         currentTableId: table ? table._id : undefined, // Apenas vincula se houver mesa
       });
@@ -905,9 +914,18 @@ router.get(
         deviceType = ' (Mac)';
       }
 
+      const defaultRole = await Role.findOne({ slug: 'cliente' });
+      if (!defaultRole) {
+        res.status(500).json({
+          success: false,
+          message: 'Role padrão "cliente" não encontrado. Execute o seed de roles.',
+        });
+        return;
+      }
+
       const anonymousUser = new User({
         name: `Cliente Mesa ${table.number} #${uniqueId}${deviceType}`,
-        role: UserRole.CLIENT,
+        role: defaultRole._id,
         isAnonymous: true,
         currentTableId: table._id,
       });

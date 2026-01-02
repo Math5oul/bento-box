@@ -1,17 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 /**
- * Enum de Roles do Usuário
- */
-export enum UserRole {
-  ADMIN = 'admin',
-  CLIENT = 'client',
-  TABLE = 'table',
-  KITCHEN = 'cozinha',
-  WAITER = 'garcom',
-}
-
-/**
  * Interface do Método de Pagamento
  */
 export interface IPaymentMethod {
@@ -33,7 +22,7 @@ export interface IUser extends Document {
   email?: string;
   password?: string;
   name: string;
-  role: UserRole | mongoose.Types.ObjectId; // Suporta enum legacy ou referência a Role
+  role: mongoose.Types.ObjectId; // Referência a Role no banco
   roleDetails?: any; // Populated role data
   isAnonymous: boolean;
   sessionToken?: string;
@@ -92,20 +81,9 @@ const UserSchema = new Schema<IUser>(
       trim: true,
     },
     role: {
-      type: Schema.Types.Mixed, // Aceita String (enum legacy) ou ObjectId (novo Role)
-      ref: 'Role', // Referência para popular
-      default: UserRole.CLIENT,
-      validate: {
-        validator: function (v: any) {
-          // Aceita enum values ou ObjectId
-          return (
-            Object.values(UserRole).includes(v) ||
-            v instanceof mongoose.Types.ObjectId ||
-            mongoose.Types.ObjectId.isValid(v)
-          );
-        },
-        message: 'Role deve ser um valor válido ou referência a um Role',
-      },
+      type: Schema.Types.ObjectId,
+      ref: 'Role',
+      required: [true, 'Role é obrigatório'],
     },
     isAnonymous: {
       type: Boolean,
