@@ -1,0 +1,37 @@
+<div class="section-header">
+  <h2>
+    @if (isHistory) {
+      <span class="history-icon">📜</span>
+    }
+    {{ title }}
+  </h2>
+  @if (showToggle) {
+    <button class="toggle-history-btn" (click)="onToggle()">
+      {{ isExpanded ? '▼ Ocultar' : '▶ Mostrar' }}
+    </button>
+  }
+</div>
+
+@if (orders.length === 0 && !isHistory) {
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <h3>Nenhum pedido ativo</h3>
+    <p class="empty-hint">Aguarde novos pedidos chegarem.</p>
+  </div>
+}
+
+@if (orders.length > 0 && (!showToggle || isExpanded)) {
+  <div class="orders-grid">
+    @for (order of orders; track order.id) {
+      <app-kitchen-order-card
+        [order]="order"
+        [tablesMap]="tablesMap"
+        [canManageOrders]="canManageOrders"
+        [canCancelOrders]="canCancelOrders"
+        [isHistory]="isHistory"
+        (itemStatusUpdate)="onItemStatusUpdate($event)"
+        (orderCancel)="onOrderCancel($event)"
+      ></app-kitchen-order-card>
+    }
+  </div>
+}

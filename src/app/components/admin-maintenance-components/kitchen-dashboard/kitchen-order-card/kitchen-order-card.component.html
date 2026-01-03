@@ -1,0 +1,115 @@
+<div class="order-card" [class]="getStatusClass(order.status)">
+  <div class="order-card-header">
+    <div class="order-badge">
+      @if (isHistory) {
+        <span class="order-number">#{{ order.id.slice(-6) }}</span>
+      }
+      <span class="status-badge" [class]="'badge-' + order.status" [title]="'ID: ' + order.id">
+        {{ getStatusLabel(order.status) }}
+      </span>
+    </div>
+    <div class="order-meta">
+      <div class="meta-item">
+        <span class="meta-icon">🍽️</span>
+        <span class="meta-text">{{ getTableDisplayName() }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-icon">{{ isHistory ? '⏰' : '⏱️' }}</span>
+        <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-client">
+    <span class="client-icon">👤</span>
+    <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+  </div>
+
+  <div class="order-items">
+    <h4 class="items-title">Itens do Pedido:</h4>
+    <ul class="items-list">
+      @for (item of order.items; track i; let i = $index) {
+        <li [class]="isHistory ? 'item' : 'item-row'">
+          <div class="item-main-row">
+            <span class="item-quantity">{{ item.quantity }}x</span>
+            <span class="item-name">{{ item.productName }}</span>
+            @if (item.selectedSize) {
+              <div class="item-size">
+                🔹
+                @if (isHistory) {
+                  Tamanho: {{ item.selectedSize.name }} ({{ item.selectedSize.abbreviation }})
+                } @else {
+                  {{ item.selectedSize.abbreviation }}
+                }
+              </div>
+            }
+            @if (item.selectedVariation) {
+              <div class="item-variation">
+                🔸
+                @if (isHistory) {
+                  Variação: {{ item.selectedVariation.title }}
+                  @if (item.selectedVariation.description) {
+                    — {{ item.selectedVariation.description }}
+                  }
+                } @else {
+                  {{ item.selectedVariation.title }}
+                }
+              </div>
+            }
+            @if (item.notes) {
+              <div class="item-notes"><span class="notes-icon">📝</span> {{ item.notes }}</div>
+            }
+          </div>
+
+          @if (!isHistory) {
+            <div class="item-action">
+              @if (canManageOrders) {
+                @if ((item.status || 'pending') === 'pending') {
+                  <button
+                    class="small-btn btn-preparing"
+                    (click)="onUpdateItemStatus(item, 'preparing')"
+                    title="Marcar preparando"
+                  >
+                    Preparar
+                  </button>
+                } @else if ((item.status || 'pending') === 'preparing') {
+                  <button
+                    class="small-btn btn-ready"
+                    (click)="onUpdateItemStatus(item, 'ready')"
+                    title="Marcar pronto"
+                  >
+                    Pronto
+                  </button>
+                } @else if ((item.status || 'pending') === 'ready') {
+                  <span class="ready-badge" title="Pronto para entrega">Pronto para entrega ✓</span>
+                } @else if ((item.status || 'pending') === 'delivered') {
+                  <span class="delivered-badge" title="Entregue">Entregue ✓</span>
+                }
+              } @else {
+                @if ((item.status || 'pending') === 'pending') {
+                  <span class="status-badge">Pendente</span>
+                } @else if ((item.status || 'pending') === 'preparing') {
+                  <span class="status-badge">Preparando</span>
+                } @else if ((item.status || 'pending') === 'ready') {
+                  <span class="ready-badge" title="Pronto para entrega">Pronto para entrega ✓</span>
+                } @else if ((item.status || 'pending') === 'delivered') {
+                  <span class="delivered-badge" title="Entregue">Entregue ✓</span>
+                }
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+
+  @if (canCancelOrders && !isHistory) {
+    <div class="order-actions">
+      <div class="actions-buttons">
+        <button class="action-btn btn-cancelled" (click)="onCancelOrder()" title="Cancelar pedido">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  }
+</div>

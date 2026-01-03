@@ -1,0 +1,27 @@
+<div class="filters-bar">
+  <div class="filter-item">
+    <label class="filter-label">Filtrar por Status:</label>
+    <select [ngModel]="filterStatus" (ngModelChange)="onFilterChange($event)" class="filter-select">
+      @for (s of statuses; track s.value) {
+        <option [value]="s.value">{{ s.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filter-item search-box">
+    <label class="filter-label">Buscar:</label>
+    <input
+      type="text"
+      [ngModel]="searchTerm"
+      (ngModelChange)="onSearchChange($event)"
+      placeholder="Mesa, número ou item..."
+      class="search-input"
+    />
+  </div>
+
+  <div class="order-count">
+    <span class="count-label">Total:</span>
+    <span class="count-value">{{ orderCount }}</span>
+    <span class="count-suffix">pedido(s)</span>
+  </div>
+</div>

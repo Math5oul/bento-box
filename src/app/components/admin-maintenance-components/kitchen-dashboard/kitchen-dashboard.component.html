@@ -7,21 +7,14 @@
   </div>
 
   <!-- Filters Bar -->
-  <div class="filters-bar">
-    <div class="filter-item">
-      <label class="filter-label">Filtrar por Status:</label>
-      <select [(ngModel)]="filterStatus" (change)="loadOrders()" class="filter-select">
-        @for (s of statuses; track s.value) {
-          <option [value]="s.value">{{ s.label }}</option>
-        }
-      </select>
-    </div>
-    <div class="order-count">
-      <span class="count-label">Total:</span>
-      <span class="count-value">{{ orders.length }}</span>
-      <span class="count-suffix">pedido(s)</span>
-    </div>
-  </div>
+  <app-kitchen-filters
+    [statuses]="statuses"
+    [filterStatus]="filterStatus"
+    [orderCount]="orders.length"
+    [searchTerm]="searchTerm"
+    (filterStatusChange)="filterStatus = $event; loadOrders()"
+    (searchTermChange)="onSearchTermChange($event)"
+  ></app-kitchen-filters>
 
   @if (loading) {
     <div class="loading">⏳ Carregando pedidos...</div>
@@ -30,205 +23,32 @@
   } @else {
     <div class="orders-container">
       <!-- Pedidos Ativos -->
-      <div class="section-header">
-        <h2>🔥 Ativos</h2>
-        <span class="section-count">{{ orders.length }}</span>
-      </div>
-
-      @if (orders.length === 0) {
-        <div class="empty-state">
-          <div class="empty-icon">📭</div>
-          <h3>Nenhum pedido ativo</h3>
-          <p class="empty-hint">Aguarde novos pedidos chegarem.</p>
-        </div>
-      } @else {
-        <div class="orders-grid">
-          @for (order of orders; track order.id) {
-            <div class="order-card" [class]="getStatusClass(order.status)">
-              <div class="order-card-header">
-                <div class="order-badge">
-                  <span
-                    class="status-badge"
-                    [class]="'badge-' + order.status"
-                    [title]="'ID: ' + order.id"
-                  >
-                    {{ getStatusLabel(order.status) }}
-                  </span>
-                </div>
-                <div class="order-meta">
-                  <div class="meta-item">
-                    <span class="meta-icon">🍽️</span>
-                    <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
-                  </div>
-                  <div class="meta-item">
-                    <span class="meta-icon">⏱️</span>
-                    <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="order-client">
-                <span class="client-icon">👤</span>
-                <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
-              </div>
-
-              <div class="order-items">
-                <h4 class="items-title">Itens do Pedido:</h4>
-                <ul class="items-list">
-                  @for (item of order.items; track i; let i = $index) {
-                    <li class="item-row">
-                      <div class="item-main-row">
-                        <span class="item-quantity">{{ item.quantity }}x</span>
-                        <span class="item-name">{{ item.productName }}</span>
-                        @if (item.selectedSize) {
-                          <div class="item-size">🔹 {{ item.selectedSize.abbreviation }}</div>
-                        }
-                        @if (item.selectedVariation) {
-                          <div class="item-variation">🔸 {{ item.selectedVariation.title }}</div>
-                        }
-                        @if (item.notes) {
-                          <div class="item-notes">
-                            <span class="notes-icon">📝</span> {{ item.notes }}
-                          </div>
-                        }
-                      </div>
-
-                      <div class="item-action">
-                        @if (canManageOrders) {
-                          @if ((item.status || 'pending') === 'pending') {
-                            <button
-                              class="small-btn btn-preparing"
-                              (click)="updateItemStatus(order, item, 'preparing')"
-                              title="Marcar preparando"
-                            >
-                              Preparar
-                            </button>
-                          } @else if ((item.status || 'pending') === 'preparing') {
-                            <button
-                              class="small-btn btn-ready"
-                              (click)="updateItemStatus(order, item, 'ready')"
-                              title="Marcar pronto"
-                            >
-                              Pronto
-                            </button>
-                          } @else if ((item.status || 'pending') === 'ready') {
-                            <span class="ready-pill" title="Pronto para entrega"
-                              >Pronto para entrega ✓</span
-                            >
-                          } @else if ((item.status || 'pending') === 'delivered') {
-                            <span class="delivered-pill" title="Entregue">Entregue ✓</span>
-                          }
-                        } @else {
-                          <!-- Usuário sem permissão apenas visualiza status -->
-                          @if ((item.status || 'pending') === 'pending') {
-                            <span class="status-badge">Pendente</span>
-                          } @else if ((item.status || 'pending') === 'preparing') {
-                            <span class="status-badge">Preparando</span>
-                          } @else if ((item.status || 'pending') === 'ready') {
-                            <span class="ready-pill" title="Pronto para entrega"
-                              >Pronto para entrega ✓</span
-                            >
-                          } @else if ((item.status || 'pending') === 'delivered') {
-                            <span class="delivered-pill" title="Entregue">Entregue ✓</span>
-                          }
-                        }
-                      </div>
-                    </li>
-                  }
-                </ul>
-              </div>
-
-              @if (canCancelOrders) {
-                <div class="order-actions">
-                  <div class="actions-buttons">
-                    <button
-                      class="action-btn btn-cancelled"
-                      (click)="updateStatus(order, 'cancelled')"
-                      title="Cancelar pedido"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
+      <app-kitchen-order-list
+        [orders]="orders"
+        [tablesMap]="tablesMap"
+        [canManageOrders]="canManageOrders"
+        [canCancelOrders]="canCancelOrders"
+        [isHistory]="false"
+        title="🔥 Ativos"
+        [count]="orders.length"
+        (itemStatusUpdate)="updateItemStatus($event.order, $event.item, $event.status)"
+        (orderCancel)="updateStatus($event, 'cancelled')"
+      ></app-kitchen-order-list>
 
       <!-- Histórico de Pedidos -->
       @if (historyOrders.length > 0) {
         <div class="history-section">
-          <div class="section-header">
-            <h2><span class="history-icon">📜</span> Histórico</h2>
-            <button class="toggle-history-btn" (click)="showHistory = !showHistory">
-              {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
-            </button>
-          </div>
-
-          @if (showHistory) {
-            <div class="orders-grid">
-              @for (order of historyOrders; track order.id) {
-                <div class="order-card" [class]="getStatusClass(order.status)">
-                  <div class="order-card-header">
-                    <div class="order-badge">
-                      <span class="order-number">#{{ order.id.slice(-6) }}</span>
-                      <span class="status-badge" [class]="'badge-' + order.status">{{
-                        getStatusLabel(order.status)
-                      }}</span>
-                    </div>
-                    <div class="order-meta">
-                      <div class="meta-item">
-                        <span class="meta-icon">🍽️</span>
-                        <span class="meta-text">Mesa {{ order.tableNumber || '—' }}</span>
-                      </div>
-                      <div class="meta-item">
-                        <span class="meta-icon">⏰</span>
-                        <span class="meta-text">{{ getElapsedTime(order.createdAt) }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="order-client">
-                    <span class="client-icon">👤</span>
-                    <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
-                  </div>
-
-                  <div class="order-items">
-                    <h4 class="items-title">Itens do Pedido:</h4>
-                    <ul class="items-list">
-                      @for (item of order.items; track i; let i = $index) {
-                        <li class="item">
-                          <span class="item-quantity">{{ item.quantity }}x</span>
-                          <span class="item-name">{{ item.productName }}</span>
-                          @if (item.selectedSize) {
-                            <div class="item-size">
-                              🔹 Tamanho: {{ item.selectedSize.name }} ({{
-                                item.selectedSize.abbreviation
-                              }})
-                            </div>
-                          }
-                          @if (item.selectedVariation) {
-                            <div class="item-variation">
-                              🔸 Variação: {{ item.selectedVariation.title }}
-                              @if (item.selectedVariation.description) {
-                                — {{ item.selectedVariation.description }}
-                              }
-                            </div>
-                          }
-                          @if (item.notes) {
-                            <span class="item-notes"
-                              ><span class="notes-icon">📝</span> {{ item.notes }}</span
-                            >
-                          }
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                </div>
-              }
-            </div>
-          }
+          <app-kitchen-order-list
+            [orders]="historyOrders"
+            [tablesMap]="tablesMap"
+            [canManageOrders]="false"
+            [canCancelOrders]="false"
+            [isHistory]="true"
+            title="Histórico"
+            [showToggle]="true"
+            [isExpanded]="showHistory"
+            (toggleExpanded)="showHistory = !showHistory"
+          ></app-kitchen-order-list>
         </div>
       }
     </div>

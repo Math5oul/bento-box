@@ -950,12 +950,34 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     this.tableService.loadTables();
     this.tableService.tables$.subscribe({
       next: tables => {
+        console.log('🏷️ Waiter Dashboard - Tabelas recebidas:', tables);
         this.allTables = tables || [];
         // Atualiza o mapa de mesas
         this.tablesMap.clear();
+
+        const withName: string[] = [];
+        const withoutName: string[] = [];
+
         this.allTables.forEach(table => {
-          this.tablesMap.set(table.number.toString(), table);
+          const key = table.number.toString();
+          this.tablesMap.set(key, table);
+
+          console.log(`  Mesa ${key}:`, {
+            id: table.id,
+            number: table.number,
+            name: table.name,
+            hasName: !!table.name,
+          });
+
+          if (table.name) {
+            withName.push(`${key}="${table.name}"`);
+          } else {
+            withoutName.push(key);
+          }
         });
+
+        console.log('✅ Mesas COM nome:', withName.join(', ') || 'nenhuma');
+        console.log('📋 Mesas SEM nome:', withoutName.join(', ') || 'nenhuma');
       },
       error: error => {
         console.error('Erro ao carregar informações das mesas:', error);
@@ -967,6 +989,12 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
    * Retorna o nome formatado da mesa (nome se houver, senão "Mesa X")
    */
   getTableDisplayName(tableNumber: string | number): string {
+    // Verificar explicitamente por null ou undefined
+    // NÃO usar !tableNumber porque 0 é falsy mas é um número de mesa válido!
+    if (tableNumber === null || tableNumber === undefined) {
+      return 'Desconhecida';
+    }
+
     // Garante que sempre comparamos como string
     const tableNumberStr = String(tableNumber);
     const table = this.tablesMap.get(tableNumberStr);

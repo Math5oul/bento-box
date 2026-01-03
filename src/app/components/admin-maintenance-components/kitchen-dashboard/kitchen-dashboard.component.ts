@@ -5,12 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { KitchenFiltersComponent } from './kitchen-filters/kitchen-filters.component';
+import { KitchenOrderListComponent } from './kitchen-order-list/kitchen-order-list.component';
+import { TableService } from '../../../services/table-service/table.service';
 
 interface KitchenOrderItem {
   productName: string;
   quantity: number;
   notes?: string;
-  status?: string; // novo: status do item (pending, preparing, ready, etc.)
+  status?: string;
   selectedSize?: {
     name: string;
     abbreviation: string;
@@ -33,22 +36,40 @@ interface KitchenOrder {
   items: KitchenOrderItem[];
 }
 
+interface Table {
+  id?: string;
+  number: number;
+  name?: string;
+  capacity?: number;
+  status?: string;
+}
+
 @Component({
   selector: 'app-kitchen-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AdminHeaderComponent,
+    KitchenFiltersComponent,
+    KitchenOrderListComponent,
+  ],
   templateUrl: './kitchen-dashboard.component.html',
   styleUrl: './kitchen-dashboard.component.scss',
 })
 export class KitchenDashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private tableService = inject(TableService);
 
   orders: KitchenOrder[] = [];
   historyOrders: KitchenOrder[] = [];
+  allOrders: KitchenOrder[] = []; // Armazena todos os pedidos antes do filtro
+  tablesMap: Map<string, Table> = new Map(); // Mapa para informações das mesas
   loading = false;
   error: string | null = null;
   filterStatus: string = 'kitchen';
+  searchTerm: string = '';
   pollIntervalMs = 5000; // Poll a cada 5s
   pollingHandle: any;
   showHistory: boolean = false;
@@ -87,12 +108,53 @@ export class KitchenDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadTablesInfo();
     this.loadOrders();
     this.startPolling();
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
+  }
+
+  /**
+   * Carrega informações das mesas para exibir nomes customizados
+   */
+  loadTablesInfo(): void {
+    this.tableService.loadTables();
+    this.tableService.tables$.subscribe({
+      next: tables => {
+        console.log('🏷️ Tabelas recebidas do serviço:', tables);
+        this.tablesMap.clear();
+
+        const withName: string[] = [];
+        const withoutName: string[] = [];
+
+        (tables || []).forEach(table => {
+          const key = table.number.toString();
+          this.tablesMap.set(key, table);
+
+          if (table.name) {
+            withName.push(`${key} = "${table.name}"`);
+          } else {
+            withoutName.push(key);
+          }
+        });
+
+        console.log(
+          '✅ Mesas COM nome customizado:',
+          withName.length > 0 ? withName.join(', ') : 'nenhuma'
+        );
+        console.log(
+          '📋 Mesas SEM nome (apenas número):',
+          withoutName.length > 0 ? withoutName.join(', ') : 'nenhuma'
+        );
+        console.log('� Total de mesas no mapa:', this.tablesMap.size);
+      },
+      error: error => {
+        console.error('Erro ao carregar informações das mesas:', error);
+      },
+    });
   }
 
   startPolling(): void {
@@ -105,6 +167,93 @@ export class KitchenDashboardComponent implements OnInit {
     if (this.pollingHandle) {
       clearInterval(this.pollingHandle);
     }
+  }
+
+  /**
+   * Aplica filtro de pesquisa nos pedidos
+   */
+  applySearchFilter(): void {
+    if (!this.searchTerm || this.searchTerm.trim() === '') {
+      this.orders = this.allOrders;
+      return;
+    }
+
+    const searchLower = this.searchTerm.toLowerCase().trim();
+    console.log('🔍 Buscando por:', `"${searchLower}"`);
+    console.log('📦 Total de pedidos:', this.allOrders.length);
+
+    this.orders = this.allOrders.filter(order => {
+      console.log('\n📋 Checando pedido:', order.id, 'Mesa:', order.tableNumber);
+
+      // Buscar por número da mesa
+      const tableNumberStr = order.tableNumber?.toString() || '';
+      const tableNumberMatch = tableNumberStr.includes(searchLower);
+      console.log(
+        `  - tableNumberMatch: "${tableNumberStr}".includes("${searchLower}") =`,
+        tableNumberMatch
+      );
+
+      // Buscar por nome customizado da mesa
+      const tableInfo = this.tablesMap.get(order.tableNumber?.toString() || '');
+      console.log('  - tableInfo:', tableInfo);
+      const tableNameMatch = tableInfo?.name?.toLowerCase().includes(searchLower) || false;
+      console.log('  - tableNameMatch:', tableNameMatch);
+
+      // Buscar por "mesa X" ou "mX" para mesas sem nome customizado
+      let tableFormatMatch = false;
+      if (order.tableNumber !== undefined && !tableInfo?.name) {
+        const tableNum = order.tableNumber.toString();
+        const formats = [`mesa ${tableNum}`, `mesa${tableNum}`, `m${tableNum}`, `m ${tableNum}`];
+
+        console.log('  - Testando formatos:', formats);
+        console.log('  - Contra:', `"${searchLower}"`);
+
+        // Verificar se o termo de busca contém ou é igual a algum formato
+        tableFormatMatch = formats.some(format => {
+          const exactMatch = searchLower === format;
+          const partialMatch = searchLower.includes(format) || format.includes(searchLower);
+          console.log(`    "${format}": exact=${exactMatch}, partial=${partialMatch}`);
+          return exactMatch || partialMatch;
+        });
+
+        console.log('  - tableFormatMatch:', tableFormatMatch);
+      }
+
+      // Buscar por nome do cliente
+      const clientMatch = order.clientName?.toLowerCase().includes(searchLower);
+
+      // Buscar por ID do pedido
+      const idMatch = order.id?.toLowerCase().includes(searchLower);
+
+      // Buscar por itens do pedido
+      const itemsMatch = order.items?.some(
+        item =>
+          item.productName?.toLowerCase().includes(searchLower) ||
+          item.notes?.toLowerCase().includes(searchLower) ||
+          item.selectedVariation?.title?.toLowerCase().includes(searchLower) ||
+          item.selectedSize?.name?.toLowerCase().includes(searchLower)
+      );
+
+      const result =
+        tableNumberMatch ||
+        tableNameMatch ||
+        tableFormatMatch ||
+        clientMatch ||
+        idMatch ||
+        itemsMatch;
+      console.log('  ✅ Resultado final:', result);
+      return result;
+    });
+
+    console.log('📊 Pedidos filtrados:', this.orders.length);
+  }
+
+  /**
+   * Handler para mudança no termo de busca
+   */
+  onSearchTermChange(term: string): void {
+    this.searchTerm = term;
+    this.applySearchFilter();
   }
 
   async loadOrders(showLoader: boolean = true): Promise<void> {
@@ -186,7 +335,13 @@ export class KitchenDashboardComponent implements OnInit {
               o.status === 'pending' || o.status === 'preparing' || o.status === 'ready'
           );
         }
-        this.orders = activeOrders;
+
+        // Armazenar todos os pedidos antes do filtro de pesquisa
+        this.allOrders = activeOrders;
+
+        // Aplicar filtro de pesquisa
+        this.applySearchFilter();
+
         this.historyOrders = allOrders.filter(
           (o: KitchenOrder) => o.status === 'delivered' || o.status === 'cancelled'
         );

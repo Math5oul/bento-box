@@ -49,6 +49,7 @@
     @if (activeTab === 'deliver') {
       <app-ready-items-panel
         [readyViewItems]="readyViewItems"
+        [tablesMap]="tablesMap"
         [canDeliverOrders]="canDeliverOrders"
         (deliverItem)="deliverSingleItem($event.orderId, $event.item)"
       ></app-ready-items-panel>
@@ -58,6 +59,7 @@
     }
     <app-order-list
       [orders]="filteredOrders"
+      [tablesMap]="tablesMap"
       [canManageOrders]="canManageOrders"
       [canCancelOrders]="canCancelOrders"
       [canDeliverOrders]="canDeliverOrders"

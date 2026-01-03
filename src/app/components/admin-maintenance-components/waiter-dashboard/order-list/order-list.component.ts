@@ -35,6 +35,14 @@ interface WaiterOrder {
   updatedAt: string;
 }
 
+interface Table {
+  id?: string;
+  number: number;
+  name?: string;
+  capacity?: number;
+  status?: string;
+}
+
 @Component({
   selector: 'app-order-list',
   standalone: true,
@@ -44,6 +52,7 @@ interface WaiterOrder {
 })
 export class OrderListComponent {
   @Input() orders: WaiterOrder[] = [];
+  @Input() tablesMap: Map<string, Table> = new Map();
   @Input() canManageOrders: boolean = false;
   @Input() canCancelOrders: boolean = false;
   @Input() canDeliverOrders: boolean = false;

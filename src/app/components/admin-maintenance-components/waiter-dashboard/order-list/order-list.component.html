@@ -18,6 +18,7 @@
       @for (order of orders; track order.id) {
         <app-order-card
           [order]="order"
+          [tablesMap]="tablesMap"
           [canManageOrders]="canManageOrders"
           [canCancelOrders]="canCancelOrders"
           [canDeliverOrders]="canDeliverOrders"

@@ -35,6 +35,14 @@ interface WaiterOrder {
   updatedAt: string;
 }
 
+interface Table {
+  id?: string;
+  number: number;
+  name?: string;
+  capacity?: number;
+  status?: string;
+}
+
 @Component({
   selector: 'app-order-card',
   standalone: true,
@@ -44,6 +52,7 @@ interface WaiterOrder {
 })
 export class OrderCardComponent {
   @Input() order!: WaiterOrder;
+  @Input() tablesMap: Map<string, Table> = new Map();
   @Input() canManageOrders: boolean = false;
   @Input() canCancelOrders: boolean = false;
   @Input() canDeliverOrders: boolean = false;
@@ -93,11 +102,26 @@ export class OrderCardComponent {
   }
 
   getTableDisplayName(table: string): string {
-    if (!table) return 'Desconhecida';
+    // Verificar explicitamente por null, undefined ou string vazia
+    // NÃO usar !table porque 0 é falsy mas é um número de mesa válido!
+    if (table === null || table === undefined || table === '') {
+      return 'Desconhecida';
+    }
+
     const tableStr = String(table);
+
+    // Buscar informações da mesa no mapa
+    const tableInfo = this.tablesMap.get(tableStr);
+
+    if (tableInfo?.name) {
+      return tableInfo.name;
+    }
+
+    // Verificar se é formato antigo "custom-nome"
     if (tableStr.startsWith('custom-')) {
       return tableStr.replace('custom-', '').toUpperCase();
     }
+
     return `Mesa ${tableStr}`;
   }
 
