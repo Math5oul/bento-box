@@ -64,8 +64,16 @@
             (click)="viewTableOrders(table)"
             [disabled]="!(table.currentOrders && table.currentOrders.length > 0)"
             [class.is-disabled]="!(table.currentOrders && table.currentOrders.length > 0)"
+            [title]="
+              table.currentOrders && table.currentOrders.length > 0
+                ? 'Ver pedidos ativos desta mesa'
+                : 'Esta mesa não possui pedidos ativos'
+            "
           >
             📋 Pedidos
+            @if (table.currentOrders && table.currentOrders.length > 0) {
+              <span class="badge">{{ table.currentOrders.length }}</span>
+            }
           </button>
           <button class="btn-action btn-qr" (click)="showTableQRCode(table)">📱 QR Code</button>
           <button class="btn-action btn-edit" (click)="openEditModal(table)">✏️ Editar</button>
