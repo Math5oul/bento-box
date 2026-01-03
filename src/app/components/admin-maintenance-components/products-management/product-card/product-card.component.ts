@@ -7,62 +7,7 @@ import { Category } from '../../../../interfaces/category.interface';
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="product-card" [class.unavailable]="!product.available">
-      <!-- Badge de disponibilidade -->
-      <div
-        class="availability-badge"
-        [class.available]="product.available"
-        (click)="toggleAvailability.emit(product)"
-        title="Clique para alterar disponibilidade"
-      >
-        {{ product.available ? '✅ Disponível' : '❌ Indisponível' }}
-      </div>
-
-      <!-- Informações do produto -->
-      <div class="product-info">
-        <h3>{{ product.name }}</h3>
-        <p class="description">{{ truncateText(product.description, 80) }}</p>
-
-        <div class="product-meta">
-          <span class="category">
-            {{ getCategoryEmoji(product.category) }} {{ product.category }}
-          </span>
-          <span class="price">{{ formatPrice(product.price) }}</span>
-        </div>
-
-        <div class="product-details">
-          @if (product.format) {
-            <span class="detail-tag">📐 {{ product.format }}</span>
-          }
-          @if (product.colorMode) {
-            <span class="detail-tag">
-              {{ product.colorMode === 'light' ? '☀️' : '🌙' }} {{ product.colorMode }}
-            </span>
-          }
-          <span class="detail-tag">🖼️ {{ product.images.length || 0 }} imagens</span>
-        </div>
-      </div>
-
-      <!-- Miniatura das imagens -->
-      @if (product.images && product.images.length > 0) {
-        <div class="product-images">
-          @for (img of product.images.slice(0, 3); track $index) {
-            <img [src]="img" [alt]="product.name" class="thumbnail" />
-          }
-          @if (product.images.length > 3) {
-            <span class="more-images"> +{{ product.images.length - 3 }} </span>
-          }
-        </div>
-      }
-
-      <!-- Ações -->
-      <div class="product-actions">
-        <button class="edit-btn" (click)="edit.emit(product)">✏️ Editar</button>
-        <button class="delete-btn" (click)="delete.emit(product)">🗑️ Deletar</button>
-      </div>
-    </div>
-  `,
+  templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss'],
 })
 export class ProductCardComponent {

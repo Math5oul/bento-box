@@ -1,0 +1,27 @@
+<div class="filters-section">
+  <div class="filter-group">
+    <label>📂 Categoria:</label>
+    <select
+      [ngModel]="filterCategory"
+      (ngModelChange)="onCategoryChange($event)"
+      class="filter-select"
+    >
+      <option value="">Todas as categorias</option>
+      @for (cat of categories; track cat._id) {
+        <option [value]="cat.slug">{{ cat.emoji }} {{ cat.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label>🎨 Tipo:</label>
+    <select [ngModel]="filterType" (ngModelChange)="onTypeChange($event)" class="filter-select">
+      <option value="">Todos os tipos</option>
+      <option value="text">📝 Texto</option>
+      <option value="image">🖼️ Imagem</option>
+      <option value="video">🎥 Vídeo</option>
+    </select>
+  </div>
+
+  <div class="filter-results">Exibindo {{ filteredCount }} de {{ totalCount }} fillers</div>
+</div>

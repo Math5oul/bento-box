@@ -4,9 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { ImageUploadService } from '../../../services/image-upload/image-upload.service';
-import { StorageService } from '../../../services/storage-service/storage.service';
-import { SanitizePipe } from '../../../pipes/sanitize.pipe';
 import { CategoryService } from '../../../services/category-service/category.service';
 import { Category } from '../../../interfaces/category.interface';
 import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-modal.component';
@@ -15,6 +12,9 @@ import { SimpleTextComponent } from '../../simpleComponents/simple-text/simple-t
 import { SimpleImageComponent } from '../../simpleComponents/simple-image/simple-image.component';
 import { SimpleVideoComponent } from '../../simpleComponents/simple-video/simple-video.component';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { FillerStatsComponent, FillerStats } from './filler-stats/filler-stats.component';
+import { FillerFiltersComponent } from './filler-filters/filler-filters.component';
+import { FillerListComponent } from './filler-list/filler-list.component';
 
 interface FillerContent {
   text?: string;
@@ -51,9 +51,11 @@ interface Filler {
     CommonModule,
     FormsModule,
     RouterModule,
-    SanitizePipe,
     ItemEditorModalComponent,
     AdminHeaderComponent,
+    FillerStatsComponent,
+    FillerFiltersComponent,
+    FillerListComponent,
   ],
   templateUrl: './fillers-management.component.html',
   styleUrl: './fillers-management.component.scss',
@@ -71,12 +73,6 @@ export class FillersManagementComponent implements OnInit {
   filterCategory = ''; // Filtro por categoria
   filterType = ''; // Filtro por tipo
 
-  // Estatísticas
-  totalFillers = 0;
-  textFillers = 0;
-  imageFillers = 0;
-  videoFillers = 0;
-
   // Modal unificado (new-item-modal)
   showModal = false;
   modalEditMode = false;
@@ -85,6 +81,18 @@ export class FillersManagementComponent implements OnInit {
 
   // Opções disponíveis
   availableFormats = ['1x1', '1x2', '2x1', '2x2'];
+
+  /**
+   * Retorna as estatísticas dos fillers
+   */
+  get stats(): FillerStats {
+    return {
+      total: this.fillers.length,
+      text: this.fillers.filter(f => f.type === 'text').length,
+      image: this.fillers.filter(f => f.type === 'image').length,
+      video: this.fillers.filter(f => f.type === 'video').length,
+    };
+  }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -152,12 +160,6 @@ export class FillersManagementComponent implements OnInit {
     try {
       this.fillers =
         (await this.http.get<Filler[]>(`${environment.apiUrl}/fillers`).toPromise()) || [];
-
-      // Atualiza estatísticas
-      this.totalFillers = this.fillers.length;
-      this.textFillers = this.fillers.filter(f => f.type === 'text').length;
-      this.imageFillers = this.fillers.filter(f => f.type === 'image').length;
-      this.videoFillers = this.fillers.filter(f => f.type === 'video').length;
 
       this.loading = false;
     } catch (error) {

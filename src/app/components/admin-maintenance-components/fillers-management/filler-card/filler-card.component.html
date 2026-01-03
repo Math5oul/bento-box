@@ -1,0 +1,85 @@
+<div class="filler-card">
+  <!-- Header -->
+  <div class="filler-header">
+    <span class="filler-type type-{{ filler.type }}">
+      {{ getTypeEmoji(filler.type) }} {{ filler.type }}
+    </span>
+    <span class="filler-id">#{{ filler._id.substring(0, 8) }}</span>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-container">
+    @if (filler.type === 'text') {
+      <div
+        class="preview-text"
+        [style.background-color]="filler.content.backgroundColor || '#ffffff'"
+        [innerHTML]="truncateText(filler.content.text || '', 150) | sanitize: 'trustedHtml'"
+      ></div>
+    }
+    @if (filler.type === 'image') {
+      <img
+        [src]="filler.content.url"
+        [alt]="filler.content.alt || 'Imagem'"
+        class="preview-image"
+        (error)="onImageError($event)"
+      />
+    }
+    @if (filler.type === 'video') {
+      <video
+        [src]="filler.content.url"
+        class="preview-video"
+        controls
+        muted
+        (error)="onVideoError($event)"
+      ></video>
+    }
+  </div>
+
+  <!-- Content Info -->
+  <div class="filler-content">
+    @if (filler.type === 'text') {
+      <p><strong>Texto:</strong> {{ truncateText(filler.content.text || '', 100) }}</p>
+      <p>
+        <strong>Cor de Fundo:</strong>
+        <span class="color-box" [style.background]="filler.content.backgroundColor"></span>
+        {{ filler.content.backgroundColor }}
+      </p>
+    }
+
+    @if (filler.type === 'image') {
+      <p>
+        <strong>URL:</strong>
+        <span class="url-text" [title]="filler.content.url">
+          {{ filler.content.url }}
+        </span>
+      </p>
+      <p><strong>Alt:</strong> {{ filler.content.alt || 'Sem texto alternativo' }}</p>
+    }
+
+    @if (filler.type === 'video') {
+      <p>
+        <strong>URL:</strong>
+        <span class="url-text" [title]="filler.content.url">
+          {{ filler.content.url }}
+        </span>
+      </p>
+    }
+  </div>
+
+  <!-- Meta Info -->
+  <div class="filler-meta">
+    <div><strong>Formatos:</strong> {{ (filler.formats || ['1x1']).join(', ') }}</div>
+    <div><strong>Status:</strong> {{ filler.active ? '✅ Ativo' : '❌ Inativo' }}</div>
+    <div>
+      <strong>Posição:</strong> ({{ filler.gridPosition?.row || 0 }},
+      {{ filler.gridPosition?.col || 0 }})
+    </div>
+    <div style="grid-column: 1 / -1"><strong>Categorias:</strong> {{ categoryEmojis }}</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="filler-actions">
+    <button class="btn btn-edit" (click)="onEdit()">✏️ Editar</button>
+    <button class="btn btn-delete" (click)="onDelete()">🗑️ Deletar</button>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<!-- Loading -->
+@if (loading) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Carregando fillers...</p>
+  </div>
+}
+
+<!-- Empty State -->
+@if (!loading && totalFillers === 0) {
+  <div class="empty-state">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+      />
+    </svg>
+    <h3>Nenhum Filler encontrado</h3>
+    <p>Crie fillers através do botão "Novo Filler"</p>
+  </div>
+}
+
+<!-- Filtro vazio -->
+@if (!loading && totalFillers > 0 && fillers.length === 0) {
+  <div class="empty-state">
+    <h3>Nenhum filler encontrado com os filtros selecionados</h3>
+    <p>Tente ajustar os filtros de categoria ou tipo</p>
+  </div>
+}
+
+<!-- Fillers Grid -->
+@if (!loading && fillers.length > 0) {
+  <div class="fillers-grid">
+    @for (filler of fillers; track filler._id) {
+      <app-filler-card
+        [filler]="filler"
+        [categoryEmojis]="getCategoryEmojis(filler.categories)"
+        (edit)="fillerEdit.emit($event)"
+        (delete)="fillerDelete.emit($event)"
+      />
+    }
+  </div>
+}

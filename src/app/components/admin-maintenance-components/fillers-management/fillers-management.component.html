@@ -7,24 +7,7 @@
   </div>
 
   <!-- Estatísticas -->
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-value">{{ totalFillers }}</div>
-      <div class="stat-label">Total de Fillers</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ textFillers }}</div>
-      <div class="stat-label">Fillers de Texto</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ imageFillers }}</div>
-      <div class="stat-label">Fillers de Imagem</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ videoFillers }}</div>
-      <div class="stat-label">Fillers de Vídeo</div>
-    </div>
-  </div>
+  <app-filler-stats [stats]="stats"></app-filler-stats>
 
   <!-- Seção de Fillers -->
   <div class="section">
@@ -37,160 +20,25 @@
     </div>
 
     <!-- Filtros -->
-    <div class="filters-section">
-      <div class="filter-group">
-        <label>📂 Categoria:</label>
-        <select [(ngModel)]="filterCategory" class="filter-select">
-          <option value="">Todas as categorias</option>
-          @for (cat of categories; track cat._id) {
-            <option [value]="cat.slug">{{ cat.emoji }} {{ cat.name }}</option>
-          }
-        </select>
-      </div>
+    <app-filler-filters
+      [categories]="categories"
+      [filterCategory]="filterCategory"
+      [filterType]="filterType"
+      [filteredCount]="filteredFillers.length"
+      [totalCount]="fillers.length"
+      (filterCategoryChange)="filterCategory = $event"
+      (filterTypeChange)="filterType = $event"
+    ></app-filler-filters>
 
-      <div class="filter-group">
-        <label>🎨 Tipo:</label>
-        <select [(ngModel)]="filterType" class="filter-select">
-          <option value="">Todos os tipos</option>
-          <option value="text">📝 Texto</option>
-          <option value="image">🖼️ Imagem</option>
-          <option value="video">🎥 Vídeo</option>
-        </select>
-      </div>
-
-      <div class="filter-results">
-        Exibindo {{ filteredFillers.length }} de {{ fillers.length }} fillers
-      </div>
-    </div>
-
-    <!-- Loading -->
-    @if (loading) {
-      <div class="loading">Carregando fillers...</div>
-    }
-
-    <!-- Empty State -->
-    @if (!loading && fillers.length === 0) {
-      <div class="empty-state">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-          />
-        </svg>
-        <h3>Nenhum Filler encontrado</h3>
-        <p>Crie fillers através do botão "Novo Filler"</p>
-      </div>
-    }
-
-    <!-- Filtro vazio -->
-    @if (!loading && fillers.length > 0 && filteredFillers.length === 0) {
-      <div class="empty-state">
-        <h3>Nenhum filler encontrado com os filtros selecionados</h3>
-        <p>Tente ajustar os filtros de categoria ou tipo</p>
-      </div>
-    }
-
-    <!-- Fillers Grid -->
-    @if (!loading && filteredFillers.length > 0) {
-      <div class="fillers-grid">
-        @for (filler of filteredFillers; track filler._id) {
-          <div class="filler-card">
-            <!-- Header -->
-            <div class="filler-header">
-              <span class="filler-type type-{{ filler.type }}">
-                {{ getTypeEmoji(filler.type) }} {{ filler.type }}
-              </span>
-              <span class="filler-id">#{{ filler._id.substring(0, 8) }}</span>
-            </div>
-
-            <!-- Preview -->
-            <div class="preview-container">
-              @if (filler.type === 'text') {
-                <div
-                  class="preview-text"
-                  [style.background-color]="filler.content.backgroundColor || '#ffffff'"
-                  [innerHTML]="
-                    truncateText(filler.content.text || '', 150) | sanitize: 'trustedHtml'
-                  "
-                ></div>
-              }
-              @if (filler.type === 'image') {
-                <img
-                  [src]="filler.content.url"
-                  [alt]="filler.content.alt || 'Imagem'"
-                  class="preview-image"
-                  (error)="onImageError($event)"
-                />
-              }
-              @if (filler.type === 'video') {
-                <video
-                  [src]="filler.content.url"
-                  class="preview-video"
-                  controls
-                  muted
-                  (error)="onVideoError($event)"
-                ></video>
-              }
-            </div>
-
-            <!-- Content Info -->
-            <div class="filler-content">
-              @if (filler.type === 'text') {
-                <p><strong>Texto:</strong> {{ truncateText(filler.content.text || '', 100) }}</p>
-                <p>
-                  <strong>Cor de Fundo:</strong>
-                  <span
-                    class="color-box"
-                    [style.background]="filler.content.backgroundColor"
-                  ></span>
-                  {{ filler.content.backgroundColor }}
-                </p>
-              }
-
-              @if (filler.type === 'image') {
-                <p>
-                  <strong>URL:</strong>
-                  <span class="url-text" [title]="filler.content.url">
-                    {{ filler.content.url }}
-                  </span>
-                </p>
-                <p><strong>Alt:</strong> {{ filler.content.alt || 'Sem texto alternativo' }}</p>
-              }
-
-              @if (filler.type === 'video') {
-                <p>
-                  <strong>URL:</strong>
-                  <span class="url-text" [title]="filler.content.url">
-                    {{ filler.content.url }}
-                  </span>
-                </p>
-              }
-            </div>
-
-            <!-- Meta Info -->
-            <div class="filler-meta">
-              <div><strong>Formatos:</strong> {{ (filler.formats || ['1x1']).join(', ') }}</div>
-              <div><strong>Status:</strong> {{ filler.active ? '✅ Ativo' : '❌ Inativo' }}</div>
-              <div>
-                <strong>Posição:</strong> ({{ filler.gridPosition?.row || 0 }},
-                {{ filler.gridPosition?.col || 0 }})
-              </div>
-              <div style="grid-column: 1 / -1">
-                <strong>Categorias:</strong> {{ getCategoryEmojis(filler.categories) }}
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="filler-actions">
-              <button class="btn btn-edit" (click)="openEditModal(filler)">✏️ Editar</button>
-              <button class="btn btn-delete" (click)="deleteFiller(filler._id)">🗑️ Deletar</button>
-            </div>
-          </div>
-        }
-      </div>
-    }
+    <!-- Lista de Fillers -->
+    <app-filler-list
+      [fillers]="filteredFillers"
+      [loading]="loading"
+      [totalFillers]="fillers.length"
+      [getCategoryEmojisCallback]="getCategoryEmojis.bind(this)"
+      (fillerEdit)="openEditModal($event)"
+      (fillerDelete)="deleteFiller($event._id)"
+    ></app-filler-list>
   </div>
 </div>
 
