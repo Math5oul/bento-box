@@ -111,6 +111,9 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
 
   &::before {
     content: '';
@@ -179,12 +182,12 @@
   text-align: center;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.9em;
   font-size: 1em;
   transition:
     transform 0.2s,
     box-shadow 0.2s;
   border: none;
+  margin-top: auto;
   cursor: pointer;
 
   &:hover {
