@@ -25,24 +25,6 @@
     letter-spacing: -0.5px;
   }
 
-  .live-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    opacity: 0.9;
-    font-weight: 500;
-
-    .pulse {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4caf50;
-      animation: pulse 2s ease-in-out infinite;
-      box-shadow: 0 0 8px rgba(76, 175, 80, 0.8);
-    }
-  }
-
   @keyframes pulse {
     0%,
     100% {
@@ -103,10 +85,6 @@
 
     h1 {
       font-size: 1.5rem;
-    }
-
-    .live-indicator {
-      font-size: 0.75rem;
     }
   }
 
