@@ -117,11 +117,6 @@ export class OrderCardComponent {
       return tableInfo.name;
     }
 
-    // Verificar se é formato antigo "custom-nome"
-    if (tableStr.startsWith('custom-')) {
-      return tableStr.replace('custom-', '').toUpperCase();
-    }
-
     return `Mesa ${tableStr}`;
   }
 
