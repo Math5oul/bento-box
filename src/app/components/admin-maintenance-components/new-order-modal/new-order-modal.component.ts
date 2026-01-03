@@ -269,7 +269,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedTable = table;
     this.isCounterOrder = false;
     this.currentStep = 'client';
-    this.loadAllRegisteredClients();
+    this.loadClientsForTable(table);
   }
 
   /**
@@ -279,6 +279,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedTable = null;
     this.isCounterOrder = true;
     this.currentStep = 'client';
+    // Carregar todos os clientes registrados (sem anônimos)
     this.loadAllRegisteredClients();
   }
 
@@ -317,7 +318,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
               isAnonymous: false,
               role: user.role,
             }))
-            .sort((a, b) => a.name.localeCompare(b.name)); // Ordena por nome
+            .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())); // Ordena alfabeticamente
 
           this.filteredClients = [...this.clients];
           this.loadingClients = false;
@@ -348,6 +349,8 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       const matchEmail = client.email?.toLowerCase().includes(term) || false;
       return matchName || matchEmail;
     });
+
+    console.log(`🔍 Busca por "${term}": ${this.filteredClients.length} resultados`);
   }
 
   getTableStatusLabel(status: string): string {
@@ -371,34 +374,166 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // ==================== STEP 2: CLIENTE ====================
 
-  loadClientsForTable(table: Table) {
-    this.clients = [];
+  /**
+   * Verifica se um cliente está conectado na mesa selecionada
+   */
+  isClientConnectedToTable(client: Client): boolean {
+    if (!this.selectedTable) return false;
 
-    // Adicionar clientes registrados (já vêm populados do backend)
-    if (table.clients && table.clients.length > 0) {
-      table.clients.forEach((client: any) => {
-        this.clients.push({
-          _id: client._id,
-          name: client.name || 'Cliente',
-          isAnonymous: client.isAnonymous || false,
-          role: client.role, // Preservar role para descontos
-        });
+    // Criar set com IDs de todos os clientes da mesa (registrados + anônimos)
+    const tableClientIds = new Set<string>();
+
+    // Adicionar clientes registrados
+    if (this.selectedTable.clients) {
+      this.selectedTable.clients.forEach((c: any) => {
+        tableClientIds.add(c._id);
       });
     }
 
-    // Adicionar clientes anônimos (agora com userData populado)
-    if (table.anonymousClients && table.anonymousClients.length > 0) {
-      table.anonymousClients.forEach((anonClient: any) => {
-        if (anonClient.userData) {
-          this.clients.push({
-            _id: anonClient.userData._id,
-            name: anonClient.userData.name || `Anônimo ${anonClient.sessionId.substring(0, 8)}`,
-            isAnonymous: true,
-            role: anonClient.userData.role, // Preservar role para descontos
-          });
+    // Adicionar clientes anônimos
+    if (this.selectedTable.anonymousClients) {
+      this.selectedTable.anonymousClients.forEach((ac: any) => {
+        if (ac.userData?._id) {
+          tableClientIds.add(ac.userData._id);
         }
       });
     }
+
+    return tableClientIds.has(client._id);
+  }
+
+  loadClientsForTable(table: Table) {
+    console.log('🔍 Carregando clientes para mesa:', table);
+    console.log('👥 Clientes registrados:', table.clients);
+    console.log('👻 Clientes anônimos:', table.anonymousClients);
+
+    this.loadingClients = true;
+    this.error = '';
+    this.clientSearchTerm = '';
+
+    // Arrays temporários para organizar clientes
+    const tableClients: Client[] = [];
+    const tableClientIds = new Set<string>();
+
+    // 1. Adicionar clientes registrados da mesa
+    if (table.clients && table.clients.length > 0) {
+      table.clients.forEach((client: any) => {
+        console.log('✅ Adicionando cliente registrado da mesa:', client);
+        tableClients.push({
+          _id: client._id,
+          name: client.name || 'Cliente',
+          email: client.email,
+          isAnonymous: client.isAnonymous || false,
+          role: client.role,
+        });
+        tableClientIds.add(client._id);
+      });
+    }
+
+    // 2. Adicionar clientes anônimos da mesa
+    if (table.anonymousClients && table.anonymousClients.length > 0) {
+      table.anonymousClients.forEach((anonClient: any) => {
+        console.log('👻 Processando cliente anônimo:', anonClient);
+        if (anonClient.userData) {
+          console.log('✅ Adicionando cliente anônimo da mesa:', anonClient.userData);
+          tableClients.push({
+            _id: anonClient.userData._id,
+            name:
+              anonClient.userData.name ||
+              `Anônimo ${anonClient.sessionId?.substring(0, 8) || 'sem ID'}`,
+            isAnonymous: true,
+            role: anonClient.userData.role,
+          });
+          tableClientIds.add(anonClient.userData._id);
+        } else {
+          console.warn('⚠️ Cliente anônimo sem userData:', anonClient);
+        }
+      });
+    }
+
+    // Ordena clientes da mesa: anônimos (conectados) primeiro em ordem alfabética,
+    // depois registrados também em ordem alfabética
+    console.log(
+      '🔄 Clientes da mesa ANTES de ordenar:',
+      tableClients.map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
+    );
+    tableClients.sort((a, b) => {
+      // Prioridade 1: Anônimos primeiro
+      if (a.isAnonymous && !b.isAnonymous) return -1;
+      if (!a.isAnonymous && b.isAnonymous) return 1;
+
+      // Prioridade 2: Dentro do mesmo tipo, ordem alfabética case-insensitive
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+    console.log(
+      '✅ Clientes da mesa DEPOIS de ordenar:',
+      tableClients.map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
+    );
+
+    // 3. Carregar todos os outros clientes da base
+    this.http
+      .get<any[]>('/api/admin/users', {
+        headers: this.getHeaders(),
+      })
+      .subscribe({
+        next: users => {
+          // Filtrar clientes registrados que não estão na mesa
+          const otherClients = users
+            .filter(user => {
+              // Não incluir se já está na mesa
+              if (tableClientIds.has(user._id)) return false;
+
+              // Não incluir anônimos
+              if (user.isAnonymous) return false;
+
+              // Se role é objeto populated, verificar clientLevel
+              if (user.role && typeof user.role === 'object' && 'clientLevel' in user.role) {
+                return user.role.clientLevel > 0; // clientLevel > 0 = cliente
+              }
+
+              return true;
+            })
+            .map(user => ({
+              _id: user._id,
+              name: user.name || 'Sem nome',
+              email: user.email || '',
+              isAnonymous: false,
+              role: user.role,
+            }))
+            .sort((a, b) => {
+              // Ordenação alfabética case-insensitive
+              return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+
+          console.log(
+            '🔄 Outros clientes ANTES de combinar:',
+            otherClients.slice(0, 10).map(c => c.name)
+          );
+
+          // Combina: clientes da mesa primeiro, depois outros
+          this.clients = [...tableClients, ...otherClients];
+          this.filteredClients = [...this.clients];
+          this.loadingClients = false;
+
+          console.log('📋 Total de clientes disponíveis:', this.clients.length);
+          console.log('📋 Clientes da mesa:', tableClients.length);
+          console.log('📋 Outros clientes (ordenados):', otherClients.length);
+          console.log(
+            '📋 Lista final (primeiros 10):',
+            this.clients
+              .slice(0, 10)
+              .map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
+          );
+        },
+        error: err => {
+          console.error('❌ Erro ao carregar clientes:', err);
+          // Mesmo com erro, mantém os clientes da mesa
+          this.clients = [...tableClients];
+          this.filteredClients = [...this.clients];
+          this.loadingClients = false;
+          this.error = 'Erro ao carregar lista completa de clientes';
+        },
+      });
   }
 
   selectClient(client: Client) {

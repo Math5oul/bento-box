@@ -125,7 +125,11 @@
             @if (filteredClients.length > 0) {
               <div class="client-list">
                 @for (client of filteredClients; track client._id) {
-                  <button class="client-card" (click)="selectClient(client)">
+                  <button
+                    class="client-card"
+                    [class.connected]="isClientConnectedToTable(client)"
+                    (click)="selectClient(client)"
+                  >
                     <div class="client-main-info">
                       <span class="client-icon">👤</span>
                       <div class="client-details">

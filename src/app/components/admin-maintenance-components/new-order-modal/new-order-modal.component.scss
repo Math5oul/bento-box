@@ -496,6 +496,19 @@
       background: #f0fdf9;
     }
 
+    // Destaque para clientes conectados (anônimos)
+    &.connected {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+      border-color: #4caf50;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+
+      &:hover {
+        border-color: #388e3c;
+        background: linear-gradient(135deg, #c8e6c9 0%, #e8f5e9 100%);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
+      }
+    }
+
     .client-main-info {
       display: flex;
       align-items: center;
