@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AdminToolsComponent } from './admin-tools.component';
+import { AdminHubComponent } from './admin-hub.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
-describe('AdminToolsComponent', () => {
-  let component: AdminToolsComponent;
-  let fixture: ComponentFixture<AdminToolsComponent>;
+describe('AdminHubComponent', () => {
+  let component: AdminHubComponent;
+  let fixture: ComponentFixture<AdminHubComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminToolsComponent, HttpClientTestingModule, RouterTestingModule],
+      imports: [AdminHubComponent, HttpClientTestingModule, RouterTestingModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AdminToolsComponent);
+    fixture = TestBed.createComponent(AdminHubComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

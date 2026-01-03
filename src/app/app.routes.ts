@@ -42,8 +42,8 @@ export const routes: Routes = [
   {
     path: 'maintenance/admin-tools',
     loadComponent: () =>
-      import('./components/admin-maintenance-components/admin-tools/admin-tools.component').then(
-        m => m.AdminToolsComponent
+      import('./components/admin-maintenance-components/admin-hub/admin-hub.component').then(
+        m => m.AdminHubComponent
       ),
     canActivate: [adminGuard],
   },

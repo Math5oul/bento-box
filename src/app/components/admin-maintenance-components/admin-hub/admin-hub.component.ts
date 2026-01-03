@@ -7,13 +7,13 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { AuthService } from '../../../services/auth-service/auth.service';
 
 @Component({
-  selector: 'app-admin-tools',
+  selector: 'app-admin-hub',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
-  templateUrl: './admin-tools.component.html',
-  styleUrl: './admin-tools.component.scss',
+  templateUrl: './admin-hub.component.html',
+  styleUrl: './admin-hub.component.scss',
 })
-export class AdminToolsComponent implements OnInit {
+export class AdminHubComponent implements OnInit {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private authService = inject(AuthService);
