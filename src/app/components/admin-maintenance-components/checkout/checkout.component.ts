@@ -16,6 +16,9 @@ import {
 import { Order, OrderStatus } from '../../../interfaces/order.interface';
 import { Table } from '../../../interfaces/table.interface';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { TableSelectorComponent } from './table-selector/table-selector.component';
+import { CheckoutSummaryComponent } from './checkout-summary/checkout-summary.component';
+import { PaymentFormComponent } from './payment-form/payment-form.component';
 
 interface CheckoutItem extends BillItem {
   selected: boolean;
@@ -41,7 +44,14 @@ interface ClientGroup {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AdminHeaderComponent,
+    TableSelectorComponent,
+    CheckoutSummaryComponent,
+    PaymentFormComponent,
+  ],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
 })

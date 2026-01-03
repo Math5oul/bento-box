@@ -1,0 +1,260 @@
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+
+  h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+  }
+
+  .btn-secondary {
+    margin-top: 1rem;
+  }
+}
+
+.payment-form {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 700;
+  }
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+
+  &:hover {
+    border-color: #667eea;
+    background: #f5f7ff;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  }
+
+  input[type='radio'] {
+    cursor: pointer;
+    transform: scale(1.2);
+  }
+
+  input[type='radio']:checked ~ span {
+    font-weight: 600;
+  }
+}
+
+// Quando o radio está checked, aplicar estilo ao label pai
+label.payment-option:has(input[type='radio']:checked) {
+  border-color: #667eea;
+  background: #e8ecff;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  }
+}
+
+.payment-review {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 700;
+  }
+}
+
+.review-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .review-name {
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .review-price {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+
+  &.alert-info {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    color: #0d47a1;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  ol {
+    margin: 0.5rem 0 0 1rem;
+    padding: 0;
+
+    li {
+      margin: 0.25rem 0;
+    }
+  }
+}
+
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 700;
+  }
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+
+  &.total-large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    padding: 1rem 0;
+    border-top: 2px solid #e0e0e0;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #d0d0d0;
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,20 @@
+<div class="page-header">
+  <h1>💳 Checkout - Selecione a Mesa</h1>
+  <p class="subtitle">Escolha qual mesa deseja processar o pagamento</p>
+</div>
+
+<div class="tables-grid">
+  @for (table of tables; track $index) {
+    <div
+      class="table-card"
+      [class.available]="table.status === 'available'"
+      [class.occupied]="table.status === 'occupied'"
+      [class.closed]="table.status === 'closed'"
+      (click)="onSelectTable(table)"
+    >
+      <div class="table-number">{{ getTableDisplayName(table) }}</div>
+      <div class="table-capacity">👥 {{ table.capacity }} pessoas</div>
+      <div class="table-status">{{ table.status }}</div>
+    </div>
+  }
+</div>

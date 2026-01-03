@@ -1,0 +1,162 @@
+<div class="page-header">
+  <h1>💳 Finalizar Pagamento</h1>
+  <p class="subtitle">{{ selectedTableName }} - Confirme os dados</p>
+  <button class="btn-secondary" (click)="onBack()">⬅️ Voltar</button>
+</div>
+
+<div class="payment-review">
+  <h3>Itens Selecionados</h3>
+
+  <ul class="review-list">
+    @for (item of selectedItems; track $index) {
+      <li>
+        <span class="review-name">{{ item.productName }} (x{{ item.quantity }})</span>
+        <span class="review-price">R$ {{ item.finalPrice.toFixed(2) }}</span>
+      </li>
+    }
+  </ul>
+</div>
+
+@if (paymentMode === 'manual') {
+  <div class="payment-form">
+    <h3>Método de Pagamento</h3>
+
+    <div class="payment-methods">
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="paymentMethod"
+          (ngModelChange)="paymentMethodChange.emit($event)"
+          [value]="PaymentMethod.CASH"
+        />
+        💵 Dinheiro
+      </label>
+
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="paymentMethod"
+          (ngModelChange)="paymentMethodChange.emit($event)"
+          [value]="PaymentMethod.CREDIT_CARD"
+        />
+        💳 Crédito
+      </label>
+
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="paymentMethod"
+          (ngModelChange)="paymentMethodChange.emit($event)"
+          [value]="PaymentMethod.DEBIT_CARD"
+        />
+        💳 Débito
+      </label>
+
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="paymentMethod"
+          (ngModelChange)="paymentMethodChange.emit($event)"
+          [value]="PaymentMethod.PIX"
+        />
+        📱 PIX
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label for="notes">Observações (opcional)</label>
+      <textarea
+        id="notes"
+        rows="3"
+        [ngModel]="paymentNotes"
+        (ngModelChange)="paymentNotesChange.emit($event)"
+        placeholder="Ex: Gorjeta adicionada..."
+      ></textarea>
+    </div>
+  </div>
+}
+
+@if (paymentMode === 'pos') {
+  <div class="payment-form">
+    <h3>Tipo de Pagamento na Maquininha</h3>
+
+    <div class="payment-methods">
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="posPaymentType"
+          (ngModelChange)="posPaymentTypeChange.emit($event)"
+          value="credit"
+        />
+        💳 Crédito
+      </label>
+
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="posPaymentType"
+          (ngModelChange)="posPaymentTypeChange.emit($event)"
+          value="debit"
+        />
+        💳 Débito
+      </label>
+
+      <label class="payment-option">
+        <input
+          type="radio"
+          [ngModel]="posPaymentType"
+          (ngModelChange)="posPaymentTypeChange.emit($event)"
+          value="pix"
+        />
+        📱 PIX
+      </label>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>ℹ️ Como funciona:</strong>
+      <ol>
+        <li>Clique em "Enviar para Maquininha"</li>
+        <li>Cliente paga na maquininha</li>
+        <li>Aguarde a confirmação automática</li>
+      </ol>
+    </div>
+  </div>
+}
+
+@if (paymentMode === 'online') {
+  <div class="payment-form">
+    <h3>Método de Pagamento Online</h3>
+
+    <div class="alert alert-info">
+      <strong>🚧 Em desenvolvimento</strong>
+      Pagamento online será implementado.
+    </div>
+  </div>
+}
+
+<div class="summary-card">
+  <h3>Total a Pagar</h3>
+
+  <div class="summary-line total-large">
+    <span><strong>TOTAL:</strong></span>
+    <span
+      ><strong>R$ {{ total.toFixed(2) }}</strong></span
+    >
+  </div>
+
+  @if (paymentMode === 'manual') {
+    <button class="btn-success btn-block" (click)="onProcessPayment()" [disabled]="loading">
+      @if (!loading) {
+        ✅ Confirmar Pagamento
+      } @else {
+        ⏳ Processando...
+      }
+    </button>
+  }
+
+  @if (paymentMode === 'online') {
+    <button class="btn-success btn-block" disabled title="Em desenvolvimento">
+      🌐 Gerar Pagamento Online (Em breve)
+    </button>
+  }
+</div>

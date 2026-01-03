@@ -1,0 +1,36 @@
+<div class="summary-card">
+  <h3>Resumo</h3>
+
+  <div class="summary-line">
+    <span>Subtotal:</span>
+    <span>R$ {{ subtotal.toFixed(2) }}</span>
+  </div>
+
+  @if (totalDiscount > 0) {
+    <div class="summary-line discount">
+      <span>Desconto:</span>
+      <span>- R$ {{ totalDiscount.toFixed(2) }}</span>
+    </div>
+  }
+
+  <div class="summary-line total">
+    <span>Total:</span>
+    <span>R$ {{ total.toFixed(2) }}</span>
+  </div>
+
+  <div class="summary-info">
+    {{ selectedItemsCount }} item{{ selectedItemsCount !== 1 ? 's' : '' }} selecionado{{
+      selectedItemsCount !== 1 ? 's' : ''
+    }}
+  </div>
+
+  @if (showButton) {
+    <button
+      class="btn-primary btn-block"
+      [disabled]="selectedItemsCount === 0"
+      (click)="onContinue()"
+    >
+      Continuar para Pagamento
+    </button>
+  }
+</div>

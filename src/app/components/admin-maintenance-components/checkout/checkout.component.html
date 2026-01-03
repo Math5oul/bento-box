@@ -8,28 +8,10 @@
   }
 
   @if (!loading && step === 'select-table') {
-    <div class="step-container">
-      <div class="page-header">
-        <h1>💳 Checkout - Selecione a Mesa</h1>
-        <p class="subtitle">Escolha qual mesa deseja processar o pagamento</p>
-      </div>
-
-      <div class="tables-grid">
-        @for (table of tables; track $index) {
-          <div
-            class="table-card"
-            [class.available]="table.status === 'available'"
-            [class.occupied]="table.status === 'occupied'"
-            [class.closed]="table.status === 'closed'"
-            (click)="table.status !== 'available' && selectTable(table)"
-          >
-            <div class="table-number">{{ getTableDisplayName(table) }}</div>
-            <div class="table-capacity">👥 {{ table.capacity }} pessoas</div>
-            <div class="table-status">{{ table.status }}</div>
-          </div>
-        }
-      </div>
-    </div>
+    <app-table-selector
+      [tables]="tables"
+      (tableSelected)="selectTable($event)"
+    ></app-table-selector>
   }
 
   @if (!loading && step === 'select-items') {
@@ -188,162 +170,33 @@
         }
       </div>
 
-      <div class="summary-card">
-        <h3>Resumo</h3>
-
-        <div class="summary-line">
-          <span>Subtotal:</span>
-          <span>R$ {{ subtotal.toFixed(2) }}</span>
-        </div>
-
-        @if (totalDiscount > 0) {
-          <div class="summary-line discount">
-            <span>Descontos:</span>
-            <span>-R$ {{ totalDiscount.toFixed(2) }}</span>
-          </div>
-        }
-
-        <div class="summary-line total">
-          <span><strong>Total:</strong></span>
-          <span
-            ><strong>R$ {{ total.toFixed(2) }}</strong></span
-          >
-        </div>
-
-        <button
-          class="btn-primary btn-block"
-          [disabled]="!hasSelectedItems"
-          (click)="goToPayment()"
-        >
-          Continuar para Pagamento
-        </button>
-      </div>
+      <app-checkout-summary
+        [subtotal]="subtotal"
+        [totalDiscount]="totalDiscount"
+        [total]="total"
+        [selectedItemsCount]="selectedItems.length"
+        (continueToPayment)="goToPayment()"
+      ></app-checkout-summary>
     </div>
   }
 
   @if (!loading && step === 'payment') {
     <div class="step-container">
-      <div class="page-header">
-        <h1>💳 Finalizar Pagamento</h1>
-        <p class="subtitle">
-          {{ selectedTable ? getTableDisplayName(selectedTable) : 'Mesa' }} - Confirme os dados
-        </p>
-        <button class="btn-secondary" (click)="backToItems()">⬅️ Voltar</button>
-      </div>
-
-      <div class="payment-review">
-        <h3>Itens Selecionados</h3>
-
-        <ul class="review-list">
-          @for (item of selectedItems; track $index) {
-            <li>
-              <span class="review-name">{{ item.productName }} (x{{ item.quantity }})</span>
-              <span class="review-price">R$ {{ item.finalPrice.toFixed(2) }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-
-      @if (paymentMode === 'manual') {
-        <div class="payment-form">
-          <h3>Método de Pagamento</h3>
-
-          <div class="payment-methods">
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="paymentMethod" value="cash" /> 💵 Dinheiro
-            </label>
-
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="paymentMethod" value="credit_card" /> 💳 Crédito
-            </label>
-
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="paymentMethod" value="debit_card" /> 💳 Débito
-            </label>
-
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="paymentMethod" value="pix" /> 📱 PIX
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label for="notes">Observações (opcional)</label>
-            <textarea
-              id="notes"
-              rows="3"
-              [(ngModel)]="paymentNotes"
-              placeholder="Ex: Gorjeta adicionada..."
-            ></textarea>
-          </div>
-        </div>
-      }
-
-      @if (paymentMode === 'pos') {
-        <div class="payment-form">
-          <h3>Tipo de Pagamento na Maquininha</h3>
-
-          <div class="payment-methods">
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="posPaymentType" value="credit" /> 💳 Crédito
-            </label>
-
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="posPaymentType" value="debit" /> 💳 Débito
-            </label>
-
-            <label class="payment-option">
-              <input type="radio" [(ngModel)]="posPaymentType" value="pix" /> 📱 PIX
-            </label>
-          </div>
-
-          <div class="alert alert-info">
-            <strong>ℹ️ Como funciona:</strong>
-            <ol>
-              <li>Clique em "Enviar para Maquininha"</li>
-              <li>Cliente paga na maquininha</li>
-              <li>Aguarde a confirmação automática</li>
-            </ol>
-          </div>
-        </div>
-      }
-
-      @if (paymentMode === 'online') {
-        <div class="payment-form">
-          <h3>Método de Pagamento Online</h3>
-
-          <div class="alert alert-info">
-            <strong>🚧 Em desenvolvimento</strong>
-            Pagamento online será implementado.
-          </div>
-        </div>
-      }
-
-      <div class="summary-card">
-        <h3>Total a Pagar</h3>
-
-        <div class="summary-line total-large">
-          <span><strong>TOTAL:</strong></span>
-          <span
-            ><strong>R$ {{ total.toFixed(2) }}</strong></span
-          >
-        </div>
-
-        @if (paymentMode === 'manual') {
-          <button class="btn-success btn-block" (click)="processPayment()" [disabled]="loading">
-            @if (!loading) {
-              ✅ Confirmar Pagamento
-            } @else {
-              ⏳ Processando...
-            }
-          </button>
-        }
-
-        @if (paymentMode === 'online') {
-          <button class="btn-success btn-block" disabled title="Em desenvolvimento">
-            🌐 Gerar Pagamento Online (Em breve)
-          </button>
-        }
-      </div>
+      <app-payment-form
+        [paymentMode]="paymentMode"
+        [paymentMethod]="paymentMethod"
+        [posPaymentType]="posPaymentType"
+        [paymentNotes]="paymentNotes"
+        [total]="total"
+        [loading]="loading"
+        [selectedItems]="selectedItems"
+        [selectedTableName]="selectedTable ? getTableDisplayName(selectedTable) : 'Mesa'"
+        (paymentMethodChange)="paymentMethod = $event"
+        (posPaymentTypeChange)="posPaymentType = $event"
+        (paymentNotesChange)="paymentNotes = $event"
+        (processPayment)="processPayment()"
+        (back)="backToItems()"
+      ></app-payment-form>
     </div>
   }
 
