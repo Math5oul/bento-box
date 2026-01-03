@@ -27,6 +27,10 @@ export class EditTableModalComponent implements OnInit {
     capacity: 4,
   };
 
+  get isCreating(): boolean {
+    return !this.table;
+  }
+
   ngOnInit() {
     console.log('🎯 EditTableModal ngOnInit - table recebido:', this.table);
     if (this.table) {
@@ -37,6 +41,14 @@ export class EditTableModalComponent implements OnInit {
         capacity: this.table.capacity,
       };
       console.log('🎯 EditTableModal - editingTable:', this.editingTable);
+    } else {
+      // Modo criação - não tem ID
+      this.editingTable = {
+        id: '',
+        number: 1,
+        name: '',
+        capacity: 4,
+      };
     }
   }
 
@@ -46,10 +58,17 @@ export class EditTableModalComponent implements OnInit {
 
   onSave() {
     // Remove name se estiver vazio
-    const dataToSave = {
-      ...this.editingTable,
+    const dataToSave: any = {
+      number: this.editingTable.number,
+      capacity: this.editingTable.capacity,
       name: this.editingTable.name?.trim() || undefined,
     };
+
+    // Só inclui o ID se não estiver criando
+    if (!this.isCreating) {
+      dataToSave.id = this.editingTable.id;
+    }
+
     this.save.emit(dataToSave);
   }
 }

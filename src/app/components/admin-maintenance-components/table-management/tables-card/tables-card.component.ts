@@ -261,29 +261,50 @@ export class TablesCardComponent implements OnInit, OnDestroy {
   /**
    * Fecha modal de edição
    */
-  closeEditModal() {
+  /**
+   * Fecha modal de criação ou edição
+   */
+  closeCreateOrEditModal() {
+    this.showCreateModal = false;
     this.showEditModal = false;
     this.selectedTableForEdit = null;
   }
 
   /**
-   * Salva alterações na mesa
+   * Fecha modal de edição
    */
-  async handleSaveTable(data: { id: string; number: number; name?: string; capacity: number }) {
+  closeEditModal() {
+    this.closeCreateOrEditModal();
+  }
+
+  /**
+   * Salva alterações na mesa (criar ou editar)
+   */
+  async handleSaveTable(data: { id?: string; number: number; name?: string; capacity: number }) {
     try {
-      await this.tableService.updateTable(data.id, {
-        number: data.number,
-        name: data.name,
-        capacity: data.capacity,
-      });
+      // Se tem ID, é edição; se não tem, é criação
+      if (data.id) {
+        // Edição
+        await this.tableService.updateTable(data.id, {
+          number: data.number,
+          name: data.name,
+          capacity: data.capacity,
+        });
+        alert('Mesa atualizada com sucesso!');
+      } else {
+        // Criação
+        await this.tableService.createTable({
+          number: data.number,
+          name: data.name,
+          capacity: data.capacity,
+        });
+        alert('Mesa criada com sucesso!');
+      }
       await this.loadTables();
-      this.closeEditModal();
-      alert('Mesa atualizada com sucesso!');
+      this.closeCreateOrEditModal();
     } catch (error: any) {
-      console.error('Erro ao atualizar mesa:', error);
-      alert(
-        'Erro ao atualizar mesa: ' + (error.error?.message || 'Verifique se o número já existe.')
-      );
+      console.error('Erro ao salvar mesa:', error);
+      alert('Erro ao salvar mesa: ' + (error.error?.message || 'Verifique se o número já existe.'));
     }
   }
 

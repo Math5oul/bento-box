@@ -1,7 +1,7 @@
 <div class="modal-overlay" (click)="onClose()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>✏️ Editar Mesa</h3>
+      <h3>{{ isCreating ? '➕ Nova Mesa' : '✏️ Editar Mesa' }}</h3>
       <button class="close-btn" (click)="onClose()">✕</button>
     </div>
 
@@ -25,7 +25,7 @@
             type="text"
             [(ngModel)]="editingTable.name"
             name="name"
-            placeholder="Ex: Varanda, Salão Principal..."
+            placeholder="Ex: Varanda, Salão Principal, Balcão..."
             class="form-input"
             maxlength="50"
           />
@@ -48,7 +48,9 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" (click)="onClose()">Cancelar</button>
-        <button type="submit" class="btn-primary">💾 Salvar Alterações</button>
+        <button type="submit" class="btn-primary">
+          {{ isCreating ? '✅ Criar Mesa' : '💾 Salvar Alterações' }}
+        </button>
       </div>
     </form>
   </div>

@@ -89,36 +89,13 @@
   </div>
 </div>
 
-<!-- Modal: Criar Mesa -->
-@if (showCreateModal) {
-  <div class="modal-overlay" (click)="showCreateModal = false">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3>Nova Mesa</h3>
-      <form (ngSubmit)="createTable()">
-        <div class="form-group">
-          <label>Número da Mesa:</label>
-          <input type="number" [(ngModel)]="newTable.number" name="number" min="1" required />
-        </div>
-        <div class="form-group">
-          <label>Capacidade (pessoas):</label>
-          <input
-            type="number"
-            [(ngModel)]="newTable.capacity"
-            name="capacity"
-            min="1"
-            max="20"
-            required
-          />
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="showCreateModal = false">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-primary">Criar Mesa</button>
-        </div>
-      </form>
-    </div>
-  </div>
+<!-- Modal: Criar/Editar Mesa -->
+@if (showCreateModal || (showEditModal && selectedTableForEdit)) {
+  <app-edit-table-modal
+    [table]="showEditModal ? selectedTableForEdit : null"
+    (close)="closeCreateOrEditModal()"
+    (save)="handleSaveTable($event)"
+  />
 }
 
 <!-- Modal: QR Code -->
@@ -149,13 +126,4 @@
     [orders]="selectedTableOrders"
     (close)="closeOrdersModal()"
   ></app-table-orders-modal>
-}
-
-<!-- Modal: Editar Mesa -->
-@if (showEditModal && selectedTableForEdit) {
-  <app-edit-table-modal
-    [table]="selectedTableForEdit"
-    (close)="closeEditModal()"
-    (save)="handleSaveTable($event)"
-  />
 }
