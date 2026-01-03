@@ -50,8 +50,8 @@ export const routes: Routes = [
   {
     path: 'maintenance/tables',
     loadComponent: () =>
-      import('./components/admin-panel-components/admin-panel/admin-panel.component').then(
-        m => m.AdminPanelComponent
+      import('./components/admin-maintenance-components/table-management/tables-panel-tabs/tables-panel.component').then(
+        m => m.TablesManagementComponent
       ),
     canActivate: [tablesGuard], // Permite admin e garçom (canManageTables/canViewTables)
   },
@@ -74,7 +74,7 @@ export const routes: Routes = [
   {
     path: 'maintenance/settings',
     loadComponent: () =>
-      import('./components/admin-panel-components/settings/settings.component').then(
+      import('./components/admin-maintenance-components/settings/settings.component').then(
         m => m.SettingsComponent
       ),
     canActivate: [adminGuard],

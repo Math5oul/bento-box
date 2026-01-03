@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Table, TableStatus } from '../../../interfaces';
-import { TableService } from '../../../services/table-service/table.service';
+import { Table, TableStatus } from '../../../../interfaces';
+import { TableService } from '../../../../services/table-service/table.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TableOrdersModalComponent } from '../table-orders-modal/table-orders-modal.component';
-import { EditTableModalComponent } from '../../shared/edit-table-modal/edit-table-modal.component';
+import { EditTableModalComponent } from '../../../shared/edit-table-modal/edit-table-modal.component';
 
 interface ReservationInfo {
   clientName: string;
@@ -36,13 +36,13 @@ interface TableWithDetails extends Table {
 }
 
 @Component({
-  selector: 'app-admin-tables-tab',
+  selector: 'app-tables-card',
   standalone: true,
   imports: [CommonModule, FormsModule, TableOrdersModalComponent, EditTableModalComponent],
-  templateUrl: './admin-tables-tab.component.html',
-  styleUrl: './admin-tables-tab.component.scss',
+  templateUrl: './tables-card.component.html',
+  styleUrl: './tables-card.component.scss',
 })
-export class AdminTablesTabComponent implements OnInit, OnDestroy {
+export class TablesCardComponent implements OnInit, OnDestroy {
   tableService = inject(TableService);
 
   tables: TableWithDetails[] = [];

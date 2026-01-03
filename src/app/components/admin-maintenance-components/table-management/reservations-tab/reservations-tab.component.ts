@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Table, TableStatus } from '../../../interfaces';
-import { TableService } from '../../../services/table-service/table.service';
+import { Table, TableStatus } from '../../../../interfaces';
+import { TableService } from '../../../../services/table-service/table.service';
 
 interface ReservationInfo {
   clientName: string;
@@ -18,13 +18,13 @@ interface TableWithReservation extends Table {
 }
 
 @Component({
-  selector: 'app-admin-reservations-tab',
+  selector: 'app-reservations-tab',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-reservations-tab.component.html',
-  styleUrl: './admin-reservations-tab.component.scss',
+  templateUrl: './reservations-tab.component.html',
+  styleUrl: './reservations-tab.component.scss',
 })
-export class AdminReservationsTabComponent implements OnInit {
+export class ReservationsTabComponent implements OnInit {
   tableService = inject(TableService);
 
   tables: TableWithReservation[] = [];

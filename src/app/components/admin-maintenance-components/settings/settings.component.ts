@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { AdminHeaderComponent } from '../../admin-maintenance-components/admin-header/admin-header.component';
+import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { AuthService } from '../../../services/auth-service/auth.service';
 
 interface RestaurantConfig {
