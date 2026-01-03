@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { ProductModalContainerComponent } from './components/simpleComponents/simple-product/product-modal/product-modal-container/product-modal-container.component';
-import { PermissionSyncBannerComponent } from './components/permission-sync-banner/permission-sync-banner.component';
 import { AuthService } from './services/auth-service/auth.service';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
@@ -9,7 +8,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ProductModalContainerComponent, PermissionSyncBannerComponent],
+  imports: [RouterOutlet, ProductModalContainerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
