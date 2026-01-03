@@ -38,24 +38,22 @@
 }
 
 .create-button {
-  background: #4caf50;
+  background: linear-gradient(135deg, #2fa768 0%, #1f8f5a 100%);
   color: white;
   border: none;
-  padding: 0.875rem 1.75rem;
-  border-radius: 25px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-  transition: all 0.3s ease;
+  transition: all 0.22s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 
   &:hover {
-    background: #45a049;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
   }
 
   &:active {
@@ -76,23 +74,6 @@
   .create-button {
     width: 100%;
     justify-content: center;
-  }
-}
-
-.create-button {
-  background: linear-gradient(135deg, #2fa768 0%, #1f8f5a 100%);
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.22s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
   }
 }
 

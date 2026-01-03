@@ -7,13 +7,6 @@
 
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
-      @if (canAccessAdminPanel) {
-        <button class="nav-btn btn-hub compact" routerLink="/maintenance/admin-tools">
-          <span class="icon">🏠</span>
-          <span class="text">Hub</span>
-        </button>
-      }
-
       @if (canManageTables) {
         <button class="nav-btn btn-tables compact" routerLink="/maintenance/tables">
           <span class="icon">🪑</span>
@@ -37,7 +30,7 @@
 
       @if (canManagePayments) {
         <button class="nav-btn btn-checkout compact" routerLink="/maintenance/checkout">
-          <span class="icon">💳</span>
+          <span class="icon">🛒</span>
           <span class="text">Checkout</span>
         </button>
       }

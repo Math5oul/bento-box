@@ -1,6 +1,6 @@
 <app-admin-header></app-admin-header>
 
-<div class="container">
+<div class="fillers-management-container">
   <div class="page-title">
     <h1>🛸 Gerenciamento de Fillers</h1>
     <p class="subtitle">Gerencie os Fillers do sistema</p>
@@ -9,37 +9,31 @@
   <!-- Estatísticas -->
   <app-filler-stats [stats]="stats"></app-filler-stats>
 
-  <!-- Seção de Fillers -->
-  <div class="section">
-    <div class="section-header">
-      <h2>📦 Fillers Cadastrados</h2>
-      <div class="action-buttons">
-        <button class="btn-primary" (click)="openCreateModal()">➕ Novo Filler</button>
-        <button class="btn-primary" (click)="loadFillers()">🔄 Recarregar</button>
-      </div>
-    </div>
-
-    <!-- Filtros -->
-    <app-filler-filters
-      [categories]="categories"
-      [filterCategory]="filterCategory"
-      [filterType]="filterType"
-      [filteredCount]="filteredFillers.length"
-      [totalCount]="fillers.length"
-      (filterCategoryChange)="filterCategory = $event"
-      (filterTypeChange)="filterType = $event"
-    ></app-filler-filters>
-
-    <!-- Lista de Fillers -->
-    <app-filler-list
-      [fillers]="filteredFillers"
-      [loading]="loading"
-      [totalFillers]="fillers.length"
-      [getCategoryEmojisCallback]="getCategoryEmojis.bind(this)"
-      (fillerEdit)="openEditModal($event)"
-      (fillerDelete)="deleteFiller($event._id)"
-    ></app-filler-list>
+  <!-- Botão de criar filler -->
+  <div class="actions-container">
+    <button class="create-button" (click)="openCreateModal()">➕ Criar Novo Filler</button>
   </div>
+
+  <!-- Filtros -->
+  <app-filler-filters
+    [categories]="categories"
+    [filterCategory]="filterCategory"
+    [filterType]="filterType"
+    [filteredCount]="filteredFillers.length"
+    [totalCount]="fillers.length"
+    (filterCategoryChange)="filterCategory = $event"
+    (filterTypeChange)="filterType = $event"
+  ></app-filler-filters>
+
+  <!-- Lista de Fillers -->
+  <app-filler-list
+    [fillers]="filteredFillers"
+    [loading]="loading"
+    [totalFillers]="fillers.length"
+    [getCategoryEmojisCallback]="getCategoryEmojis.bind(this)"
+    (fillerEdit)="openEditModal($event)"
+    (fillerDelete)="deleteFiller($event._id)"
+  ></app-filler-list>
 </div>
 
 <!-- Modal Unificado -->

@@ -1,0 +1,78 @@
+.fillers-management-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+// Page Title
+.page-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+
+  h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+// Ações (Botão criar filler)
+.actions-container {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.create-button {
+  background: linear-gradient(135deg, #2fa768 0%, #1f8f5a 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .fillers-management-container {
+    padding: 1rem;
+  }
+
+  .page-title h1 {
+    font-size: 2rem;
+  }
+
+  .create-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
