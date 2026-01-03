@@ -1,20 +1,12 @@
-:host {
-  display: block;
+.categories-management-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.categories-management-container {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 2rem;
-}
-
-/* Garante que elementos internos respeitem padding/width */
-.categories-management-container,
-.categories-management-container * {
   box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
 }
 
 // Page Title
@@ -25,437 +17,63 @@
 
   h1 {
     color: white;
-    font-size: 2.5em;
+    font-size: 2.5rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    margin-bottom: 10px;
+    margin: 0 0 0.5rem 0;
     font-weight: 700;
   }
 
   .subtitle {
     color: rgba(255, 255, 255, 0.95);
-    font-size: 1.1em;
+    font-size: 1.1rem;
+    margin: 0;
   }
 }
 
-// Estatísticas
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
-
-  &.info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-
-    .stat-label {
-      color: rgba(255, 255, 255, 0.9);
-    }
-  }
-
-  .stat-icon {
-    font-size: 3rem;
-    opacity: 0.8;
-  }
-
-  .stat-info {
-    flex: 1;
-  }
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    font-size: 0.9rem;
-    color: #636e72;
-  }
-}
-
-// Ações
+// Ações (Botão criar categoria)
 .actions-container {
   margin-bottom: 2rem;
-  text-align: center;
   display: flex;
-  gap: 1rem;
   justify-content: center;
-  flex-wrap: wrap;
 }
 
 .create-button {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  background: linear-gradient(135deg, #2fa768 0%, #1f8f5a 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
-  }
-}
-
-.seed-button {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(253, 203, 110, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(253, 203, 110, 0.4);
-  }
-}
-
-// Pesquisa
-.search-section {
-  margin-bottom: 2rem;
-}
-
-.search-bar {
-  position: relative;
-  margin-bottom: 0.5rem;
-
-  /* Evita overflow horizontal causado por elementos 100% dentro de containers com padding */
-  max-width: 100%;
-
-  .search-input {
-    width: 100%;
-    max-width: 100%;
-    padding: 1rem 3rem 1rem 1rem;
-    border: 2px solid #e1e8ed;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s;
-    display: block;
-
-    /* Garante que o input não ultrapasse o container em telas pequenas */
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-  }
-
-  .clear-search {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #636e72;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-
-    &:hover {
-      color: #2d3436;
-    }
-  }
-}
-
-.search-results {
-  text-align: center;
-  color: #636e72;
-  font-size: 0.9rem;
-}
-
-// Loading
-.loading-container {
-  text-align: center;
-  padding: 4rem;
-  color: #636e72;
-
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-// Grid de categorias
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  position: relative;
-
-  // Melhora performance do touch
-  touch-action: pan-y;
-}
-
-.category-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s ease;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  position: relative;
-  cursor: grab;
-  will-change: transform, opacity;
+  align-items: center;
+  gap: 0.5rem;
 
-  // Desabilita seleção de texto durante drag
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-
-  // Melhora resposta touch
-  -webkit-tap-highlight-color: transparent;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  }
 
   &:active {
-    cursor: grabbing;
-  }
-
-  &:hover:not(.dragging) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  &.dragging {
-    opacity: 0.5;
-    transform: scale(0.98) rotate(2deg);
-    cursor: grabbing;
-    z-index: 1000;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    transition:
-      transform 0.2s ease,
-      opacity 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  &.drag-over {
-    border: 2px dashed #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-    animation: pulse 0.6s ease-in-out infinite alternate;
-  }
-
-  @keyframes pulse {
-    from {
-      transform: scale(1.05);
-    }
-    to {
-      transform: scale(1.08);
-    }
-  }
-
-  .category-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .drag-handle {
-    font-size: 1rem;
-    color: #b2bec3;
-    cursor: grab;
-    user-select: none;
-    padding: 0.25rem;
-    line-height: 1;
-    transition: all 0.2s ease;
-
-    // Aumenta área de toque no mobile
-    min-width: 24px;
-    min-height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      color: #667eea;
-      transform: scale(1.2);
-    }
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-
-  .category-emoji {
-    font-size: 2.5rem;
-    text-align: center;
-    flex: 1;
-  }
-
-  .category-index {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    min-width: 24px;
-    text-align: center;
-  }
-
-  .category-info {
-    flex: 1;
-    text-align: center;
-
-    h3 {
-      margin: 0 0 0.5rem 0;
-      color: #2c3e50;
-      font-size: 1rem;
-      line-height: 1.2;
-    }
-
-    .category-badges {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-
-      .count-badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: #e9ecef;
-        color: #636e72;
-
-        &.has-products {
-          background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
-          color: white;
-        }
-      }
-
-      .discount-badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-        color: white;
-        box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
-      }
-    }
-  }
-
-  .category-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-
-    button {
-      flex: 1;
-      padding: 0.5rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &.discount-btn {
-        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-        color: white;
-
-        &:hover {
-          transform: scale(1.05);
-          box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
-        }
-      }
-
-      &.edit-btn {
-        background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-        color: white;
-
-        &:hover {
-          transform: scale(1.05);
-          box-shadow: 0 2px 8px rgba(253, 203, 110, 0.4);
-        }
-      }
-
-      &.delete-btn {
-        background: linear-gradient(135deg, #d63031 0%, #ff7675 100%);
-        color: white;
-
-        &:hover:not(:disabled) {
-          transform: scale(1.05);
-          box-shadow: 0 2px 8px rgba(214, 48, 49, 0.4);
-        }
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          background: #b2bec3;
-        }
-      }
-    }
+    transform: translateY(0);
   }
 }
 
-// Estado vazio
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #636e72;
-
-  .empty-icon {
-    font-size: 5rem;
-    margin-bottom: 1rem;
-    opacity: 0.3;
+// Responsividade
+@media (max-width: 768px) {
+  .categories-management-container {
+    padding: 1rem;
   }
 
-  h3 {
-    margin: 0.5rem 0;
-    color: #2c3e50;
+  .page-title h1 {
+    font-size: 2rem;
+  }
+
+  .create-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -733,10 +351,7 @@
   }
 }
 
-// ============================================
 // MODAL DE DESCONTOS
-// ============================================
-
 .discount-category-info {
   display: flex;
   align-items: center;
@@ -921,23 +536,8 @@
   font-weight: 600;
 }
 
-// Responsivo
+// Responsivo específico dos modais
 @media (max-width: 768px) {
-  .categories-management-container {
-    padding: 1rem;
-  }
-
-  .header h1 {
-    font-size: 2rem;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .categories-grid {
-    grid-template-columns: 1fr;
-  }
-
-  // Modal fullscreen no mobile
   .modal {
     padding: 0;
   }

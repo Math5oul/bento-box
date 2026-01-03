@@ -1,0 +1,143 @@
+.category-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: move;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 200px;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+
+  &.drag-over {
+    border: 2px dashed #2196f3;
+    background: #e3f2fd;
+  }
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-emoji {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.category-index {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  color: #666;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.category-info {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: #333;
+  }
+}
+
+.category-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.count-badge {
+  background: #ffebee;
+  color: #c62828;
+  padding: 0.375rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &.has-products {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+}
+
+.discount-badge {
+  background: #fff3e0;
+  color: #ef6c00;
+  padding: 0.375rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+
+  button {
+    flex: 1;
+    padding: 0.625rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.discount-btn {
+  background: #fff3e0;
+  color: #ef6c00;
+
+  &:hover:not(:disabled) {
+    background: #ffe0b2;
+    box-shadow: 0 4px 8px rgba(239, 108, 0, 0.3);
+  }
+}
+
+.edit-btn {
+  background: #e3f2fd;
+  color: #1976d2;
+
+  &:hover:not(:disabled) {
+    background: #bbdefb;
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+  }
+}
+
+.delete-btn {
+  background: #ffebee;
+  color: #c62828;
+
+  &:hover:not(:disabled) {
+    background: #ffcdd2;
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+  }
+}

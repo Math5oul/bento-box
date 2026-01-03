@@ -1,0 +1,60 @@
+<div
+  class="category-card"
+  [class.dragging]="isDragging"
+  [class.drag-over]="isDragOver"
+  [attr.data-category-id]="category._id"
+  draggable="true"
+  (dragstart)="dragStart.emit($event)"
+  (dragover)="dragOver.emit($event)"
+  (dragleave)="dragLeave.emit($event)"
+  (drop)="drop.emit($event)"
+  (dragend)="dragEnd.emit()"
+  (touchstart)="touchStart.emit($event)"
+  (touchmove)="touchMove.emit($event)"
+  (touchend)="touchEnd.emit($event)"
+  (touchcancel)="touchCancel.emit()"
+>
+  <div class="category-header">
+    <div class="category-emoji">{{ category.emoji }}</div>
+    <div class="category-index">#{{ category.index || 0 }}</div>
+  </div>
+
+  <div class="category-info">
+    <h3>{{ category.name }}</h3>
+
+    <div class="category-badges">
+      @if (category.productCount !== undefined) {
+        <span class="count-badge" [class.has-products]="category.productCount > 0">
+          {{ category.productCount }} produto{{ category.productCount !== 1 ? 's' : '' }}
+        </span>
+      }
+      @if (category.discounts && category.discounts.length > 0) {
+        <span
+          class="discount-badge"
+          title="Possui {{ category.discounts.length }} desconto(s) configurado(s)"
+        >
+          💰 {{ category.discounts.length }} desconto{{
+            category.discounts.length !== 1 ? 's' : ''
+          }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <div class="category-actions">
+    <button class="discount-btn" (click)="onOpenDiscounts()" title="Gerenciar descontos">💰</button>
+    <button class="edit-btn" (click)="onEdit()" title="Editar categoria">✏️</button>
+    <button
+      class="delete-btn"
+      (click)="onDelete()"
+      [disabled]="(category.productCount || 0) > 0"
+      [title]="
+        (category.productCount || 0) > 0
+          ? 'Não pode deletar categoria com produtos'
+          : 'Deletar categoria'
+      "
+    >
+      🗑️
+    </button>
+  </div>
+</div>

@@ -11,11 +11,22 @@ import {
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { RoleService } from '../../../services/role.service';
 import { Role } from '../../../interfaces/role.interface';
+import { CategoryStatsComponent, CategoryStats } from './category-stats/category-stats.component';
+import { CategorySearchBarComponent } from './category-search-bar/category-search-bar.component';
+import { CategoryListComponent } from './category-list/category-list.component';
 
 @Component({
   selector: 'app-categories-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AdminHeaderComponent,
+    CategoryStatsComponent,
+    CategorySearchBarComponent,
+    CategoryListComponent,
+  ],
   templateUrl: './categories-management.component.html',
   styleUrl: './categories-management.component.scss',
 })
@@ -152,6 +163,16 @@ export class CategoriesManagementComponent implements OnInit {
    */
   getTotalProducts(): number {
     return this.categories.reduce((sum, cat) => sum + (cat.productCount || 0), 0);
+  }
+
+  /**
+   * Retorna as estatísticas para o componente de stats
+   */
+  get stats(): CategoryStats {
+    return {
+      totalCategories: this.categories.length,
+      totalProducts: this.getTotalProducts(),
+    };
   }
 
   /**

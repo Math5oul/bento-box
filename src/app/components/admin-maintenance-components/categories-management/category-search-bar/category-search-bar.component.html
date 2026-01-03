@@ -1,0 +1,15 @@
+<div class="search-section">
+  <div class="search-bar">
+    <input
+      type="text"
+      [ngModel]="searchTerm"
+      (ngModelChange)="onSearchChange($event)"
+      placeholder="🔍 Pesquisar categorias por nome ou slug..."
+      class="search-input"
+    />
+    @if (searchTerm) {
+      <button class="clear-search" (click)="clearSearch()">&times;</button>
+    }
+  </div>
+  <p class="search-results">Exibindo {{ filteredCount }} de {{ totalCount }} categorias</p>
+</div>

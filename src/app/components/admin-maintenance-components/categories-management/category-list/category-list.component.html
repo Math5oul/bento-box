@@ -1,0 +1,46 @@
+<!-- Loading -->
+@if (loading) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando categorias...</p>
+  </div>
+}
+
+<!-- Grid de categorias -->
+@if (!loading) {
+  <div class="categories-grid">
+    @if (categories.length === 0 && totalCategories > 0) {
+      <div class="empty-state">
+        <p>Nenhuma categoria encontrada com "{{ searchTerm }}"</p>
+      </div>
+    }
+
+    @for (category of categories; track category._id) {
+      <app-category-card
+        [category]="category"
+        [isDragging]="isDragging(category)"
+        [isDragOver]="isDragOver(category)"
+        (editCategory)="onEditCategory($event)"
+        (deleteCategory)="onDeleteCategory($event)"
+        (openDiscounts)="onOpenDiscounts($event)"
+        (dragStart)="onDragStart($event, category)"
+        (dragOver)="onDragOver($event, category)"
+        (dragLeave)="onDragLeave($event)"
+        (drop)="onDrop($event, category)"
+        (dragEnd)="onDragEnd()"
+        (touchStart)="onTouchStart($event, category)"
+        (touchMove)="onTouchMove($event)"
+        (touchEnd)="onTouchEnd($event)"
+        (touchCancel)="onTouchCancel()"
+      />
+    }
+
+    @if (totalCategories === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>Nenhuma categoria cadastrada</h3>
+        <p>Clique em "Criar Nova Categoria" para adicionar a primeira categoria</p>
+      </div>
+    }
+  </div>
+}
