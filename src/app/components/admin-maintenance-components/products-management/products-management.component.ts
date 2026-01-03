@@ -12,6 +12,9 @@ import { ItemEditorModalComponent } from '../../item-editor-modal/item-editor-mo
 import { GridItem } from '../../../interfaces/bento-box.interface';
 import { SimpleProductComponent } from '../../simpleComponents/simple-product/simple-product.component';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
+import { ProductStatsComponent, ProductStats } from './product-stats/product-stats.component';
+import { ProductSearchBarComponent } from './product-search-bar/product-search-bar.component';
+import { ProductListComponent } from './product-list/product-list.component';
 
 @Component({
   selector: 'app-products-management',
@@ -22,6 +25,9 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
     RouterModule,
     ItemEditorModalComponent,
     AdminHeaderComponent,
+    ProductStatsComponent,
+    ProductSearchBarComponent,
+    ProductListComponent,
   ],
   templateUrl: './products-management.component.html',
   styleUrl: './products-management.component.scss',
@@ -37,16 +43,22 @@ export class ProductsManagementComponent implements OnInit {
   loading = true;
   searchTerm = ''; // Filtro de pesquisa
 
-  // Estatísticas
-  totalProducts = 0;
-  availableProducts = 0;
-  unavailableProducts = 0;
-
   // Modal unificado (new-item-modal)
   showModal = false;
   modalEditMode = false;
   modalItemToEdit: GridItem | null = null;
   currentProductId: string | null = null; // Armazena o ID do produto sendo editado
+
+  /**
+   * Getter para estatísticas
+   */
+  get stats(): ProductStats {
+    return {
+      total: this.products.length,
+      available: this.products.filter(p => p.available).length,
+      unavailable: this.products.filter(p => !p.available).length,
+    };
+  }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -69,22 +81,6 @@ export class ProductsManagementComponent implements OnInit {
         console.error('Erro ao carregar categorias:', error);
       },
     });
-  }
-
-  /**
-   * Retorna emoji da categoria pelo slug
-   */
-  getCategoryEmoji(slug: string): string {
-    const category = this.categories.find(c => c.slug === slug);
-    return category ? category.emoji : '📦';
-  }
-
-  /**
-   * Retorna label completo da categoria (emoji + nome)
-   */
-  getCategoryLabel(slug: string): string {
-    const category = this.categories.find(c => c.slug === slug);
-    return category ? `${category.emoji} ${category.name}` : slug;
   }
 
   /**
@@ -112,12 +108,6 @@ export class ProductsManagementComponent implements OnInit {
     try {
       const response: any = await this.http.get(`${environment.apiUrl}/products`).toPromise();
       this.products = response.data || [];
-
-      // Atualiza estatísticas
-      this.totalProducts = this.products.length;
-      this.availableProducts = this.products.filter(p => p.available).length;
-      this.unavailableProducts = this.products.filter(p => !p.available).length;
-
       this.loading = false;
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
@@ -254,14 +244,15 @@ export class ProductsManagementComponent implements OnInit {
   /**
    * Deleta um produto
    */
-  async deleteProduct(productId?: string): Promise<void> {
+  async deleteProduct(product: Product): Promise<void> {
+    const productId = product._id;
     if (!productId) {
       console.warn('deleteProduct chamado sem productId');
       alert('Produto inválido ou sem ID');
       return;
     }
 
-    if (!confirm('Tem certeza que deseja deletar este produto?')) {
+    if (!confirm(`Tem certeza que deseja deletar "${product.name}"?`)) {
       return;
     }
 
@@ -305,23 +296,5 @@ export class ProductsManagementComponent implements OnInit {
       console.error('Erro ao alterar disponibilidade:', error);
       alert('❌ Erro ao alterar disponibilidade: ' + (error.error?.message || error.message));
     }
-  }
-
-  /**
-   * Formata o preço para exibição
-   */
-  formatPrice(price: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price);
-  }
-
-  /**
-   * Trunca texto longo
-   */
-  truncateText(text: string, maxLength: number = 100): string {
-    if (!text) return '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
 }

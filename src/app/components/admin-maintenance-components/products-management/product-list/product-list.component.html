@@ -1,0 +1,39 @@
+<!-- Loading -->
+@if (loading) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando produtos...</p>
+  </div>
+}
+
+<!-- Grid de produtos -->
+@if (!loading) {
+  <div class="products-grid">
+    <!-- Nenhum resultado de pesquisa -->
+    @if (products.length === 0 && totalProducts > 0) {
+      <div class="empty-state">
+        <p>Nenhum produto encontrado com "{{ searchTerm }}"</p>
+      </div>
+    }
+
+    <!-- Renderizar produtos -->
+    @for (product of products; track product._id) {
+      <app-product-card
+        [product]="product"
+        [categories]="categories"
+        (edit)="productEdit.emit($event)"
+        (delete)="productDelete.emit($event)"
+        (toggleAvailability)="productToggleAvailability.emit($event)"
+      />
+    }
+
+    <!-- Mensagem quando não há produtos cadastrados -->
+    @if (totalProducts === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>Nenhum produto cadastrado</h3>
+        <p>Clique em "Criar Novo Produto" para adicionar o primeiro produto</p>
+      </div>
+    }
+  </div>
+}

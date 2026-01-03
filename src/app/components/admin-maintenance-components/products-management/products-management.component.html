@@ -7,31 +7,7 @@
   </div>
 
   <!-- Estatísticas -->
-  <div class="stats-container">
-    <div class="stat-card">
-      <div class="stat-icon">📦</div>
-      <div class="stat-info">
-        <div class="stat-value">{{ totalProducts }}</div>
-        <div class="stat-label">Total de Produtos</div>
-      </div>
-    </div>
-
-    <div class="stat-card available">
-      <div class="stat-icon">✅</div>
-      <div class="stat-info">
-        <div class="stat-value">{{ availableProducts }}</div>
-        <div class="stat-label">Disponíveis</div>
-      </div>
-    </div>
-
-    <div class="stat-card unavailable">
-      <div class="stat-icon">❌</div>
-      <div class="stat-info">
-        <div class="stat-value">{{ unavailableProducts }}</div>
-        <div class="stat-label">Indisponíveis</div>
-      </div>
-    </div>
-  </div>
+  <app-product-stats [stats]="stats" />
 
   <!-- Botão de criar produto -->
   <div class="actions-container">
@@ -39,107 +15,23 @@
   </div>
 
   <!-- Barra de Pesquisa -->
-  <div class="search-section">
-    <div class="search-bar">
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        placeholder="🔍 Pesquisar produtos por nome, descrição ou categoria..."
-        class="search-input"
-      />
-      @if (searchTerm) {
-        <button class="clear-search" (click)="searchTerm = ''">&times;</button>
-      }
-    </div>
-    <p class="search-results">
-      Exibindo {{ filteredProducts.length }} de {{ products.length }} produtos
-    </p>
-  </div>
+  <app-product-search-bar
+    [(searchTerm)]="searchTerm"
+    [filteredCount]="filteredProducts.length"
+    [totalCount]="products.length"
+  />
 
-  <!-- Loading -->
-  @if (loading) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Carregando produtos...</p>
-    </div>
-  }
-
-  <!-- Grid de produtos -->
-  @if (!loading) {
-    <div class="products-grid">
-      @if (filteredProducts.length === 0 && products.length > 0) {
-        <div class="empty-state">
-          <p>Nenhum produto encontrado com "{{ searchTerm }}"</p>
-        </div>
-      }
-
-      @for (product of filteredProducts; track product._id) {
-        <div class="product-card" [class.unavailable]="!product.available">
-          <!-- Badge de disponibilidade -->
-          <div
-            class="availability-badge"
-            [class.available]="product.available"
-            (click)="toggleAvailability(product)"
-            title="Clique para alterar disponibilidade"
-          >
-            {{ product.available ? '✅ Disponível' : '❌ Indisponível' }}
-          </div>
-
-          <!-- Informações do produto -->
-          <div class="product-info">
-            <h3>{{ product.name }}</h3>
-            <p class="description">{{ truncateText(product.description, 80) }}</p>
-
-            <div class="product-meta">
-              <span class="category">
-                {{ getCategoryEmoji(product.category) }} {{ product.category }}
-              </span>
-              <span class="price">{{ formatPrice(product.price) }}</span>
-            </div>
-
-            <div class="product-details">
-              @if (product.format) {
-                <span class="detail-tag">📐 {{ product.format }}</span>
-              }
-              @if (product.colorMode) {
-                <span class="detail-tag">
-                  {{ product.colorMode === 'light' ? '☀️' : '🌙' }} {{ product.colorMode }}
-                </span>
-              }
-              <span class="detail-tag">🖼️ {{ product.images.length || 0 }} imagens</span>
-            </div>
-          </div>
-
-          <!-- Miniatura das imagens -->
-          @if (product.images && product.images.length > 0) {
-            <div class="product-images">
-              @for (img of product.images.slice(0, 3); track $index) {
-                <img [src]="img" [alt]="product.name" class="thumbnail" />
-              }
-              @if (product.images.length > 3) {
-                <span class="more-images"> +{{ product.images.length - 3 }} </span>
-              }
-            </div>
-          }
-
-          <!-- Ações -->
-          <div class="product-actions">
-            <button class="edit-btn" (click)="openEditModal(product)">✏️ Editar</button>
-            <button class="delete-btn" (click)="deleteProduct(product._id)">🗑️ Deletar</button>
-          </div>
-        </div>
-      }
-
-      <!-- Mensagem quando não há produtos -->
-      @if (products.length === 0) {
-        <div class="empty-state">
-          <div class="empty-icon">📦</div>
-          <h3>Nenhum produto cadastrado</h3>
-          <p>Clique em "Criar Novo Produto" para adicionar o primeiro produto</p>
-        </div>
-      }
-    </div>
-  }
+  <!-- Lista de produtos -->
+  <app-product-list
+    [products]="filteredProducts"
+    [categories]="categories"
+    [loading]="loading"
+    [searchTerm]="searchTerm"
+    [totalProducts]="products.length"
+    (productEdit)="openEditModal($event)"
+    (productDelete)="deleteProduct($event)"
+    (productToggleAvailability)="toggleAvailability($event)"
+  />
 
   <!-- Modal Unificado (new-item-modal) -->
   @if (showModal) {
