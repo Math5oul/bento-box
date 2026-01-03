@@ -1,0 +1,37 @@
+<div class="orders-container">
+  @if (orders.length === 0) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>Nenhum pedido ativo</h3>
+      <p class="empty-hint">
+        {{
+          filterStatus !== 'all' || filterTable !== 'all' || searchTerm
+            ? 'Nenhum pedido encontrado com os filtros aplicados.'
+            : 'Aguarde novos pedidos ou crie um novo.'
+        }}
+      </p>
+    </div>
+  } @else {
+    <!-- Orders Grid -->
+    <div class="orders-grid">
+      @for (order of orders; track order.id) {
+        <app-order-card
+          [order]="order"
+          [canManageOrders]="canManageOrders"
+          [canCancelOrders]="canCancelOrders"
+          [canDeliverOrders]="canDeliverOrders"
+          [editingNameOrderId]="editingNameOrderId"
+          [editingNameValue]="editingNameValue"
+          (editTable)="editTable.emit($event)"
+          (startEditName)="startEditName.emit($event)"
+          (saveEditName)="saveEditName.emit($event)"
+          (cancelEditName)="cancelEditName.emit()"
+          (updateItemStatus)="updateItemStatus.emit($event)"
+          (openEditModal)="openEditModal.emit($event)"
+          (cancelOrder)="cancelOrder.emit($event)"
+        ></app-order-card>
+      }
+    </div>
+  }
+</div>

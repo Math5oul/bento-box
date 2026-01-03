@@ -1,0 +1,39 @@
+<div class="filters-bar">
+  <div class="filter-item">
+    <label class="filter-label">Mesa:</label>
+    <select
+      [ngModel]="filterTable"
+      (ngModelChange)="onFilterTableChange($event)"
+      class="filter-select"
+    >
+      <option value="all">Todas</option>
+      @for (table of tables; track table) {
+        <option [value]="table">{{ getTableDisplayName(table) }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filter-item">
+    <label class="filter-label">Status:</label>
+    <select
+      [ngModel]="filterStatus"
+      (ngModelChange)="onFilterStatusChange($event)"
+      class="filter-select"
+    >
+      @for (s of statuses; track s.value) {
+        <option [value]="s.value">{{ s.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filter-item search-box">
+    <label class="filter-label">Buscar:</label>
+    <input
+      type="text"
+      [ngModel]="searchTerm"
+      (ngModelChange)="onSearchTermChange($event)"
+      placeholder="Cliente ou mesa..."
+      class="search-input"
+    />
+  </div>
+</div>

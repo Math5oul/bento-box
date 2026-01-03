@@ -1,0 +1,135 @@
+<div class="order-card" [class]="getStatusClass(order.status)">
+  <!-- Card Header: Status + Mesa + Tempo -->
+  <div class="order-header">
+    <div class="status-info">
+      <span class="status-badge" [class]="'badge-' + order.status">
+        {{ getStatusLabel(order.status) }}
+      </span>
+      <span class="elapsed-time" [class.warning]="getElapsedTime(order.createdAt).includes('h')">
+        ⏱️ {{ getElapsedTime(order.createdAt) }}
+      </span>
+    </div>
+    <div class="table-info">
+      <span
+        class="table-number"
+        (click)="onEditTable()"
+        style="cursor: pointer"
+        title="Clique para editar mesa"
+      >
+        🍽️ {{ getTableDisplayName(order.tableNumber) }}
+        @if (canManageOrders) {
+          <span class="edit-icon">✏️</span>
+        }
+      </span>
+    </div>
+  </div>
+
+  <!-- Card Body: Cliente + Itens -->
+  <div class="order-body">
+    <div class="client-info">
+      @if (!order.isClientAnonymous) {
+        <span class="client-icon">👤</span>
+      }
+
+      <div class="client-name-wrapper">
+        @if (editingNameOrderId === order.id) {
+          <input type="text" [(ngModel)]="editingNameValue" class="inline-name-input" />
+          <div class="edit-actions">
+            <button class="icon-btn save" (click)="onSaveEditName()" title="Salvar">✔️</button>
+            <button class="icon-btn cancel" (click)="onCancelEditName()" title="Cancelar">
+              ✖️
+            </button>
+          </div>
+        } @else {
+          <span class="client-name-text">{{ order.clientName || 'Cliente' }}</span>
+        }
+
+        @if (order.isClientAnonymous && canEdit(order)) {
+          <button
+            class="client-icon editable right"
+            (click)="onStartEditName()"
+            title="Editar nome do cliente"
+          >
+            ✏️
+          </button>
+        }
+        @if (!order.isClientAnonymous) {
+          <span class="client-icon">👤</span>
+        }
+      </div>
+    </div>
+
+    <div class="order-items">
+      <h4 class="items-title">Itens:</h4>
+      <ul class="items-list">
+        @for (item of order.items; track i; let i = $index) {
+          <li class="item">
+            <div class="item-main">
+              <div class="item-line1">
+                <div class="item-left">
+                  <span class="item-quantity">{{ item.quantity }}x</span>
+                  <span class="item-name">{{ item.productName }}</span>
+                </div>
+                <div class="item-price">{{ formatCurrency(item.totalPrice) }}</div>
+              </div>
+
+              <div class="item-line2">
+                @if (item.selectedVariation) {
+                  <span class="item-variation">🔸 {{ item.selectedVariation.title }}</span>
+                }
+                @if (item.selectedSize) {
+                  <span class="item-size">🔹 {{ item.selectedSize.abbreviation }}</span>
+                }
+              </div>
+
+              @if (item.notes) {
+                <div class="item-line3">
+                  <div class="item-notes">📋 {{ item.notes }}</div>
+                </div>
+              }
+            </div>
+
+            <div class="item-actions">
+              @if ((item.status || 'pending') === 'ready') {
+                <span class="ready-badge">Pronto para entrega</span>
+                @if (canDeliverOrders) {
+                  <button
+                    class="action-btn btn-deliver"
+                    (click)="onUpdateItemStatus(item, 'delivered')"
+                    title="Marcar item como entregue"
+                  >
+                    Entregar item
+                  </button>
+                }
+              } @else if ((item.status || 'pending') === 'delivered') {
+                <span class="delivered-badge">Entregue</span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!-- Card Footer -->
+  <div class="order-footer">
+    <div class="order-total">
+      <span class="total-label">Total:</span>
+      <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
+    </div>
+
+    <div class="order-actions">
+      @if (canManageOrders && canEdit(order)) {
+        <button class="action-btn btn-edit" (click)="onOpenEditModal()" title="Editar pedido">
+          ✏️ Editar pedido
+        </button>
+      }
+
+      @if (canCancelOrders) {
+        <button class="action-btn btn-cancel" (click)="onCancelOrder()" title="Cancelar pedido">
+          ❌ Cancelar
+        </button>
+      }
+    </div>
+  </div>
+</div>

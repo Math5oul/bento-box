@@ -38,62 +38,6 @@
   }
 }
 
-// Filters Bar
-.filters-bar {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 15px 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  align-items: end;
-}
-
-.filter-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  &.search-box {
-    grid-column: 1 / -1;
-  }
-
-  .filter-label {
-    font-size: 0.8em;
-    color: #666;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .filter-select,
-  .search-input {
-    padding: 8px 12px;
-    border: 2px solid #4facfe;
-    border-radius: 6px;
-    font-size: 0.9em;
-    background: white;
-    cursor: pointer;
-    width: 100%;
-    transition: all 0.3s;
-
-    &:hover {
-      border-color: #00f2fe;
-    }
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
-    }
-  }
-
-  .search-input {
-    cursor: text;
-  }
-}
-
 .order-count {
   grid-column: 1 / -1;
   display: flex;
@@ -223,67 +167,6 @@
   }
 }
 
-/* Tabs Bar (waiter dashboard) */
-.tabs-bar {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-  background: transparent;
-  margin-bottom: 12px;
-}
-
-.tab-btn {
-  flex: 1 1 50%; /* two buttons share the width equally */
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 700;
-  text-align: center;
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease;
-}
-
-.tab-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-}
-
-.tab-btn.active {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
-  color: white;
-  box-shadow:
-    0 10px 36px rgba(79, 172, 254, 0.36),
-    0 4px 10px rgba(0, 0, 0, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  z-index: 2;
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  box-shadow: 0 0 28px rgba(79, 172, 254, 0.42) inset;
-  pointer-events: none;
-}
-
-.tab-btn.active::before {
-  /* subtle outer glow */
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 12px;
-  box-shadow: 0 0 26px rgba(79, 172, 254, 0.18);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .new-order-btn {
   padding: 8px 16px;
   background: #4facfe;
@@ -335,63 +218,6 @@
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 15px;
   margin-bottom: 30px;
-}
-
-// Order Card
-.order-card {
-  background: rgb(233, 228, 228);
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 4px;
-  }
-
-  &.status-pending {
-    &::before {
-      background: #ff9800;
-    }
-  }
-  &.status-preparing {
-    &::before {
-      background: #2196f3;
-    }
-  }
-  &.status-ready {
-    &::before {
-      background: #4caf50;
-    }
-  }
-  &.status-delivered {
-    opacity: 0.85;
-    &::before {
-      background: #9c27b0;
-    }
-  }
-  &.status-cancelled {
-    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-    opacity: 0.75;
-    &::before {
-      background: #f44336;
-    }
-  }
-
-  &:hover:not(.history-card) {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  }
 }
 
 // Order Header

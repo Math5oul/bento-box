@@ -8,6 +8,10 @@ import { interval, Subscription } from 'rxjs';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { NewOrderModalComponent } from '../new-order-modal/new-order-modal.component';
 import { EditTableModalComponent } from '../../shared/edit-table-modal/edit-table-modal.component';
+import { WaiterTabsComponent } from './waiter-tabs/waiter-tabs.component';
+import { WaiterFiltersComponent } from './waiter-filters/waiter-filters.component';
+import { ReadyItemsPanelComponent } from './ready-items-panel/ready-items-panel.component';
+import { OrderListComponent } from './order-list/order-list.component';
 import { Table } from '../../../interfaces/table.interface';
 import { TableService } from '../../../services/table-service/table.service';
 
@@ -52,6 +56,10 @@ interface WaiterOrder {
     AdminHeaderComponent,
     NewOrderModalComponent,
     EditTableModalComponent,
+    WaiterTabsComponent,
+    WaiterFiltersComponent,
+    ReadyItemsPanelComponent,
+    OrderListComponent,
   ],
   templateUrl: './waiter-dashboard.component.html',
   styleUrls: ['./waiter-dashboard.component.scss'],
@@ -105,7 +113,6 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }[] = [];
 
   // Filtros
-  // Padrão: '' (Todos) — show all items by default so pending tables appear
   filterStatus = '';
   filterTable = 'all';
   searchTerm = '';
@@ -198,16 +205,38 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
         this.orders = response.orders.filter(o => !historyStatuses.includes(o.status));
         this.historyOrders = response.orders.filter(o => historyStatuses.includes(o.status));
 
-        // Extrair lista única de mesas
-        const uniqueTables = [...new Set(response.orders.map(o => o.tableNumber))];
-        this.tables = uniqueTables.sort((a, b) => {
-          const numA = parseInt(a) || 0;
-          const numB = parseInt(b) || 0;
-          return numA - numB;
-        });
+        // Usar todas as mesas cadastradas ao invés de apenas as com pedidos
+        // Isso permite filtrar por mesas sem pedidos ativos
+        if (this.allTables.length > 0) {
+          this.tables = this.allTables
+            .map(t => String(t.number))
+            .sort((a, b) => {
+              const numA = parseInt(a) || 0;
+              const numB = parseInt(b) || 0;
+              return numA - numB;
+            });
+        } else {
+          // Fallback: extrair mesas dos pedidos se allTables ainda não foi carregado
+          const uniqueTables = [
+            ...new Set(
+              response.orders
+                .map(o => o.tableNumber)
+                .filter(t => t !== null && t !== undefined && t !== '')
+                .map(t => String(t))
+            ),
+          ];
+
+          this.tables = uniqueTables.sort((a, b) => {
+            const numA = parseInt(a) || 0;
+            const numB = parseInt(b) || 0;
+            return numA - numB;
+          });
+        }
+
+        console.log('Tables found:', this.tables);
+        console.log('TablesMap:', this.tablesMap);
 
         this.applyFilters();
-        // compute ready-items view for waiter quick access
         this.computeReadyView();
         this.loading = false;
       },

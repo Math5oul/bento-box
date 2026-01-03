@@ -1,0 +1,34 @@
+<div class="ready-panel">
+  @if (readyViewItems.length === 0) {
+    <div class="empty-state">
+      <h3>Nenhum item pronto no momento</h3>
+      <p class="empty-hint">Aguarde a cozinha preparar os itens.</p>
+    </div>
+  } @else {
+    <div class="ready-items-list">
+      @for (rv of readyViewItems; track rv.orderId + '-' + rv.itemIndex) {
+        <div class="ready-item">
+          <div class="ready-item-info">
+            <div class="ready-item-meta">
+              <div class="ready-item-table">{{ getTableDisplayName(rv.tableNumber) }}</div>
+            </div>
+            <div class="ready-item-name">
+              <span class="ready-item-quantity">{{ rv.item.quantity }}x </span>
+              <span class="ready-item-product">{{ rv.item.productName }}</span>
+            </div>
+          </div>
+          <div class="ready-item-actions">
+            <div class="ready-item-client-right">{{ rv.clientName || 'Cliente' }}</div>
+            @if (canDeliverOrders) {
+              <button class="action-btn btn-deliver" (click)="onDeliverItem(rv.orderId, rv.item)">
+                Entregar
+              </button>
+            } @else {
+              <span class="status-badge">Pronto</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

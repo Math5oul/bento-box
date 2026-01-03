@@ -1,0 +1,145 @@
+.ready-panel {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #666;
+  }
+
+  .empty-hint {
+    font-size: 1rem;
+    color: #999;
+  }
+}
+
+.ready-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ready-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+  border-left: 4px solid #ffc107;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  }
+}
+
+.ready-item-info {
+  flex: 1;
+}
+
+.ready-item-meta {
+  margin-bottom: 0.5rem;
+}
+
+.ready-item-table {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f57c00;
+}
+
+.ready-item-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ready-item-quantity {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f57c00;
+}
+
+.ready-item-product {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.ready-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ready-item-client-right {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.action-btn {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &.btn-deliver {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  background: #4caf50;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .ready-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .ready-item-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

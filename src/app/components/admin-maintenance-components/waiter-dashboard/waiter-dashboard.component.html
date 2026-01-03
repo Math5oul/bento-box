@@ -6,58 +6,26 @@
     <p class="subtitle">Gestão de Pedidos e Mesas</p>
   </div>
 
-  <!-- Filters Bar -->
   <!-- Tabs -->
-  <div class="tabs-bar">
-    <button
-      class="tab-btn"
-      [class.active]="activeTab === 'deliver'"
-      (click)="activeTab = 'deliver'; showReadyOnly = true"
-    >
-      Entregas
-    </button>
-    <button
-      class="tab-btn"
-      [class.active]="activeTab === 'tables'"
-      (click)="activeTab = 'tables'; showReadyOnly = false"
-    >
-      Mesas
-    </button>
-  </div>
+  <app-waiter-tabs
+    [activeTab]="activeTab"
+    (activeTabChange)="activeTab = $event; showReadyOnly = $event === 'deliver'"
+  ></app-waiter-tabs>
 
   <!-- Filters Bar  -->
   @if (activeTab === 'tables') {
-    <div class="filters-bar">
-      <div class="filter-item">
-        <label class="filter-label">Mesa:</label>
-        <select [(ngModel)]="filterTable" (change)="applyFilters()" class="filter-select">
-          <option value="all">Todas</option>
-          @for (table of tables; track table) {
-            <option [value]="table">{{ getTableDisplayName(table) }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="filter-item">
-        <label class="filter-label">Status:</label>
-        <select [(ngModel)]="filterStatus" (change)="applyFilters()" class="filter-select">
-          @for (s of statuses; track s.value) {
-            <option [value]="s.value">{{ s.label }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="filter-item search-box">
-        <label class="filter-label">Buscar:</label>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (input)="applyFilters()"
-          placeholder="Cliente ou mesa..."
-          class="search-input"
-        />
-      </div>
-    </div>
+    <app-waiter-filters
+      [tables]="tables"
+      [tablesMap]="tablesMap"
+      [statuses]="statuses"
+      [filterTable]="filterTable"
+      [filterStatus]="filterStatus"
+      [searchTerm]="searchTerm"
+      (filterTableChange)="filterTable = $event"
+      (filterStatusChange)="filterStatus = $event"
+      (searchTermChange)="searchTerm = $event"
+      (filtersApplied)="applyFilters()"
+    ></app-waiter-filters>
   }
 
   <!-- tabs  -->
@@ -79,37 +47,69 @@
     <!-- Orders Container -->
     <!-- Tab Entregas -->
     @if (activeTab === 'deliver') {
-      <div class="ready-panel">
-        @if (readyViewItems.length === 0) {
-          <div class="empty-state">
-            <h3>Nenhum item pronto no momento</h3>
-            <p class="empty-hint">Aguarde a cozinha preparar os itens.</p>
-          </div>
-        } @else {
-          <div class="ready-items-list">
-            @for (rv of readyViewItems; track rv.orderId + '-' + rv.itemIndex; let i = $index) {
-              <div class="ready-item">
-                <div class="ready-item-info">
-                  <div class="ready-item-meta">
-                    <div class="ready-item-table">{{ getTableDisplayName(rv.tableNumber) }}</div>
+      <app-ready-items-panel
+        [readyViewItems]="readyViewItems"
+        [canDeliverOrders]="canDeliverOrders"
+        (deliverItem)="deliverSingleItem($event.orderId, $event.item)"
+      ></app-ready-items-panel>
+    }
+    @if (activeTab === 'deliver') {
+      <div class="deliver-separator" aria-hidden="true"></div>
+    }
+    <app-order-list
+      [orders]="filteredOrders"
+      [canManageOrders]="canManageOrders"
+      [canCancelOrders]="canCancelOrders"
+      [canDeliverOrders]="canDeliverOrders"
+      [editingNameOrderId]="editingNameOrderId"
+      [editingNameValue]="editingNameValue"
+      [filterStatus]="filterStatus"
+      [filterTable]="filterTable"
+      [searchTerm]="searchTerm"
+      (editTable)="openEditTableModal($event)"
+      (startEditName)="startEditName($event)"
+      (saveEditName)="saveEditName($event)"
+      (cancelEditName)="cancelEditName()"
+      (updateItemStatus)="updateItemStatus($event.order, $event.item, $event.status)"
+      (openEditModal)="openEditModal($event)"
+      (cancelOrder)="cancelOrder($event)"
+    ></app-order-list>
+
+    <!-- History Section -->
+    @if (historyOrders.length > 0 && activeTab === 'tables') {
+      <div class="history-section">
+        <div class="section-header">
+          <h2>📜 Histórico</h2>
+          <button class="toggle-history-btn" (click)="showHistory = !showHistory">
+            {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
+          </button>
+        </div>
+
+        @if (showHistory) {
+          <div class="orders-grid">
+            @for (order of historyOrders; track order.id) {
+              <div class="order-card history-card" [class]="getStatusClass(order.status)">
+                <div class="order-header">
+                  <div class="status-info">
+                    <span class="status-badge" [class]="'badge-' + order.status">
+                      {{ getStatusLabel(order.status) }}
+                    </span>
                   </div>
-                  <div class="ready-item-name">
-                    <span class="ready-item-quantity">{{ rv.item.quantity }}x </span>
-                    <span class="ready-item-product">{{ rv.item.productName }}</span>
+                  <div class="table-info">
+                    <span class="table-number">{{ getTableDisplayName(order.tableNumber) }}</span>
+                    <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
                   </div>
                 </div>
-                <div class="ready-item-actions">
-                  <div class="ready-item-client-right">{{ rv.clientName || 'Cliente' }}</div>
-                  @if (canDeliverOrders) {
-                    <button
-                      class="action-btn btn-deliver"
-                      (click)="deliverSingleItem(rv.orderId, rv.item)"
-                    >
-                      Entregar
-                    </button>
-                  } @else {
-                    <span class="status-badge">Pronto</span>
-                  }
+
+                <div class="order-body">
+                  <div class="client-info">
+                    <span class="client-icon">👤</span>
+                    <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
+                  </div>
+                  <div class="order-summary">
+                    <span>{{ order.items.length }} item(ns)</span>
+                    <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
+                  </div>
                 </div>
               </div>
             }
@@ -117,225 +117,6 @@
         }
       </div>
     }
-    @if (activeTab === 'deliver') {
-      <div class="deliver-separator" aria-hidden="true"></div>
-    }
-    <div class="orders-container">
-      @if (filteredOrders.length === 0) {
-        <!-- Empty State -->
-        <div class="empty-state">
-          <div class="empty-icon">📭</div>
-          <h3>Nenhum pedido ativo</h3>
-          <p class="empty-hint">
-            {{
-              filterStatus !== 'all' || filterTable !== 'all' || searchTerm
-                ? 'Nenhum pedido encontrado com os filtros aplicados.'
-                : 'Aguarde novos pedidos ou crie um novo.'
-            }}
-          </p>
-        </div>
-      } @else {
-        <!-- Orders Grid -->
-        <div class="orders-grid">
-          @for (order of filteredOrders; track order.id) {
-            <div class="order-card" [class]="getStatusClass(order.status)">
-              <!-- Card Header: Status + Mesa + Tempo -->
-              <div class="order-header">
-                <div class="status-info">
-                  <span class="status-badge" [class]="'badge-' + order.status">
-                    {{ getStatusLabel(order.status) }}
-                  </span>
-                  <span
-                    class="elapsed-time"
-                    [class.warning]="getElapsedTime(order.createdAt).includes('h')"
-                  >
-                    ⏱️ {{ getElapsedTime(order.createdAt) }}
-                  </span>
-                </div>
-                <div class="table-info">
-                  <span
-                    class="table-number"
-                    (click)="openEditTableModal(order.tableNumber)"
-                    style="cursor: pointer"
-                    title="Clique para editar mesa"
-                  >
-                    🍽️ {{ getTableDisplayName(order.tableNumber) }}
-                    @if (canManageOrders) {
-                      <span class="edit-icon">✏️</span>
-                    }
-                  </span>
-                  <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
-                </div>
-              </div>
-
-              <!-- Card Body: Cliente + Itens -->
-              <div class="order-body">
-                <div class="client-info">
-                  @if (!order.isClientAnonymous) {
-                    <span class="client-icon">👤</span>
-                  }
-
-                  <div class="client-name-wrapper">
-                    @if (editingNameOrderId === order.id) {
-                      <input type="text" [(ngModel)]="editingNameValue" class="inline-name-input" />
-                      <div class="edit-actions">
-                        <button class="icon-btn save" (click)="saveEditName(order)" title="Salvar">
-                          ✔️
-                        </button>
-                        <button class="icon-btn cancel" (click)="cancelEditName()" title="Cancelar">
-                          ✖️
-                        </button>
-                      </div>
-                    } @else {
-                      <span class="client-name-text">{{ order.clientName || 'Cliente' }}</span>
-                    }
-
-                    @if (order.isClientAnonymous && canEdit(order)) {
-                      <button
-                        class="client-icon editable right"
-                        (click)="startEditName(order)"
-                        title="Editar nome do cliente"
-                      >
-                        ✏️
-                      </button>
-                    }
-                    @if (!order.isClientAnonymous) {
-                      <span class="client-icon">👤</span>
-                    }
-                  </div>
-                </div>
-
-                <div class="order-items">
-                  <h4 class="items-title">Itens:</h4>
-                  <ul class="items-list">
-                    @for (item of order.items; track i; let i = $index) {
-                      <li class="item">
-                        <div class="item-main">
-                          <div class="item-line1">
-                            <div class="item-left">
-                              <span class="item-quantity">{{ item.quantity }}x</span>
-                              <span class="item-name">{{ item.productName }}</span>
-                            </div>
-                            <div class="item-price">{{ formatCurrency(item.totalPrice) }}</div>
-                          </div>
-
-                          <div class="item-line2">
-                            @if (item.selectedVariation) {
-                              <span class="item-variation"
-                                >🔸 {{ item.selectedVariation.title }}</span
-                              >
-                            }
-                            @if (item.selectedSize) {
-                              <span class="item-size">🔹 {{ item.selectedSize.abbreviation }}</span>
-                            }
-                          </div>
-
-                          @if (item.notes) {
-                            <div class="item-line3">
-                              <div class="item-notes">📋 {{ item.notes }}</div>
-                            </div>
-                          }
-                        </div>
-
-                        <div class="item-actions">
-                          @if ((item.status || 'pending') === 'ready') {
-                            <span class="ready-pill">Pronto para entrega</span>
-                            @if (canDeliverOrders) {
-                              <button
-                                class="action-btn btn-deliver"
-                                (click)="updateItemStatus(order, item, 'delivered')"
-                                title="Marcar item como entregue"
-                              >
-                                Entregar item
-                              </button>
-                            }
-                          } @else if ((item.status || 'pending') === 'delivered') {
-                            <span class="delivered-pill">Entregue</span>
-                          }
-                        </div>
-                      </li>
-                    }
-                  </ul>
-                </div>
-              </div>
-
-              <!-- Card Footer -->
-              <div class="order-footer">
-                <div class="order-total">
-                  <span class="total-label">Total:</span>
-                  <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
-                </div>
-
-                <div class="order-actions">
-                  @if (canManageOrders && canEdit(order)) {
-                    <button
-                      class="action-btn btn-edit"
-                      (click)="openEditModal(order)"
-                      title="Editar pedido"
-                    >
-                      ✏️ Editar pedido
-                    </button>
-                  }
-
-                  @if (canCancelOrders) {
-                    <button
-                      class="action-btn btn-cancel"
-                      (click)="cancelOrder(order)"
-                      title="Cancelar pedido"
-                    >
-                      ❌ Cancelar
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- History Section -->
-      @if (historyOrders.length > 0 && activeTab === 'tables') {
-        <div class="history-section">
-          <div class="section-header">
-            <h2>📜 Histórico</h2>
-            <button class="toggle-history-btn" (click)="showHistory = !showHistory">
-              {{ showHistory ? '▼ Ocultar' : '▶ Mostrar' }}
-            </button>
-          </div>
-
-          @if (showHistory) {
-            <div class="orders-grid">
-              @for (order of historyOrders; track order.id) {
-                <div class="order-card history-card" [class]="getStatusClass(order.status)">
-                  <div class="order-header">
-                    <div class="status-info">
-                      <span class="status-badge" [class]="'badge-' + order.status">
-                        {{ getStatusLabel(order.status) }}
-                      </span>
-                    </div>
-                    <div class="table-info">
-                      <span class="table-number">{{ getTableDisplayName(order.tableNumber) }}</span>
-                      <span class="order-time">{{ getElapsedTime(order.createdAt) }}</span>
-                    </div>
-                  </div>
-
-                  <div class="order-body">
-                    <div class="client-info">
-                      <span class="client-icon">👤</span>
-                      <span class="client-name">{{ order.clientName || 'Cliente' }}</span>
-                    </div>
-                    <div class="order-summary">
-                      <span>{{ order.items.length }} item(ns)</span>
-                      <span class="total-value">{{ formatCurrency(order.totalAmount) }}</span>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
-    </div>
   }
 </div>
 
