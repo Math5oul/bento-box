@@ -395,6 +395,8 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       this.selectedTable.anonymousClients.forEach((ac: any) => {
         if (ac.userData?._id) {
           tableClientIds.add(ac.userData._id);
+        } else if (ac.sessionId) {
+          tableClientIds.add(ac.sessionId);
         }
       });
     }
@@ -403,14 +405,41 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   loadClientsForTable(table: Table) {
-    console.log('🔍 Carregando clientes para mesa:', table);
-    console.log('👥 Clientes registrados:', table.clients);
-    console.log('👻 Clientes anônimos:', table.anonymousClients);
+    console.log('🔍 Carregando clientes para mesa:', table._id);
 
     this.loadingClients = true;
     this.error = '';
     this.clientSearchTerm = '';
 
+    // Buscar dados atualizados da mesa E lista de usuários em paralelo
+    this.http.get<{ tables: Table[] }>('/api/table', { headers: this.getHeaders() }).subscribe({
+      next: response => {
+        // Encontrar a mesa atualizada na resposta (comparar como string para segurança)
+        const tableId = String(table._id);
+        const freshTable = response.tables.find(t => String(t._id) === tableId);
+        if (freshTable) {
+          // Atualizar o selectedTable com dados frescos
+          this.selectedTable = freshTable;
+        }
+
+        const currentTable = freshTable || table;
+        console.log('👥 Clientes registrados:', currentTable.clients);
+        console.log('👻 Clientes anônimos:', currentTable.anonymousClients);
+
+        this.processTableClients(currentTable);
+      },
+      error: err => {
+        console.warn('⚠️ Erro ao recarregar mesa, usando dados em cache:', err);
+        // Fallback: usar dados do objeto table original
+        this.processTableClients(table);
+      },
+    });
+  }
+
+  /**
+   * Processa os clientes de uma mesa e carrega a lista completa de clientes
+   */
+  private processTableClients(table: Table) {
     // Arrays temporários para organizar clientes
     const tableClients: Client[] = [];
     const tableClientIds = new Set<string>();
@@ -445,18 +474,21 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
             role: anonClient.userData.role,
           });
           tableClientIds.add(anonClient.userData._id);
-        } else {
-          console.warn('⚠️ Cliente anônimo sem userData:', anonClient);
+        } else if (anonClient.sessionId) {
+          // Fallback: se não tem userData mas tem sessionId, adiciona com nome genérico
+          console.warn('⚠️ Cliente anônimo sem userData, usando sessionId:', anonClient.sessionId);
+          tableClients.push({
+            _id: anonClient.sessionId,
+            name: `Anônimo ${anonClient.sessionId.substring(0, 8)}`,
+            isAnonymous: true,
+          });
+          tableClientIds.add(anonClient.sessionId);
         }
       });
     }
 
     // Ordena clientes da mesa: anônimos (conectados) primeiro em ordem alfabética,
     // depois registrados também em ordem alfabética
-    console.log(
-      '🔄 Clientes da mesa ANTES de ordenar:',
-      tableClients.map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
-    );
     tableClients.sort((a, b) => {
       // Prioridade 1: Anônimos primeiro
       if (a.isAnonymous && !b.isAnonymous) return -1;
@@ -466,7 +498,7 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
       return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
     });
     console.log(
-      '✅ Clientes da mesa DEPOIS de ordenar:',
+      '✅ Clientes da mesa:',
       tableClients.map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
     );
 
@@ -505,11 +537,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
               return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
             });
 
-          console.log(
-            '🔄 Outros clientes ANTES de combinar:',
-            otherClients.slice(0, 10).map(c => c.name)
-          );
-
           // Combina: clientes da mesa primeiro, depois outros
           this.clients = [...tableClients, ...otherClients];
           this.filteredClients = [...this.clients];
@@ -518,12 +545,6 @@ export class NewOrderModalComponent implements OnInit, AfterViewInit, OnDestroy 
           console.log('📋 Total de clientes disponíveis:', this.clients.length);
           console.log('📋 Clientes da mesa:', tableClients.length);
           console.log('📋 Outros clientes (ordenados):', otherClients.length);
-          console.log(
-            '📋 Lista final (primeiros 10):',
-            this.clients
-              .slice(0, 10)
-              .map(c => `${c.name} (${c.isAnonymous ? 'anônimo' : 'registrado'})`)
-          );
         },
         error: err => {
           console.error('❌ Erro ao carregar clientes:', err);

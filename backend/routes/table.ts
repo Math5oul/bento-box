@@ -50,49 +50,66 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
         // Para cada sessão anônima, buscar os dados do usuário
         const anonymousClientsWithData = await Promise.all(
           (tableObj.anonymousClients || []).map(async (anonSession: any) => {
-            const user = await User.findById(anonSession.sessionId).select(
-              '_id name isAnonymous role'
-            );
+            try {
+              const user = await User.findById(anonSession.sessionId).select(
+                '_id name isAnonymous role'
+              );
 
-            if (user) {
-              const userData: any = {
-                _id: user._id,
-                name: user.name,
-                isAnonymous: user.isAnonymous,
-                role: user.role,
-              };
+              if (user) {
+                const userData: any = {
+                  _id: user._id,
+                  name: user.name,
+                  isAnonymous: user.isAnonymous,
+                  role: user.role,
+                };
 
-              // Popular role do usuário anônimo também
-              if (userData.role && typeof userData.role === 'string') {
-                try {
-                  const roleDoc = await Role.findById(userData.role)
-                    .select('name slug isSystem')
-                    .lean();
-                  if (roleDoc) {
-                    userData.role = roleDoc;
+                // Popular role do usuário anônimo também
+                if (userData.role && typeof userData.role === 'string') {
+                  try {
+                    const roleDoc = await Role.findById(userData.role)
+                      .select('name slug isSystem')
+                      .lean();
+                    if (roleDoc) {
+                      userData.role = roleDoc;
+                    }
+                  } catch (err) {
+                    console.log('Não foi possível popular role do anônimo:', err);
                   }
-                } catch (err) {
-                  console.log('Não foi possível popular role do anônimo:', err);
                 }
+
+                return {
+                  ...anonSession,
+                  userData,
+                };
               }
 
-              return {
-                ...anonSession,
-                userData,
-              };
+              // User não encontrado (possivelmente expirado pelo TTL)
+              console.log(`⚠️ Sessão anônima ${anonSession.sessionId} sem user correspondente (possivelmente expirado)`);
+              return null;
+            } catch (err) {
+              console.log(`⚠️ Erro ao buscar user da sessão anônima ${anonSession.sessionId}:`, err);
+              return null;
             }
-
-            return {
-              ...anonSession,
-              userData: null,
-            };
           })
         );
+
+        // Filtrar sessões mortas (sem user)
+        const validAnonymousClients = anonymousClientsWithData.filter(ac => ac !== null);
+
+        // Se há sessões mortas, limpar da mesa em background
+        if (validAnonymousClients.length < (tableObj.anonymousClients || []).length) {
+          const validSessionIds = validAnonymousClients.map(ac => ac.sessionId);
+          Table.findByIdAndUpdate(table._id, {
+            anonymousClients: table.anonymousClients.filter((ac: any) =>
+              validSessionIds.includes(ac.sessionId?.toString?.() || ac.sessionId)
+            ),
+          }).catch(err => console.log('Erro ao limpar sessões mortas:', err));
+        }
 
         return {
           ...tableObj,
           id: (table._id as any).toString(),
-          anonymousClients: anonymousClientsWithData,
+          anonymousClients: validAnonymousClients,
         };
       })
     );
