@@ -56,6 +56,7 @@ export class TablesCardComponent implements OnInit, OnDestroy {
   showOrdersModal = false;
   selectedTableOrders: any[] = [];
   selectedTableNumber: number = 0;
+  selectedTableName: string = '';
 
   // Modal de edição
   showEditModal = false;
@@ -211,6 +212,7 @@ export class TablesCardComponent implements OnInit, OnDestroy {
     console.log('🔍 Abrindo pedidos da mesa:', table.number, 'ID:', table.id);
     console.log('📊 CurrentOrders:', table.currentOrders);
     this.selectedTableNumber = table.number;
+    this.selectedTableName = table.name || '';
 
     // Verifica se há pedidos antes de fazer a requisição
     if (!table.currentOrders || table.currentOrders.length === 0) {
@@ -245,6 +247,7 @@ export class TablesCardComponent implements OnInit, OnDestroy {
     this.showOrdersModal = false;
     this.selectedTableOrders = [];
     this.selectedTableNumber = 0;
+    this.selectedTableName = '';
   }
 
   /**
@@ -306,6 +309,13 @@ export class TablesCardComponent implements OnInit, OnDestroy {
       console.error('Erro ao salvar mesa:', error);
       alert('Erro ao salvar mesa: ' + (error.error?.message || 'Verifique se o número já existe.'));
     }
+  }
+
+  /**
+   * Retorna o nome ou número da mesa
+   */
+  getTableDisplayName(table: TableWithDetails): string {
+    return table.name || `Mesa ${table.number}`;
   }
 
   /**

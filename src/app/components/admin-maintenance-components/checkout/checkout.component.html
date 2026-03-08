@@ -341,7 +341,7 @@
 
         <div class="modal-body">
           <p>
-            Mesa: <strong>{{ selectedTable?.number }}</strong>
+            Mesa: <strong>{{ selectedTable ? getTableDisplayName(selectedTable) : '' }}</strong>
           </p>
           <p>
             Total já pago: <strong>R$ {{ getTotalPaid().toFixed(2) }}</strong>

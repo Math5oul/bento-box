@@ -40,8 +40,13 @@ interface Order {
 })
 export class TableOrdersModalComponent {
   @Input() tableNumber: number = 0;
+  @Input() tableName: string = '';
   @Input() orders: Order[] = [];
   @Output() close = new EventEmitter<void>();
+
+  get tableDisplayName(): string {
+    return this.tableName || `Mesa ${this.tableNumber}`;
+  }
 
   closeModal() {
     this.close.emit();

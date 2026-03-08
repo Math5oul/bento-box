@@ -9,9 +9,9 @@
       <div class="table-card" [style.border-color]="getStatusColor(table.status)">
         <div class="table-header">
           <div class="table-number">
-            <span class="table-number-main">Mesa {{ table.number }}</span>
+            <span class="table-number-main">{{ getTableDisplayName(table) }}</span>
             @if (table.name) {
-              <span class="table-name">{{ table.name }}</span>
+              <span class="table-name">Mesa {{ table.number }}</span>
             }
           </div>
           <div class="table-status" [style.background]="getStatusColor(table.status)">
@@ -102,7 +102,7 @@
 @if (showQRCode && selectedTable) {
   <div class="modal-overlay" (click)="showQRCode = false">
     <div class="modal-content qr-modal" (click)="$event.stopPropagation()">
-      <h3>QR Code - Mesa {{ selectedTable.number }}</h3>
+      <h3>QR Code - {{ getTableDisplayName(selectedTable) }}</h3>
       @if (qrCodeImage) {
         <div class="qr-container">
           <img [src]="qrCodeImage" alt="QR Code da mesa" />
@@ -123,6 +123,7 @@
 @if (showOrdersModal) {
   <app-table-orders-modal
     [tableNumber]="selectedTableNumber"
+    [tableName]="selectedTableName"
     [orders]="selectedTableOrders"
     (close)="closeOrdersModal()"
   ></app-table-orders-modal>

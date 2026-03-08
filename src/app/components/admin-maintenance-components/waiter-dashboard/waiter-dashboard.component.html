@@ -134,7 +134,9 @@
       @if (editingOrder) {
         <div class="modal-body">
           <div class="order-info">
-            <div class="info-item"><strong>Mesa:</strong> {{ editingOrder.tableNumber }}</div>
+            <div class="info-item">
+              <strong>Mesa:</strong> {{ getTableDisplayName(editingOrder.tableNumber) }}
+            </div>
             <div class="info-item"><strong>Cliente:</strong> {{ editingOrder.clientName }}</div>
             <div class="info-item">
               <strong>Status:</strong>

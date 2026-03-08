@@ -20,6 +20,6 @@ export class TableSelectorComponent {
   }
 
   getTableDisplayName(table: Table): string {
-    return (table as any).customName || `Mesa ${table.number}`;
+    return table.name || `Mesa ${table.number}`;
   }
 }

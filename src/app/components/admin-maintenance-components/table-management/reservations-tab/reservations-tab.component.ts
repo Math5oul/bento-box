@@ -111,7 +111,7 @@ export class ReservationsTabComponent implements OnInit {
   }
 
   async cancelReservation(table: TableWithReservation) {
-    if (confirm(`Deseja cancelar a reserva da mesa ${table.number}?`)) {
+    if (confirm(`Deseja cancelar a reserva da ${this.getTableDisplayName(table)}?`)) {
       try {
         await this.tableService.clearTable(table.id);
         await this.loadTables();
@@ -124,7 +124,7 @@ export class ReservationsTabComponent implements OnInit {
   }
 
   async confirmReservation(table: TableWithReservation) {
-    if (confirm(`Confirmar chegada do cliente da mesa ${table.number}?`)) {
+    if (confirm(`Confirmar chegada do cliente da ${this.getTableDisplayName(table)}?`)) {
       try {
         await this.tableService.openTable(table.id);
         await this.loadTables();
@@ -138,5 +138,9 @@ export class ReservationsTabComponent implements OnInit {
 
   viewTableDetails(table: TableWithReservation) {
     console.log('Ver detalhes da mesa', table);
+  }
+
+  getTableDisplayName(table: TableWithReservation): string {
+    return table.name || `Mesa ${table.number}`;
   }
 }

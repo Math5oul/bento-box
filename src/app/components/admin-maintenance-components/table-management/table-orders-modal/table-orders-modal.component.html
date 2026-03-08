@@ -2,7 +2,7 @@
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div>
-        <h2>📋 Pedidos da Mesa {{ tableNumber }}</h2>
+        <h2>📋 Pedidos da {{ tableDisplayName }}</h2>
         <p class="order-count">
           {{ orders.length }} {{ orders.length === 1 ? 'pedido ativo' : 'pedidos ativos' }}
         </p>

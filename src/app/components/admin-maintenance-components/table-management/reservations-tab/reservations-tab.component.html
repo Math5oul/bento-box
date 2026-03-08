@@ -9,7 +9,7 @@
       @for (table of reservedTables; track table.id) {
         <div class="reservation-card">
           <div class="reservation-header">
-            <span class="table-badge">Mesa {{ table.number }}</span>
+            <span class="table-badge">{{ getTableDisplayName(table) }}</span>
             <button class="cancel-btn" (click)="cancelReservation(table)" title="Cancelar reserva">
               ❌
             </button>
@@ -72,7 +72,7 @@
             <option value="">Selecione uma mesa</option>
             @for (table of availableTables; track table.id) {
               <option [value]="table.id">
-                Mesa {{ table.number }} ({{ table.capacity }} pessoas)
+                {{ getTableDisplayName(table) }} ({{ table.capacity }} pessoas)
               </option>
             }
           </select>
