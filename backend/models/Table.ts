@@ -130,7 +130,6 @@ const TableSchema = new Schema<ITable>(
 /**
  * Índices
  */
-TableSchema.index({ number: 1 }, { unique: true });
 TableSchema.index({ status: 1 });
 
 /**

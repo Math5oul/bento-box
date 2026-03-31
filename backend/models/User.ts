@@ -67,7 +67,6 @@ const UserSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      sparse: true, // Permite múltiplos null (para anônimos)
       lowercase: true,
       trim: true,
     },

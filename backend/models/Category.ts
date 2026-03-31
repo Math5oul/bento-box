@@ -93,7 +93,6 @@ const CategorySchema: Schema = new Schema(
 /**
  * Índices
  */
-CategorySchema.index({ slug: 1 });
 CategorySchema.index({ name: 1 });
 
 /**

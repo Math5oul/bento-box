@@ -43,7 +43,6 @@ const ReportCategorySchema: Schema = new Schema(
 );
 
 // Índices para melhor performance
-ReportCategorySchema.index({ name: 1 });
 ReportCategorySchema.index({ productIds: 1 });
 
 export const ReportCategory = mongoose.model<IReportCategory>(
